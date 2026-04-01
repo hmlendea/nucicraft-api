@@ -72,7 +72,44 @@ namespace NuciCraft.API.Service
             }
         }
 
-        public static string GetOfflineUuid(string username)
+        public User Get(string username)
+        {
+            IEnumerable<LogInfo> logInfos =
+            [
+                new(MyLogInfoKey.Username, username)
+            ];
+
+            logger.Info(
+                MyOperation.GetUser,
+                OperationStatus.Started,
+                logInfos);
+
+            try
+            {
+                User user = usersRepository
+                    .Get(username)
+                    .ToDomainModel();
+
+                logger.Info(
+                    MyOperation.GetUser,
+                    OperationStatus.Success,
+                    logInfos);
+
+                return user;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(
+                    MyOperation.GetUser,
+                    OperationStatus.Failure,
+                    ex,
+                    logInfos);
+
+                throw;
+            }
+        }
+
+        static string GetOfflineUuid(string username)
         {
             string input = $"OfflinePlayer:{username}";
 

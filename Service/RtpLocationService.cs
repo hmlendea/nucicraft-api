@@ -67,7 +67,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        public GetRtpLocationResponse GetRtpLocation(GetRtpLocationRequest request)
+        public RtpLocation GetRtpLocation(GetRtpLocationRequest request)
         {
             IEnumerable<LogInfo> logInfos =
             [
@@ -110,14 +110,7 @@ namespace NuciCraft.API.Service
                     OperationStatus.Success,
                     logInfos);
 
-                return new GetRtpLocationResponse
-                {
-                    Biome = rtpLocation.Biome,
-                    World = rtpLocation.World,
-                    X = rtpLocation.X,
-                    Y = rtpLocation.Y,
-                    Z = rtpLocation.Z
-                };
+                return rtpLocation;
             }
             catch (Exception ex)
             {
