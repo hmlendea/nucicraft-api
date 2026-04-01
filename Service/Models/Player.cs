@@ -2,7 +2,7 @@ using System;
 
 namespace NuciCraft.API.Service.Models
 {
-    public class User
+    public class Player
     {
         public string Username { get; set; }
 

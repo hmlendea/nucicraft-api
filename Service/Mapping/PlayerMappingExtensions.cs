@@ -7,9 +7,9 @@ using NuciCraft.API.Service.Models;
 namespace NuciCraft.API.Service.Mapping
 {
     /// <summary>
-    /// User mapping extensions for converting between data objects and domain models.
+    /// Player mapping extensions for converting between data objects and domain models.
     /// </summary>
-    static class UserMappingExtensions
+    static class PlayerMappingExtensions
     {
         static string TimestampFormat => "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK";
 
@@ -18,7 +18,7 @@ namespace NuciCraft.API.Service.Mapping
         /// </summary>
         /// <returns>The domain model.</returns>
         /// <param name="dataObject">The data object.</param>
-        internal static User ToDomainModel(this UserEntity dataObject) => new()
+        internal static Player ToDomainModel(this PlayerEntity dataObject) => new()
         {
             Username = dataObject.Id,
             OfflineUUID = dataObject.OfflineUUID,
@@ -35,7 +35,7 @@ namespace NuciCraft.API.Service.Mapping
         /// </summary>
         /// <returns>The data object.</returns>
         /// <param name="domainModel">The domain model.</param>
-        internal static UserEntity ToDataObject(this User domainModel) => new()
+        internal static PlayerEntity ToDataObject(this Player domainModel) => new()
         {
             Id = domainModel.Username,
             OfflineUUID = domainModel.OfflineUUID,
@@ -52,7 +52,7 @@ namespace NuciCraft.API.Service.Mapping
         /// </summary>
         /// <returns>The domain models.</returns>
         /// <param name="dataObjects">The data objects.</param>
-        internal static IEnumerable<User> ToDomainModels(this IEnumerable<UserEntity> dataObjects)
+        internal static IEnumerable<Player> ToDomainModels(this IEnumerable<PlayerEntity> dataObjects)
             => dataObjects.Select(dataObject => dataObject.ToDomainModel());
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace NuciCraft.API.Service.Mapping
         /// </summary>
         /// <returns>The data objects.</returns>
         /// <param name="domainModels">The domain models.</param>
-        internal static IEnumerable<UserEntity> ToDataObjects(this IEnumerable<User> domainModels)
+        internal static IEnumerable<PlayerEntity> ToDataObjects(this IEnumerable<Player> domainModels)
             => domainModels.Select(domainModel => domainModel.ToDataObject());
     }
 }

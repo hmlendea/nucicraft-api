@@ -34,10 +34,10 @@ namespace NuciCraft.API
         }
 
         public static IServiceCollection AddCustomServices(this IServiceCollection services) => services
+            .AddSingleton<IFileRepository<PlayerEntity>>(x => new JsonRepository<PlayerEntity>(dataStoreSettings.PlayersStorePath))
             .AddSingleton<IFileRepository<RtpLocationEntity>>(x => new JsonRepository<RtpLocationEntity>(dataStoreSettings.RtpLocationsStorePath))
-            .AddSingleton<IFileRepository<UserEntity>>(x => new JsonRepository<UserEntity>(dataStoreSettings.UsersStorePath))
+            .AddSingleton<IPlayerService, PlayerService>()
             .AddSingleton<IRtpLocationService, RtpLocationService>()
-            .AddSingleton<IUserService, UserService>()
             .AddSingleton<INuciTextNormaliser, NuciTextNormaliser>()
             .AddSingleton<INuciTextObfuscator, NuciTextObfuscator>()
             .AddScoped<ILogger, NuciLogger>();

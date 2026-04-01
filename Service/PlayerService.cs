@@ -15,11 +15,11 @@ using NuciLog.Core;
 
 namespace NuciCraft.API.Service
 {
-    public class UserService(
-        IFileRepository<UserEntity> usersRepository,
-        ILogger logger) : IUserService
+    public class PlayerService(
+        IFileRepository<PlayerEntity> repository,
+        ILogger logger) : IPlayerService
     {
-        public void Register(RegisterUserRequest request)
+        public void Register(RegisterPlayerRequest request)
         {
             IEnumerable<LogInfo> logInfos =
             [
@@ -31,13 +31,13 @@ namespace NuciCraft.API.Service
             ];
 
             logger.Info(
-                MyOperation.RegisterUser,
+                MyOperation.RegisterPlayer,
                 OperationStatus.Started,
                 logInfos);
 
             try
             {
-                User user = new()
+                Player player = new()
                 {
                     Username = request.Username,
                     OfflineUUID = GetOfflineUuid(request.Username),
@@ -49,21 +49,21 @@ namespace NuciCraft.API.Service
                 };
 
                 logInfos = logInfos
-                    .Append(new(MyLogInfoKey.OfflineUUID, user.OfflineUUID))
-                    .Append(new(MyLogInfoKey.CreatedDT, user.CreatedDT));
+                    .Append(new(MyLogInfoKey.OfflineUUID, player.OfflineUUID))
+                    .Append(new(MyLogInfoKey.CreatedDT, player.CreatedDT));
 
-                usersRepository.Add(user.ToDataObject());
-                usersRepository.SaveChanges();
+                repository.Add(player.ToDataObject());
+                repository.SaveChanges();
 
                 logger.Info(
-                    MyOperation.RegisterUser,
+                    MyOperation.RegisterPlayer,
                     OperationStatus.Success,
                     logInfos);
             }
             catch (Exception ex)
             {
                 logger.Error(
-                    MyOperation.RegisterUser,
+                    MyOperation.RegisterPlayer,
                     OperationStatus.Failure,
                     ex,
                     logInfos);
@@ -72,7 +72,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        public User Get(string username)
+        public Player Get(string username)
         {
             IEnumerable<LogInfo> logInfos =
             [
@@ -80,27 +80,27 @@ namespace NuciCraft.API.Service
             ];
 
             logger.Info(
-                MyOperation.GetUser,
+                MyOperation.GetPlayer,
                 OperationStatus.Started,
                 logInfos);
 
             try
             {
-                User user = usersRepository
+                Player player = repository
                     .Get(username)
                     .ToDomainModel();
 
                 logger.Info(
-                    MyOperation.GetUser,
+                    MyOperation.GetPlayer,
                     OperationStatus.Success,
                     logInfos);
 
-                return user;
+                return player;
             }
             catch (Exception ex)
             {
                 logger.Error(
-                    MyOperation.GetUser,
+                    MyOperation.GetPlayer,
                     OperationStatus.Failure,
                     ex,
                     logInfos);

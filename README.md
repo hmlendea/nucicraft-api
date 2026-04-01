@@ -4,11 +4,11 @@
 
 A lightweight REST API that provides functionality and facilitates the management of the NuciCraft Minecraft server.
 
-The API stores RTP locations and users in JSON files and exposes endpoints to:
+The API stores RTP locations and players in JSON files and exposes endpoints to:
 
 - add a new RTP location
+- register a player
 - retrieve a random RTP location (optionally filtered by world and/or biome)
-- register a user
 
 ## API Overview
 
@@ -25,7 +25,7 @@ Controller route prefix:
 ```
 
 ```text
-/Users
+/Players
 ```
 
 ### Authentication
@@ -36,10 +36,10 @@ This project also uses `NuciSecurity.HMAC` attributes on request/response models
 
 ### Endpoints
 
-#### Register user
+#### Register player
 
 - Method: `POST`
-- Path: `/Users`
+- Path: `/Players`
 - Body:
 
 ```json
@@ -56,7 +56,7 @@ This project also uses `NuciSecurity.HMAC` attributes on request/response models
 Behavior:
 
 - computes and stores the offline UUID from `username`
-- persists user data to the users data store
+- persists player data to the players data store
 - defaults `createdDT` to the current timestamp when not provided
 
 #### Add RTP location
@@ -93,7 +93,7 @@ Behavior:
 Example:
 
 ```text
-GET /RtpLocations/random?username=PlayerName&world=world&biome=plains
+GET /RtpLocations/random?world=world&biome=plains
 ```
 
 Example response payload:
@@ -123,8 +123,8 @@ Default configuration:
 ```json
 {
 	"dataStoreSettings": {
-		"rtpLocationsStorePath": "Data/rtp_locations.json",
-		"usersStorePath": "Data/users.json"
+		"playersStorePath": "Data/players.json",
+		"rtpLocationsStorePath": "Data/rtp_locations.json"
 	},
 	"securitySettings": {
 		"apiKey": "[[NUCICRAFT_API_KEY]]"
@@ -139,7 +139,7 @@ Default configuration:
 Notes:
 
 - at startup, the API creates both data store directories/files automatically if missing
-- `rtpLocationsStorePath` and `usersStorePath` can be changed to point to other JSON files
+- `rtpLocationsStorePath` and `playersStorePath` can be changed to point to other JSON files
 - replace `[[NUCICRAFT_API_KEY]]` with your actual API key
 
 ## Target Framework

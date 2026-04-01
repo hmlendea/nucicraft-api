@@ -9,25 +9,25 @@ namespace NuciCraft.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class UsersController(
-        IUserService service,
+    public class PlayersController(
+        IPlayerService service,
         SecuritySettings securitySettings) : NuciApiController
     {
         readonly NuciApiAuthorisation authorisation = NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
 
         [HttpPost]
         public ActionResult Register(
-            [FromBody] RegisterUserRequest request)
+            [FromBody] RegisterPlayerRequest request)
             => ProcessRequest(
                 request,
                 () => service.Register(request),
                 authorisation);
 
         [HttpGet("{username}")]
-        public ActionResult GetUser(
+        public ActionResult Get(
             [FromRoute] string username)
         {
-            GetUserRequest request = new()
+            GetPlayerRequest request = new()
             {
                 Username = username
             };

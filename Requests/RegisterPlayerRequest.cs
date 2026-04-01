@@ -4,7 +4,7 @@ using NuciSecurity.HMAC;
 
 namespace NuciCraft.API.Requests
 {
-    public class RegisterUserRequest : NuciApiRequest
+    public class RegisterPlayerRequest : NuciApiRequest
     {
         [HmacOrder(1)]
         [Required]

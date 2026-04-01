@@ -1,6 +1,6 @@
 namespace NuciCraft.API.DataAccess.DataObjects
 {
-    public class UserEntity : NuciCraftEntityBase
+    public class PlayerEntity : NuciCraftEntityBase
     {
         public string OfflineUUID { get; set; }
 
