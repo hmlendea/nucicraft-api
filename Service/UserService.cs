@@ -18,7 +18,7 @@ namespace NuciCraft.API.Service
         IFileRepository<UserEntity> usersRepository,
         ILogger logger) : IUserService
     {
-        public void AddUser(AddUserRequest request)
+        public void Register(RegisterUserRequest request)
         {
             IEnumerable<LogInfo> logInfos =
             [
@@ -28,7 +28,7 @@ namespace NuciCraft.API.Service
             ];
 
             logger.Info(
-                MyOperation.AddUser,
+                MyOperation.RegisterUser,
                 OperationStatus.Started,
                 logInfos);
 
@@ -49,14 +49,14 @@ namespace NuciCraft.API.Service
                 usersRepository.SaveChanges();
 
                 logger.Info(
-                    MyOperation.AddUser,
+                    MyOperation.RegisterUser,
                     OperationStatus.Success,
                     logInfos);
             }
             catch (Exception ex)
             {
                 logger.Error(
-                    MyOperation.AddUser,
+                    MyOperation.RegisterUser,
                     OperationStatus.Failure,
                     ex,
                     logInfos);

@@ -15,11 +15,11 @@ namespace NuciCraft.API.Controllers
         readonly NuciApiAuthorisation authorisation = NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
 
         [HttpPost]
-        public ActionResult AddUser(
-            [FromBody] AddUserRequest request)
+        public ActionResult Register(
+            [FromBody] RegisterUserRequest request)
             => ProcessRequest(
                 request,
-                () => service.AddUser(request),
+                () => service.Register(request),
                 authorisation);
     }
 }
