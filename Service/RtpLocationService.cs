@@ -23,7 +23,6 @@ namespace NuciCraft.API.Service
         {
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.Username, request.Username),
                 new(MyLogInfoKey.Biome, request.Biome),
                 new(MyLogInfoKey.World, request.World),
                 new(MyLogInfoKey.X, request.X),
@@ -72,7 +71,6 @@ namespace NuciCraft.API.Service
         {
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.Username, request.Username),
                 new(MyLogInfoKey.Biome, request.Biome),
                 new(MyLogInfoKey.World, request.World)
             ];

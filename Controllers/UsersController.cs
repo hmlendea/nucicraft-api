@@ -8,26 +8,18 @@ namespace NuciCraft.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class RtpLocationsController(
-        IRtpLocationService service,
+    public class UsersController(
+        IUserService service,
         SecuritySettings securitySettings) : NuciApiController
     {
         readonly NuciApiAuthorisation authorisation = NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
 
         [HttpPost]
-        public ActionResult AddRtpLocation(
-            [FromBody] AddRtpLocationRequest request)
+        public ActionResult AddUser(
+            [FromBody] AddUserRequest request)
             => ProcessRequest(
                 request,
-                () => service.AddRtpLocation(request),
-                authorisation);
-
-        [HttpGet("random")]
-        public ActionResult GetRandomRtpLocation(
-            [FromQuery] GetRtpLocationRequest request)
-            => ProcessRequest(
-                request,
-                () => service.GetRtpLocation(request),
+                () => service.AddUser(request),
                 authorisation);
     }
 }
