@@ -27,6 +27,7 @@ namespace NuciCraft.API
         {
             var dataStoreSettings = app.ApplicationServices.GetRequiredService<DataStoreSettings>();
             CreateStoreIfMissing(dataStoreSettings.RtpLocationsStorePath);
+            CreateStoreIfMissing(dataStoreSettings.PlayersStorePath);
 
             app.UseNuciApiRequestLogging();
             app.UseNuciApiExceptionHandling();

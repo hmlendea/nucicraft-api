@@ -9,26 +9,33 @@ namespace NuciCraft.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class RtpLocationsController(
-        IRtpLocationService service,
+    public class PlayersController(
+        IPlayerService service,
         SecuritySettings securitySettings) : NuciApiController
     {
         readonly NuciApiAuthorisation authorisation = NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
 
         [HttpPost]
-        public ActionResult AddRtpLocation(
-            [FromBody] AddRtpLocationRequest request)
+        public ActionResult Register(
+            [FromBody] RegisterPlayerRequest request)
             => ProcessRequest(
                 request,
-                () => service.AddRtpLocation(request),
+                () => service.Register(request),
                 authorisation);
 
-        [HttpGet("random")]
-        public ActionResult GetRandomRtpLocation(
-            [FromQuery] GetRtpLocationRequest request)
-            => ProcessRequest(
+        [HttpGet("{username}")]
+        public ActionResult Get(
+            [FromRoute] string username)
+        {
+            GetPlayerRequest request = new()
+            {
+                Username = username
+            };
+
+            return ProcessRequest(
                 request,
-                () => new GetResponse(service.GetRtpLocation(request)),
+                () => new GetResponse(service.Get(request.Username)),
                 authorisation);
+        }
     }
 }

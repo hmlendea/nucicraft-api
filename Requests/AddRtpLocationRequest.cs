@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using NuciAPI.Requests;
 using NuciSecurity.HMAC;
 
 namespace NuciCraft.API.Requests
 {
-    public class AddRtpLocationRequest : NuciCraftApiRequestBase
+    public class AddRtpLocationRequest : NuciApiRequest
     {
         [HmacOrder(1)]
         [Required]

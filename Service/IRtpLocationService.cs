@@ -1,5 +1,5 @@
 using NuciCraft.API.Requests;
-using NuciCraft.API.Responses;
+using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Service
 {
@@ -7,6 +7,6 @@ namespace NuciCraft.API.Service
     {
         void AddRtpLocation(AddRtpLocationRequest request);
 
-        GetRtpLocationResponse GetRtpLocation(GetRtpLocationRequest request);
+        RtpLocation GetRtpLocation(GetRtpLocationRequest request);
     }
 }

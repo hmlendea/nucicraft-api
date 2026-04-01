@@ -23,7 +23,6 @@ namespace NuciCraft.API.Service
         {
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.Username, request.Username),
                 new(MyLogInfoKey.Biome, request.Biome),
                 new(MyLogInfoKey.World, request.World),
                 new(MyLogInfoKey.X, request.X),
@@ -68,11 +67,10 @@ namespace NuciCraft.API.Service
             }
         }
 
-        public GetRtpLocationResponse GetRtpLocation(GetRtpLocationRequest request)
+        public RtpLocation GetRtpLocation(GetRtpLocationRequest request)
         {
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.Username, request.Username),
                 new(MyLogInfoKey.Biome, request.Biome),
                 new(MyLogInfoKey.World, request.World)
             ];
@@ -112,14 +110,7 @@ namespace NuciCraft.API.Service
                     OperationStatus.Success,
                     logInfos);
 
-                return new GetRtpLocationResponse
-                {
-                    Biome = rtpLocation.Biome,
-                    World = rtpLocation.World,
-                    X = rtpLocation.X,
-                    Y = rtpLocation.Y,
-                    Z = rtpLocation.Z
-                };
+                return rtpLocation;
             }
             catch (Exception ex)
             {

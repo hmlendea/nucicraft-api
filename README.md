@@ -4,9 +4,10 @@
 
 A lightweight REST API that provides functionality and facilitates the management of the NuciCraft Minecraft server.
 
-The API stores teleport locations in a JSON file and exposes endpoints to:
+The API stores RTP locations and players in JSON files and exposes endpoints to:
 
 - add a new RTP location
+- register a player
 - retrieve a random RTP location (optionally filtered by world and/or biome)
 
 ## API Overview
@@ -23,6 +24,10 @@ Controller route prefix:
 /RtpLocations
 ```
 
+```text
+/Players
+```
+
 ### Authentication
 
 Requests are validated using the API key configured in `securitySettings.apiKey`.
@@ -30,6 +35,29 @@ Requests are validated using the API key configured in `securitySettings.apiKey`
 This project also uses `NuciSecurity.HMAC` attributes on request/response models to support ordered signing semantics in the Nuci ecosystem.
 
 ### Endpoints
+
+#### Register player
+
+- Method: `POST`
+- Path: `/Players`
+- Body:
+
+```json
+{
+	"username": "PlayerName",
+	"onlineUUID": "6f6f5f2d-6f7e-4f6c-8e1d-03a9b8d939f0",
+	"createdDT": "2026-04-01T12:00:00+00:00",
+	"password": "<password>",
+	"ipAddress": "127.0.0.1",
+	"skinUrl": "https://example.com/skin.png"
+}
+```
+
+Behavior:
+
+- computes and stores the offline UUID from `username`
+- persists player data to the players data store
+- defaults `createdDT` to the current timestamp when not provided
 
 #### Add RTP location
 
@@ -65,7 +93,7 @@ Behavior:
 Example:
 
 ```text
-GET /RtpLocations/random?username=PlayerName&world=world&biome=plains
+GET /RtpLocations/random?world=world&biome=plains
 ```
 
 Example response payload:
@@ -95,6 +123,7 @@ Default configuration:
 ```json
 {
 	"dataStoreSettings": {
+		"playersStorePath": "Data/players.json",
 		"rtpLocationsStorePath": "Data/rtp_locations.json"
 	},
 	"securitySettings": {
@@ -109,8 +138,8 @@ Default configuration:
 
 Notes:
 
-- at startup, the API creates the data store directory/file automatically if missing
-- `rtpLocationsStorePath` can be changed to point to another JSON file
+- at startup, the API creates both data store directories/files automatically if missing
+- `rtpLocationsStorePath` and `playersStorePath` can be changed to point to other JSON files
 - replace `[[NUCICRAFT_API_KEY]]` with your actual API key
 
 ## Target Framework
@@ -121,7 +150,7 @@ The project currently targets `net10.0`.
 
 ### Prerequisites
 
-- .NET SDK
+- .NET SDK compatible with the target framework
 
 ### Build
 
