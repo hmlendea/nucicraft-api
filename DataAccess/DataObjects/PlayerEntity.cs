@@ -10,6 +10,8 @@ namespace NuciCraft.API.DataAccess.DataObjects
 
         public string IpAddress { get; set; }
 
+        public string DiscordId { get; set; }
+
         public string SkinUrl { get; set; }
     }
 }

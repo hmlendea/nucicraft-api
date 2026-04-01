@@ -27,6 +27,7 @@ namespace NuciCraft.API.Service.Mapping
             CreatedDT = DateTimeOffset.Parse(dataObject.CreatedDT),
             UpdatedDT = dataObject.UpdatedDT != null ? DateTimeOffset.Parse(dataObject.UpdatedDT) : null,
             IpAddress = dataObject.IpAddress,
+            DiscordId = dataObject.DiscordId,
             SkinUrl = dataObject.SkinUrl
         };
 
@@ -44,6 +45,7 @@ namespace NuciCraft.API.Service.Mapping
             CreatedDT = domainModel.CreatedDT.ToString(TimestampFormat),
             UpdatedDT = domainModel.UpdatedDT?.ToString(TimestampFormat),
             IpAddress = domainModel.IpAddress,
+            DiscordId = domainModel.DiscordId,
             SkinUrl = domainModel.SkinUrl
         };
 

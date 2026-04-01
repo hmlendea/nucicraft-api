@@ -18,6 +18,8 @@ namespace NuciCraft.API.Service.Models
 
         public string IpAddress { get; set; }
 
+        public string DiscordId { get; set; }
+
         public string SkinUrl { get; set; }
     }
 }
