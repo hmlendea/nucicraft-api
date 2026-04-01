@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
@@ -24,6 +25,8 @@ namespace NuciCraft.API.Service
             [
                 new(MyLogInfoKey.Username, request.Username),
                 new(MyLogInfoKey.OnlineUUID, request.OnlineUUID),
+                new(MyLogInfoKey.CreatedDT, request.CreatedDT),
+                new(MyLogInfoKey.IpAddress, request.IpAddress),
                 new(MyLogInfoKey.SkinUrl, request.SkinUrl)
             ];
 
@@ -36,14 +39,18 @@ namespace NuciCraft.API.Service
             {
                 User user = new()
                 {
-                    Id = request.Username,
                     Username = request.Username,
                     OfflineUUID = GetOfflineUuid(request.Username),
                     OnlineUUID = request.OnlineUUID,
+                    CreatedDT = request.CreatedDT != null ? DateTimeOffset.Parse(request.CreatedDT) : DateTimeOffset.Now,
+                    Password = request.Password,
+                    IpAddress = request.IpAddress,
                     SkinUrl = request.SkinUrl
                 };
 
-                logInfos = logInfos.Append(new(MyLogInfoKey.OfflineUUID, user.OfflineUUID));
+                logInfos = logInfos
+                    .Append(new(MyLogInfoKey.OfflineUUID, user.OfflineUUID))
+                    .Append(new(MyLogInfoKey.CreatedDT, user.CreatedDT));
 
                 usersRepository.Add(user.ToDataObject());
                 usersRepository.SaveChanges();

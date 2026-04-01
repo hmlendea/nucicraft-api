@@ -1,8 +1,6 @@
-using NuciDAL.DataObjects;
-
 namespace NuciCraft.API.DataAccess.DataObjects
 {
-    public class RtpLocationEntity : EntityBase
+    public class RtpLocationEntity : NuciCraftEntityBase
     {
         public string Biome { get; set; }
 

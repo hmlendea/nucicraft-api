@@ -14,6 +14,15 @@ namespace NuciCraft.API.Requests
         public string OnlineUUID { get; set; }
 
         [HmacOrder(3)]
+        public string CreatedDT { get; set; }
+
+        [HmacOrder(4)]
+        public string Password { get; set; }
+
+        [HmacOrder(5)]
+        public string IpAddress { get; set; }
+
+        [HmacOrder(6)]
         public string SkinUrl { get; set; }
     }
 }
