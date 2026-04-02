@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
@@ -16,11 +16,9 @@ namespace NuciCraft.API.Service
 {
     public class RtpLocationService(
         IFileRepository<RtpLocationEntity> rtpLocationsRepository,
+        RtpLocationSettings settings,
         ILogger logger) : IRtpLocationService
     {
-        const int MinimumLocationDistance = 200;
-        const int MinimumBiomeLocationDistance = 500;
-
         public void AddRtpLocation(AddRtpLocationRequest request)
         {
             IEnumerable<LogInfo> logInfos =
@@ -139,13 +137,13 @@ namespace NuciCraft.API.Service
         bool IsLocationFarAwayFromOtherLocations(int x, int y)
             => !rtpLocationsRepository
                 .GetAll()
-                .Any(location => AreLocationsTooClose(x, y, location.X, location.Y, MinimumLocationDistance));
+                .Any(location => AreLocationsTooClose(x, y, location.X, location.Y, settings.MinimumLocationDistance));
 
         bool IsLocationFarAwayFromOtherLocationsInTheSameBiome(string biome, int x, int y)
             => !rtpLocationsRepository
                 .GetAll()
                 .Where(location => biome.Equals(location.Biome))
-                .Any(location => AreLocationsTooClose(x, y, location.X, location.Y, MinimumBiomeLocationDistance));
+                .Any(location => AreLocationsTooClose(x, y, location.X, location.Y, settings.MinimumBiomeLocationDistance));
 
         static bool AreLocationsTooClose(
             int x1, int y1,
