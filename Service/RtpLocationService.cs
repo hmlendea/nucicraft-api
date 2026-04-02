@@ -19,6 +19,9 @@ namespace NuciCraft.API.Service
         IFileRepository<RtpLocationEntity> rtpLocationsRepository,
         ILogger logger) : IRtpLocationService
     {
+        const int MinimumLocationDistance = 200;
+        const long MinimumLocationDistanceSquared = (long)MinimumLocationDistance * MinimumLocationDistance;
+
         public void AddRtpLocation(AddRtpLocationRequest request)
         {
             IEnumerable<LogInfo> logInfos =
@@ -46,6 +49,11 @@ namespace NuciCraft.API.Service
                     Y = request.Y,
                     Z = request.Z
                 };
+
+                if (!IsLocationFarAwayFromOtherLocations(request.X, request.Y))
+                {
+                    throw new ArgumentException("The provided location is too close to another existing location.");
+                }
 
                 rtpLocationsRepository.Add(rtpLocation.ToDataObject());
                 rtpLocationsRepository.SaveChanges();
@@ -122,6 +130,19 @@ namespace NuciCraft.API.Service
 
                 throw;
             }
+        }
+
+        bool IsLocationFarAwayFromOtherLocations(int x, int y)
+            => !rtpLocationsRepository
+                .GetAll()
+                .Any(location => IsWithinRestrictedRadius(x, y, location.X, location.Y));
+
+        static bool IsWithinRestrictedRadius(int x1, int y1, int x2, int y2)
+        {
+            long deltaX = (long)x1 - x2;
+            long deltaY = (long)y1 - y2;
+
+            return (deltaX * deltaX) + (deltaY * deltaY) <= MinimumLocationDistanceSquared;
         }
     }
 }
