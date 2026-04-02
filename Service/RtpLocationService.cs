@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
-using NuciCraft.API.Responses;
 using NuciCraft.API.Service.Mapping;
 using NuciCraft.API.Service.Models;
 
@@ -17,6 +16,7 @@ namespace NuciCraft.API.Service
 {
     public class RtpLocationService(
         IFileRepository<RtpLocationEntity> rtpLocationsRepository,
+        RtpLocationSettings settings,
         ILogger logger) : IRtpLocationService
     {
         public void AddRtpLocation(AddRtpLocationRequest request)
@@ -46,6 +46,16 @@ namespace NuciCraft.API.Service
                     Y = request.Y,
                     Z = request.Z
                 };
+
+                if (!IsLocationFarAwayFromOtherLocations(request.X, request.Y))
+                {
+                    throw new ArgumentException("The provided location is too close to another existing location.");
+                }
+
+                if (!IsLocationFarAwayFromOtherLocationsInTheSameBiome(request.Biome, request.X, request.Y))
+                {
+                    throw new ArgumentException("The provided location is too close to another existing location in the same biome.");
+                }
 
                 rtpLocationsRepository.Add(rtpLocation.ToDataObject());
                 rtpLocationsRepository.SaveChanges();
@@ -122,6 +132,28 @@ namespace NuciCraft.API.Service
 
                 throw;
             }
+        }
+
+        bool IsLocationFarAwayFromOtherLocations(int x, int y)
+            => !rtpLocationsRepository
+                .GetAll()
+                .Any(location => AreLocationsTooClose(x, y, location.X, location.Y, settings.MinimumLocationDistance));
+
+        bool IsLocationFarAwayFromOtherLocationsInTheSameBiome(string biome, int x, int y)
+            => !rtpLocationsRepository
+                .GetAll()
+                .Where(location => biome.Equals(location.Biome))
+                .Any(location => AreLocationsTooClose(x, y, location.X, location.Y, settings.MinimumBiomeLocationDistance));
+
+        static bool AreLocationsTooClose(
+            int x1, int y1,
+            int x2, int y2,
+            int minimumDistance)
+        {
+            long deltaX = (long)x1 - x2;
+            long deltaY = (long)y1 - y2;
+
+            return (deltaX * deltaX) + (deltaY * deltaY) <= (long)minimumDistance * minimumDistance;
         }
     }
 }

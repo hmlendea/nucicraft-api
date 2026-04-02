@@ -15,21 +15,23 @@ namespace NuciCraft.API
     public static class ServiceCollectionExtensions
     {
         static DataStoreSettings dataStoreSettings;
-        static SecuritySettings securitySettings;
 
         public static IServiceCollection AddConfigurations(
             this IServiceCollection services,
             IConfiguration configuration)
         {
             dataStoreSettings = new DataStoreSettings();
-            securitySettings = new SecuritySettings();
+            SecuritySettings securitySettings = new();
+            RtpLocationSettings rtpLocationSettings = new();
 
             configuration.Bind(nameof(dataStoreSettings), dataStoreSettings);
             configuration.Bind(nameof(securitySettings), securitySettings);
+            configuration.Bind(nameof(rtpLocationSettings), rtpLocationSettings);
 
             return services
                 .AddSingleton(dataStoreSettings)
                 .AddSingleton(securitySettings)
+                .AddSingleton(rtpLocationSettings)
                 .AddNuciLoggerSettings(configuration);
         }
 
