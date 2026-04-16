@@ -20,6 +20,7 @@ namespace NuciCraft.API
 
             services
                 .AddConfigurations(Configuration)
+                .AddNuciApiScannerProtection()
                 .AddCustomServices();
         }
 
@@ -29,8 +30,9 @@ namespace NuciCraft.API
             CreateStoreIfMissing(dataStoreSettings.RtpLocationsStorePath);
             CreateStoreIfMissing(dataStoreSettings.PlayersStorePath);
 
-            app.UseNuciApiRequestLogging();
             app.UseNuciApiExceptionHandling();
+            app.UseNuciApiScannerProtection();
+            app.UseNuciApiRequestLogging();
 
             if (env.IsDevelopment())
             {
