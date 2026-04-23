@@ -1,4 +1,7 @@
-[![Donate](https://img.shields.io/badge/-%E2%99%A5%20Donate-%23ff69b4)](https://hmlendea.go.ro/fund.html) [![Latest Release](https://img.shields.io/github/v/release/hmlendea/nucicraft-api)](https://github.com/hmlendea/nucicraft-api/releases/latest) [![Build Status](https://github.com/hmlendea/nucicraft-api/actions/workflows/dotnet.yml/badge.svg)](https://github.com/hmlendea/nucicraft-api/actions/workflows/dotnet.yml)
+[![Donate](https://img.shields.io/badge/-%E2%99%A5%20Donate-%23ff69b4)](https://hmlendea.go.ro/fund.html)
+[![Latest Release](https://img.shields.io/github/v/release/hmlendea/nucicraft-api)](https://github.com/hmlendea/nucicraft-api/releases/latest)
+[![Build Status](https://github.com/hmlendea/nucicraft-api/actions/workflows/dotnet.yml/badge.svg)](https://github.com/hmlendea/nucicraft-api/actions/workflows/dotnet.yml)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://gnu.org/licenses/gpl-3.0)
 
 # NuciCraft API
 
@@ -9,6 +12,10 @@ The API stores RTP locations and players in JSON files and exposes endpoints to:
 - add a new RTP location
 - register a player
 - retrieve a random RTP location (optionally filtered by world and/or biome)
+
+## Requirements
+
+- .NET SDK/runtime with support for `net10.0`
 
 ## API Overview
 
@@ -142,49 +149,43 @@ Notes:
 - `rtpLocationsStorePath` and `playersStorePath` can be changed to point to other JSON files
 - replace `[[NUCICRAFT_API_KEY]]` with your actual API key
 
-## Target Framework
-
-The project currently targets `net10.0`.
-
 ## Development
-
-### Prerequisites
-
-- .NET SDK compatible with the target framework
 
 ### Build
 
 ```bash
-dotnet build NuciCraft.API.csproj
+dotnet build
 ```
 
 ### Run
 
 ```bash
-dotnet run --project NuciCraft.API.csproj
+dotnet run
 ```
 
-### Test
+### Release
 
-There is currently no test project in this repository.
-
-If you add one later, run:
+The repository includes `release.sh`, which delegates to the upstream deployment script used by the project maintainer.
 
 ```bash
-dotnet test
+bash ./release.sh 1.0.0
 ```
+
+This script downloads and executes an external release helper from: `https://raw.githubusercontent.com/hmlendea/deployment-scripts/master/release/dotnet/10.0.sh`
+
+**Note:** Piping into `bash` is an intensely controversial topic. Please review any external scripts before running them in your environment!
 
 ## Contributing
 
 Contributions are welcome.
 
-When contributing:
+Please:
 
-- keep the project cross-platform
-- preserve the existing public API unless a breaking change is intentional
-- keep changes focused and consistent with the current coding style
-- update documentation when behavior changes
-- include tests for new behavior when a test project is available
+- keep the changes cross-platform
+- keep the existing public API intact, unless a breaking change is intentional
+- keep the pull requests focused and consistent with the existing style
+- update the documentation when the behaviour changes
+- add or update the tests for any new behaviour
 
 ## License
 
