@@ -20,6 +20,7 @@ namespace NuciCraft.API.Service.Mapping
         /// <param name="dataObject">The data object.</param>
         internal static Player ToDomainModel(this PlayerEntity dataObject) => new()
         {
+            Identifier = dataObject.Id,
             Username = dataObject.Username,
             OfflineUUID = dataObject.OfflineUUID,
             OnlineUUID = dataObject.OnlineUUID,
@@ -38,7 +39,7 @@ namespace NuciCraft.API.Service.Mapping
         /// <param name="domainModel">The domain model.</param>
         internal static PlayerEntity ToDataObject(this Player domainModel) => new()
         {
-            Id = domainModel.Username,
+            Id = domainModel.Identifier,
             Username = domainModel.Username,
             OfflineUUID = domainModel.OfflineUUID,
             OnlineUUID = domainModel.OnlineUUID,

@@ -4,6 +4,8 @@ namespace NuciCraft.API.Service.Models
 {
     public class Player
     {
+        public string Identifier { get; set; }
+
         public string Username { get; set; }
 
         public string OfflineUUID { get; set; }

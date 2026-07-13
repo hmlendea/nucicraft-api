@@ -39,6 +39,7 @@ namespace NuciCraft.API.Service
             {
                 Player player = new()
                 {
+                    Identifier = Guid.NewGuid().ToString(),
                     Username = request.Username,
                     OfflineUUID = GetOfflineUuid(request.Username),
                     OnlineUUID = request.OnlineUUID,

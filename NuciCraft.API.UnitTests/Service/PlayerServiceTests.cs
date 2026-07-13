@@ -139,7 +139,8 @@ namespace NuciCraft.API.UnitTests.Service
             Player player = playerService.Get("Ilarion Pintilie");
 
             Assert.That(player, Is.Not.Null);
-            Assert.That(player.Username, Is.EqualTo("Ilarion Pintilie"));
+            Assert.That(player.Identifier, Is.EqualTo(entity.Id));
+            Assert.That(player.Username, Is.EqualTo(entity.Username));
             Assert.That(player.OfflineUUID, Is.EqualTo(entity.OfflineUUID));
             Assert.That(player.OnlineUUID, Is.EqualTo(entity.OnlineUUID));
             Assert.That(player.Password, Is.EqualTo(entity.Password));
