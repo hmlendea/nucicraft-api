@@ -161,6 +161,95 @@ namespace NuciCraft.API.UnitTests.Service
                 Throws.TypeOf<KeyNotFoundException>());
         }
 
+        // ── UpdateLastDeathLocation ────────────────────────────────────────────
+
+        [Test]
+        public void GivenAValidRequest_WhenUpdatingLastDeathLocation_ThenTheEntityIsUpdatedWithTheCorrectCoordinates()
+        {
+            PlayerEntity capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("IlarionPintilie"))
+                .Returns(BuildPlayerEntity());
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
+                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+
+            Coordinates location = BuildCoordinates();
+            playerService.UpdateLastDeathLocation("IlarionPintilie", location);
+
+            Assert.That(capturedEntity, Is.Not.Null);
+            Assert.That(capturedEntity.LastDeathLocation.World, Is.EqualTo(location.World));
+            Assert.That(capturedEntity.LastDeathLocation.X, Is.EqualTo(location.X));
+            Assert.That(capturedEntity.LastDeathLocation.Y, Is.EqualTo(location.Y));
+            Assert.That(capturedEntity.LastDeathLocation.Z, Is.EqualTo(location.Z));
+        }
+
+        [Test]
+        public void GivenAValidRequest_WhenUpdatingLastDeathLocation_ThenLastDeathDTIsSet()
+        {
+            PlayerEntity capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("IlarionPintilie"))
+                .Returns(BuildPlayerEntity());
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
+                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+
+            DateTimeOffset callTime = DateTimeOffset.UtcNow;
+            playerService.UpdateLastDeathLocation("IlarionPintilie", BuildCoordinates());
+
+            Assert.That(capturedEntity.LastDeathDT, Is.Not.Null);
+            Assert.That(DateTimeOffset.Parse(capturedEntity.LastDeathDT), Is.GreaterThanOrEqualTo(callTime));
+        }
+
+        [Test]
+        public void GivenAValidRequest_WhenUpdatingLastDeathLocation_ThenUpdatedDTIsSet()
+        {
+            PlayerEntity capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("IlarionPintilie"))
+                .Returns(BuildPlayerEntity());
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
+                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+
+            DateTimeOffset callTime = DateTimeOffset.UtcNow;
+            playerService.UpdateLastDeathLocation("IlarionPintilie", BuildCoordinates());
+
+            Assert.That(capturedEntity.UpdatedDT, Is.Not.Null);
+            Assert.That(DateTimeOffset.Parse(capturedEntity.UpdatedDT), Is.GreaterThanOrEqualTo(callTime));
+        }
+
+        [Test]
+        public void GivenAValidRequest_WhenUpdatingLastDeathLocation_ThenSaveChangesIsInvoked()
+        {
+            repositoryMock
+                .Setup(repository => repository.Get("IlarionPintilie"))
+                .Returns(BuildPlayerEntity());
+
+            playerService.UpdateLastDeathLocation("IlarionPintilie", BuildCoordinates());
+
+            repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
+        }
+
+        [Test]
+        public void GivenARepositoryException_WhenUpdatingLastDeathLocation_ThenTheExceptionIsRethrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.Get(It.IsAny<string>()))
+                .Throws<KeyNotFoundException>();
+
+            Assert.That(
+                () => playerService.UpdateLastDeathLocation("NonExistentUser", BuildCoordinates()),
+                Throws.TypeOf<KeyNotFoundException>());
+        }
+
         private static RegisterPlayerRequest BuildRegisterPlayerRequest() => new()
         {
             Username = "IlarionPintilie",
@@ -187,6 +276,14 @@ namespace NuciCraft.API.UnitTests.Service
             LastDeathDT = null,
             LastDeathLocation = null,
             SkinUrl = "test.nucilandia.ro"
+        };
+
+        private static Coordinates BuildCoordinates() => new()
+        {
+            World = "world_nether",
+            X = 613.5f,
+            Y = 64.0f,
+            Z = -873.25f
         };
     }
 }

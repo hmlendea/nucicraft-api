@@ -180,20 +180,20 @@ namespace NuciCraft.API.UnitTests.Service
         public void GivenAWorldFilter_WhenGettingAnRtpLocation_ThenALocationFromThatWorldIsReturned()
         {
             RtpLocationEntity solaraEntity = BuildRtpLocationEntity();
-            solaraEntity.Coordinates.World = "Solara";
+            solaraEntity.Coordinates.World = "world";
 
             RtpLocationEntity cratesiaEntity = BuildRtpLocationEntity();
             cratesiaEntity.Id = "other-id";
-            cratesiaEntity.Coordinates.World = "Cratesia";
+            cratesiaEntity.Coordinates.World = "world_nether";
 
             repositoryMock
                 .Setup(repository => repository.GetAll())
                 .Returns([solaraEntity, cratesiaEntity]);
 
-            GetRtpLocationRequest request = new() { World = "Solara" };
+            GetRtpLocationRequest request = new() { World = "world" };
             RtpLocation location = rtpLocationService.GetRtpLocation(request);
 
-            Assert.That(location.Coordinates.World, Is.EqualTo("Solara"));
+            Assert.That(location.Coordinates.World, Is.EqualTo("world"));
         }
 
         [Test]
@@ -231,7 +231,7 @@ namespace NuciCraft.API.UnitTests.Service
         private static AddRtpLocationRequest BuildAddRtpLocationRequest() => new()
         {
             Biome = "Taiga",
-            World = "Solara",
+            World = "world",
             X = 10000,
             Y = 10000,
             Z = 613
@@ -243,7 +243,7 @@ namespace NuciCraft.API.UnitTests.Service
             Biome = "Forest",
             Coordinates = new()
             {
-                World = "Solara",
+                World = "world",
                 X = 1000,
                 Y = 1000,
                 Z = 873
