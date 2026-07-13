@@ -16,14 +16,14 @@ namespace NuciCraft.API.Requests
 
         [HmacOrder(3)]
         [Required]
-        public int X { get; set; }
+        public float X { get; set; }
 
         [HmacOrder(4)]
         [Required]
-        public int Y { get; set; }
+        public float Y { get; set; }
 
         [HmacOrder(5)]
         [Required]
-        public int Z { get; set; }
+        public float Z { get; set; }
     }
 }

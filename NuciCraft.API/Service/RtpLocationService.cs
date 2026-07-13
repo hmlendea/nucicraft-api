@@ -137,26 +137,26 @@ namespace NuciCraft.API.Service
             }
         }
 
-        bool IsLocationFarAwayFromOtherLocations(int x, int y)
+        bool IsLocationFarAwayFromOtherLocations(float x, float y)
             => !rtpLocationsRepository
                 .GetAll()
                 .Any(location => AreLocationsTooClose(x, y, location.Coordinates.X, location.Coordinates.Y, settings.MinimumLocationDistance));
 
-        bool IsLocationFarAwayFromOtherLocationsInTheSameBiome(string biome, int x, int y)
+        bool IsLocationFarAwayFromOtherLocationsInTheSameBiome(string biome, float x, float y)
             => !rtpLocationsRepository
                 .GetAll()
                 .Where(location => biome.Equals(location.Biome))
                 .Any(location => AreLocationsTooClose(x, y, location.Coordinates.X, location.Coordinates.Y, settings.MinimumBiomeLocationDistance));
 
         static bool AreLocationsTooClose(
-            int x1, int y1,
-            int x2, int y2,
+            float x1, float y1,
+            float x2, float y2,
             int minimumDistance)
         {
-            long deltaX = (long)x1 - x2;
-            long deltaY = (long)y1 - y2;
+            double deltaX = (double)x1 - x2;
+            double deltaY = (double)y1 - y2;
 
-            return (deltaX * deltaX) + (deltaY * deltaY) <= (long)minimumDistance * minimumDistance;
+            return (deltaX * deltaX) + (deltaY * deltaY) <= (double)minimumDistance * minimumDistance;
         }
     }
 }

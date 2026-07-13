@@ -110,6 +110,49 @@ namespace NuciCraft.API.Service
             }
         }
 
+        public void UpdateLastDeathLocation(string username, Coordinates location)
+        {
+            IEnumerable<LogInfo> logInfos =
+            [
+                new(MyLogInfoKey.Username, username),
+                new(MyLogInfoKey.DeathLocation, location)
+            ];
+
+            logger.Info(
+                MyOperation.UpdateLastDeathLocation,
+                OperationStatus.Started,
+                logInfos);
+
+            try
+            {
+                Player player = repository
+                    .Get(username)
+                    .ToDomainModel();
+
+                player.UpdatedDT = DateTimeOffset.UtcNow;
+                player.LastDeathDT = DateTimeOffset.UtcNow;
+                player.LastDeathLocation = location;
+
+                repository.Update(player.ToDataObject());
+                repository.SaveChanges();
+
+                logger.Info(
+                    MyOperation.UpdateLastDeathLocation,
+                    OperationStatus.Success,
+                    logInfos);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(
+                    MyOperation.UpdateLastDeathLocation,
+                    OperationStatus.Failure,
+                    ex,
+                    logInfos);
+
+                throw;
+            }
+        }
+
         static string GetOfflineUuid(string username)
         {
             string input = $"OfflinePlayer:{username}";

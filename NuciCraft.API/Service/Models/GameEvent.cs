@@ -1,7 +1,11 @@
-namespace NuciCraft.API.DataAccess.DataObjects
+namespace NuciCraft.API.Service.Models
 {
-    public sealed class CoordinatesDataObject
+    public class GameEvent
     {
+        public string GameEventType { get; set; }
+
+        public string Player { get; set; }
+
         public string World { get; set; }
 
         public float X { get; set; }
