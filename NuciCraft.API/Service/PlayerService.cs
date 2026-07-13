@@ -131,19 +131,18 @@ namespace NuciCraft.API.Service
             int byte8 = (Convert.ToInt32(byteArray.Substring(8, 2), 16) & 0x3f) | 0x80;
 
             byteArray =
-                byteArray.Substring(0, 6) +
+                byteArray[..6] +
                 byte6.ToString("x2") +
-                byteArray.Substring(8, 2) +
                 byte8.ToString("x2") +
-                byteArray.Substring(10);
+                byteArray[10..];
 
             // Format as UUID
             return
-                $"{byteArray.Substring(0, 8)}-" +
+                $"{byteArray[..8]}-" +
                 $"{byteArray.Substring(8, 4)}-" +
                 $"{byteArray.Substring(12, 4)}-" +
                 $"{byteArray.Substring(16, 4)}-" +
-                $"{byteArray.Substring(20)}";
+                $"{byteArray[20..]}";
         }
     }
 }
