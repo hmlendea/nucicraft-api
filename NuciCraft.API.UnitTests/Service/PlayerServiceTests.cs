@@ -172,6 +172,7 @@ namespace NuciCraft.API.UnitTests.Service
         private static PlayerEntity BuildPlayerEntity() => new()
         {
             Id = "Ilarion Pintilie",
+            Username = "Ilarion Pintilie",
             OfflineUUID = "61300000-0000-3000-8000-000000000000",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             Password = "NucilandiaPass1",
