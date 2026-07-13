@@ -28,7 +28,7 @@ namespace NuciCraft.API.Controllers
             [FromQuery] GetPlayerRequest request)
             => ProcessRequest(
                 request,
-                () => new GetResponse(service.Get(request)),
+                () => new GetPlayerResponse(service.Get(request)),
                 authorisation);
     }
 }
