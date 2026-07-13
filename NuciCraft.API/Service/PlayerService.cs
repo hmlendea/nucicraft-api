@@ -129,6 +129,7 @@ namespace NuciCraft.API.Service
                     .Get(username)
                     .ToDomainModel();
 
+                player.UpdatedDT = DateTimeOffset.UtcNow;
                 player.LastDeathDT = DateTimeOffset.UtcNow;
                 player.LastDeathLocation = location;
 
