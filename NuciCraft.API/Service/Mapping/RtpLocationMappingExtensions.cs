@@ -19,10 +19,13 @@ namespace NuciCraft.API.Service.Mapping
         {
             Id = dataObject.Id,
             Biome = dataObject.Biome,
-            World = dataObject.World,
-            X = dataObject.X,
-            Y = dataObject.Y,
-            Z = dataObject.Z
+            Coordinates = new()
+            {
+                World = dataObject.Coordinates.World,
+                X = dataObject.Coordinates.X,
+                Y = dataObject.Coordinates.Y,
+                Z = dataObject.Coordinates.Z
+            }
         };
 
         /// <summary>
@@ -34,10 +37,13 @@ namespace NuciCraft.API.Service.Mapping
         {
             Id = domainModel.Id,
             Biome = domainModel.Biome,
-            World = domainModel.World,
-            X = domainModel.X,
-            Y = domainModel.Y,
-            Z = domainModel.Z
+            Coordinates = new()
+            {
+                World = domainModel.Coordinates.World,
+                X = domainModel.Coordinates.X,
+                Y = domainModel.Coordinates.Y,
+                Z = domainModel.Coordinates.Z
+            }
         };
 
         /// <summary>

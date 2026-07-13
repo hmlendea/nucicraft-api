@@ -20,7 +20,8 @@ namespace NuciCraft.API.Service.Mapping
         /// <param name="dataObject">The data object.</param>
         internal static Player ToDomainModel(this PlayerEntity dataObject) => new()
         {
-            Username = dataObject.Id,
+            Identifier = dataObject.Id,
+            Username = dataObject.Username,
             OfflineUUID = dataObject.OfflineUUID,
             OnlineUUID = dataObject.OnlineUUID,
             Password = dataObject.Password,
@@ -28,6 +29,16 @@ namespace NuciCraft.API.Service.Mapping
             UpdatedDT = dataObject.UpdatedDT != null ? DateTimeOffset.Parse(dataObject.UpdatedDT) : null,
             IpAddress = dataObject.IpAddress,
             DiscordId = dataObject.DiscordId,
+            EmailAddress = dataObject.EmailAddress,
+            LastSleptDT = dataObject.LastSleptDT != null ? DateTimeOffset.Parse(dataObject.LastSleptDT) : null,
+            LastDeathDT = dataObject.LastDeathDT != null ? DateTimeOffset.Parse(dataObject.LastDeathDT) : null,
+            LastDeathLocation = dataObject.LastDeathLocation != null ? new()
+            {
+                World = dataObject.LastDeathLocation.World,
+                X = dataObject.LastDeathLocation.X,
+                Y = dataObject.LastDeathLocation.Y,
+                Z = dataObject.LastDeathLocation.Z
+            } : null,
             SkinUrl = dataObject.SkinUrl
         };
 
@@ -38,7 +49,8 @@ namespace NuciCraft.API.Service.Mapping
         /// <param name="domainModel">The domain model.</param>
         internal static PlayerEntity ToDataObject(this Player domainModel) => new()
         {
-            Id = domainModel.Username,
+            Id = domainModel.Identifier,
+            Username = domainModel.Username,
             OfflineUUID = domainModel.OfflineUUID,
             OnlineUUID = domainModel.OnlineUUID,
             Password = domainModel.Password,
@@ -46,6 +58,16 @@ namespace NuciCraft.API.Service.Mapping
             UpdatedDT = domainModel.UpdatedDT?.ToString(TimestampFormat),
             IpAddress = domainModel.IpAddress,
             DiscordId = domainModel.DiscordId,
+            EmailAddress = domainModel.EmailAddress,
+            LastSleptDT = domainModel.LastSleptDT?.ToString(TimestampFormat),
+            LastDeathDT = domainModel.LastDeathDT?.ToString(TimestampFormat),
+            LastDeathLocation = domainModel.LastDeathLocation != null ? new()
+            {
+                World = domainModel.LastDeathLocation.World,
+                X = domainModel.LastDeathLocation.X,
+                Y = domainModel.LastDeathLocation.Y,
+                Z = domainModel.LastDeathLocation.Z
+            } : null,
             SkinUrl = domainModel.SkinUrl
         };
 

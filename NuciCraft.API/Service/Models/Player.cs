@@ -4,6 +4,8 @@ namespace NuciCraft.API.Service.Models
 {
     public class Player
     {
+        public string Identifier { get; set; }
+
         public string Username { get; set; }
 
         public string OfflineUUID { get; set; }
@@ -19,6 +21,14 @@ namespace NuciCraft.API.Service.Models
         public string IpAddress { get; set; }
 
         public string DiscordId { get; set; }
+
+        public string EmailAddress { get; set; }
+
+        public DateTimeOffset? LastSleptDT { get; set; }
+
+        public DateTimeOffset? LastDeathDT { get; set; }
+
+        public Coordinates LastDeathLocation { get; set; }
 
         public string SkinUrl { get; set; }
     }

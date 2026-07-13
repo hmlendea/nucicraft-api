@@ -58,10 +58,10 @@ namespace NuciCraft.API.UnitTests.Service
 
             Assert.That(capturedEntity, Is.Not.Null);
             Assert.That(capturedEntity.Biome, Is.EqualTo(request.Biome));
-            Assert.That(capturedEntity.World, Is.EqualTo(request.World));
-            Assert.That(capturedEntity.X, Is.EqualTo(request.X));
-            Assert.That(capturedEntity.Y, Is.EqualTo(request.Y));
-            Assert.That(capturedEntity.Z, Is.EqualTo(request.Z));
+            Assert.That(capturedEntity.Coordinates.World, Is.EqualTo(request.World));
+            Assert.That(capturedEntity.Coordinates.X, Is.EqualTo(request.X));
+            Assert.That(capturedEntity.Coordinates.Y, Is.EqualTo(request.Y));
+            Assert.That(capturedEntity.Coordinates.Z, Is.EqualTo(request.Z));
         }
 
         [Test]
@@ -99,8 +99,8 @@ namespace NuciCraft.API.UnitTests.Service
         public void GivenALocationTooCloseToAnotherLocation_WhenAddingAnRtpLocation_ThenAnArgumentExceptionIsThrown()
         {
             RtpLocationEntity nearbyEntity = BuildRtpLocationEntity();
-            nearbyEntity.X = 100;
-            nearbyEntity.Y = 0;
+            nearbyEntity.Coordinates.X = 100;
+            nearbyEntity.Coordinates.Y = 0;
 
             repositoryMock
                 .Setup(repository => repository.GetAll())
@@ -120,8 +120,8 @@ namespace NuciCraft.API.UnitTests.Service
         {
             RtpLocationEntity nearbySameBiomeEntity = BuildRtpLocationEntity();
             nearbySameBiomeEntity.Biome = "Forest";
-            nearbySameBiomeEntity.X = 700;
-            nearbySameBiomeEntity.Y = 0;
+            nearbySameBiomeEntity.Coordinates.X = 700;
+            nearbySameBiomeEntity.Coordinates.Y = 0;
 
             repositoryMock
                 .Setup(repository => repository.GetAll())
@@ -170,21 +170,21 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(location, Is.Not.Null);
             Assert.That(location.Id, Is.EqualTo(entity.Id));
             Assert.That(location.Biome, Is.EqualTo(entity.Biome));
-            Assert.That(location.World, Is.EqualTo(entity.World));
-            Assert.That(location.X, Is.EqualTo(entity.X));
-            Assert.That(location.Y, Is.EqualTo(entity.Y));
-            Assert.That(location.Z, Is.EqualTo(entity.Z));
+            Assert.That(location.Coordinates.World, Is.EqualTo(entity.Coordinates.World));
+            Assert.That(location.Coordinates.X, Is.EqualTo(entity.Coordinates.X));
+            Assert.That(location.Coordinates.Y, Is.EqualTo(entity.Coordinates.Y));
+            Assert.That(location.Coordinates.Z, Is.EqualTo(entity.Coordinates.Z));
         }
 
         [Test]
         public void GivenAWorldFilter_WhenGettingAnRtpLocation_ThenALocationFromThatWorldIsReturned()
         {
             RtpLocationEntity solaraEntity = BuildRtpLocationEntity();
-            solaraEntity.World = "Solara";
+            solaraEntity.Coordinates.World = "Solara";
 
             RtpLocationEntity cratesiaEntity = BuildRtpLocationEntity();
             cratesiaEntity.Id = "other-id";
-            cratesiaEntity.World = "Cratesia";
+            cratesiaEntity.Coordinates.World = "Cratesia";
 
             repositoryMock
                 .Setup(repository => repository.GetAll())
@@ -193,7 +193,7 @@ namespace NuciCraft.API.UnitTests.Service
             GetRtpLocationRequest request = new() { World = "Solara" };
             RtpLocation location = rtpLocationService.GetRtpLocation(request);
 
-            Assert.That(location.World, Is.EqualTo("Solara"));
+            Assert.That(location.Coordinates.World, Is.EqualTo("Solara"));
         }
 
         [Test]
@@ -241,10 +241,13 @@ namespace NuciCraft.API.UnitTests.Service
         {
             Id = "61300000-8730-3000-8000-000000000000",
             Biome = "Forest",
-            World = "Solara",
-            X = 1000,
-            Y = 1000,
-            Z = 873
+            Coordinates = new()
+            {
+                World = "Solara",
+                X = 1000,
+                Y = 1000,
+                Z = 873
+            }
         };
     }
 }

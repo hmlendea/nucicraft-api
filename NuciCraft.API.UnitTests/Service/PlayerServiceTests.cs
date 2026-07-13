@@ -44,7 +44,8 @@ namespace NuciCraft.API.UnitTests.Service
             playerService.Register(request);
 
             Assert.That(capturedEntity, Is.Not.Null);
-            Assert.That(capturedEntity.Id, Is.EqualTo("Ilarion Pintilie"));
+            Assert.That(capturedEntity.Id, Does.Match(@"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"));
+            Assert.That(capturedEntity.Username, Is.EqualTo("IlarionPintilie"));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo("87300000-0000-0000-0000-000000000000"));
             Assert.That(capturedEntity.Password, Is.EqualTo("NucilandiaPass1"));
             Assert.That(capturedEntity.IpAddress, Is.EqualTo("192.168.1.1"));
@@ -133,13 +134,14 @@ namespace NuciCraft.API.UnitTests.Service
             PlayerEntity entity = BuildPlayerEntity();
 
             repositoryMock
-                .Setup(repository => repository.Get("Ilarion Pintilie"))
+                .Setup(repository => repository.Get("IlarionPintilie"))
                 .Returns(entity);
 
-            Player player = playerService.Get("Ilarion Pintilie");
+            Player player = playerService.Get("IlarionPintilie");
 
             Assert.That(player, Is.Not.Null);
-            Assert.That(player.Username, Is.EqualTo("Ilarion Pintilie"));
+            Assert.That(player.Identifier, Is.EqualTo(entity.Id));
+            Assert.That(player.Username, Is.EqualTo(entity.Username));
             Assert.That(player.OfflineUUID, Is.EqualTo(entity.OfflineUUID));
             Assert.That(player.OnlineUUID, Is.EqualTo(entity.OnlineUUID));
             Assert.That(player.Password, Is.EqualTo(entity.Password));
@@ -161,7 +163,7 @@ namespace NuciCraft.API.UnitTests.Service
 
         private static RegisterPlayerRequest BuildRegisterPlayerRequest() => new()
         {
-            Username = "Ilarion Pintilie",
+            Username = "IlarionPintilie",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             CreatedDT = "2012-09-05T00:00:00.0000000+00:00",
             Password = "NucilandiaPass1",
@@ -171,7 +173,8 @@ namespace NuciCraft.API.UnitTests.Service
 
         private static PlayerEntity BuildPlayerEntity() => new()
         {
-            Id = "Ilarion Pintilie",
+            Id = "IlarionPintilie",
+            Username = "IlarionPintilie",
             OfflineUUID = "61300000-0000-3000-8000-000000000000",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             Password = "NucilandiaPass1",
@@ -179,6 +182,10 @@ namespace NuciCraft.API.UnitTests.Service
             UpdatedDT = null,
             IpAddress = "192.168.1.1",
             DiscordId = null,
+            EmailAddress = "ilarion.pintilie@nucilandia.ro",
+            LastSleptDT = "2012-09-05T00:00:00.0000000+00:00",
+            LastDeathDT = null,
+            LastDeathLocation = null,
             SkinUrl = "test.nucilandia.ro"
         };
     }
