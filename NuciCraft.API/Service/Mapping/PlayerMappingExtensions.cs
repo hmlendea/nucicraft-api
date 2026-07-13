@@ -29,6 +29,7 @@ namespace NuciCraft.API.Service.Mapping
             UpdatedDT = dataObject.UpdatedDT != null ? DateTimeOffset.Parse(dataObject.UpdatedDT) : null,
             IpAddress = dataObject.IpAddress,
             DiscordId = dataObject.DiscordId,
+            EmailAddress = dataObject.EmailAddress,
             SkinUrl = dataObject.SkinUrl
         };
 
@@ -48,6 +49,7 @@ namespace NuciCraft.API.Service.Mapping
             UpdatedDT = domainModel.UpdatedDT?.ToString(TimestampFormat),
             IpAddress = domainModel.IpAddress,
             DiscordId = domainModel.DiscordId,
+            EmailAddress = domainModel.EmailAddress,
             SkinUrl = domainModel.SkinUrl
         };
 

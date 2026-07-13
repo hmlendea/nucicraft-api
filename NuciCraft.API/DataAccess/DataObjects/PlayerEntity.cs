@@ -14,6 +14,8 @@ namespace NuciCraft.API.DataAccess.DataObjects
 
         public string DiscordId { get; set; }
 
+        public string EmailAddress { get; set; }
+
         public string SkinUrl { get; set; }
     }
 }

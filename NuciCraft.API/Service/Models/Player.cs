@@ -22,6 +22,8 @@ namespace NuciCraft.API.Service.Models
 
         public string DiscordId { get; set; }
 
+        public string EmailAddress { get; set; }
+
         public string SkinUrl { get; set; }
     }
 }
