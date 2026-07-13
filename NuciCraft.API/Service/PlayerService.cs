@@ -119,6 +119,82 @@ namespace NuciCraft.API.Service
             }
         }
 
+        public void Update(UpdatePlayerRequest request)
+        {
+            IEnumerable<LogInfo> logInfos =
+            [
+                new(MyLogInfoKey.PlayerID, request.Identifier)
+            ];
+
+            logger.Info(
+                MyOperation.UpdatePlayer,
+                OperationStatus.Started,
+                logInfos);
+
+            try
+            {
+                PlayerEntity player = repository.Get(request.Identifier);
+
+                if (request.Username is not null)
+                    player.Username = request.Username;
+
+                if (request.OnlineUUID is not null)
+                    player.OnlineUUID = request.OnlineUUID;
+
+                if (request.Password is not null)
+                    player.Password = request.Password;
+
+                if (request.IpAddress is not null)
+                    player.IpAddress = request.IpAddress;
+
+                if (request.DiscordId is not null)
+                    player.DiscordId = request.DiscordId;
+
+                if (request.EmailAddress is not null)
+                    player.EmailAddress = request.EmailAddress;
+
+                if (request.LastSleptDT is not null)
+                    player.LastSleptDT = request.LastSleptDT;
+
+                if (request.LastDeathDT is not null)
+                    player.LastDeathDT = request.LastDeathDT;
+
+                if (request.LastDeathLocation is not null)
+                {
+                    player.LastDeathLocation = new CoordinatesDataObject
+                    {
+                        World = request.LastDeathLocation.World,
+                        X = request.LastDeathLocation.X,
+                        Y = request.LastDeathLocation.Y,
+                        Z = request.LastDeathLocation.Z
+                    };
+                }
+
+                if (request.SkinUrl is not null)
+                    player.SkinUrl = request.SkinUrl;
+
+                player.UpdatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK");
+
+                repository.Update(player);
+                repository.SaveChanges();
+
+                logger.Info(
+                    MyOperation.UpdatePlayer,
+                    OperationStatus.Success,
+                    logInfos);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(
+                    MyOperation.UpdatePlayer,
+                    OperationStatus.Failure,
+                    ex,
+                    logInfos);
+
+                throw;
+            }
+        }
+
         public void UpdateLastDeathLocation(string username, Coordinates location)
         {
             IEnumerable<LogInfo> logInfos =

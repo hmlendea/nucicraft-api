@@ -30,5 +30,13 @@ namespace NuciCraft.API.Controllers
                 request,
                 () => new GetPlayerResponse(service.Get(request)),
                 authorisation);
+
+        [HttpPut]
+        public ActionResult Update(
+            [FromBody] UpdatePlayerRequest request)
+            => ProcessRequest(
+                request,
+                () => service.Update(request),
+                authorisation);
     }
 }
