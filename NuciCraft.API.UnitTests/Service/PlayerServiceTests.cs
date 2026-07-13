@@ -145,7 +145,14 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(player.OfflineUUID, Is.EqualTo(entity.OfflineUUID));
             Assert.That(player.OnlineUUID, Is.EqualTo(entity.OnlineUUID));
             Assert.That(player.Password, Is.EqualTo(entity.Password));
+            Assert.That(player.CreatedDT, Is.EqualTo(DateTimeOffset.Parse(entity.CreatedDT)));
+            Assert.That(player.UpdatedDT, Is.Null);
             Assert.That(player.IpAddress, Is.EqualTo(entity.IpAddress));
+            Assert.That(player.DiscordId, Is.EqualTo(entity.DiscordId));
+            Assert.That(player.EmailAddress, Is.EqualTo(entity.EmailAddress));
+            Assert.That(player.LastSleptDT, Is.EqualTo(DateTimeOffset.Parse(entity.LastSleptDT)));
+            Assert.That(player.LastDeathDT, Is.Null);
+            Assert.That(player.LastDeathLocation, Is.Null);
             Assert.That(player.SkinUrl, Is.EqualTo(entity.SkinUrl));
         }
 
