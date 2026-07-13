@@ -24,9 +24,11 @@ namespace NuciCraft.API.Service.Models
 
         public string EmailAddress { get; set; }
 
-        public DateTimeOffset? LastSlept { get; set; }
+        public DateTimeOffset? LastSleptDT { get; set; }
 
-        public DateTimeOffset? LastDeath { get; set; }
+        public DateTimeOffset? LastDeathDT { get; set; }
+
+        public Coordinates LastDeathLocation { get; set; }
 
         public string SkinUrl { get; set; }
     }

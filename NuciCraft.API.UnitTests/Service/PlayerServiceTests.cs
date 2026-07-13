@@ -183,8 +183,9 @@ namespace NuciCraft.API.UnitTests.Service
             IpAddress = "192.168.1.1",
             DiscordId = null,
             EmailAddress = "ilarion.pintilie@nucilandia.ro",
-            LastSlept = "2012-09-05T00:00:00.0000000+00:00",
-            LastDeath = null,
+            LastSleptDT = "2012-09-05T00:00:00.0000000+00:00",
+            LastDeathDT = null,
+            LastDeathLocation = null,
             SkinUrl = "test.nucilandia.ro"
         };
     }

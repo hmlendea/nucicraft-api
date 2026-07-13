@@ -41,10 +41,13 @@ namespace NuciCraft.API.Service
                 {
                     Id = Guid.NewGuid().ToString(),
                     Biome = request.Biome,
-                    World = request.World,
-                    X = request.X,
-                    Y = request.Y,
-                    Z = request.Z
+                    Coordinates = new()
+                    {
+                        World = request.World,
+                        X = request.X,
+                        Y = request.Y,
+                        Z = request.Z
+                    }
                 };
 
                 if (!IsLocationFarAwayFromOtherLocations(request.X, request.Y))
@@ -97,7 +100,7 @@ namespace NuciCraft.API.Service
                 if (!string.IsNullOrWhiteSpace(request.World))
                 {
                     rtpLocationEntities = rtpLocationEntities
-                        .Where(location => request.World.Equals(location.World));
+                        .Where(location => request.World.Equals(location.Coordinates.World));
                 }
 
                 if (!string.IsNullOrWhiteSpace(request.Biome))
@@ -111,9 +114,9 @@ namespace NuciCraft.API.Service
                     .ToDomainModel();
 
                 logInfos = logInfos
-                    .Append(new(MyLogInfoKey.X, rtpLocation.X))
-                    .Append(new(MyLogInfoKey.Y, rtpLocation.Y))
-                    .Append(new(MyLogInfoKey.Z, rtpLocation.Z));
+                    .Append(new(MyLogInfoKey.X, rtpLocation.Coordinates.X))
+                    .Append(new(MyLogInfoKey.Y, rtpLocation.Coordinates.Y))
+                    .Append(new(MyLogInfoKey.Z, rtpLocation.Coordinates.Z));
 
                 logger.Info(
                     MyOperation.GetRandomRtpLocation,
@@ -137,13 +140,13 @@ namespace NuciCraft.API.Service
         bool IsLocationFarAwayFromOtherLocations(int x, int y)
             => !rtpLocationsRepository
                 .GetAll()
-                .Any(location => AreLocationsTooClose(x, y, location.X, location.Y, settings.MinimumLocationDistance));
+                .Any(location => AreLocationsTooClose(x, y, location.Coordinates.X, location.Coordinates.Y, settings.MinimumLocationDistance));
 
         bool IsLocationFarAwayFromOtherLocationsInTheSameBiome(string biome, int x, int y)
             => !rtpLocationsRepository
                 .GetAll()
                 .Where(location => biome.Equals(location.Biome))
-                .Any(location => AreLocationsTooClose(x, y, location.X, location.Y, settings.MinimumBiomeLocationDistance));
+                .Any(location => AreLocationsTooClose(x, y, location.Coordinates.X, location.Coordinates.Y, settings.MinimumBiomeLocationDistance));
 
         static bool AreLocationsTooClose(
             int x1, int y1,

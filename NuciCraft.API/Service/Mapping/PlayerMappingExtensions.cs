@@ -30,8 +30,15 @@ namespace NuciCraft.API.Service.Mapping
             IpAddress = dataObject.IpAddress,
             DiscordId = dataObject.DiscordId,
             EmailAddress = dataObject.EmailAddress,
-            LastSlept = dataObject.LastSlept != null ? DateTimeOffset.Parse(dataObject.LastSlept) : null,
-            LastDeath = dataObject.LastDeath != null ? DateTimeOffset.Parse(dataObject.LastDeath) : null,
+            LastSleptDT = dataObject.LastSleptDT != null ? DateTimeOffset.Parse(dataObject.LastSleptDT) : null,
+            LastDeathDT = dataObject.LastDeathDT != null ? DateTimeOffset.Parse(dataObject.LastDeathDT) : null,
+            LastDeathLocation = dataObject.LastDeathLocation != null ? new()
+            {
+                World = dataObject.LastDeathLocation.World,
+                X = dataObject.LastDeathLocation.X,
+                Y = dataObject.LastDeathLocation.Y,
+                Z = dataObject.LastDeathLocation.Z
+            } : null,
             SkinUrl = dataObject.SkinUrl
         };
 
@@ -52,8 +59,15 @@ namespace NuciCraft.API.Service.Mapping
             IpAddress = domainModel.IpAddress,
             DiscordId = domainModel.DiscordId,
             EmailAddress = domainModel.EmailAddress,
-            LastSlept = domainModel.LastSlept?.ToString(TimestampFormat),
-            LastDeath = domainModel.LastDeath?.ToString(TimestampFormat),
+            LastSleptDT = domainModel.LastSleptDT?.ToString(TimestampFormat),
+            LastDeathDT = domainModel.LastDeathDT?.ToString(TimestampFormat),
+            LastDeathLocation = domainModel.LastDeathLocation != null ? new()
+            {
+                World = domainModel.LastDeathLocation.World,
+                X = domainModel.LastDeathLocation.X,
+                Y = domainModel.LastDeathLocation.Y,
+                Z = domainModel.LastDeathLocation.Z
+            } : null,
             SkinUrl = domainModel.SkinUrl
         };
 
