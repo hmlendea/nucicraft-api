@@ -10,6 +10,7 @@ namespace NuciCraft.API.Logging
         public static LogInfoKey DeathLocation => new MyLogInfoKey(nameof(DeathLocation));
         public static LogInfoKey GameEventType => new MyLogInfoKey(nameof(GameEventType));
         public static LogInfoKey CreatedDT => new MyLogInfoKey(nameof(CreatedDT));
+        public static LogInfoKey PlayerID => new MyLogInfoKey(nameof(PlayerID));
         public static LogInfoKey IpAddress => new MyLogInfoKey(nameof(IpAddress));
         public static LogInfoKey OfflineUUID => new MyLogInfoKey(nameof(OfflineUUID));
         public static LogInfoKey OnlineUUID => new MyLogInfoKey(nameof(OnlineUUID));

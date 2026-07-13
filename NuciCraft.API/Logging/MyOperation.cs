@@ -12,5 +12,6 @@ namespace NuciCraft.API.Logging
         public static Operation PlayerDeath => new MyOperation(nameof(PlayerDeath));
         public static Operation RegisterPlayer => new MyOperation(nameof(RegisterPlayer));
         public static Operation UpdateLastDeathLocation => new MyOperation(nameof(UpdateLastDeathLocation));
+        public static Operation UpdatePlayer => new MyOperation(nameof(UpdatePlayer));
     }
 }

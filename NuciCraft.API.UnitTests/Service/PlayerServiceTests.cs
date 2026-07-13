@@ -2,15 +2,17 @@ using System;
 using System.Collections.Generic;
 
 using Moq;
+
 using NUnit.Framework;
+
+using NuciDAL.Repositories;
+
+using NuciLog.Core;
 
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service;
 using NuciCraft.API.Service.Models;
-
-using NuciDAL.Repositories;
-using NuciLog.Core;
 
 namespace NuciCraft.API.UnitTests.Service
 {
@@ -134,10 +136,10 @@ namespace NuciCraft.API.UnitTests.Service
             PlayerEntity entity = BuildPlayerEntity();
 
             repositoryMock
-                .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(entity);
+                .Setup(repository => repository.GetAll())
+                .Returns([entity]);
 
-            Player player = playerService.Get("IlarionPintilie");
+            Player player = playerService.Get(new GetPlayerRequest { Username = "IlarionPintilie" });
 
             Assert.That(player, Is.Not.Null);
             Assert.That(player.Identifier, Is.EqualTo(entity.Id));
@@ -145,19 +147,228 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(player.OfflineUUID, Is.EqualTo(entity.OfflineUUID));
             Assert.That(player.OnlineUUID, Is.EqualTo(entity.OnlineUUID));
             Assert.That(player.Password, Is.EqualTo(entity.Password));
+            Assert.That(player.CreatedDT, Is.EqualTo(DateTimeOffset.Parse(entity.CreatedDT)));
+            Assert.That(player.UpdatedDT, Is.Null);
             Assert.That(player.IpAddress, Is.EqualTo(entity.IpAddress));
+            Assert.That(player.DiscordId, Is.EqualTo(entity.DiscordId));
+            Assert.That(player.EmailAddress, Is.EqualTo(entity.EmailAddress));
+            Assert.That(player.LastSleptDT, Is.EqualTo(DateTimeOffset.Parse(entity.LastSleptDT)));
+            Assert.That(player.LastDeathDT, Is.Null);
+            Assert.That(player.LastDeathLocation, Is.Null);
             Assert.That(player.SkinUrl, Is.EqualTo(entity.SkinUrl));
+        }
+
+        [Test]
+        public void GivenAValidIdentifier_WhenGettingAPlayer_ThenThePlayerIsReturned()
+        {
+            PlayerEntity entity = BuildPlayerEntity();
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([entity]);
+
+            Player player = playerService.Get(new GetPlayerRequest { Identifier = entity.Id });
+
+            Assert.That(player, Is.Not.Null);
+            Assert.That(player.Identifier, Is.EqualTo(entity.Id));
+        }
+
+        [Test]
+        public void GivenAValidOfflineUUID_WhenGettingAPlayer_ThenThePlayerIsReturned()
+        {
+            PlayerEntity entity = BuildPlayerEntity();
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([entity]);
+
+            Player player = playerService.Get(new GetPlayerRequest { OfflineUUID = entity.OfflineUUID });
+
+            Assert.That(player, Is.Not.Null);
+            Assert.That(player.OfflineUUID, Is.EqualTo(entity.OfflineUUID));
+        }
+
+        [Test]
+        public void GivenAValidOnlineUUID_WhenGettingAPlayer_ThenThePlayerIsReturned()
+        {
+            PlayerEntity entity = BuildPlayerEntity();
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([entity]);
+
+            Player player = playerService.Get(new GetPlayerRequest { OnlineUUID = entity.OnlineUUID });
+
+            Assert.That(player, Is.Not.Null);
+            Assert.That(player.OnlineUUID, Is.EqualTo(entity.OnlineUUID));
+        }
+
+        [Test]
+        public void GivenNoMatchingPlayer_WhenGettingAPlayer_ThenAKeyNotFoundExceptionIsThrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([]);
+
+            Assert.That(
+                () => playerService.Get(new GetPlayerRequest { Username = "NonExistentUser" }),
+                Throws.TypeOf<KeyNotFoundException>());
         }
 
         [Test]
         public void GivenARepositoryException_WhenGettingAPlayer_ThenTheExceptionIsRethrown()
         {
             repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Throws<InvalidOperationException>();
+
+            Assert.That(
+                () => playerService.Get(new GetPlayerRequest { Username = "IlarionPintilie" }),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        // ── Update ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void GivenARequestWithAllFields_WhenUpdatingAPlayer_ThenAllFieldsAreApplied()
+        {
+            PlayerEntity capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("IlarionPintilie"))
+                .Returns(BuildPlayerEntity());
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
+                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+
+            UpdatePlayerRequest request = new()
+            {
+                Identifier = "IlarionPintilie",
+                Username = "NewUsername",
+                OnlineUUID = "11111111-0000-0000-0000-000000000000",
+                Password = "NewPass",
+                IpAddress = "10.0.0.1",
+                DiscordId = "999",
+                EmailAddress = "new@nucilandia.ro",
+                LastSleptDT = "2026-01-01T00:00:00.0000000+00:00",
+                LastDeathDT = "2026-06-01T00:00:00.0000000+00:00",
+                LastDeathLocation = new() { World = "world_nether", X = 1.0f, Y = 2.0f, Z = 3.0f },
+                SkinUrl = "new-skin.nucilandia.ro"
+            };
+
+            playerService.Update(request);
+
+            Assert.That(capturedEntity.Username, Is.EqualTo("NewUsername"));
+            Assert.That(capturedEntity.OnlineUUID, Is.EqualTo("11111111-0000-0000-0000-000000000000"));
+            Assert.That(capturedEntity.Password, Is.EqualTo("NewPass"));
+            Assert.That(capturedEntity.IpAddress, Is.EqualTo("10.0.0.1"));
+            Assert.That(capturedEntity.DiscordId, Is.EqualTo("999"));
+            Assert.That(capturedEntity.EmailAddress, Is.EqualTo("new@nucilandia.ro"));
+            Assert.That(capturedEntity.LastSleptDT, Is.EqualTo("2026-01-01T00:00:00.0000000+00:00"));
+            Assert.That(capturedEntity.LastDeathDT, Is.EqualTo("2026-06-01T00:00:00.0000000+00:00"));
+            Assert.That(capturedEntity.LastDeathLocation.World, Is.EqualTo("world_nether"));
+            Assert.That(capturedEntity.LastDeathLocation.X, Is.EqualTo(1.0f));
+            Assert.That(capturedEntity.LastDeathLocation.Y, Is.EqualTo(2.0f));
+            Assert.That(capturedEntity.LastDeathLocation.Z, Is.EqualTo(3.0f));
+            Assert.That(capturedEntity.SkinUrl, Is.EqualTo("new-skin.nucilandia.ro"));
+        }
+
+        [Test]
+        public void GivenARequestWithNullFields_WhenUpdatingAPlayer_ThenExistingValuesArePreserved()
+        {
+            PlayerEntity original = BuildPlayerEntity();
+            PlayerEntity capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("IlarionPintilie"))
+                .Returns(original);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
+                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+
+            playerService.Update(new UpdatePlayerRequest { Identifier = "IlarionPintilie" });
+
+            Assert.That(capturedEntity.Username, Is.EqualTo(original.Username));
+            Assert.That(capturedEntity.OnlineUUID, Is.EqualTo(original.OnlineUUID));
+            Assert.That(capturedEntity.Password, Is.EqualTo(original.Password));
+            Assert.That(capturedEntity.IpAddress, Is.EqualTo(original.IpAddress));
+            Assert.That(capturedEntity.DiscordId, Is.EqualTo(original.DiscordId));
+            Assert.That(capturedEntity.EmailAddress, Is.EqualTo(original.EmailAddress));
+            Assert.That(capturedEntity.LastSleptDT, Is.EqualTo(original.LastSleptDT));
+            Assert.That(capturedEntity.LastDeathDT, Is.EqualTo(original.LastDeathDT));
+            Assert.That(capturedEntity.LastDeathLocation, Is.EqualTo(original.LastDeathLocation));
+            Assert.That(capturedEntity.SkinUrl, Is.EqualTo(original.SkinUrl));
+        }
+
+        [Test]
+        public void GivenARequestWithLastDeathLocationWhenEntityHasNone_WhenUpdatingAPlayer_ThenLastDeathLocationIsCreated()
+        {
+            PlayerEntity original = BuildPlayerEntity();
+            original.LastDeathLocation = null;
+            PlayerEntity capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("IlarionPintilie"))
+                .Returns(original);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
+                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+
+            playerService.Update(new UpdatePlayerRequest
+            {
+                Identifier = "IlarionPintilie",
+                LastDeathLocation = new() { World = "world_the_end", X = 0f, Y = 64f, Z = 0f }
+            });
+
+            Assert.That(capturedEntity.LastDeathLocation, Is.Not.Null);
+            Assert.That(capturedEntity.LastDeathLocation.World, Is.EqualTo("world_the_end"));
+            Assert.That(capturedEntity.LastDeathLocation.Y, Is.EqualTo(64f));
+        }
+
+        [Test]
+        public void GivenAValidRequest_WhenUpdatingAPlayer_ThenUpdatedDTIsStamped()
+        {
+            PlayerEntity capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("IlarionPintilie"))
+                .Returns(BuildPlayerEntity());
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
+                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+
+            DateTimeOffset callTime = DateTimeOffset.UtcNow;
+            playerService.Update(new UpdatePlayerRequest { Identifier = "IlarionPintilie" });
+
+            Assert.That(capturedEntity.UpdatedDT, Is.Not.Null);
+            Assert.That(DateTimeOffset.Parse(capturedEntity.UpdatedDT), Is.GreaterThanOrEqualTo(callTime));
+        }
+
+        [Test]
+        public void GivenAValidRequest_WhenUpdatingAPlayer_ThenSaveChangesIsInvoked()
+        {
+            repositoryMock
+                .Setup(repository => repository.Get("IlarionPintilie"))
+                .Returns(BuildPlayerEntity());
+
+            playerService.Update(new UpdatePlayerRequest { Identifier = "IlarionPintilie" });
+
+            repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
+        }
+
+        [Test]
+        public void GivenARepositoryException_WhenUpdatingAPlayer_ThenTheExceptionIsRethrown()
+        {
+            repositoryMock
                 .Setup(repository => repository.Get(It.IsAny<string>()))
                 .Throws<KeyNotFoundException>();
 
             Assert.That(
-                () => playerService.Get("NonExistentUser"),
+                () => playerService.Update(new UpdatePlayerRequest { Identifier = "NonExistentPlayer" }),
                 Throws.TypeOf<KeyNotFoundException>());
         }
 

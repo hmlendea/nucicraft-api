@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+
 using NuciAPI.Controllers;
+
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Responses;
@@ -23,19 +25,20 @@ namespace NuciCraft.API.Controllers
                 () => service.Register(request),
                 authorisation);
 
-        [HttpGet("{username}")]
+        [HttpGet]
         public ActionResult Get(
-            [FromRoute] string username)
-        {
-            GetPlayerRequest request = new()
-            {
-                Username = username
-            };
-
-            return ProcessRequest(
+            [FromQuery] GetPlayerRequest request)
+            => ProcessRequest(
                 request,
-                () => new GetResponse(service.Get(request.Username)),
+                () => new GetPlayerResponse(service.Get(request)),
                 authorisation);
-        }
+
+        [HttpPut]
+        public ActionResult Update(
+            [FromBody] UpdatePlayerRequest request)
+            => ProcessRequest(
+                request,
+                () => service.Update(request),
+                authorisation);
     }
 }
