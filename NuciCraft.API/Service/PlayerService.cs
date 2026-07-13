@@ -73,11 +73,14 @@ namespace NuciCraft.API.Service
             }
         }
 
-        public Player Get(string username)
+        public Player Get(GetPlayerRequest request)
         {
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.Username, username)
+                new(MyLogInfoKey.PlayerID, request.Identifier),
+                new(MyLogInfoKey.Username, request.Username),
+                new(MyLogInfoKey.OfflineUUID, request.OfflineUUID),
+                new(MyLogInfoKey.OnlineUUID, request.OnlineUUID)
             ];
 
             logger.Info(
@@ -88,8 +91,14 @@ namespace NuciCraft.API.Service
             try
             {
                 Player player = repository
-                    .Get(username)
-                    .ToDomainModel();
+                    .GetAll()
+                    .FirstOrDefault(entity =>
+                        (!string.IsNullOrWhiteSpace(request.Identifier) && entity.Id == request.Identifier) ||
+                        (!string.IsNullOrWhiteSpace(request.Username) && entity.Username == request.Username) ||
+                        (!string.IsNullOrWhiteSpace(request.OfflineUUID) && entity.OfflineUUID == request.OfflineUUID) ||
+                        (!string.IsNullOrWhiteSpace(request.OnlineUUID) && entity.OnlineUUID == request.OnlineUUID))
+                    ?.ToDomainModel()
+                    ?? throw new KeyNotFoundException("No player found matching the provided criteria.");
 
                 logger.Info(
                     MyOperation.GetPlayer,

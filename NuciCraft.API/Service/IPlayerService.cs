@@ -7,7 +7,7 @@ namespace NuciCraft.API.Service
     {
         void Register(RegisterPlayerRequest request);
 
-        Player Get(string username);
+        Player Get(GetPlayerRequest request);
 
         void UpdateLastDeathLocation(string username, Coordinates location);
     }

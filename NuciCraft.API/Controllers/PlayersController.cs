@@ -23,19 +23,12 @@ namespace NuciCraft.API.Controllers
                 () => service.Register(request),
                 authorisation);
 
-        [HttpGet("{username}")]
+        [HttpGet]
         public ActionResult Get(
-            [FromRoute] string username)
-        {
-            GetPlayerRequest request = new()
-            {
-                Username = username
-            };
-
-            return ProcessRequest(
+            [FromQuery] GetPlayerRequest request)
+            => ProcessRequest(
                 request,
-                () => new GetResponse(service.Get(request.Username)),
+                () => new GetResponse(service.Get(request)),
                 authorisation);
-        }
     }
 }

@@ -134,10 +134,10 @@ namespace NuciCraft.API.UnitTests.Service
             PlayerEntity entity = BuildPlayerEntity();
 
             repositoryMock
-                .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(entity);
+                .Setup(repository => repository.GetAll())
+                .Returns([entity]);
 
-            Player player = playerService.Get("IlarionPintilie");
+            Player player = playerService.Get(new GetPlayerRequest { Username = "IlarionPintilie" });
 
             Assert.That(player, Is.Not.Null);
             Assert.That(player.Identifier, Is.EqualTo(entity.Id));
@@ -150,15 +150,72 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenAValidIdentifier_WhenGettingAPlayer_ThenThePlayerIsReturned()
+        {
+            PlayerEntity entity = BuildPlayerEntity();
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([entity]);
+
+            Player player = playerService.Get(new GetPlayerRequest { Identifier = entity.Id });
+
+            Assert.That(player, Is.Not.Null);
+            Assert.That(player.Identifier, Is.EqualTo(entity.Id));
+        }
+
+        [Test]
+        public void GivenAValidOfflineUUID_WhenGettingAPlayer_ThenThePlayerIsReturned()
+        {
+            PlayerEntity entity = BuildPlayerEntity();
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([entity]);
+
+            Player player = playerService.Get(new GetPlayerRequest { OfflineUUID = entity.OfflineUUID });
+
+            Assert.That(player, Is.Not.Null);
+            Assert.That(player.OfflineUUID, Is.EqualTo(entity.OfflineUUID));
+        }
+
+        [Test]
+        public void GivenAValidOnlineUUID_WhenGettingAPlayer_ThenThePlayerIsReturned()
+        {
+            PlayerEntity entity = BuildPlayerEntity();
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([entity]);
+
+            Player player = playerService.Get(new GetPlayerRequest { OnlineUUID = entity.OnlineUUID });
+
+            Assert.That(player, Is.Not.Null);
+            Assert.That(player.OnlineUUID, Is.EqualTo(entity.OnlineUUID));
+        }
+
+        [Test]
+        public void GivenNoMatchingPlayer_WhenGettingAPlayer_ThenAKeyNotFoundExceptionIsThrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([]);
+
+            Assert.That(
+                () => playerService.Get(new GetPlayerRequest { Username = "NonExistentUser" }),
+                Throws.TypeOf<KeyNotFoundException>());
+        }
+
+        [Test]
         public void GivenARepositoryException_WhenGettingAPlayer_ThenTheExceptionIsRethrown()
         {
             repositoryMock
-                .Setup(repository => repository.Get(It.IsAny<string>()))
-                .Throws<KeyNotFoundException>();
+                .Setup(repository => repository.GetAll())
+                .Throws<InvalidOperationException>();
 
             Assert.That(
-                () => playerService.Get("NonExistentUser"),
-                Throws.TypeOf<KeyNotFoundException>());
+                () => playerService.Get(new GetPlayerRequest { Username = "IlarionPintilie" }),
+                Throws.TypeOf<InvalidOperationException>());
         }
 
         // ── UpdateLastDeathLocation ────────────────────────────────────────────
