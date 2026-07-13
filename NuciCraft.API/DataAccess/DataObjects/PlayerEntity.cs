@@ -16,6 +16,10 @@ namespace NuciCraft.API.DataAccess.DataObjects
 
         public string EmailAddress { get; set; }
 
+        public string LastSlept { get; set; }
+
+        public string LastDeath { get; set; }
+
         public string SkinUrl { get; set; }
     }
 }

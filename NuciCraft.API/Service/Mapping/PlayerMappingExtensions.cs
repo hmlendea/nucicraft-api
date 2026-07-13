@@ -30,6 +30,8 @@ namespace NuciCraft.API.Service.Mapping
             IpAddress = dataObject.IpAddress,
             DiscordId = dataObject.DiscordId,
             EmailAddress = dataObject.EmailAddress,
+            LastSlept = dataObject.LastSlept != null ? DateTimeOffset.Parse(dataObject.LastSlept) : null,
+            LastDeath = dataObject.LastDeath != null ? DateTimeOffset.Parse(dataObject.LastDeath) : null,
             SkinUrl = dataObject.SkinUrl
         };
 
@@ -50,6 +52,8 @@ namespace NuciCraft.API.Service.Mapping
             IpAddress = domainModel.IpAddress,
             DiscordId = domainModel.DiscordId,
             EmailAddress = domainModel.EmailAddress,
+            LastSlept = domainModel.LastSlept?.ToString(TimestampFormat),
+            LastDeath = domainModel.LastDeath?.ToString(TimestampFormat),
             SkinUrl = domainModel.SkinUrl
         };
 
