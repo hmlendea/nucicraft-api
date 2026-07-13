@@ -39,7 +39,7 @@ namespace NuciCraft.API.UnitTests.Responses
         {
             Player player = BuildPlayer();
             player.LastDeathDT = DateTimeOffset.Parse("2025-03-15T12:00:00.0000000+00:00");
-            player.LastDeathLocation = new Coordinates
+            player.LastDeathLocation = new()
             {
                 World = "world_nether",
                 X = 613.5f,

@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+
 using NuciAPI.Controllers;
+
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Responses;

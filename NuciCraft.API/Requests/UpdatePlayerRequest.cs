@@ -1,7 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+
 using NuciAPI.Requests;
-using NuciCraft.API.Service.Models;
+
 using NuciSecurity.HMAC;
+
+using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Requests
 {

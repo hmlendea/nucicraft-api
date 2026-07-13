@@ -4,14 +4,15 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
+using NuciDAL.Repositories;
+
+using NuciLog.Core;
+
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service.Mapping;
 using NuciCraft.API.Service.Models;
-
-using NuciDAL.Repositories;
-using NuciLog.Core;
 
 namespace NuciCraft.API.Service
 {
@@ -90,15 +91,20 @@ namespace NuciCraft.API.Service
 
             try
             {
-                Player player = repository
+                PlayerEntity matchingEntity = repository
                     .GetAll()
                     .FirstOrDefault(entity =>
-                        (!string.IsNullOrWhiteSpace(request.Identifier) && entity.Id == request.Identifier) ||
-                        (!string.IsNullOrWhiteSpace(request.Username) && entity.Username == request.Username) ||
-                        (!string.IsNullOrWhiteSpace(request.OfflineUUID) && entity.OfflineUUID == request.OfflineUUID) ||
-                        (!string.IsNullOrWhiteSpace(request.OnlineUUID) && entity.OnlineUUID == request.OnlineUUID))
-                    ?.ToDomainModel()
-                    ?? throw new KeyNotFoundException("No player found matching the provided criteria.");
+                        (!string.IsNullOrWhiteSpace(request.Identifier) && string.Equals(entity.Id, request.Identifier)) ||
+                        (!string.IsNullOrWhiteSpace(request.Username) && string.Equals(entity.Username, request.Username)) ||
+                        (!string.IsNullOrWhiteSpace(request.OfflineUUID) && string.Equals(entity.OfflineUUID, request.OfflineUUID)) ||
+                        (!string.IsNullOrWhiteSpace(request.OnlineUUID) && string.Equals(entity.OnlineUUID, request.OnlineUUID)));
+
+                if (matchingEntity is null)
+                {
+                    throw new KeyNotFoundException("No player found matching the provided criteria.");
+                }
+
+                Player player = matchingEntity.ToDomainModel();
 
                 logger.Info(
                     MyOperation.GetPlayer,
@@ -107,12 +113,12 @@ namespace NuciCraft.API.Service
 
                 return player;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 logger.Error(
                     MyOperation.GetPlayer,
                     OperationStatus.Failure,
-                    ex,
+                    exception,
                     logInfos);
 
                 throw;
@@ -133,35 +139,51 @@ namespace NuciCraft.API.Service
 
             try
             {
-                PlayerEntity player = repository.Get(request.Identifier);
+                PlayerEntity playerEntity = repository.Get(request.Identifier);
 
                 if (request.Username is not null)
-                    player.Username = request.Username;
+                {
+                    playerEntity.Username = request.Username;
+                }
 
                 if (request.OnlineUUID is not null)
-                    player.OnlineUUID = request.OnlineUUID;
+                {
+                    playerEntity.OnlineUUID = request.OnlineUUID;
+                }
 
                 if (request.Password is not null)
-                    player.Password = request.Password;
+                {
+                    playerEntity.Password = request.Password;
+                }
 
                 if (request.IpAddress is not null)
-                    player.IpAddress = request.IpAddress;
+                {
+                    playerEntity.IpAddress = request.IpAddress;
+                }
 
                 if (request.DiscordId is not null)
-                    player.DiscordId = request.DiscordId;
+                {
+                    playerEntity.DiscordId = request.DiscordId;
+                }
 
                 if (request.EmailAddress is not null)
-                    player.EmailAddress = request.EmailAddress;
+                {
+                    playerEntity.EmailAddress = request.EmailAddress;
+                }
 
                 if (request.LastSleptDT is not null)
-                    player.LastSleptDT = request.LastSleptDT;
+                {
+                    playerEntity.LastSleptDT = request.LastSleptDT;
+                }
 
                 if (request.LastDeathDT is not null)
-                    player.LastDeathDT = request.LastDeathDT;
+                {
+                    playerEntity.LastDeathDT = request.LastDeathDT;
+                }
 
                 if (request.LastDeathLocation is not null)
                 {
-                    player.LastDeathLocation = new CoordinatesDataObject
+                    playerEntity.LastDeathLocation = new()
                     {
                         World = request.LastDeathLocation.World,
                         X = request.LastDeathLocation.X,
@@ -171,11 +193,13 @@ namespace NuciCraft.API.Service
                 }
 
                 if (request.SkinUrl is not null)
-                    player.SkinUrl = request.SkinUrl;
+                {
+                    playerEntity.SkinUrl = request.SkinUrl;
+                }
 
-                player.UpdatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK");
+                playerEntity.UpdatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK");
 
-                repository.Update(player);
+                repository.Update(playerEntity);
                 repository.SaveChanges();
 
                 logger.Info(
@@ -183,12 +207,12 @@ namespace NuciCraft.API.Service
                     OperationStatus.Success,
                     logInfos);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 logger.Error(
                     MyOperation.UpdatePlayer,
                     OperationStatus.Failure,
-                    ex,
+                    exception,
                     logInfos);
 
                 throw;
@@ -238,7 +262,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        static string GetOfflineUuid(string username)
+        private static string GetOfflineUuid(string username)
         {
             string input = $"OfflinePlayer:{username}";
 

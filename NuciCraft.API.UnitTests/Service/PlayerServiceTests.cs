@@ -2,15 +2,17 @@ using System;
 using System.Collections.Generic;
 
 using Moq;
+
 using NUnit.Framework;
+
+using NuciDAL.Repositories;
+
+using NuciLog.Core;
 
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service;
 using NuciCraft.API.Service.Models;
-
-using NuciDAL.Repositories;
-using NuciLog.Core;
 
 namespace NuciCraft.API.UnitTests.Service
 {
@@ -251,7 +253,7 @@ namespace NuciCraft.API.UnitTests.Service
                 EmailAddress = "new@nucilandia.ro",
                 LastSleptDT = "2026-01-01T00:00:00.0000000+00:00",
                 LastDeathDT = "2026-06-01T00:00:00.0000000+00:00",
-                LastDeathLocation = new Coordinates { World = "world_nether", X = 1.0f, Y = 2.0f, Z = 3.0f },
+                LastDeathLocation = new() { World = "world_nether", X = 1.0f, Y = 2.0f, Z = 3.0f },
                 SkinUrl = "new-skin.nucilandia.ro"
             };
 
@@ -318,7 +320,7 @@ namespace NuciCraft.API.UnitTests.Service
             playerService.Update(new UpdatePlayerRequest
             {
                 Identifier = "IlarionPintilie",
-                LastDeathLocation = new Coordinates { World = "world_the_end", X = 0f, Y = 64f, Z = 0f }
+                LastDeathLocation = new() { World = "world_the_end", X = 0f, Y = 64f, Z = 0f }
             });
 
             Assert.That(capturedEntity.LastDeathLocation, Is.Not.Null);
@@ -370,7 +372,9 @@ namespace NuciCraft.API.UnitTests.Service
                 Throws.TypeOf<KeyNotFoundException>());
         }
 
-        // ── UpdateLastDeathLocation ────────────────────────────────────────────        [Test]
+        // ── UpdateLastDeathLocation ────────────────────────────────────────────
+
+        [Test]
         public void GivenAValidRequest_WhenUpdatingLastDeathLocation_ThenTheEntityIsUpdatedWithTheCorrectCoordinates()
         {
             PlayerEntity capturedEntity = null;

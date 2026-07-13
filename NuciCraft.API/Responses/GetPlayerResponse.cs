@@ -1,7 +1,10 @@
 using System;
+
 using NuciAPI.Responses;
-using NuciCraft.API.Service.Models;
+
 using NuciSecurity.HMAC;
+
+using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Responses
 {
