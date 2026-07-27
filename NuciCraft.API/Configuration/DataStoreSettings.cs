@@ -5,5 +5,7 @@ namespace NuciCraft.API.Configuration
         public string PlayersStorePath { get; set; }
 
         public string RtpLocationsStorePath { get; set; }
+
+        public string ZonesStorePath { get; set; }
     }
 }

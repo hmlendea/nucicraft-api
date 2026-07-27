@@ -7,8 +7,9 @@ namespace NuciCraft.API.Logging
         MyOperation(string name) : base(name) { }
 
         public static Operation AddRtpLocation => new MyOperation(nameof(AddRtpLocation));
-        public static Operation GetRandomRtpLocation => new MyOperation(nameof(GetRandomRtpLocation));
         public static Operation GetPlayer => new MyOperation(nameof(GetPlayer));
+        public static Operation GetRandomRtpLocation => new MyOperation(nameof(GetRandomRtpLocation));
+        public static Operation GetZone => new MyOperation(nameof(GetZone));
         public static Operation PlayerDeath => new MyOperation(nameof(PlayerDeath));
         public static Operation RegisterPlayer => new MyOperation(nameof(RegisterPlayer));
         public static Operation UpdateLastDeathLocation => new MyOperation(nameof(UpdateLastDeathLocation));
