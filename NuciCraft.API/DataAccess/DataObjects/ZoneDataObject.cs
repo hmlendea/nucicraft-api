@@ -4,11 +4,11 @@ namespace NuciCraft.API.DataAccess.DataObjects
 {
     public class ZoneDataObject : NuciCraftEntityBase
     {
-        public string Name { get; set; } // TODO: Localisation support
+        public LocalisedStringDataObject Name { get; set; }
 
-        public string Nickname { get; set; } // TODO: Localisation support
+        public LocalisedStringDataObject Nickname { get; set; }
 
-        public string Type { get; set; }
+        public string Level { get; set; }
 
         public string County { get; set; }
 
@@ -26,7 +26,7 @@ namespace NuciCraft.API.DataAccess.DataObjects
 
         public CoordinatesDataObject TeleportationPoint { get; set; }
 
-        public string LeaderTitle { get; set; } // TODO: Localisation support
+        public LocalisedStringDataObject LeaderTitle { get; set; }
 
         public int Population { get; set; }
 

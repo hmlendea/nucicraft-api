@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace NuciCraft.API.Service.Models
@@ -7,11 +6,11 @@ namespace NuciCraft.API.Service.Models
     {
         public string Identifier { get; set; }
 
-        public string Name { get; set; } // TODO: Localisation support
+        public LocalisedString Name { get; set; }
 
-        public string Nickname { get; set; } // TODO: Localisation support
+        public LocalisedString Nickname { get; set; }
 
-        public string Type { get; set; }
+        public string Level { get; set; }
 
         public string County { get; set; }
 
@@ -29,7 +28,7 @@ namespace NuciCraft.API.Service.Models
 
         public Coordinates TeleportationPoint { get; set; }
 
-        public string LeaderTitle { get; set; } // TODO: Localisation support
+        public LocalisedString LeaderTitle { get; set; }
 
         public int Population { get; set; }
 

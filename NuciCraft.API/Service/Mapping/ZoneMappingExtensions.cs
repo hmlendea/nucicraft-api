@@ -19,9 +19,9 @@ namespace NuciCraft.API.Service.Mapping
         internal static Zone ToServiceModel(this ZoneDataObject dataObject) => new()
         {
             Identifier = dataObject.Id,
-            Name = dataObject.Name,
-            Nickname = dataObject.Nickname,
-            Type = dataObject.Type,
+            Name = dataObject.Name?.ToServiceModel(),
+            Nickname = dataObject.Nickname?.ToServiceModel(),
+            Level = dataObject.Level,
             County = dataObject.County,
             Region = dataObject.Region,
             Country = dataObject.Country,
@@ -30,7 +30,7 @@ namespace NuciCraft.API.Service.Mapping
             Creators = dataObject.Creators,
             Leaders = dataObject.Leaders,
             TeleportationPoint = dataObject.TeleportationPoint?.ToServiceModel(),
-            LeaderTitle = dataObject.LeaderTitle,
+            LeaderTitle = dataObject.LeaderTitle?.ToServiceModel(),
             Population = dataObject.Population,
             MapLink = dataObject.MapLink,
             WikiUrl = dataObject.WikiUrl
@@ -44,9 +44,9 @@ namespace NuciCraft.API.Service.Mapping
         internal static ZoneDataObject ToDataObject(this Zone serviceModel) => new()
         {
             Id = serviceModel.Identifier,
-            Name = serviceModel.Name,
-            Nickname = serviceModel.Nickname,
-            Type = serviceModel.Type,
+            Name = serviceModel.Name?.ToDataObject(),
+            Nickname = serviceModel.Nickname?.ToDataObject(),
+            Level = serviceModel.Level,
             County = serviceModel.County,
             Region = serviceModel.Region,
             Country = serviceModel.Country,
@@ -55,7 +55,7 @@ namespace NuciCraft.API.Service.Mapping
             Creators = serviceModel.Creators,
             Leaders = serviceModel.Leaders,
             TeleportationPoint = serviceModel.TeleportationPoint?.ToDataObject(),
-            LeaderTitle = serviceModel.LeaderTitle,
+            LeaderTitle = serviceModel.LeaderTitle?.ToDataObject(),
             Population = serviceModel.Population,
             MapLink = serviceModel.MapLink,
             WikiUrl = serviceModel.WikiUrl
