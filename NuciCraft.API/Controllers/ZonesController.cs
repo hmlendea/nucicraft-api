@@ -4,6 +4,7 @@ using NuciAPI.Controllers;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
+using NuciCraft.API.Responses;
 using NuciCraft.API.Service;
 
 namespace NuciCraft.API.Controllers
@@ -21,7 +22,10 @@ namespace NuciCraft.API.Controllers
             [FromQuery] GetZoneRequest request)
             => ProcessRequest(
                 request,
-                () => new GetZoneResponse(service.GetZone(request.ZoneIdentifier)),
+                () => new GetZoneResponse()
+                {
+                    Zone = service.GetZone(request.Identifier)
+                },
                 authorisation);
     }
 }

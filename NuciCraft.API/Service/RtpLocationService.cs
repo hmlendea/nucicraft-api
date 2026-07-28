@@ -114,9 +114,9 @@ namespace NuciCraft.API.Service
                     .ToServiceModel();
 
                 logInfos = logInfos
-                    .Append(new(MyLogInfoKey.X, rtpLocation.Coordinates.X))
-                    .Append(new(MyLogInfoKey.Y, rtpLocation.Coordinates.Y))
-                    .Append(new(MyLogInfoKey.Z, rtpLocation.Coordinates.Z));
+                    .Append(new(MyLogInfoKey.X, rtpLocation.Coordinates?.X))
+                    .Append(new(MyLogInfoKey.Y, rtpLocation.Coordinates?.Y))
+                    .Append(new(MyLogInfoKey.Z, rtpLocation.Coordinates?.Z));
 
                 logger.Info(
                     MyOperation.GetRandomRtpLocation,
