@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Service
@@ -5,5 +6,7 @@ namespace NuciCraft.API.Service
     public interface IZoneService
     {
         Zone GetZone(string zoneIdentifier);
+
+        IEnumerable<Zone> GetAllZones();
     }
 }

@@ -48,6 +48,7 @@ namespace NuciCraft.API
             .AddSingleton<IGameEventService, GameEventService>()
             .AddSingleton<IPlayerService, PlayerService>()
             .AddSingleton<IRtpLocationService, RtpLocationService>()
+            .AddSingleton<IZoneService, ZoneService>()
             .AddSingleton<INuciTextNormaliser, NuciTextNormaliser>()
             .AddSingleton<INuciTextObfuscator, NuciTextObfuscator>()
             .AddScoped<ILogger, NuciLogger>();
