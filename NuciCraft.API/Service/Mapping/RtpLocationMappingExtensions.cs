@@ -6,60 +6,52 @@ using NuciCraft.API.Service.Models;
 namespace NuciCraft.API.Service.Mapping
 {
     /// <summary>
-    /// RtpLocation mapping extensions for converting between data objects and domain models.
+    /// RtpLocation mapping extensions for converting between data objects and service models.
     /// </summary>
     static class RtpLocationMappingExtensions
     {
         /// <summary>
-        /// Converts the data object into a domain model.
+        /// Converts the data object into a service model.
         /// </summary>
-        /// <returns>The domain model.</returns>
+        /// <returns>The service model.</returns>
         /// <param name="dataObject">The data object.</param>
-        internal static RtpLocation ToDomainModel(this RtpLocationEntity dataObject) => new()
+        internal static RtpLocation ToServiceModel(
+            this RtpLocationEntity dataObject) => new()
         {
             Id = dataObject.Id,
             Biome = dataObject.Biome,
-            Coordinates = new()
-            {
-                World = dataObject.Coordinates.World,
-                X = dataObject.Coordinates.X,
-                Y = dataObject.Coordinates.Y,
-                Z = dataObject.Coordinates.Z
-            }
+            Coordinates = dataObject.Coordinates?.ToServiceModel()
         };
 
         /// <summary>
-        /// Converts the domain model into a data object.
+        /// Converts the service model into a data object.
         /// </summary>
         /// <returns>The data object.</returns>
-        /// <param name="domainModel">The domain model.</param>
-        internal static RtpLocationEntity ToDataObject(this RtpLocation domainModel) => new()
+        /// <param name="serviceModel">The service model.</param>
+        internal static RtpLocationEntity ToDataObject(
+            this RtpLocation serviceModel) => new()
         {
-            Id = domainModel.Id,
-            Biome = domainModel.Biome,
-            Coordinates = new()
-            {
-                World = domainModel.Coordinates.World,
-                X = domainModel.Coordinates.X,
-                Y = domainModel.Coordinates.Y,
-                Z = domainModel.Coordinates.Z
-            }
+            Id = serviceModel.Id,
+            Biome = serviceModel.Biome,
+            Coordinates = serviceModel.Coordinates?.ToDataObject()
         };
 
         /// <summary>
-        /// Converts the data objects into domain models.
+        /// Converts the data objects into service models.
         /// </summary>
-        /// <returns>The domain models.</returns>
+        /// <returns>The service models.</returns>
         /// <param name="dataObjects">The data objects.</param>
-        internal static IEnumerable<RtpLocation> ToDomainModels(this IEnumerable<RtpLocationEntity> dataObjects)
-            => dataObjects.Select(dataObject => dataObject.ToDomainModel());
+        internal static IEnumerable<RtpLocation> ToServiceModels(
+            this IEnumerable<RtpLocationEntity> dataObjects)
+            => dataObjects.Select(dataObject => dataObject.ToServiceModel());
 
         /// <summary>
-        /// Converts the domain models into data objects.
+        /// Converts the service models into data objects.
         /// </summary>
         /// <returns>The data objects.</returns>
-        /// <param name="domainModels">The domain models.</param>
-        internal static IEnumerable<RtpLocationEntity> ToDataObjects(this IEnumerable<RtpLocation> domainModels)
-            => domainModels.Select(domainModel => domainModel.ToDataObject());
+        /// <param name="serviceModels">The service models.</param>
+        internal static IEnumerable<RtpLocationEntity> ToDataObjects(
+            this IEnumerable<RtpLocation> serviceModels)
+            => serviceModels.Select(serviceModel => serviceModel.ToDataObject());
     }
 }

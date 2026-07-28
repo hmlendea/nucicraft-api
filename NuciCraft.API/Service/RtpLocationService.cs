@@ -111,7 +111,7 @@ namespace NuciCraft.API.Service
 
                 RtpLocation rtpLocation = rtpLocationEntities
                     .GetRandomElement()
-                    .ToDomainModel();
+                    .ToServiceModel();
 
                 logInfos = logInfos
                     .Append(new(MyLogInfoKey.X, rtpLocation.Coordinates.X))
