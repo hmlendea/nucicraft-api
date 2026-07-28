@@ -26,20 +26,14 @@ namespace NuciCraft.API.Controllers
                 {
                     Identifier = zoneIdentifier
                 },
-                () => new GetZoneResponse()
-                {
-                    Zone = service.GetZone(zoneIdentifier)
-                },
+                () => new GetResponse(service.GetZone(zoneIdentifier)),
                 authorisation);
 
         [HttpGet]
         public ActionResult GetAll()
             => ProcessRequest(
                 new GetZonesRequest(),
-                () => new GetZonesResponse()
-                {
-                    Zones = service.GetAllZones()
-                },
+                () => new GetResponse(service.GetAllZones()),
                 authorisation);
     }
 }
