@@ -1,26 +1,29 @@
 using System.Collections.Generic;
 using System.Linq;
+
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Service.Mapping
 {
     /// <summary>
-    /// RtpLocation mapping extensions for converting between data objects and service models.
+    /// Coordinates mapping extensions for converting between data objects and service models.
     /// </summary>
-    static class RtpLocationMappingExtensions
+    static class CoordinatesMappingExtensions
     {
         /// <summary>
         /// Converts the data object into a service model.
         /// </summary>
         /// <returns>The service model.</returns>
         /// <param name="dataObject">The data object.</param>
-        internal static RtpLocation ToServiceModel(
-            this RtpLocationEntity dataObject) => new()
+        internal static Coordinates ToServiceModel(this CoordinatesDataObject dataObject) => new()
         {
-            Id = dataObject.Id,
-            Biome = dataObject.Biome,
-            Coordinates = dataObject.Coordinates?.ToServiceModel()
+            World = dataObject.World,
+            X = dataObject.X,
+            Y = dataObject.Y,
+            Z = dataObject.Z,
+            Pitch = dataObject.Pitch,
+            Yaw = dataObject.Yaw
         };
 
         /// <summary>
@@ -28,12 +31,14 @@ namespace NuciCraft.API.Service.Mapping
         /// </summary>
         /// <returns>The data object.</returns>
         /// <param name="serviceModel">The service model.</param>
-        internal static RtpLocationEntity ToDataObject(
-            this RtpLocation serviceModel) => new()
+        internal static CoordinatesDataObject ToDataObject(this Coordinates serviceModel) => new()
         {
-            Id = serviceModel.Id,
-            Biome = serviceModel.Biome,
-            Coordinates = serviceModel.Coordinates?.ToDataObject()
+            World = serviceModel.World,
+            X = serviceModel.X,
+            Y = serviceModel.Y,
+            Z = serviceModel.Z,
+            Pitch = serviceModel.Pitch,
+            Yaw = serviceModel.Yaw
         };
 
         /// <summary>
@@ -41,8 +46,7 @@ namespace NuciCraft.API.Service.Mapping
         /// </summary>
         /// <returns>The service models.</returns>
         /// <param name="dataObjects">The data objects.</param>
-        internal static IEnumerable<RtpLocation> ToServiceModels(
-            this IEnumerable<RtpLocationEntity> dataObjects)
+        internal static IEnumerable<Coordinates> ToServiceModels(this IEnumerable<CoordinatesDataObject> dataObjects)
             => dataObjects.Select(dataObject => dataObject.ToServiceModel());
 
         /// <summary>
@@ -50,8 +54,7 @@ namespace NuciCraft.API.Service.Mapping
         /// </summary>
         /// <returns>The data objects.</returns>
         /// <param name="serviceModels">The service models.</param>
-        internal static IEnumerable<RtpLocationEntity> ToDataObjects(
-            this IEnumerable<RtpLocation> serviceModels)
+        internal static IEnumerable<CoordinatesDataObject> ToDataObjects(this IEnumerable<Coordinates> serviceModels)
             => serviceModels.Select(serviceModel => serviceModel.ToDataObject());
     }
 }
