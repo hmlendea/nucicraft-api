@@ -1,11 +1,16 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using NuciAPI.Client;
+
 using NuciDAL.Repositories;
+
 using NuciLog;
 using NuciLog.Core;
+
 using NuciText.Normalisation;
 using NuciText.Obfuscation;
+
 using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Service;
@@ -14,7 +19,8 @@ namespace NuciCraft.API
 {
     public static class ServiceCollectionExtensions
     {
-        static DataStoreSettings dataStoreSettings;
+
+        private static DataStoreSettings dataStoreSettings;
 
         public static IServiceCollection AddConfigurations(
             this IServiceCollection services,
@@ -23,15 +29,20 @@ namespace NuciCraft.API
             dataStoreSettings = new DataStoreSettings();
             SecuritySettings securitySettings = new();
             RtpLocationSettings rtpLocationSettings = new();
+            UniversalNameGeneratorSettings universalNameGeneratorSettings = new();
 
             configuration.Bind(nameof(dataStoreSettings), dataStoreSettings);
             configuration.Bind(nameof(securitySettings), securitySettings);
             configuration.Bind(nameof(rtpLocationSettings), rtpLocationSettings);
+            configuration.Bind(
+                nameof(universalNameGeneratorSettings),
+                universalNameGeneratorSettings);
 
             return services
                 .AddSingleton(dataStoreSettings)
                 .AddSingleton(securitySettings)
                 .AddSingleton(rtpLocationSettings)
+                .AddSingleton(universalNameGeneratorSettings)
                 .AddNuciLoggerSettings(configuration);
         }
 
@@ -45,7 +56,13 @@ namespace NuciCraft.API
             .AddSingleton<IFileRepository<ZoneDataObject>>(serviceProvider =>
                 new JsonRepository<ZoneDataObject>(
                     dataStoreSettings.ZonesStorePath))
+            .AddSingleton<INuciApiClient>(serviceProvider =>
+                new NuciApiClient(
+                    serviceProvider
+                        .GetRequiredService<UniversalNameGeneratorSettings>()
+                        .BaseUrl))
             .AddSingleton<IGameEventService, GameEventService>()
+            .AddSingleton<IMobService, MobService>()
             .AddSingleton<IPlayerService, PlayerService>()
             .AddSingleton<IRtpLocationService, RtpLocationService>()
             .AddSingleton<IZoneService, ZoneService>()

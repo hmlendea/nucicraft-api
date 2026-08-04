@@ -4,7 +4,7 @@ namespace NuciCraft.API.Logging
 {
     public sealed class MyLogInfoKey : LogInfoKey
     {
-        MyLogInfoKey(string name) : base(name) { }
+        private MyLogInfoKey(string name) : base(name) { }
 
         public static LogInfoKey Biome => new MyLogInfoKey(nameof(Biome));
         public static LogInfoKey Count => new MyLogInfoKey(nameof(Count));
@@ -12,6 +12,7 @@ namespace NuciCraft.API.Logging
         public static LogInfoKey DeathLocation => new MyLogInfoKey(nameof(DeathLocation));
         public static LogInfoKey GameEventType => new MyLogInfoKey(nameof(GameEventType));
         public static LogInfoKey IpAddress => new MyLogInfoKey(nameof(IpAddress));
+        public static LogInfoKey MobType => new MyLogInfoKey(nameof(MobType));
         public static LogInfoKey OfflineUUID => new MyLogInfoKey(nameof(OfflineUUID));
         public static LogInfoKey OnlineUUID => new MyLogInfoKey(nameof(OnlineUUID));
         public static LogInfoKey PlayerID => new MyLogInfoKey(nameof(PlayerID));
