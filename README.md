@@ -96,14 +96,12 @@ Behavior:
 #### Get random mob name
 
 - Method: `GET`
-- Path: `/Mobs/random-name`
-- Query parameters:
-	- `mobType` (required)
+- Path: `/Mobs/{mobType}/random-name`
 
 Example:
 
 ```text
-GET /Mobs/random-name?mobType=wandering_trader
+GET /Mobs/wandering_trader/random-name
 ```
 
 Behaviour:

@@ -18,11 +18,18 @@ namespace NuciCraft.API.Controllers
         private readonly NuciApiAuthorisation authorisation =
             NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
 
-        [HttpGet("random-name")]
-        public ActionResult GetRandomMobName([FromQuery] GetMobNameRequest request)
-            => ProcessRequest(
+        [HttpGet("{mobType}/random-name")]
+        public ActionResult GetRandomMobName([FromRoute] string mobType)
+        {
+            GetMobNameRequest request = new()
+            {
+                MobType = mobType
+            };
+
+            return ProcessRequest(
                 request,
                 () => new GetResponse(service.GetRandomMobName(request)),
                 authorisation);
+        }
     }
 }
