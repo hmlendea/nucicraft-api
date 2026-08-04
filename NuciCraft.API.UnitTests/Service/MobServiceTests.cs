@@ -1,17 +1,20 @@
 using System;
 using System.Net.Http;
+using System.Reflection;
 
 using Moq;
 using NUnit.Framework;
 
 using NuciAPI.Client;
 using NuciAPI.Responses;
+using NuciSecurity.HMAC;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service;
 
 using NuciLog.Core;
+using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.UnitTests.Service
 {
@@ -49,6 +52,7 @@ namespace NuciCraft.API.UnitTests.Service
                     .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
+                        It.IsAny<NuciApiRequestAuthorisationInfo>(),
                         "Names"))
                 .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
                 {
@@ -64,18 +68,25 @@ namespace NuciCraft.API.UnitTests.Service
         public void GivenASupportedMobType_WhenGettingARandomMobName_ThenTheUniversalNameGeneratorRequestIsBuiltCorrectly()
         {
             GenerateNamesRequest capturedRequest = null;
+            NuciApiRequestAuthorisationInfo capturedAuthorisationInfo = null;
 
             universalNameGeneratorClientMock
                 .Setup(client => client
                     .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
+                        It.IsAny<NuciApiRequestAuthorisationInfo>(),
                         "Names"))
-                .Callback<HttpMethod, GenerateNamesRequest, string>(
+                .Callback<HttpMethod, GenerateNamesRequest, NuciApiRequestAuthorisationInfo, string>(
                     (
                         method,
                         request,
-                        endpoint) => capturedRequest = request)
+                        authorisationInfo,
+                        endpoint) =>
+                    {
+                        capturedRequest = request;
+                        capturedAuthorisationInfo = authorisationInfo;
+                    })
                 .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
                 {
                     Names = ["Ilarion"]
@@ -84,11 +95,32 @@ namespace NuciCraft.API.UnitTests.Service
             mobService.GetRandomMobName(BuildGetMobNameRequest());
 
             Assert.That(capturedRequest, Is.Not.Null);
-            Assert.That(capturedRequest.ApiKey, Is.EqualTo(settings.ApiKey));
+            Assert.That(capturedAuthorisationInfo, Is.Not.Null);
+            Assert.That(
+                capturedAuthorisationInfo.BearerToken,
+                Is.EqualTo(settings.ApiKey));
             Assert.That(
                 capturedRequest.Schema,
                 Is.EqualTo("romanian-persons-male"));
             Assert.That(capturedRequest.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void GivenTheGenerateNamesRequest_WhenInspectingItsContract_ThenTheHmacOrderingMatchesTheUngApi()
+        {
+            PropertyInfo schemaProperty = typeof(GenerateNamesRequest)
+                .GetProperty(nameof(GenerateNamesRequest.Schema));
+            PropertyInfo countProperty = typeof(GenerateNamesRequest)
+                .GetProperty(nameof(GenerateNamesRequest.Count));
+            HmacOrderAttribute schemaAttribute = schemaProperty
+                .GetCustomAttribute<HmacOrderAttribute>();
+            HmacOrderAttribute countAttribute = countProperty
+                .GetCustomAttribute<HmacOrderAttribute>();
+
+            Assert.That(schemaAttribute, Is.Not.Null);
+            Assert.That(schemaAttribute.Order, Is.EqualTo(1));
+            Assert.That(countAttribute, Is.Not.Null);
+            Assert.That(countAttribute.Order, Is.EqualTo(2));
         }
 
         [Test]
@@ -105,6 +137,7 @@ namespace NuciCraft.API.UnitTests.Service
                 client => client.SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                     HttpMethod.Get,
                     It.IsAny<GenerateNamesRequest>(),
+                    It.IsAny<NuciApiRequestAuthorisationInfo>(),
                     "Names"),
                 Times.Never);
         }
@@ -117,6 +150,7 @@ namespace NuciCraft.API.UnitTests.Service
                     .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
+                        It.IsAny<NuciApiRequestAuthorisationInfo>(),
                         "Names"))
                 .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
                 {
@@ -126,6 +160,29 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(
                 () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
                 Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void GivenAnUngErrorResponse_WhenGettingARandomMobName_ThenAnInvalidOperationExceptionContainsTheUngFailureDetails()
+        {
+            universalNameGeneratorClientMock
+                .Setup(client => client
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                        HttpMethod.Get,
+                        It.IsAny<GenerateNamesRequest>(),
+                        It.IsAny<NuciApiRequestAuthorisationInfo>(),
+                        "Names"))
+                .ReturnsAsync((NuciApiResponse)new NuciApiErrorResponse
+                {
+                    Code = "AUTHENTICATION_FAILURE",
+                    Message = "The authentication has failed."
+                });
+
+            Assert.That(
+                () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
+                Throws.TypeOf<InvalidOperationException>()
+                    .With.Message.Contains("AUTHENTICATION_FAILURE")
+                    .And.Message.Contains("The authentication has failed."));
         }
 
         [Test]

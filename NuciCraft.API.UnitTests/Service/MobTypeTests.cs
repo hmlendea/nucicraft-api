@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-using NuciCraft.API.Service;
+using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.UnitTests.Service
 {

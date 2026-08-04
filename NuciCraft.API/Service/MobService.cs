@@ -9,7 +9,7 @@ using NuciAPI.Responses;
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
-
+using NuciCraft.API.Service.Models;
 using NuciLog.Core;
 
 namespace NuciCraft.API.Service
@@ -48,17 +48,18 @@ namespace NuciCraft.API.Service
                 MobType mobType = GetMobType(request.MobType);
                 GenerateNamesRequest generateNamesRequest = BuildGenerateNamesRequest(
                     mobType);
+                NuciApiRequestAuthorisationInfo requestAuthorisationInfo =
+                    BuildRequestAuthorisationInfo();
                 NuciApiResponse apiResponse = universalNameGeneratorClient
                     .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         generateNamesRequest,
+                        requestAuthorisationInfo,
                         NamesEndpoint)
                     .GetAwaiter()
                     .GetResult();
-                GenerateNamesResponse generateNamesResponse =
-                    apiResponse as GenerateNamesResponse;
                 string generatedName = ExtractGeneratedName(
-                    generateNamesResponse,
+                    apiResponse,
                     mobType);
 
                 logger.Info(
@@ -82,19 +83,34 @@ namespace NuciCraft.API.Service
 
         private GenerateNamesRequest BuildGenerateNamesRequest(MobType mobType) => new()
         {
-            ApiKey = settings.ApiKey,
             Schema = GetSchemaForMobType(mobType),
             Count = GeneratedNameCount
         };
 
+        private NuciApiRequestAuthorisationInfo BuildRequestAuthorisationInfo() => new()
+        {
+            BearerToken = settings.ApiKey
+        };
+
         private static string ExtractGeneratedName(
-            GenerateNamesResponse generateNamesResponse,
+            NuciApiResponse apiResponse,
             MobType mobType)
         {
+            ArgumentNullException.ThrowIfNull(apiResponse);
+
+            if (!apiResponse.IsSuccessful)
+            {
+                throw new InvalidOperationException(
+                    $"The Universal Name Generator API request has failed with the '{apiResponse.Code}' code: {apiResponse.Message}");
+            }
+
+            GenerateNamesResponse generateNamesResponse =
+                apiResponse as GenerateNamesResponse;
+
             if (generateNamesResponse is null)
             {
                 throw new InvalidOperationException(
-                    "The Universal Name Generator API response could not be deserialised.");
+                    $"The Universal Name Generator API returned an unexpected response type: '{apiResponse.GetType().Name}'.");
             }
 
             string generatedName = null;

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NuciCraft.API.Service
+namespace NuciCraft.API.Service.Models
 {
     public sealed class MobType : IEquatable<MobType>
     {
