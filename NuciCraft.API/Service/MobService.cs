@@ -23,9 +23,7 @@ namespace NuciCraft.API.Service
 
         private static string NamesEndpoint => "Names";
 
-        private static string WanderingTraderMobType => "wandering_trader";
-
-        private static string WanderingTraderSchema => "romanian-persons-male";
+        private static string RomanianMaleFullNamesSchema => "romanian-persons-male";
 
         public string GetRandomMobName(GetMobNameRequest request)
         {
@@ -47,8 +45,9 @@ namespace NuciCraft.API.Service
 
             try
             {
+                MobType mobType = GetMobType(request.MobType);
                 GenerateNamesRequest generateNamesRequest = BuildGenerateNamesRequest(
-                    request.MobType);
+                    mobType);
                 NuciApiResponse apiResponse = universalNameGeneratorClient
                     .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
@@ -60,7 +59,7 @@ namespace NuciCraft.API.Service
                     apiResponse as GenerateNamesResponse;
                 string generatedName = ExtractGeneratedName(
                     generateNamesResponse,
-                    request.MobType);
+                    mobType);
 
                 logger.Info(
                     MyOperation.GetRandomMobName,
@@ -81,7 +80,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private GenerateNamesRequest BuildGenerateNamesRequest(string mobType) => new()
+        private GenerateNamesRequest BuildGenerateNamesRequest(MobType mobType) => new()
         {
             ApiKey = settings.ApiKey,
             Schema = GetSchemaForMobType(mobType),
@@ -90,7 +89,7 @@ namespace NuciCraft.API.Service
 
         private static string ExtractGeneratedName(
             GenerateNamesResponse generateNamesResponse,
-            string mobType)
+            MobType mobType)
         {
             if (generateNamesResponse is null)
             {
@@ -98,7 +97,12 @@ namespace NuciCraft.API.Service
                     "The Universal Name Generator API response could not be deserialised.");
             }
 
-            string generatedName = generateNamesResponse.Names.FirstOrDefault();
+            string generatedName = null;
+
+            if (generateNamesResponse.Names is not null)
+            {
+                generatedName = generateNamesResponse.Names.FirstOrDefault();
+            }
 
             if (string.IsNullOrWhiteSpace(generatedName))
             {
@@ -109,18 +113,28 @@ namespace NuciCraft.API.Service
             return generatedName;
         }
 
-        private static string GetSchemaForMobType(string mobType)
+        private static MobType GetMobType(string mobTypeName)
         {
-            if (string.Equals(
-                mobType,
-                WanderingTraderMobType,
-                StringComparison.OrdinalIgnoreCase))
+            MobType mobType = MobType.FromString(mobTypeName);
+
+            if (object.Equals(mobType, MobType.Unsupported))
             {
-                return WanderingTraderSchema;
+                throw new NotImplementedException(
+                    $"The '{mobTypeName}' mob type is not supported.");
+            }
+
+            return mobType;
+        }
+
+        private static string GetSchemaForMobType(MobType mobType)
+        {
+            if (object.Equals(mobType, MobType.WanderingTrader))
+            {
+                return RomanianMaleFullNamesSchema;
             }
 
             throw new NotImplementedException(
-                $"The '{mobType}' mob type is not supported.");
+                $"The '{mobType}' mob type does not have a configured schema.");
         }
 
         private void ValidateSettings()

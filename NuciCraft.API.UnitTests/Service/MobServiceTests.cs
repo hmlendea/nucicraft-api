@@ -140,7 +140,7 @@ namespace NuciCraft.API.UnitTests.Service
 
         private static GetMobNameRequest BuildGetMobNameRequest() => new()
         {
-            MobType = "wandering_trader"
+            MobType = MobType.WanderingTrader
         };
     }
 }
