@@ -76,7 +76,7 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenTheVillageExternalNameWithDifferentCasing_WhenConvertingFromString_ThenTheMatchingMobTypeIsReturned()
         {
-            MobType mobType = MobType.FromString("VILLAGE");
+            MobType mobType = MobType.FromString("VILLAGER");
 
             Assert.That(mobType, Is.EqualTo(MobType.Villager));
         }
