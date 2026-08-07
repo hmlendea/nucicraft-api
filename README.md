@@ -10,6 +10,7 @@ A lightweight REST API that provides functionality and facilitates the managemen
 The API stores RTP locations and players in JSON files and exposes endpoints to:
 
 - add a new RTP location
+- generate a random mob name for supported mob types
 - register a player
 - retrieve a random RTP location (optionally filtered by world and/or biome)
 
@@ -33,6 +34,10 @@ Controller route prefix:
 
 ```text
 /Players
+```
+
+```text
+/Mobs
 ```
 
 ### Authentication
@@ -88,6 +93,23 @@ Behavior:
 - creates a new location with a generated ID
 - appends it to the JSON data store
 
+#### Get random mob name
+
+- Method: `GET`
+- Path: `/Mobs/{mobType}/random-name`
+
+Example:
+
+```text
+GET /Mobs/wandering_trader/random-name
+```
+
+Behaviour:
+
+- validates the configured API key used by this API
+- resolves the `romanian-persons-male` schema for `wandering_trader`
+- fetches a single generated name from the Universal Name Generator API
+
 #### Get random RTP location
 
 - Method: `GET`
@@ -131,10 +153,15 @@ Default configuration:
 {
 	"dataStoreSettings": {
 		"playersStorePath": "Data/players.json",
-		"rtpLocationsStorePath": "Data/rtp_locations.json"
+		"rtpLocationsStorePath": "Data/rtp_locations.json",
+		"zonesStorePath": "Data/zones.json"
 	},
 	"securitySettings": {
 		"apiKey": "[[NUCICRAFT_API_KEY]]"
+	},
+	"universalNameGeneratorSettings": {
+		"baseUrl": "https://localhost:5001",
+		"apiKey": "[[UNIVERSAL_NAME_GENERATOR_API_KEY]]"
 	},
 	"nuciLoggerSettings": {
 		"logFilePath": "logfile.log",
@@ -146,8 +173,9 @@ Default configuration:
 Notes:
 
 - at startup, the API creates both data store directories/files automatically if missing
-- `rtpLocationsStorePath` and `playersStorePath` can be changed to point to other JSON files
+- `rtpLocationsStorePath`, `playersStorePath`, and `zonesStorePath` can be changed to point to other JSON files
 - replace `[[NUCICRAFT_API_KEY]]` with your actual API key
+- replace `[[UNIVERSAL_NAME_GENERATOR_API_KEY]]` with the API key for the Universal Name Generator API
 
 ## Development
 
