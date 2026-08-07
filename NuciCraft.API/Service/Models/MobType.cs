@@ -15,6 +15,12 @@ namespace NuciCraft.API.Service.Models
                     string.Empty)
             },
             {
+                nameof(EnderDragon),
+                new MobType(
+                    nameof(EnderDragon),
+                    "ender_dragon")
+            },
+            {
                 nameof(WanderingTrader),
                 new MobType(
                     nameof(WanderingTrader),
@@ -35,6 +41,8 @@ namespace NuciCraft.API.Service.Models
         }
 
         public static MobType Unsupported => values[nameof(Unsupported)];
+
+        public static MobType EnderDragon => values[nameof(EnderDragon)];
 
         public static MobType WanderingTrader => values[nameof(WanderingTrader)];
 

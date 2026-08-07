@@ -25,6 +25,8 @@ namespace NuciCraft.API.Service
 
         private static string RomanianMaleFullNamesSchema => "romanian-persons-male";
 
+        private static string FantasyDragonsSchema => "fantasy-dragons";
+
         public string GetRandomMobName(GetMobNameRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);
@@ -147,6 +149,11 @@ namespace NuciCraft.API.Service
             if (object.Equals(mobType, MobType.WanderingTrader))
             {
                 return RomanianMaleFullNamesSchema;
+            }
+
+            if (object.Equals(mobType, MobType.EnderDragon))
+            {
+                return FantasyDragonsSchema;
             }
 
             throw new NotImplementedException(

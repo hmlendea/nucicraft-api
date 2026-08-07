@@ -106,6 +106,37 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenTheEnderDragonMobType_WhenGettingARandomMobName_ThenTheFantasyDragonsSchemaIsUsed()
+        {
+            GenerateNamesRequest capturedRequest = null;
+
+            universalNameGeneratorClientMock
+                .Setup(client => client
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                        HttpMethod.Get,
+                        It.IsAny<GenerateNamesRequest>(),
+                        It.IsAny<NuciApiRequestAuthorisationInfo>(),
+                        "Names"))
+                .Callback<HttpMethod, GenerateNamesRequest, NuciApiRequestAuthorisationInfo, string>(
+                    (
+                        method,
+                        request,
+                        authorisationInfo,
+                        endpoint) => capturedRequest = request)
+                .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
+                {
+                    Names = ["Smaug"]
+                });
+
+            mobService.GetRandomMobName(
+                BuildGetMobNameRequest(MobType.EnderDragon));
+
+            Assert.That(capturedRequest, Is.Not.Null);
+            Assert.That(capturedRequest.Schema, Is.EqualTo("fantasy-dragons"));
+            Assert.That(capturedRequest.Count, Is.EqualTo(1));
+        }
+
+        [Test]
         public void GivenTheGenerateNamesRequest_WhenInspectingItsContract_ThenTheHmacOrderingMatchesTheUngApi()
         {
             PropertyInfo schemaProperty = typeof(GenerateNamesRequest)
@@ -195,9 +226,12 @@ namespace NuciCraft.API.UnitTests.Service
                 Throws.TypeOf<ArgumentException>());
         }
 
-        private static GetMobNameRequest BuildGetMobNameRequest() => new()
+        private static GetMobNameRequest BuildGetMobNameRequest()
+            => BuildGetMobNameRequest(MobType.WanderingTrader);
+
+        private static GetMobNameRequest BuildGetMobNameRequest(MobType mobType) => new()
         {
-            MobType = MobType.WanderingTrader
+            MobType = mobType
         };
     }
 }
