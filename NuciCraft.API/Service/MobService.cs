@@ -113,14 +113,9 @@ namespace NuciCraft.API.Service
             }
 
             GenerateNamesResponse generateNamesResponse =
-                apiResponse as GenerateNamesResponse;
-
-            if (generateNamesResponse is null)
-            {
+                apiResponse as GenerateNamesResponse ??
                 throw new InvalidOperationException(
                     $"The Universal Name Generator API returned an unexpected response type: '{apiResponse.GetType().Name}'.");
-            }
-
             string generatedName = null;
 
             if (generateNamesResponse.Names is not null)
@@ -167,7 +162,7 @@ namespace NuciCraft.API.Service
                 return ZaganianMaleNamesSchema;
             }
 
-            if (Equals(mobType, MobType.Village))
+            if (Equals(mobType, MobType.Villager))
             {
                 return GetRandomVillageSchema();
             }

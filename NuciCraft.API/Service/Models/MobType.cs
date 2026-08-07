@@ -39,10 +39,10 @@ namespace NuciCraft.API.Service.Models
                     "pillager")
             },
             {
-                nameof(Village),
+                nameof(Villager),
                 new MobType(
-                    nameof(Village),
-                    "village")
+                    nameof(Villager),
+                    "villager")
             },
             {
                 nameof(Vindicator),
@@ -82,7 +82,7 @@ namespace NuciCraft.API.Service.Models
 
         public static MobType WanderingTrader => values[nameof(WanderingTrader)];
 
-        public static MobType Village => values[nameof(Village)];
+        public static MobType Villager => values[nameof(Villager)];
 
         public static MobType Vindicator => values[nameof(Vindicator)];
 
