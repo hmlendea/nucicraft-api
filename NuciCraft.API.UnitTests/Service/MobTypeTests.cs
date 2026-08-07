@@ -23,6 +23,19 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(mobType, Is.EqualTo(MobType.EnderDragon));
         }
 
+        [TestCase("evoker", nameof(MobType.Evoker))]
+        [TestCase("illusioner", nameof(MobType.Illusioner))]
+        [TestCase("pillager", nameof(MobType.Pillager))]
+        [TestCase("vindicator", nameof(MobType.Vindicator))]
+        public void GivenTheNewIllagerExternalName_WhenConvertingFromString_ThenTheMatchingMobTypeIsReturned(
+            string externalName,
+            string expectedMobTypeName)
+        {
+            MobType mobType = MobType.FromString(externalName);
+
+            Assert.That(mobType.Name, Is.EqualTo(expectedMobTypeName));
+        }
+
         [Test]
         public void GivenTheVillageExternalName_WhenConvertingFromString_ThenTheMatchingMobTypeIsReturned()
         {
@@ -45,6 +58,19 @@ namespace NuciCraft.API.UnitTests.Service
             MobType mobType = MobType.FromString("ENDER_DRAGON");
 
             Assert.That(mobType, Is.EqualTo(MobType.EnderDragon));
+        }
+
+        [TestCase("EVOKER", nameof(MobType.Evoker))]
+        [TestCase("ILLUSIONER", nameof(MobType.Illusioner))]
+        [TestCase("PILLAGER", nameof(MobType.Pillager))]
+        [TestCase("VINDICATOR", nameof(MobType.Vindicator))]
+        public void GivenTheNewIllagerExternalNameWithDifferentCasing_WhenConvertingFromString_ThenTheMatchingMobTypeIsReturned(
+            string externalName,
+            string expectedMobTypeName)
+        {
+            MobType mobType = MobType.FromString(externalName);
+
+            Assert.That(mobType.Name, Is.EqualTo(expectedMobTypeName));
         }
 
         [Test]
@@ -74,6 +100,20 @@ namespace NuciCraft.API.UnitTests.Service
             => Assert.That(
                 (string)MobType.EnderDragon,
                 Is.EqualTo("ender_dragon"));
+
+        [TestCase(nameof(MobType.Evoker), "evoker")]
+        [TestCase(nameof(MobType.Illusioner), "illusioner")]
+        [TestCase(nameof(MobType.Pillager), "pillager")]
+        [TestCase(nameof(MobType.Vindicator), "vindicator")]
+        public void GivenTheNewIllagerMobType_WhenConvertingToString_ThenTheExternalNameIsReturned(
+            string mobTypeName,
+            string expectedExternalName)
+        {
+            MobType mobType = MobType.FromString(expectedExternalName);
+
+            Assert.That((string)mobType, Is.EqualTo(expectedExternalName));
+            Assert.That(mobType.Name, Is.EqualTo(mobTypeName));
+        }
 
         [Test]
         public void GivenTheVillageMobType_WhenConvertingToString_ThenTheExternalNameIsReturned()

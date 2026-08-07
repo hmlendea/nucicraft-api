@@ -21,10 +21,34 @@ namespace NuciCraft.API.Service.Models
                     "ender_dragon")
             },
             {
+                nameof(Evoker),
+                new MobType(
+                    nameof(Evoker),
+                    "evoker")
+            },
+            {
+                nameof(Illusioner),
+                new MobType(
+                    nameof(Illusioner),
+                    "illusioner")
+            },
+            {
+                nameof(Pillager),
+                new MobType(
+                    nameof(Pillager),
+                    "pillager")
+            },
+            {
                 nameof(Village),
                 new MobType(
                     nameof(Village),
                     "village")
+            },
+            {
+                nameof(Vindicator),
+                new MobType(
+                    nameof(Vindicator),
+                    "vindicator")
             },
             {
                 nameof(WanderingTrader),
@@ -50,9 +74,17 @@ namespace NuciCraft.API.Service.Models
 
         public static MobType EnderDragon => values[nameof(EnderDragon)];
 
+        public static MobType Evoker => values[nameof(Evoker)];
+
+        public static MobType Illusioner => values[nameof(Illusioner)];
+
+        public static MobType Pillager => values[nameof(Pillager)];
+
         public static MobType WanderingTrader => values[nameof(WanderingTrader)];
 
         public static MobType Village => values[nameof(Village)];
+
+        public static MobType Vindicator => values[nameof(Vindicator)];
 
         public static Array GetValues() => values.Values.ToArray();
 

@@ -27,7 +27,9 @@ namespace NuciCraft.API.Service
 
         private static string RomanianFemaleFullNamesSchema => "romanian-persons-female";
 
-        private static string FantasyDragonsSchema => "fantasy-dragons";
+        private static string DragonNamesSchema => "fantasy-dragons";
+
+        private static string ZaganianMaleNamesSchema => "pinched-universe-zaganian-persons-male";
 
         private static int VillageSchemaVariantsCount => 2;
 
@@ -157,7 +159,12 @@ namespace NuciCraft.API.Service
 
             if (Equals(mobType, MobType.EnderDragon))
             {
-                return FantasyDragonsSchema;
+                return DragonNamesSchema;
+            }
+
+            if (UsesZaganianMaleNamesSchema(mobType))
+            {
+                return ZaganianMaleNamesSchema;
             }
 
             if (Equals(mobType, MobType.Village))
@@ -167,6 +174,31 @@ namespace NuciCraft.API.Service
 
             throw new NotImplementedException(
                 $"The '{mobType}' mob type does not have a configured schema.");
+        }
+
+        private static bool UsesZaganianMaleNamesSchema(MobType mobType)
+        {
+            if (Equals(mobType, MobType.Evoker))
+            {
+                return true;
+            }
+
+            if (Equals(mobType, MobType.Illusioner))
+            {
+                return true;
+            }
+
+            if (Equals(mobType, MobType.Pillager))
+            {
+                return true;
+            }
+
+            if (Equals(mobType, MobType.Vindicator))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private static string GetRandomVillageSchema()
