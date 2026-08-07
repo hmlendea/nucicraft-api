@@ -199,7 +199,7 @@ namespace NuciCraft.API.UnitTests.Service
                 });
 
             mobService.GetRandomMobName(
-                BuildGetMobNameRequest(MobType.Village));
+                BuildGetMobNameRequest(MobType.Villager));
 
             Assert.That(capturedRequest, Is.Not.Null);
             Assert.That(
