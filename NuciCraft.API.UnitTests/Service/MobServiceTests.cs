@@ -171,7 +171,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedRequest, Is.Not.Null);
             Assert.That(
                 capturedRequest.Schema,
-                Is.EqualTo("pinched-universe-zaganian-persons-male"));
+                Is.EqualTo("pinched-zaganian-persons-male"));
             Assert.That(capturedRequest.Count, Is.EqualTo(1));
         }
 
