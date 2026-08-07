@@ -25,7 +25,11 @@ namespace NuciCraft.API.Service
 
         private static string RomanianMaleFullNamesSchema => "romanian-persons-male";
 
+        private static string RomanianFemaleFullNamesSchema => "romanian-persons-female";
+
         private static string FantasyDragonsSchema => "fantasy-dragons";
+
+        private static int VillageSchemaVariantsCount => 2;
 
         public string GetRandomMobName(GetMobNameRequest request)
         {
@@ -135,7 +139,7 @@ namespace NuciCraft.API.Service
         {
             MobType mobType = MobType.FromString(mobTypeName);
 
-            if (object.Equals(mobType, MobType.Unsupported))
+            if (Equals(mobType, MobType.Unsupported))
             {
                 throw new NotImplementedException(
                     $"The '{mobTypeName}' mob type is not supported.");
@@ -146,18 +150,35 @@ namespace NuciCraft.API.Service
 
         private static string GetSchemaForMobType(MobType mobType)
         {
-            if (object.Equals(mobType, MobType.WanderingTrader))
+            if (Equals(mobType, MobType.WanderingTrader))
             {
                 return RomanianMaleFullNamesSchema;
             }
 
-            if (object.Equals(mobType, MobType.EnderDragon))
+            if (Equals(mobType, MobType.EnderDragon))
             {
                 return FantasyDragonsSchema;
             }
 
+            if (Equals(mobType, MobType.Village))
+            {
+                return GetRandomVillageSchema();
+            }
+
             throw new NotImplementedException(
                 $"The '{mobType}' mob type does not have a configured schema.");
+        }
+
+        private static string GetRandomVillageSchema()
+        {
+            int villageSchemaVariant = Random.Shared.Next(VillageSchemaVariantsCount);
+
+            if (villageSchemaVariant == 0)
+            {
+                return RomanianMaleFullNamesSchema;
+            }
+
+            return RomanianFemaleFullNamesSchema;
         }
 
         private void ValidateSettings()

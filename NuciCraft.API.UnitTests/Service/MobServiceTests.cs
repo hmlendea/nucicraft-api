@@ -137,6 +137,40 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenTheVillageMobType_WhenGettingARandomMobName_ThenARomanianPersonSchemaIsUsed()
+        {
+            GenerateNamesRequest capturedRequest = null;
+
+            universalNameGeneratorClientMock
+                .Setup(client => client
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                        HttpMethod.Get,
+                        It.IsAny<GenerateNamesRequest>(),
+                        It.IsAny<NuciApiRequestAuthorisationInfo>(),
+                        "Names"))
+                .Callback<HttpMethod, GenerateNamesRequest, NuciApiRequestAuthorisationInfo, string>(
+                    (
+                        method,
+                        request,
+                        authorisationInfo,
+                        endpoint) => capturedRequest = request)
+                .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
+                {
+                    Names = ["Mary"]
+                });
+
+            mobService.GetRandomMobName(
+                BuildGetMobNameRequest(MobType.Village));
+
+            Assert.That(capturedRequest, Is.Not.Null);
+            Assert.That(
+                capturedRequest.Schema,
+                Is.EqualTo("romanian-persons-male")
+                    .Or.EqualTo("romanian-persons-female"));
+            Assert.That(capturedRequest.Count, Is.EqualTo(1));
+        }
+
+        [Test]
         public void GivenTheGenerateNamesRequest_WhenInspectingItsContract_ThenTheHmacOrderingMatchesTheUngApi()
         {
             PropertyInfo schemaProperty = typeof(GenerateNamesRequest)

@@ -21,6 +21,12 @@ namespace NuciCraft.API.Service.Models
                     "ender_dragon")
             },
             {
+                nameof(Village),
+                new MobType(
+                    nameof(Village),
+                    "village")
+            },
+            {
                 nameof(WanderingTrader),
                 new MobType(
                     nameof(WanderingTrader),
@@ -45,6 +51,8 @@ namespace NuciCraft.API.Service.Models
         public static MobType EnderDragon => values[nameof(EnderDragon)];
 
         public static MobType WanderingTrader => values[nameof(WanderingTrader)];
+
+        public static MobType Village => values[nameof(Village)];
 
         public static Array GetValues() => values.Values.ToArray();
 
