@@ -29,7 +29,7 @@ namespace NuciCraft.API.Service
 
         private static string DragonNamesSchema => "fantasy-dragons";
 
-        private static string ZaganianMaleNamesSchema => "pinched-universe-zaganian-persons-male";
+        private static string ZaganianMaleNamesSchema => "pinched-zaganian-persons-male";
 
         private static int VillageSchemaVariantsCount => 2;
 
