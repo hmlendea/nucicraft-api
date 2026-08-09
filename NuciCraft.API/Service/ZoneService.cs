@@ -7,6 +7,7 @@ using NuciLog.Core;
 
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Logging;
+using NuciCraft.API.Requests;
 using NuciCraft.API.Service.Mapping;
 using NuciCraft.API.Service.Models;
 using System.Linq;
@@ -75,6 +76,119 @@ namespace NuciCraft.API.Service
                     MyOperation.GetAllZones,
                     OperationStatus.Failure,
                     ex);
+
+                throw;
+            }
+        }
+
+        public void Update(UpdateZoneRequest request)
+        {
+            IEnumerable<LogInfo> logInfos =
+            [
+                new(MyLogInfoKey.ZoneIdentifier, request.Identifier)
+            ];
+
+            logger.Info(
+                MyOperation.UpdateZone,
+                OperationStatus.Started,
+                logInfos);
+
+            try
+            {
+                ZoneDataObject zoneDataObject = repository.Get(request.Identifier);
+
+                if (request.Name is not null)
+                {
+                    zoneDataObject.Name = request.Name.ToDataObject();
+                }
+
+                if (request.Nickname is not null)
+                {
+                    zoneDataObject.Nickname = request.Nickname.ToDataObject();
+                }
+
+                if (request.Level is not null)
+                {
+                    zoneDataObject.Level = request.Level;
+                }
+
+                if (request.County is not null)
+                {
+                    zoneDataObject.County = request.County;
+                }
+
+                if (request.Region is not null)
+                {
+                    zoneDataObject.Region = request.Region;
+                }
+
+                if (request.Country is not null)
+                {
+                    zoneDataObject.Country = request.Country;
+                }
+
+                if (request.CreationDate is not null)
+                {
+                    zoneDataObject.CreationDate = request.CreationDate;
+                }
+
+                if (request.Owners is not null)
+                {
+                    zoneDataObject.Owners = request.Owners;
+                }
+
+                if (request.Creators is not null)
+                {
+                    zoneDataObject.Creators = request.Creators;
+                }
+
+                if (request.Leaders is not null)
+                {
+                    zoneDataObject.Leaders = request.Leaders;
+                }
+
+                if (request.TeleportationPoint is not null)
+                {
+                    zoneDataObject.TeleportationPoint = request.TeleportationPoint.ToDataObject();
+                }
+
+                if (request.LeaderTitle is not null)
+                {
+                    zoneDataObject.LeaderTitle = request.LeaderTitle.ToDataObject();
+                }
+
+                if (request.Population is not null)
+                {
+                    zoneDataObject.Population = request.Population.Value;
+                }
+
+                if (request.MapLink is not null)
+                {
+                    zoneDataObject.MapLink = request.MapLink;
+                }
+
+                if (request.WikiUrl is not null)
+                {
+                    zoneDataObject.WikiUrl = request.WikiUrl;
+                }
+
+                zoneDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK");
+
+                repository.Update(zoneDataObject);
+                repository.SaveChanges();
+
+                logger.Info(
+                    MyOperation.UpdateZone,
+                    OperationStatus.Success,
+                    logInfos);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(
+                    MyOperation.UpdateZone,
+                    OperationStatus.Failure,
+                    ex,
+                    logInfos);
 
                 throw;
             }
