@@ -11,7 +11,6 @@ namespace NuciCraft.API.Requests
 {
     public class UpdateZoneRequest : NuciApiRequest
     {
-        [Required]
         public string Identifier { get; set; }
 
         [HmacOrder(1)]

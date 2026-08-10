@@ -99,12 +99,12 @@ namespace NuciCraft.API.Service
 
                 if (request.Name is not null)
                 {
-                    zoneDataObject.Name = request.Name.ToDataObject();
+                    zoneDataObject.Name = request.Name;
                 }
 
                 if (request.Nickname is not null)
                 {
-                    zoneDataObject.Nickname = request.Nickname.ToDataObject();
+                    zoneDataObject.Nickname = request.Nickname;
                 }
 
                 if (request.Level is not null)
@@ -149,12 +149,12 @@ namespace NuciCraft.API.Service
 
                 if (request.TeleportationPoint is not null)
                 {
-                    zoneDataObject.TeleportationPoint = request.TeleportationPoint.ToDataObject();
+                    zoneDataObject.TeleportationPoint = request.TeleportationPoint;
                 }
 
                 if (request.LeaderTitle is not null)
                 {
-                    zoneDataObject.LeaderTitle = request.LeaderTitle.ToDataObject();
+                    zoneDataObject.LeaderTitle = request.LeaderTitle;
                 }
 
                 if (request.Population is not null)
