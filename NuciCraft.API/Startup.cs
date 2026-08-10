@@ -1,15 +1,21 @@
 using System;
 using System.IO;
+using System.Linq;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NuciAPI.Middleware;
+
 using NuciAPI.Middleware.ExceptionHandling;
 using NuciAPI.Middleware.Logging;
 using NuciAPI.Middleware.Security;
+
+using NuciDAL.Repositories;
+
 using NuciCraft.API.Configuration;
+using NuciCraft.API.DataAccess.DataObjects;
 
 namespace NuciCraft.API
 {
@@ -27,38 +33,49 @@ namespace NuciCraft.API
                 .AddCustomServices();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(
+            IApplicationBuilder applicationBuilder,
+            IWebHostEnvironment environment)
         {
-            var dataStoreSettings = app.ApplicationServices.GetRequiredService<DataStoreSettings>();
-            CreateStoreIfMissing(dataStoreSettings.RtpLocationsStorePath);
-            CreateStoreIfMissing(dataStoreSettings.PlayersStorePath);
+            PrepareRepositories(applicationBuilder);
 
-            app.UseNuciApiExceptionHandling();
-            app.UseNuciApiScannerProtection();
-            app.UseNuciApiRequestLogging();
+            applicationBuilder.UseNuciApiExceptionHandling();
+            applicationBuilder.UseNuciApiScannerProtection();
+            applicationBuilder.UseNuciApiRequestLogging();
 
-            if (env.IsDevelopment())
+            if (environment.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                applicationBuilder.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
-            app.UseRouting();
-            app.UseAuthorization();
+            applicationBuilder.UseHttpsRedirection();
+            applicationBuilder.UseDefaultFiles();
+            applicationBuilder.UseStaticFiles();
+            applicationBuilder.UseRouting();
+            applicationBuilder.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
+            applicationBuilder.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+        }
+
+        static void PrepareRepositories(IApplicationBuilder applicationBuilder)
+        {
+            DataStoreSettings dataStoreSettings = applicationBuilder.ApplicationServices.GetRequiredService<DataStoreSettings>();
+
+            CreateStoreIfMissing(dataStoreSettings.RtpLocationsStorePath);
+            CreateStoreIfMissing(dataStoreSettings.PlayersStorePath);
+            CreateStoreIfMissing(dataStoreSettings.ZonesStorePath);
+
+            EagerlyLoadRepositories(applicationBuilder.ApplicationServices);
         }
 
         static void CreateStoreIfMissing(string storePath)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(storePath);
 
-            var storeDirectory = Path.GetDirectoryName(storePath);
+            string storeDirectory = Path.GetDirectoryName(storePath);
 
             if (!Directory.Exists(storeDirectory))
             {
@@ -69,6 +86,24 @@ namespace NuciCraft.API
             {
                 File.WriteAllText(storePath, "[]");
             }
+        }
+
+        static void EagerlyLoadRepositories(IServiceProvider serviceProvider)
+        {
+            serviceProvider
+                .GetRequiredService<IFileRepository<PlayerEntity>>()
+                .GetAll()
+                .ToList();
+
+            serviceProvider
+                .GetRequiredService<IFileRepository<RtpLocationEntity>>()
+                .GetAll()
+                .ToList();
+
+            serviceProvider
+                .GetRequiredService<IFileRepository<ZoneDataObject>>()
+                .GetAll()
+                .ToList();
         }
     }
 }
