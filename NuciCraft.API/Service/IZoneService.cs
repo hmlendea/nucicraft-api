@@ -8,6 +8,8 @@ namespace NuciCraft.API.Service
 {
     public interface IZoneService
     {
+        void Add(AddZoneRequest request);
+
         Zone GetZone(string zoneIdentifier);
 
         IEnumerable<Zone> GetAllZones();

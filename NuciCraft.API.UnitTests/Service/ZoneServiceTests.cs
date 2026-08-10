@@ -32,6 +32,92 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenAValidRequest_WhenAddingAZone_ThenTheZoneIsPersisted()
+        {
+            ZoneDataObject capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Add(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                Name = new() { English = "Solara Portal Hub" },
+                Nickname = new() { English = "Portal Hub" },
+                Level = "district",
+                County = "Solara",
+                Region = "Nucilandia",
+                Country = "Roman Republic",
+                CreationDate = "2026-08-10",
+                Owners = ["Hori873"],
+                Creators = ["Hori873"],
+                Leaders = ["DummyUser"],
+                TeleportationPoint = new()
+                {
+                    World = "world",
+                    X = 120f,
+                    Y = 64f,
+                    Z = -48f,
+                    Pitch = 0f,
+                    Yaw = 180f
+                },
+                LeaderTitle = new() { English = "Mayor" },
+                Population = 128,
+                MapLink = "https://nucilandia.ro/map/solara_portal_hub",
+                WikiUrl = "https://nucilandia.ro/wiki/solara_portal_hub"
+            };
+
+            zoneService.Add(request);
+
+            Assert.That(capturedEntity.Id, Is.EqualTo("solara_portal_hub"));
+            Assert.That(capturedEntity.Name.English, Is.EqualTo("Solara Portal Hub"));
+            Assert.That(capturedEntity.Nickname.English, Is.EqualTo("Portal Hub"));
+            Assert.That(capturedEntity.Level, Is.EqualTo("district"));
+            Assert.That(capturedEntity.County, Is.EqualTo("Solara"));
+            Assert.That(capturedEntity.Region, Is.EqualTo("Nucilandia"));
+            Assert.That(capturedEntity.Country, Is.EqualTo("Roman Republic"));
+            Assert.That(capturedEntity.CreationDate, Is.EqualTo("2026-08-10"));
+            Assert.That(capturedEntity.Owners, Is.EqualTo(new[] { "Hori873" }));
+            Assert.That(capturedEntity.Creators, Is.EqualTo(new[] { "Hori873" }));
+            Assert.That(capturedEntity.Leaders, Is.EqualTo(new[] { "DummyUser" }));
+            Assert.That(capturedEntity.TeleportationPoint.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.TeleportationPoint.X, Is.EqualTo(120f));
+            Assert.That(capturedEntity.TeleportationPoint.Y, Is.EqualTo(64f));
+            Assert.That(capturedEntity.TeleportationPoint.Z, Is.EqualTo(-48f));
+            Assert.That(capturedEntity.TeleportationPoint.Pitch, Is.EqualTo(0f));
+            Assert.That(capturedEntity.TeleportationPoint.Yaw, Is.EqualTo(180f));
+            Assert.That(capturedEntity.LeaderTitle.English, Is.EqualTo("Mayor"));
+            Assert.That(capturedEntity.Population, Is.EqualTo(128));
+            Assert.That(capturedEntity.MapLink, Is.EqualTo("https://nucilandia.ro/map/solara_portal_hub"));
+            Assert.That(capturedEntity.WikiUrl, Is.EqualTo("https://nucilandia.ro/wiki/solara_portal_hub"));
+            Assert.That(capturedEntity.CreatedDT, Is.Not.Null);
+        }
+
+        [Test]
+        public void GivenAValidRequest_WhenAddingAZone_ThenSaveChangesIsInvoked()
+        {
+            zoneService.Add(new AddZoneRequest
+            {
+                Identifier = "solara_portal_hub"
+            });
+
+            repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
+        }
+
+        [Test]
+        public void GivenARepositoryException_WhenAddingAZone_ThenTheExceptionIsRethrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.Add(It.IsAny<ZoneDataObject>()))
+                .Throws<InvalidOperationException>();
+
+            Assert.That(
+                () => zoneService.Add(new AddZoneRequest { Identifier = "solara_portal_hub" }),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
         public void GivenARequestWithPartialFields_WhenUpdatingAZone_ThenOnlyProvidedFieldsAreUpdated()
         {
             ZoneDataObject original = BuildZoneDataObject();
