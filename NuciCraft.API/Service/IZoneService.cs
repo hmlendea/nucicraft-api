@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+
+using NuciCraft.API.Requests;
+
 using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Service
@@ -8,5 +11,7 @@ namespace NuciCraft.API.Service
         Zone GetZone(string zoneIdentifier);
 
         IEnumerable<Zone> GetAllZones();
+
+        void Update(UpdateZoneRequest request);
     }
 }
