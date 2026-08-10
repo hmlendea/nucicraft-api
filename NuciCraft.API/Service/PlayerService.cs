@@ -183,13 +183,12 @@ namespace NuciCraft.API.Service
 
                 if (request.LastDeathLocation is not null)
                 {
-                    playerEntity.LastDeathLocation = new()
-                    {
-                        World = request.LastDeathLocation.World,
-                        X = request.LastDeathLocation.X,
-                        Y = request.LastDeathLocation.Y,
-                        Z = request.LastDeathLocation.Z
-                    };
+                    playerEntity.LastDeathLocation = request.LastDeathLocation.ToDataObject();
+                }
+
+                if (request.BackLocation is not null)
+                {
+                    playerEntity.BackLocation = request.BackLocation.ToDataObject();
                 }
 
                 if (request.SkinUrl is not null)

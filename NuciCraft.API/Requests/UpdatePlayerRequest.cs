@@ -42,6 +42,9 @@ namespace NuciCraft.API.Requests
         public Coordinates LastDeathLocation { get; set; }
 
         [HmacOrder(11)]
+        public Coordinates BackLocation { get; set; }
+
+        [HmacOrder(12)]
         public string SkinUrl { get; set; }
     }
 }

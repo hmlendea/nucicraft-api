@@ -30,6 +30,8 @@ namespace NuciCraft.API.Service.Models
 
         public Coordinates LastDeathLocation { get; set; }
 
+        public Coordinates BackLocation { get; set; }
+
         public string SkinUrl { get; set; }
     }
 }

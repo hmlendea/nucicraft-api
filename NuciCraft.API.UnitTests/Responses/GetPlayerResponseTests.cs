@@ -31,6 +31,13 @@ namespace NuciCraft.API.UnitTests.Responses
             Assert.That(response.EmailAddress, Is.EqualTo(player.EmailAddress));
             Assert.That(response.LastSleptDT, Is.EqualTo(player.LastSleptDT));
             Assert.That(response.LastDeathDT, Is.EqualTo(player.LastDeathDT));
+            Assert.That(response.BackLocation, Is.Not.Null);
+            Assert.That(response.BackLocation.World, Is.EqualTo(player.BackLocation.World));
+            Assert.That(response.BackLocation.X, Is.EqualTo(player.BackLocation.X));
+            Assert.That(response.BackLocation.Y, Is.EqualTo(player.BackLocation.Y));
+            Assert.That(response.BackLocation.Z, Is.EqualTo(player.BackLocation.Z));
+            Assert.That(response.BackLocation.Pitch, Is.EqualTo(player.BackLocation.Pitch));
+            Assert.That(response.BackLocation.Yaw, Is.EqualTo(player.BackLocation.Yaw));
             Assert.That(response.SkinUrl, Is.EqualTo(player.SkinUrl));
         }
 
@@ -71,6 +78,17 @@ namespace NuciCraft.API.UnitTests.Responses
         }
 
         [Test]
+        public void GivenAPlayerWithNoBackLocation_WhenBuildingTheResponse_ThenBackLocationIsNull()
+        {
+            Player player = BuildPlayer();
+            player.BackLocation = null;
+
+            GetPlayerResponse response = new(player);
+
+            Assert.That(response.BackLocation, Is.Null);
+        }
+
+        [Test]
         public void GivenAPlayerWithNoUpdatedDT_WhenBuildingTheResponse_ThenUpdatedDTIsNull()
         {
             Player player = BuildPlayer();
@@ -96,6 +114,7 @@ namespace NuciCraft.API.UnitTests.Responses
             LastSleptDT = DateTimeOffset.Parse("2012-09-05T00:00:00.0000000+00:00"),
             LastDeathDT = null,
             LastDeathLocation = null,
+            BackLocation = new() { World = "world", X = 13.0f, Y = 64.0f, Z = -21.5f, Pitch = 30.0f, Yaw = 150.0f },
             SkinUrl = "test.nucilandia.ro"
         };
     }
