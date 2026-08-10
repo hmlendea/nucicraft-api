@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
+
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Service.Models;
 
@@ -35,6 +36,7 @@ namespace NuciCraft.API.Service.Mapping
             LastDeathDT = ParseNullableTimestamp(dataObject.LastDeathDT),
             LastDeathLocation = ToServiceModel(dataObject.LastDeathLocation),
             BackLocation = ToServiceModel(dataObject.BackLocation),
+            Settings = dataObject.Settings.ToServiceModel(),
             SkinUrl = dataObject.SkinUrl
         };
 
@@ -59,6 +61,7 @@ namespace NuciCraft.API.Service.Mapping
             LastDeathDT = ToTimestamp(domainModel.LastDeathDT),
             LastDeathLocation = ToDataObject(domainModel.LastDeathLocation),
             BackLocation = ToDataObject(domainModel.BackLocation),
+            Settings = domainModel.Settings.ToDataObject(),
             SkinUrl = domainModel.SkinUrl
         };
 

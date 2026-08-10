@@ -162,6 +162,14 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(player.BackLocation.Z, Is.EqualTo(entity.BackLocation.Z));
             Assert.That(player.BackLocation.Pitch, Is.EqualTo(entity.BackLocation.Pitch));
             Assert.That(player.BackLocation.Yaw, Is.EqualTo(entity.BackLocation.Yaw));
+            Assert.That(player.Settings, Is.Not.Null);
+            Assert.That(player.Settings.AutomaticSaplingReplantingIsEnabled, Is.EqualTo(entity.Settings.AutomaticSaplingReplantingIsEnabled));
+            Assert.That(player.Settings.PrivateMessagesAreEnabled, Is.EqualTo(entity.Settings.PrivateMessagesAreEnabled));
+            Assert.That(player.Settings.PrivateMessagesInterceptionIsEnabled, Is.EqualTo(entity.Settings.PrivateMessagesInterceptionIsEnabled));
+            Assert.That(player.Settings.AutomaticHotbarRefillingIsEnabled, Is.EqualTo(entity.Settings.AutomaticHotbarRefillingIsEnabled));
+            Assert.That(player.Settings.KeepInventoryIsEnabled, Is.EqualTo(entity.Settings.KeepInventoryIsEnabled));
+            Assert.That(player.Settings.KeepExperinceIsEnabled, Is.EqualTo(entity.Settings.KeepExperinceIsEnabled));
+            Assert.That(player.Settings.AutomaticToolSelectionIsEnabled, Is.EqualTo(entity.Settings.AutomaticToolSelectionIsEnabled));
             Assert.That(player.SkinUrl, Is.EqualTo(entity.SkinUrl));
         }
 
@@ -443,6 +451,14 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastDeathLocation.Z, Is.EqualTo(location.Z));
             Assert.That(capturedEntity.LastDeathLocation.Pitch, Is.EqualTo(location.Pitch));
             Assert.That(capturedEntity.LastDeathLocation.Yaw, Is.EqualTo(location.Yaw));
+            Assert.That(capturedEntity.Settings, Is.Not.Null);
+            Assert.That(capturedEntity.Settings.AutomaticSaplingReplantingIsEnabled, Is.EqualTo(true));
+            Assert.That(capturedEntity.Settings.PrivateMessagesAreEnabled, Is.EqualTo(false));
+            Assert.That(capturedEntity.Settings.PrivateMessagesInterceptionIsEnabled, Is.EqualTo(true));
+            Assert.That(capturedEntity.Settings.AutomaticHotbarRefillingIsEnabled, Is.EqualTo(false));
+            Assert.That(capturedEntity.Settings.KeepInventoryIsEnabled, Is.EqualTo(true));
+            Assert.That(capturedEntity.Settings.KeepExperinceIsEnabled, Is.EqualTo(false));
+            Assert.That(capturedEntity.Settings.AutomaticToolSelectionIsEnabled, Is.EqualTo(true));
         }
 
         [Test]
@@ -559,6 +575,16 @@ namespace NuciCraft.API.UnitTests.Service
             LastDeathDT = null,
             LastDeathLocation = null,
             BackLocation = new() { World = "world", X = 100.5f, Y = 70.0f, Z = -25.25f, Pitch = 45.0f, Yaw = 90.0f },
+            Settings = new()
+            {
+                AutomaticSaplingReplantingIsEnabled = true,
+                PrivateMessagesAreEnabled = false,
+                PrivateMessagesInterceptionIsEnabled = true,
+                AutomaticHotbarRefillingIsEnabled = false,
+                KeepInventoryIsEnabled = true,
+                KeepExperinceIsEnabled = false,
+                AutomaticToolSelectionIsEnabled = true
+            },
             SkinUrl = "test.nucilandia.ro"
         };
 
