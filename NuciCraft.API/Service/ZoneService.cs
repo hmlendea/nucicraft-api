@@ -161,12 +161,16 @@ namespace NuciCraft.API.Service
 
                 if (request.Name is not null)
                 {
-                    zoneDataObject.Name = request.Name;
+                    zoneDataObject.Name = MergeLocalisedStringDataObject(
+                        zoneDataObject.Name,
+                        request.Name);
                 }
 
                 if (request.Nickname is not null)
                 {
-                    zoneDataObject.Nickname = request.Nickname;
+                    zoneDataObject.Nickname = MergeLocalisedStringDataObject(
+                        zoneDataObject.Nickname,
+                        request.Nickname);
                 }
 
                 if (request.Level is not null)
@@ -216,7 +220,9 @@ namespace NuciCraft.API.Service
 
                 if (request.LeaderTitle is not null)
                 {
-                    zoneDataObject.LeaderTitle = request.LeaderTitle;
+                    zoneDataObject.LeaderTitle = MergeLocalisedStringDataObject(
+                        zoneDataObject.LeaderTitle,
+                        request.LeaderTitle);
                 }
 
                 if (request.Population is not null)
@@ -254,6 +260,64 @@ namespace NuciCraft.API.Service
 
                 throw;
             }
+        }
+
+        private static LocalisedStringDataObject MergeLocalisedStringDataObject(
+            LocalisedStringDataObject existingLocalisedString,
+            LocalisedStringDataObject incomingLocalisedString)
+        {
+            if (existingLocalisedString is null)
+            {
+                return incomingLocalisedString;
+            }
+
+            existingLocalisedString.Default = MergeLocalisedValue(
+                existingLocalisedString.Default,
+                incomingLocalisedString.Default);
+            existingLocalisedString.Chinese = MergeLocalisedValue(
+                existingLocalisedString.Chinese,
+                incomingLocalisedString.Chinese);
+            existingLocalisedString.Dacian = MergeLocalisedValue(
+                existingLocalisedString.Dacian,
+                incomingLocalisedString.Dacian);
+            existingLocalisedString.English = MergeLocalisedValue(
+                existingLocalisedString.English,
+                incomingLocalisedString.English);
+            existingLocalisedString.French = MergeLocalisedValue(
+                existingLocalisedString.French,
+                incomingLocalisedString.French);
+            existingLocalisedString.German = MergeLocalisedValue(
+                existingLocalisedString.German,
+                incomingLocalisedString.German);
+            existingLocalisedString.Italian = MergeLocalisedValue(
+                existingLocalisedString.Italian,
+                incomingLocalisedString.Italian);
+            existingLocalisedString.Japanese = MergeLocalisedValue(
+                existingLocalisedString.Japanese,
+                incomingLocalisedString.Japanese);
+            existingLocalisedString.Latin = MergeLocalisedValue(
+                existingLocalisedString.Latin,
+                incomingLocalisedString.Latin);
+            existingLocalisedString.Nucian = MergeLocalisedValue(
+                existingLocalisedString.Nucian,
+                incomingLocalisedString.Nucian);
+            existingLocalisedString.Romanian = MergeLocalisedValue(
+                existingLocalisedString.Romanian,
+                incomingLocalisedString.Romanian);
+
+            return existingLocalisedString;
+        }
+
+        private static string MergeLocalisedValue(
+            string existingValue,
+            string incomingValue)
+        {
+            if (incomingValue is not null)
+            {
+                return incomingValue;
+            }
+
+            return existingValue;
         }
     }
 }
