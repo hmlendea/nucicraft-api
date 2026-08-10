@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using NuciDAL.Repositories;
 
@@ -10,7 +11,6 @@ using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service.Mapping;
 using NuciCraft.API.Service.Models;
-using System.Linq;
 
 namespace NuciCraft.API.Service
 {
@@ -18,6 +18,68 @@ namespace NuciCraft.API.Service
         IFileRepository<ZoneDataObject> repository,
         ILogger logger) : IZoneService
     {
+        public void Add(AddZoneRequest request)
+        {
+            IEnumerable<LogInfo> logInfos =
+            [
+                new(MyLogInfoKey.ZoneIdentifier, request.Identifier),
+            ];
+
+            logger.Info(
+                MyOperation.AddZone,
+                OperationStatus.Started,
+                logInfos);
+
+            if (request.TeleportationPoint is not null)
+            {
+                logInfos = logInfos.Append(new(
+                    MyLogInfoKey.World,
+                    request.TeleportationPoint.World));
+            }
+
+            try
+            {
+                ZoneDataObject zoneDataObject = new()
+                {
+                    Id = request.Identifier,
+                    Name = request.Name,
+                    Nickname = request.Nickname,
+                    Level = request.Level,
+                    County = request.County,
+                    Region = request.Region,
+                    Country = request.Country,
+                    CreationDate = request.CreationDate,
+                    Owners = request.Owners,
+                    Creators = request.Creators,
+                    Leaders = request.Leaders,
+                    TeleportationPoint = request.TeleportationPoint,
+                    LeaderTitle = request.LeaderTitle,
+                    Population = request.Population,
+                    MapLink = request.MapLink,
+                    WikiUrl = request.WikiUrl,
+                    CreatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK")
+                };
+
+                repository.Add(zoneDataObject);
+                repository.SaveChanges();
+
+                logger.Info(
+                    MyOperation.AddZone,
+                    OperationStatus.Success,
+                    logInfos);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(
+                    MyOperation.AddZone,
+                    OperationStatus.Failure,
+                    ex,
+                    logInfos);
+
+                throw;
+            }
+        }
+
         public Zone GetZone(string zoneIdentifier)
         {
             IEnumerable<LogInfo> logInfos =

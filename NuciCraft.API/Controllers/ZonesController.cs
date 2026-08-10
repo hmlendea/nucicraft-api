@@ -17,6 +17,14 @@ namespace NuciCraft.API.Controllers
     {
         readonly NuciApiAuthorisation authorisation = NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
 
+        [HttpPost]
+        public ActionResult Add(
+            [FromBody] AddZoneRequest request)
+            => ProcessRequest(
+                request,
+                () => service.Add(request),
+                authorisation);
+
         [HttpGet]
         [Route("{zoneIdentifier}")]
         public ActionResult Get(
