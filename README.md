@@ -1,194 +1,219 @@
-[![Donate](https://img.shields.io/badge/-%E2%99%A5%20Donate-%23ff69b4)](https://hmlendea.go.ro/fund.html)
+[![Donate](https://img.shields.io/badge/-%E2%99%A5%20Donate-%23ff69b4)](https://hmlendea.go.ro/funding)
 [![Latest Release](https://img.shields.io/github/v/release/hmlendea/nucicraft-api)](https://github.com/hmlendea/nucicraft-api/releases/latest)
 [![Build Status](https://github.com/hmlendea/nucicraft-api/actions/workflows/dotnet.yml/badge.svg)](https://github.com/hmlendea/nucicraft-api/actions/workflows/dotnet.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://gnu.org/licenses/gpl-3.0)
 
 # NuciCraft API
 
-A lightweight REST API that provides functionality and facilitates the management of the NuciCraft Minecraft server.
+NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft server operations, including player registration and updates, RTP location management, zone management, mob name generation, and game event processing.
 
-The API stores RTP locations and players in JSON files and exposes endpoints to:
+## 📑 Table of Contents
 
-- add a new RTP location
-- generate a random mob name for supported mob types
-- register a player
-- retrieve a random RTP location (optionally filtered by world and/or biome)
+- [Capabilities](#capabilities)
+- [Usage](#usage)
+  - [Register a Player](#register-a-player)
+  - [Get a Player](#get-a-player)
+  - [Update a Player](#update-a-player)
+  - [Add an RTP Location](#add-an-rtp-location)
+  - [Get a Random RTP Location](#get-a-random-rtp-location)
+  - [Get a Random Mob Name](#get-a-random-mob-name)
+  - [Manage Zones](#manage-zones)
+  - [Notify Player Death](#notify-player-death)
+- [Known Limitations](#known-limitations)
+- [Installation](#installation)
+  - [CLI Installation](#cli-installation)
+- [Configuration](#configuration)
+- [Development](#development)
+  - [Requirements](#requirements)
+  - [Setup](#setup)
+  - [Build](#build)
+  - [Run](#run)
+  - [Test](#test)
+  - [Release](#release)
+  - [Dependencies](#dependencies)
+- [Project Structure](#project-structure)
+- [Contributing](#contributing)
+- [Security](#security)
+- [Supporting the Project](#supporting-the-project)
+- [License](#license)
 
-## Requirements
+## ✨ Capabilities
 
-- .NET SDK/runtime with support for `net10.0`
+- Registers, retrieves, and updates players via protected API endpoints
+- Stores and retrieves RTP locations with distance constraints and biome/world filtering
+- Generates random mob names via Universal Name Generator integration
+- Stores, retrieves, and updates zone metadata
+- Handles player-death game events and records last death location
 
-## API Overview
+## 🚀 Usage
 
-Base URL (local):
+All endpoints are rooted at your configured host, for example `http://localhost:5000`.
 
-```text
-http://localhost:5000
+Requests are protected by API-key authorisation configured through `securitySettings.apiKey`.
+
+### Register a Player
+
+```bash
+curl -X POST "http://localhost:5000/Players" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"username": "PlayerName",
+		"onlineUUID": "6f6f5f2d-6f7e-4f6c-8e1d-03a9b8d939f0",
+		"createdDT": "2026-04-01T12:00:00+00:00",
+		"password": "example-password",
+		"ipAddress": "127.0.0.1",
+		"skinUrl": "https://example.com/skin.png"
+	}'
 ```
 
-Controller route prefix:
+### Get a Player
 
-```text
-/RtpLocations
+```bash
+curl "http://localhost:5000/Players?username=PlayerName"
 ```
 
-```text
-/Players
+### Update a Player
+
+```bash
+curl -X PUT "http://localhost:5000/Players" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"identifier": "1f74d4aa-c7c1-467a-95ba-671a0cf08ce3",
+		"emailAddress": "player@example.com",
+		"discordId": "1234567890"
+	}'
 ```
 
-```text
-/Mobs
+### Add an RTP Location
+
+```bash
+curl -X POST "http://localhost:5000/RtpLocations" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"username": "PlayerName",
+		"biome": "plains",
+		"world": "world",
+		"x": 123,
+		"y": 70,
+		"z": -456
+	}'
 ```
 
-### Authentication
+### Get a Random RTP Location
 
-Requests are validated using the API key configured in `securitySettings.apiKey`.
-
-This project also uses `NuciSecurity.HMAC` attributes on request/response models to support ordered signing semantics in the Nuci ecosystem.
-
-### Endpoints
-
-#### Register player
-
-- Method: `POST`
-- Path: `/Players`
-- Body:
-
-```json
-{
-	"username": "PlayerName",
-	"onlineUUID": "6f6f5f2d-6f7e-4f6c-8e1d-03a9b8d939f0",
-	"createdDT": "2026-04-01T12:00:00+00:00",
-	"password": "<password>",
-	"ipAddress": "127.0.0.1",
-	"skinUrl": "https://example.com/skin.png"
-}
+```bash
+curl "http://localhost:5000/RtpLocations/random?username=PlayerName&world=world&biome=plains"
 ```
 
-Behavior:
+### Get a Random Mob Name
 
-- computes and stores the offline UUID from `username`
-- persists player data to the players data store
-- defaults `createdDT` to the current timestamp when not provided
-
-#### Add RTP location
-
-- Method: `POST`
-- Path: `/RtpLocations`
-- Body:
-
-```json
-{
-	"username": "PlayerName",
-	"biome": "plains",
-	"world": "world",
-	"x": 123,
-	"y": 70,
-	"z": -456
-}
+```bash
+curl "http://localhost:5000/Mobs/wandering_trader/random-name"
 ```
 
-Behavior:
+### Manage Zones
 
-- creates a new location with a generated ID
-- appends it to the JSON data store
-
-#### Get random mob name
-
-- Method: `GET`
-- Path: `/Mobs/{mobType}/random-name`
-
-Example:
-
-```text
-GET /Mobs/wandering_trader/random-name
+```bash
+curl -X POST "http://localhost:5000/Zones" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"identifier": "spawn-city",
+		"name": {
+			"en": "Spawn City"
+		},
+		"population": 120
+	}'
 ```
 
-Behaviour:
-
-- validates the configured API key used by this API
-- resolves the `romanian-persons-male` schema for `wandering_trader`
-- fetches a single generated name from the Universal Name Generator API
-
-#### Get random RTP location
-
-- Method: `GET`
-- Path: `/RtpLocations/random`
-- Query parameters:
-	- `username` (required)
-	- `world` (optional)
-	- `biome` (optional)
-
-Example:
-
-```text
-GET /RtpLocations/random?world=world&biome=plains
+```bash
+curl "http://localhost:5000/Zones/spawn-city"
+curl "http://localhost:5000/Zones"
 ```
 
-Example response payload:
-
-```json
-{
-	"biome": "plains",
-	"world": "world",
-	"x": 123,
-	"y": 70,
-	"z": -456
-}
+```bash
+curl -X PUT "http://localhost:5000/Zones/spawn-city" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"population": 121
+	}'
 ```
 
-Behavior:
+### Notify Player Death
 
-- loads all locations
-- applies `world` and `biome` filters when provided
-- returns one random matching location
-
-## Configuration
-
-Runtime settings are loaded from `appsettings.json`.
-
-Default configuration:
-
-```json
-{
-	"dataStoreSettings": {
-		"playersStorePath": "Data/players.json",
-		"rtpLocationsStorePath": "Data/rtp_locations.json",
-		"zonesStorePath": "Data/zones.json"
-	},
-	"securitySettings": {
-		"apiKey": "[[NUCICRAFT_API_KEY]]"
-	},
-	"universalNameGeneratorSettings": {
-		"baseUrl": "https://localhost:5001",
-		"apiKey": "[[UNIVERSAL_NAME_GENERATOR_API_KEY]]"
-	},
-	"nuciLoggerSettings": {
-		"logFilePath": "logfile.log",
-		"isFileOutputEnabled": true
-	}
-}
+```bash
+curl -X POST "http://localhost:5000/GameEvents/player-death" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"player": "PlayerName",
+		"deathLocation": {
+			"world": "world",
+			"x": 100,
+			"y": 65,
+			"z": -200
+		}
+	}'
 ```
 
-Notes:
+## ⚠️ Known Limitations
 
-- at startup, the API creates both data store directories/files automatically if missing
-- `rtpLocationsStorePath`, `playersStorePath`, and `zonesStorePath` can be changed to point to other JSON files
-- replace `[[NUCICRAFT_API_KEY]]` with your actual API key
-- replace `[[UNIVERSAL_NAME_GENERATOR_API_KEY]]` with the API key for the Universal Name Generator API
+- The service uses JSON-file persistence and is not optimised for high-concurrency multi-instance deployments.
+- There is no embedded Swagger/OpenAPI UI in the current host configuration.
 
-## Development
+## 📦 Installation
+
+[![Obtain it from GitHub](https://raw.githubusercontent.com/hmlendea/readme-assets/master/badges/stores/github.png)](https://github.com/hmlendea/nucicraft-api/releases)
+
+### CLI Installation
+
+```bash
+git clone https://github.com/hmlendea/nucicraft-api.git
+cd nucicraft-api
+dotnet restore NuciCraft.API.slnx
+```
+
+## ⚙️ Configuration
+
+All settings are loaded from the configuration file. The subsequent keys are recognised:
+
+| Section | Key | Description |
+|---------|-----|-------------|
+| `dataStoreSettings` | `playersStorePath` | Path to the players JSON store. |
+| `dataStoreSettings` | `rtpLocationsStorePath` | Path to the RTP locations JSON store. |
+| `dataStoreSettings` | `zonesStorePath` | Path to the zones JSON store. |
+| `rtpLocationSettings` | `minimumLocationDistance` | Minimum distance permitted between any two RTP locations. |
+| `rtpLocationSettings` | `minimumBiomeLocationDistance` | Minimum distance permitted between RTP locations in the identical biome. |
+| `securitySettings` | `apiKey` | API key used for endpoint authorisation. |
+| `universalNameGeneratorSettings` | `baseUrl` | Universal Name Generator API base URL. |
+| `universalNameGeneratorSettings` | `apiKey` | Universal Name Generator API key. |
+| `nuciLoggerSettings` | `logFilePath` | Path for file-based logs. |
+| `nuciLoggerSettings` | `isFileOutputEnabled` | Enables or disables file log output. |
+
+## 🛠️ Development
+
+### Requirements
+
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+
+### Setup
+
+All NuGet dependencies are restored automatically by `dotnet restore`.
 
 ### Build
 
 ```bash
-dotnet build
+dotnet build NuciCraft.API/NuciCraft.API.csproj
 ```
 
 ### Run
 
 ```bash
-dotnet run
+dotnet run --project NuciCraft.API/NuciCraft.API.csproj
+```
+
+### Test
+
+```bash
+dotnet test NuciCraft.API.slnx
 ```
 
 ### Release
@@ -199,23 +224,68 @@ The repository includes `release.sh`, which delegates to the upstream deployment
 bash ./release.sh 1.0.0
 ```
 
-This script downloads and executes an external release helper from: `https://raw.githubusercontent.com/hmlendea/deployment-scripts/master/release/dotnet/10.0.sh`
+This script downloads and executes an external release helper from `https://raw.githubusercontent.com/hmlendea/deployment-scripts/master/release/dotnet/10.0.sh`.
 
 **Note:** Piping into `bash` is an intensely controversial topic. Please review any external scripts before running them in your environment!
 
-## Contributing
+### Dependencies
 
-Contributions are welcome.
+| Package | Purpose |
+|---------|---------|
+| `NuciAPI` | Base API abstractions and request/response contracts. |
+| `NuciAPI.Controllers` | Shared controller infrastructure and request processing helpers. |
+| `NuciAPI.Middleware.*` | Exception handling, request logging, and scanner-protection middleware. |
+| `NuciDAL` | JSON-file-backed repository abstractions and persistence. |
+| `NuciLog` and `NuciLog.Core` | Structured operation logging and diagnostic context. |
+| `NuciSecurity.HMAC` | Request/response signing metadata via ordered HMAC fields. |
+| `NuciText.Normalisation` and `NuciText.Obfuscation` | Text normalisation and obfuscation utilities. |
 
-Please:
+## 🗂️ Project Structure
 
-- keep the changes cross-platform
-- keep the existing public API intact, unless a breaking change is intentional
-- keep the pull requests focused and consistent with the existing style
-- update the documentation when the behaviour changes
-- add or update the tests for any new behaviour
+The solution contains the subsequent projects:
 
-## License
+- `NuciCraft.API`: ASP.NET Core API host, controllers, services, configuration, and data access
+- `NuciCraft.API.UnitTests`: NUnit-based unit tests for controllers, services, responses, and mappings
 
-Licensed under the GNU General Public License v3.0 or later.
-See [LICENSE](./LICENSE) for details.
+The key directories inside `NuciCraft.API/` are:
+
+| Directory | Purpose |
+|-----------|---------|
+| `Configuration` | Strongly typed settings models bound from `appsettings.json`. |
+| `Controllers` | REST endpoint definitions and HTTP request handling. |
+| `Data` | JSON data stores for players, RTP locations, and zones. |
+| `DataAccess` | Data objects and repository mappings for persistence. |
+| `Logging` | Operation and log metadata keys used for diagnostics. |
+| `Requests` | API request DTOs and validation attributes. |
+| `Responses` | API response DTO wrappers. |
+| `Service` | Core application services and domain logic. |
+
+## 🤝 Contributing
+
+You are welcome to submit any suggestion, feedback, or modification to this project.
+
+When doing so, please:
+- Maintain cross-platform compatibility
+- Maintain the existing public contract intact unless a breaking change is intentional
+- Maintain the pull requests as focused and consistent with the existing code style
+- Maintain your branch up-to-date with `master`
+- Revise the documentation when behaviour changes
+- Properly test all changes, including edge cases and error conditions
+- Add unit tests for any new or changed functionality
+
+## 🔒 Security
+
+For information on reporting security vulnerabilities, see [SECURITY.md](./SECURITY.md).
+
+## 💝 Supporting the Project
+
+Discovered a problem or have a suggestion? [Open an issue](https://github.com/hmlendea/nucicraft-api/issues)!
+
+If you find this project useful, consider [funding it](https://hmlendea.go.ro/funding) or starring ⭐️ it on GitHub!
+
+[![Donate](https://raw.githubusercontent.com/hmlendea/readme-assets/master/donate_generic.png)](https://hmlendea.go.ro/funding)
+
+## 📄 License
+
+This project is being distributed under the `GNU General Public License v3.0` or later.
+See [LICENSE](./LICENSE) for further information.
