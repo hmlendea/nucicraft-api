@@ -286,6 +286,33 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenARequestWithRomanianNameOnly_WhenUpdatingAZone_ThenOtherNameLocalisationsArePreserved()
+        {
+            ZoneDataObject capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+                .Returns(BuildZoneDataObject());
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            zoneService.Update(new UpdateZoneRequest
+            {
+                Identifier = "flusseland_mall_shop_9",
+                Name = new LocalisedStringDataObject
+                {
+                    Romanian = "123"
+                }
+            });
+
+            Assert.That(capturedEntity.Name.Romanian, Is.EqualTo("123"));
+            Assert.That(capturedEntity.Name.English, Is.EqualTo("Flusseland Mall Shop 9"));
+            Assert.That(capturedEntity.Name.German, Is.EqualTo("Flusseland Einkaufszentrum Laden 9"));
+        }
+
+        [Test]
         public void GivenAValidRequest_WhenUpdatingAZone_ThenUpdatedDTIsStamped()
         {
             ZoneDataObject capturedEntity = null;
@@ -332,8 +359,17 @@ namespace NuciCraft.API.UnitTests.Service
         private static ZoneDataObject BuildZoneDataObject() => new()
         {
             Id = "flusseland_mall_shop_9",
-            Name = new LocalisedStringDataObject { English = "Flusseland Mall Shop 9" },
-            Nickname = new LocalisedStringDataObject { English = "Shop 9" },
+            Name = new LocalisedStringDataObject
+            {
+                English = "Flusseland Mall Shop 9",
+                German = "Flusseland Einkaufszentrum Laden 9",
+                Romanian = "Magazinul 9 din Mall-ul Flusseland"
+            },
+            Nickname = new LocalisedStringDataObject
+            {
+                English = "Shop 9",
+                German = "Laden 9"
+            },
             Level = "building",
             County = "Flusseland",
             Region = "Solara",
@@ -351,7 +387,11 @@ namespace NuciCraft.API.UnitTests.Service
                 Pitch = 0,
                 Yaw = 179.9f
             },
-            LeaderTitle = new LocalisedStringDataObject { English = "Owner" },
+            LeaderTitle = new LocalisedStringDataObject
+            {
+                English = "Owner",
+                German = "Eigentumer"
+            },
             Population = 42,
             MapLink = "https://nucilandia.ro/map",
             WikiUrl = "https://nucilandia.ro/wiki"
