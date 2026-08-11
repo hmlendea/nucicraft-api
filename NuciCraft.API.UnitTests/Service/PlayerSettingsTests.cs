@@ -14,7 +14,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             Assert.That(playerSettings.AutomaticHotbarRefillingIsEnabled);
             Assert.That(playerSettings.AutomaticSaplingReplantingIsEnabled);
-            Assert.That(playerSettings.AutomaticToolSelectionIsEnabled, Is.False);
+            Assert.That(playerSettings.AutomaticToolSelectionIsEnabled);
             Assert.That(playerSettings.KeepExperienceIsEnabled, Is.False);
             Assert.That(playerSettings.KeepInventoryIsEnabled, Is.False);
             Assert.That(playerSettings.PrivateMessagesAreEnabled);
