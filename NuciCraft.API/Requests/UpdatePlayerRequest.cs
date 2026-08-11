@@ -4,7 +4,7 @@ using NuciAPI.Requests;
 
 using NuciSecurity.HMAC;
 
-using NuciCraft.API.Service.Models;
+using NuciCraft.API.DataAccess.DataObjects;
 
 namespace NuciCraft.API.Requests
 {
@@ -39,12 +39,15 @@ namespace NuciCraft.API.Requests
         public string LastDeathDT { get; set; }
 
         [HmacOrder(10)]
-        public Coordinates LastDeathLocation { get; set; }
+        public CoordinatesDataObject LastDeathLocation { get; set; }
 
         [HmacOrder(11)]
-        public Coordinates BackLocation { get; set; }
+        public CoordinatesDataObject BackLocation { get; set; }
 
         [HmacOrder(12)]
         public string SkinUrl { get; set; }
+
+        [HmacOrder(13)]
+        public PlayerSettingsDataObject Settings { get; set; }
     }
 }
