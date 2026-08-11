@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
@@ -19,6 +20,8 @@ namespace NuciCraft.API.Service
         RtpLocationSettings settings,
         ILogger logger) : IRtpLocationService
     {
+        private static string TimestampFormat => "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK";
+
         public void AddRtpLocation(AddRtpLocationRequest request)
         {
             IEnumerable<LogInfo> logInfos =
@@ -37,19 +40,6 @@ namespace NuciCraft.API.Service
 
             try
             {
-                RtpLocation rtpLocation = new()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Biome = request.Biome,
-                    Coordinates = new()
-                    {
-                        World = request.World,
-                        X = request.X,
-                        Y = request.Y,
-                        Z = request.Z
-                    }
-                };
-
                 if (!IsLocationFarAwayFromOtherLocations(request.X, request.Y))
                 {
                     throw new ArgumentException("The provided location is too close to another existing location.");
@@ -60,7 +50,20 @@ namespace NuciCraft.API.Service
                     throw new ArgumentException("The provided location is too close to another existing location in the same biome.");
                 }
 
-                rtpLocationsRepository.Add(rtpLocation.ToDataObject());
+                rtpLocationsRepository.Add(new()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Biome = request.Biome,
+                    Coordinates = new()
+                    {
+                        World = request.World,
+                        X = request.X,
+                        Y = request.Y,
+                        Z = request.Z
+                    },
+                    CreatedDT = DateTimeOffset.UtcNow.ToString(TimestampFormat, CultureInfo.InvariantCulture)
+                });
+
                 rtpLocationsRepository.SaveChanges();
 
                 logger.Info(
