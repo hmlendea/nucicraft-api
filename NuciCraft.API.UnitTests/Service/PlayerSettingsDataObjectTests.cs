@@ -8,17 +8,17 @@ namespace NuciCraft.API.UnitTests.Service
     public class PlayerSettingsDataObjectTests
     {
         [Test]
-        public void GivenANewPlayerSettingsDataObject_WhenReadingTheBooleanProperties_ThenTheyAreFalseByDefault()
+        public void GivenANewPlayerSettingsDataObject_WhenReadingTheBooleanProperties_ThenTheyAreNullByDefault()
         {
             PlayerSettingsDataObject playerSettingsDataObject = new();
 
-            Assert.That(playerSettingsDataObject.AutomaticSaplingReplantingIsEnabled, Is.False);
-            Assert.That(playerSettingsDataObject.PrivateMessagesAreEnabled, Is.False);
-            Assert.That(playerSettingsDataObject.PrivateMessagesInterceptionIsEnabled, Is.False);
-            Assert.That(playerSettingsDataObject.AutomaticHotbarRefillingIsEnabled, Is.False);
-            Assert.That(playerSettingsDataObject.KeepInventoryIsEnabled, Is.False);
-            Assert.That(playerSettingsDataObject.KeepExperinceIsEnabled, Is.False);
-            Assert.That(playerSettingsDataObject.AutomaticToolSelectionIsEnabled, Is.False);
+            Assert.That(playerSettingsDataObject.AutomaticSaplingReplantingIsEnabled, Is.Null);
+            Assert.That(playerSettingsDataObject.PrivateMessagesAreEnabled, Is.Null);
+            Assert.That(playerSettingsDataObject.PrivateMessagesInterceptionIsEnabled, Is.Null);
+            Assert.That(playerSettingsDataObject.AutomaticHotbarRefillingIsEnabled, Is.Null);
+            Assert.That(playerSettingsDataObject.KeepInventoryIsEnabled, Is.Null);
+            Assert.That(playerSettingsDataObject.KeepExperienceIsEnabled, Is.Null);
+            Assert.That(playerSettingsDataObject.AutomaticToolSelectionIsEnabled, Is.Null);
         }
 
         [Test]
@@ -31,17 +31,17 @@ namespace NuciCraft.API.UnitTests.Service
                 PrivateMessagesInterceptionIsEnabled = true,
                 AutomaticHotbarRefillingIsEnabled = true,
                 KeepInventoryIsEnabled = true,
-                KeepExperinceIsEnabled = true,
+                KeepExperienceIsEnabled = true,
                 AutomaticToolSelectionIsEnabled = true
             };
 
-            Assert.That(playerSettingsDataObject.AutomaticSaplingReplantingIsEnabled);
-            Assert.That(playerSettingsDataObject.PrivateMessagesAreEnabled);
-            Assert.That(playerSettingsDataObject.PrivateMessagesInterceptionIsEnabled);
-            Assert.That(playerSettingsDataObject.AutomaticHotbarRefillingIsEnabled);
-            Assert.That(playerSettingsDataObject.KeepInventoryIsEnabled);
-            Assert.That(playerSettingsDataObject.KeepExperinceIsEnabled);
-            Assert.That(playerSettingsDataObject.AutomaticToolSelectionIsEnabled);
+            Assert.That(playerSettingsDataObject.AutomaticSaplingReplantingIsEnabled, Is.True);
+            Assert.That(playerSettingsDataObject.PrivateMessagesAreEnabled, Is.True);
+            Assert.That(playerSettingsDataObject.PrivateMessagesInterceptionIsEnabled, Is.True);
+            Assert.That(playerSettingsDataObject.AutomaticHotbarRefillingIsEnabled, Is.True);
+            Assert.That(playerSettingsDataObject.KeepInventoryIsEnabled, Is.True);
+            Assert.That(playerSettingsDataObject.KeepExperienceIsEnabled, Is.True);
+            Assert.That(playerSettingsDataObject.AutomaticToolSelectionIsEnabled, Is.True);
         }
     }
 }

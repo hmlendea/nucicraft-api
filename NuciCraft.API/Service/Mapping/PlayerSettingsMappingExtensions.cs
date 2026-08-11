@@ -12,16 +12,44 @@ namespace NuciCraft.API.Service.Mapping
                 return null;
             }
 
-            return new()
+            PlayerSettings settings = new();
+
+            if (dataObject.AutomaticHotbarRefillingIsEnabled is not null)
             {
-                AutomaticHotbarRefillingIsEnabled = dataObject.AutomaticHotbarRefillingIsEnabled,
-                AutomaticSaplingReplantingIsEnabled = dataObject.AutomaticSaplingReplantingIsEnabled,
-                AutomaticToolSelectionIsEnabled = dataObject.AutomaticToolSelectionIsEnabled,
-                KeepExperinceIsEnabled = dataObject.KeepExperinceIsEnabled,
-                KeepInventoryIsEnabled = dataObject.KeepInventoryIsEnabled,
-                PrivateMessagesAreEnabled = dataObject.PrivateMessagesAreEnabled,
-                PrivateMessagesInterceptionIsEnabled = dataObject.PrivateMessagesInterceptionIsEnabled
-            };
+                settings.AutomaticHotbarRefillingIsEnabled = dataObject.AutomaticHotbarRefillingIsEnabled.Value;
+            }
+
+            if (dataObject.AutomaticSaplingReplantingIsEnabled is not null)
+            {
+                settings.AutomaticSaplingReplantingIsEnabled = dataObject.AutomaticSaplingReplantingIsEnabled.Value;
+            }
+
+            if (dataObject.AutomaticToolSelectionIsEnabled is not null)
+            {
+                settings.AutomaticToolSelectionIsEnabled = dataObject.AutomaticToolSelectionIsEnabled.Value;
+            }
+
+            if (dataObject.KeepExperienceIsEnabled is not null)
+            {
+                settings.KeepExperienceIsEnabled = dataObject.KeepExperienceIsEnabled.Value;
+            }
+
+            if (dataObject.KeepInventoryIsEnabled is not null)
+            {
+                settings.KeepInventoryIsEnabled = dataObject.KeepInventoryIsEnabled.Value;
+            }
+
+            if (dataObject.PrivateMessagesAreEnabled is not null)
+            {
+                settings.PrivateMessagesAreEnabled = dataObject.PrivateMessagesAreEnabled.Value;
+            }
+
+            if (dataObject.PrivateMessagesInterceptionIsEnabled is not null)
+            {
+                settings.PrivateMessagesInterceptionIsEnabled = dataObject.PrivateMessagesInterceptionIsEnabled.Value;
+            }
+
+            return settings;
         }
 
         internal static PlayerSettingsDataObject ToDataObject(this PlayerSettings serviceModel)
@@ -36,7 +64,7 @@ namespace NuciCraft.API.Service.Mapping
                 AutomaticHotbarRefillingIsEnabled = serviceModel.AutomaticHotbarRefillingIsEnabled,
                 AutomaticSaplingReplantingIsEnabled = serviceModel.AutomaticSaplingReplantingIsEnabled,
                 AutomaticToolSelectionIsEnabled = serviceModel.AutomaticToolSelectionIsEnabled,
-                KeepExperinceIsEnabled = serviceModel.KeepExperinceIsEnabled,
+                KeepExperienceIsEnabled = serviceModel.KeepExperienceIsEnabled,
                 KeepInventoryIsEnabled = serviceModel.KeepInventoryIsEnabled,
                 PrivateMessagesAreEnabled = serviceModel.PrivateMessagesAreEnabled,
                 PrivateMessagesInterceptionIsEnabled = serviceModel.PrivateMessagesInterceptionIsEnabled

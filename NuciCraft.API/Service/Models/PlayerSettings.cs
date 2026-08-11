@@ -8,7 +8,7 @@ namespace NuciCraft.API.Service.Models
 
         public bool AutomaticToolSelectionIsEnabled { get; set; } = true;
 
-        public bool KeepExperinceIsEnabled { get; set; } = false;
+        public bool KeepExperienceIsEnabled { get; set; } = false;
 
         public bool KeepInventoryIsEnabled { get; set; } = false;
 

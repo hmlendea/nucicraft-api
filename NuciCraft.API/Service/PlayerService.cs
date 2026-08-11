@@ -183,17 +183,24 @@ namespace NuciCraft.API.Service
 
                 if (request.LastDeathLocation is not null)
                 {
-                    playerEntity.LastDeathLocation = request.LastDeathLocation.ToDataObject();
+                    playerEntity.LastDeathLocation = request.LastDeathLocation;
                 }
 
                 if (request.BackLocation is not null)
                 {
-                    playerEntity.BackLocation = request.BackLocation.ToDataObject();
+                    playerEntity.BackLocation = request.BackLocation;
                 }
 
                 if (request.SkinUrl is not null)
                 {
                     playerEntity.SkinUrl = request.SkinUrl;
+                }
+
+                if (request.Settings is not null)
+                {
+                    playerEntity.Settings = MergePlayerSettingsDataObject(
+                        playerEntity.Settings,
+                        request.Settings);
                 }
 
                 playerEntity.UpdatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK");
@@ -216,6 +223,53 @@ namespace NuciCraft.API.Service
 
                 throw;
             }
+        }
+
+        private static PlayerSettingsDataObject MergePlayerSettingsDataObject(
+            PlayerSettingsDataObject existingSettings,
+            PlayerSettingsDataObject incomingSettings)
+        {
+            if (existingSettings is null)
+            {
+                existingSettings = new PlayerSettingsDataObject();
+            }
+
+            if (incomingSettings.AutomaticHotbarRefillingIsEnabled is not null)
+            {
+                existingSettings.AutomaticHotbarRefillingIsEnabled = incomingSettings.AutomaticHotbarRefillingIsEnabled.Value;
+            }
+
+            if (incomingSettings.AutomaticSaplingReplantingIsEnabled is not null)
+            {
+                existingSettings.AutomaticSaplingReplantingIsEnabled = incomingSettings.AutomaticSaplingReplantingIsEnabled.Value;
+            }
+
+            if (incomingSettings.AutomaticToolSelectionIsEnabled is not null)
+            {
+                existingSettings.AutomaticToolSelectionIsEnabled = incomingSettings.AutomaticToolSelectionIsEnabled.Value;
+            }
+
+            if (incomingSettings.KeepExperienceIsEnabled is not null)
+            {
+                existingSettings.KeepExperienceIsEnabled = incomingSettings.KeepExperienceIsEnabled.Value;
+            }
+
+            if (incomingSettings.KeepInventoryIsEnabled is not null)
+            {
+                existingSettings.KeepInventoryIsEnabled = incomingSettings.KeepInventoryIsEnabled.Value;
+            }
+
+            if (incomingSettings.PrivateMessagesAreEnabled is not null)
+            {
+                existingSettings.PrivateMessagesAreEnabled = incomingSettings.PrivateMessagesAreEnabled.Value;
+            }
+
+            if (incomingSettings.PrivateMessagesInterceptionIsEnabled is not null)
+            {
+                existingSettings.PrivateMessagesInterceptionIsEnabled = incomingSettings.PrivateMessagesInterceptionIsEnabled.Value;
+            }
+
+            return existingSettings;
         }
 
         public void UpdateLastDeathLocation(string username, Coordinates location)
