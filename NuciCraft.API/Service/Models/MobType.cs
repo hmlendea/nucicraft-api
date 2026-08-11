@@ -45,6 +45,12 @@ namespace NuciCraft.API.Service.Models
                     "pillager")
             },
             {
+                nameof(Pig),
+                new MobType(
+                    nameof(Pig),
+                    "pig")
+            },
+            {
                 nameof(Villager),
                 new MobType(
                     nameof(Villager),
@@ -87,6 +93,8 @@ namespace NuciCraft.API.Service.Models
         public static MobType Illusioner => values[nameof(Illusioner)];
 
         public static MobType Pillager => values[nameof(Pillager)];
+
+        public static MobType Pig => values[nameof(Pig)];
 
         public static MobType WanderingTrader => values[nameof(WanderingTrader)];
 

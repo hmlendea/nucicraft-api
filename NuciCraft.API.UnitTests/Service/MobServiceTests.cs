@@ -156,7 +156,7 @@ namespace NuciCraft.API.UnitTests.Service
                         endpoint) => capturedRequest = request)
                 .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
                 {
-                    Names = ["Bessie"]
+                    Names = ["Ilarion"]
                 });
 
             mobService.GetRandomMobName(
@@ -164,6 +164,37 @@ namespace NuciCraft.API.UnitTests.Service
 
             Assert.That(capturedRequest, Is.Not.Null);
             Assert.That(capturedRequest.Schema, Is.EqualTo("romanian-animals-cows"));
+            Assert.That(capturedRequest.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void GivenThePigMobType_WhenGettingARandomMobName_ThenTheRomanianAnimalsPigsSchemaIsUsed()
+        {
+            GenerateNamesRequest capturedRequest = null;
+
+            universalNameGeneratorClientMock
+                .Setup(client => client
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                        HttpMethod.Get,
+                        It.IsAny<GenerateNamesRequest>(),
+                        It.IsAny<NuciApiRequestAuthorisationInfo>(),
+                        "Names"))
+                .Callback<HttpMethod, GenerateNamesRequest, NuciApiRequestAuthorisationInfo, string>(
+                    (
+                        method,
+                        request,
+                        authorisationInfo,
+                        endpoint) => capturedRequest = request)
+                .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
+                {
+                    Names = ["Ilarion"]
+                });
+
+            mobService.GetRandomMobName(
+                BuildGetMobNameRequest(MobType.Pig));
+
+            Assert.That(capturedRequest, Is.Not.Null);
+            Assert.That(capturedRequest.Schema, Is.EqualTo("romanian-animals-pigs"));
             Assert.That(capturedRequest.Count, Is.EqualTo(1));
         }
 

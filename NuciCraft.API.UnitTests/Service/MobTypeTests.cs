@@ -24,6 +24,14 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenThePigExternalName_WhenConvertingFromString_ThenTheMatchingMobTypeIsReturned()
+        {
+            MobType mobType = MobType.FromString("pig");
+
+            Assert.That(mobType, Is.EqualTo(MobType.Pig));
+        }
+
+        [Test]
         public void GivenTheEnderDragonExternalName_WhenConvertingFromString_ThenTheMatchingMobTypeIsReturned()
         {
             MobType mobType = MobType.FromString("ender_dragon");
@@ -66,6 +74,14 @@ namespace NuciCraft.API.UnitTests.Service
             MobType mobType = MobType.FromString("COW");
 
             Assert.That(mobType, Is.EqualTo(MobType.Cow));
+        }
+
+        [Test]
+        public void GivenThePigExternalNameWithDifferentCasing_WhenConvertingFromString_ThenTheMatchingMobTypeIsReturned()
+        {
+            MobType mobType = MobType.FromString("PIG");
+
+            Assert.That(mobType, Is.EqualTo(MobType.Pig));
         }
 
         [Test]
@@ -116,6 +132,12 @@ namespace NuciCraft.API.UnitTests.Service
             => Assert.That(
                 (string)MobType.Cow,
                 Is.EqualTo("cow"));
+
+        [Test]
+        public void GivenThePigMobType_WhenConvertingToString_ThenTheExternalNameIsReturned()
+            => Assert.That(
+                (string)MobType.Pig,
+                Is.EqualTo("pig"));
 
         [Test]
         public void GivenTheEnderDragonMobType_WhenConvertingToString_ThenTheExternalNameIsReturned()

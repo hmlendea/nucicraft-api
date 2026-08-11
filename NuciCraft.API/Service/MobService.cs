@@ -31,6 +31,8 @@ namespace NuciCraft.API.Service
 
         private static string CowNamesSchema => "romanian-animals-cows";
 
+        private static string PigNamesSchema => "romanian-animals-pigs";
+
         private static string ZaganianMaleNamesSchema => "pinched-zaganian-persons-male";
 
         private static int VillageSchemaVariantsCount => 2;
@@ -162,6 +164,11 @@ namespace NuciCraft.API.Service
             if (Equals(mobType, MobType.Cow))
             {
                 return CowNamesSchema;
+            }
+
+            if (Equals(mobType, MobType.Pig))
+            {
+                return PigNamesSchema;
             }
 
             if (UsesZaganianMaleNamesSchema(mobType))
