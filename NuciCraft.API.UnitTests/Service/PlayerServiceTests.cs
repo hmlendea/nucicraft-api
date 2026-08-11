@@ -155,6 +155,21 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(player.LastSleptDT, Is.EqualTo(DateTimeOffset.Parse(entity.LastSleptDT)));
             Assert.That(player.LastDeathDT, Is.Null);
             Assert.That(player.LastDeathLocation, Is.Null);
+            Assert.That(player.BackLocation, Is.Not.Null);
+            Assert.That(player.BackLocation.World, Is.EqualTo(entity.BackLocation.World));
+            Assert.That(player.BackLocation.X, Is.EqualTo(entity.BackLocation.X));
+            Assert.That(player.BackLocation.Y, Is.EqualTo(entity.BackLocation.Y));
+            Assert.That(player.BackLocation.Z, Is.EqualTo(entity.BackLocation.Z));
+            Assert.That(player.BackLocation.Pitch, Is.EqualTo(entity.BackLocation.Pitch));
+            Assert.That(player.BackLocation.Yaw, Is.EqualTo(entity.BackLocation.Yaw));
+            Assert.That(player.Settings, Is.Not.Null);
+            Assert.That(player.Settings.AutomaticSaplingReplantingIsEnabled, Is.EqualTo(entity.Settings.AutomaticSaplingReplantingIsEnabled));
+            Assert.That(player.Settings.PrivateMessagesAreEnabled, Is.EqualTo(entity.Settings.PrivateMessagesAreEnabled));
+            Assert.That(player.Settings.PrivateMessagesInterceptionIsEnabled, Is.EqualTo(entity.Settings.PrivateMessagesInterceptionIsEnabled));
+            Assert.That(player.Settings.AutomaticHotbarRefillingIsEnabled, Is.EqualTo(entity.Settings.AutomaticHotbarRefillingIsEnabled));
+            Assert.That(player.Settings.KeepInventoryIsEnabled, Is.EqualTo(entity.Settings.KeepInventoryIsEnabled));
+            Assert.That(player.Settings.KeepExperinceIsEnabled, Is.EqualTo(entity.Settings.KeepExperinceIsEnabled));
+            Assert.That(player.Settings.AutomaticToolSelectionIsEnabled, Is.EqualTo(entity.Settings.AutomaticToolSelectionIsEnabled));
             Assert.That(player.SkinUrl, Is.EqualTo(entity.SkinUrl));
         }
 
@@ -253,8 +268,9 @@ namespace NuciCraft.API.UnitTests.Service
                 EmailAddress = "new@nucilandia.ro",
                 LastSleptDT = "2026-01-01T00:00:00.0000000+00:00",
                 LastDeathDT = "2026-06-01T00:00:00.0000000+00:00",
-                LastDeathLocation = new() { World = "world_nether", X = 1.0f, Y = 2.0f, Z = 3.0f },
-                SkinUrl = "new-skin.nucilandia.ro"
+                LastDeathLocation = new() { World = "world_nether", X = 1.0f, Y = 2.0f, Z = 3.0f, Pitch = 4.0f, Yaw = 5.0f },
+                SkinUrl = "new-skin.nucilandia.ro",
+                BackLocation = new() { World = "world", X = 6.0f, Y = 7.0f, Z = 8.0f, Pitch = 9.0f, Yaw = 10.0f }
             };
 
             playerService.Update(request);
@@ -271,7 +287,16 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastDeathLocation.X, Is.EqualTo(1.0f));
             Assert.That(capturedEntity.LastDeathLocation.Y, Is.EqualTo(2.0f));
             Assert.That(capturedEntity.LastDeathLocation.Z, Is.EqualTo(3.0f));
+            Assert.That(capturedEntity.LastDeathLocation.Pitch, Is.EqualTo(4.0f));
+            Assert.That(capturedEntity.LastDeathLocation.Yaw, Is.EqualTo(5.0f));
             Assert.That(capturedEntity.SkinUrl, Is.EqualTo("new-skin.nucilandia.ro"));
+            Assert.That(capturedEntity.BackLocation, Is.Not.Null);
+            Assert.That(capturedEntity.BackLocation.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.BackLocation.X, Is.EqualTo(6.0f));
+            Assert.That(capturedEntity.BackLocation.Y, Is.EqualTo(7.0f));
+            Assert.That(capturedEntity.BackLocation.Z, Is.EqualTo(8.0f));
+            Assert.That(capturedEntity.BackLocation.Pitch, Is.EqualTo(9.0f));
+            Assert.That(capturedEntity.BackLocation.Yaw, Is.EqualTo(10.0f));
         }
 
         [Test]
@@ -299,6 +324,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastSleptDT, Is.EqualTo(original.LastSleptDT));
             Assert.That(capturedEntity.LastDeathDT, Is.EqualTo(original.LastDeathDT));
             Assert.That(capturedEntity.LastDeathLocation, Is.EqualTo(original.LastDeathLocation));
+            Assert.That(capturedEntity.BackLocation, Is.EqualTo(original.BackLocation));
             Assert.That(capturedEntity.SkinUrl, Is.EqualTo(original.SkinUrl));
         }
 
@@ -326,6 +352,34 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastDeathLocation, Is.Not.Null);
             Assert.That(capturedEntity.LastDeathLocation.World, Is.EqualTo("world_the_end"));
             Assert.That(capturedEntity.LastDeathLocation.Y, Is.EqualTo(64f));
+        }
+
+        [Test]
+        public void GivenARequestWithBackLocationWhenEntityHasNone_WhenUpdatingAPlayer_ThenBackLocationIsCreated()
+        {
+            PlayerEntity original = BuildPlayerEntity();
+            original.BackLocation = null;
+            PlayerEntity capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("IlarionPintilie"))
+                .Returns(original);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
+                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+
+            playerService.Update(new UpdatePlayerRequest
+            {
+                Identifier = "IlarionPintilie",
+                BackLocation = new() { World = "world_the_end", X = 0f, Y = 64f, Z = 0f, Pitch = 11f, Yaw = 12f }
+            });
+
+            Assert.That(capturedEntity.BackLocation, Is.Not.Null);
+            Assert.That(capturedEntity.BackLocation.World, Is.EqualTo("world_the_end"));
+            Assert.That(capturedEntity.BackLocation.Y, Is.EqualTo(64f));
+            Assert.That(capturedEntity.BackLocation.Pitch, Is.EqualTo(11f));
+            Assert.That(capturedEntity.BackLocation.Yaw, Is.EqualTo(12f));
         }
 
         [Test]
@@ -395,6 +449,40 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastDeathLocation.X, Is.EqualTo(location.X));
             Assert.That(capturedEntity.LastDeathLocation.Y, Is.EqualTo(location.Y));
             Assert.That(capturedEntity.LastDeathLocation.Z, Is.EqualTo(location.Z));
+            Assert.That(capturedEntity.LastDeathLocation.Pitch, Is.EqualTo(location.Pitch));
+            Assert.That(capturedEntity.LastDeathLocation.Yaw, Is.EqualTo(location.Yaw));
+            Assert.That(capturedEntity.Settings, Is.Not.Null);
+            Assert.That(capturedEntity.Settings.AutomaticSaplingReplantingIsEnabled, Is.EqualTo(true));
+            Assert.That(capturedEntity.Settings.PrivateMessagesAreEnabled, Is.EqualTo(false));
+            Assert.That(capturedEntity.Settings.PrivateMessagesInterceptionIsEnabled, Is.EqualTo(true));
+            Assert.That(capturedEntity.Settings.AutomaticHotbarRefillingIsEnabled, Is.EqualTo(false));
+            Assert.That(capturedEntity.Settings.KeepInventoryIsEnabled, Is.EqualTo(true));
+            Assert.That(capturedEntity.Settings.KeepExperinceIsEnabled, Is.EqualTo(false));
+            Assert.That(capturedEntity.Settings.AutomaticToolSelectionIsEnabled, Is.EqualTo(true));
+        }
+
+        [Test]
+        public void GivenAPlayerWithABackLocation_WhenUpdatingLastDeathLocation_ThenTheBackLocationIsPreserved()
+        {
+            PlayerEntity capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("IlarionPintilie"))
+                .Returns(BuildPlayerEntity());
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
+                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+
+            playerService.UpdateLastDeathLocation("IlarionPintilie", BuildCoordinates());
+
+            Assert.That(capturedEntity.BackLocation, Is.Not.Null);
+            Assert.That(capturedEntity.BackLocation.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.BackLocation.X, Is.EqualTo(100.5f));
+            Assert.That(capturedEntity.BackLocation.Y, Is.EqualTo(70.0f));
+            Assert.That(capturedEntity.BackLocation.Z, Is.EqualTo(-25.25f));
+            Assert.That(capturedEntity.BackLocation.Pitch, Is.EqualTo(45.0f));
+            Assert.That(capturedEntity.BackLocation.Yaw, Is.EqualTo(90.0f));
         }
 
         [Test]
@@ -486,6 +574,17 @@ namespace NuciCraft.API.UnitTests.Service
             LastSleptDT = "2012-09-05T00:00:00.0000000+00:00",
             LastDeathDT = null,
             LastDeathLocation = null,
+            BackLocation = new() { World = "world", X = 100.5f, Y = 70.0f, Z = -25.25f, Pitch = 45.0f, Yaw = 90.0f },
+            Settings = new()
+            {
+                AutomaticSaplingReplantingIsEnabled = true,
+                PrivateMessagesAreEnabled = false,
+                PrivateMessagesInterceptionIsEnabled = true,
+                AutomaticHotbarRefillingIsEnabled = false,
+                KeepInventoryIsEnabled = true,
+                KeepExperinceIsEnabled = false,
+                AutomaticToolSelectionIsEnabled = true
+            },
             SkinUrl = "test.nucilandia.ro"
         };
 

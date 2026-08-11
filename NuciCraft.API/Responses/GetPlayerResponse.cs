@@ -50,6 +50,9 @@ namespace NuciCraft.API.Responses
         public Coordinates LastDeathLocation { get; set; }
 
         [HmacOrder(14)]
+        public Coordinates BackLocation { get; set; }
+
+        [HmacOrder(15)]
         public string SkinUrl { get; set; }
 
         public GetPlayerResponse(Player player)
@@ -67,6 +70,7 @@ namespace NuciCraft.API.Responses
             LastSleptDT = player.LastSleptDT;
             LastDeathDT = player.LastDeathDT;
             LastDeathLocation = player.LastDeathLocation;
+            BackLocation = player.BackLocation;
             SkinUrl = player.SkinUrl;
         }
     }
