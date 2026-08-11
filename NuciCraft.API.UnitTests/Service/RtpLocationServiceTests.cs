@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 using Moq;
 using NUnit.Framework;
@@ -18,6 +19,8 @@ namespace NuciCraft.API.UnitTests.Service
     [TestFixture]
     public class RtpLocationServiceTests
     {
+        private static string TimestampFormat => "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK";
+
         Mock<IFileRepository<RtpLocationEntity>> repositoryMock;
         Mock<ILogger> loggerMock;
         RtpLocationSettings settings;
@@ -81,6 +84,33 @@ namespace NuciCraft.API.UnitTests.Service
 
             Assert.That(capturedEntity.Id, Is.Not.Null);
             Assert.That(capturedEntity.Id, Is.Not.Empty);
+        }
+
+        [Test]
+        public void GivenAValidRequest_WhenAddingAnRtpLocation_ThenTheCreatedTimestampIsPopulated()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([]);
+
+            RtpLocationEntity capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Add(It.IsAny<RtpLocationEntity>()))
+                .Callback<RtpLocationEntity>(entity => capturedEntity = entity);
+
+            rtpLocationService.AddRtpLocation(BuildAddRtpLocationRequest());
+
+            Assert.That(capturedEntity.CreatedDT, Is.Not.Null);
+            Assert.That(capturedEntity.CreatedDT, Is.Not.Empty);
+            Assert.That(
+                DateTimeOffset.TryParseExact(
+                    capturedEntity.CreatedDT,
+                    TimestampFormat,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out DateTimeOffset createdTimestamp));
+            Assert.That(createdTimestamp, Is.Not.EqualTo(default(DateTimeOffset)));
         }
 
         [Test]
