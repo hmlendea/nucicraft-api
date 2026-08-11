@@ -8,17 +8,17 @@ namespace NuciCraft.API.UnitTests.Service
     public class PlayerSettingsTests
     {
         [Test]
-        public void GivenANewPlayerSettings_WhenReadingTheBooleanProperties_ThenTheyAreFalseByDefault()
+        public void GivenANewPlayerSettings_WhenReadingTheBooleanProperties_ThenTheExpectedDefaultValuesAreReturned()
         {
             PlayerSettings playerSettings = new();
 
-            Assert.That(playerSettings.AutomaticSaplingReplantingIsEnabled, Is.False);
-            Assert.That(playerSettings.PrivateMessagesAreEnabled, Is.False);
+            Assert.That(playerSettings.AutomaticSaplingReplantingIsEnabled);
+            Assert.That(playerSettings.PrivateMessagesAreEnabled);
             Assert.That(playerSettings.PrivateMessagesInterceptionIsEnabled, Is.False);
-            Assert.That(playerSettings.AutomaticHotbarRefillingIsEnabled, Is.False);
+            Assert.That(playerSettings.AutomaticHotbarRefillingIsEnabled);
             Assert.That(playerSettings.KeepInventoryIsEnabled, Is.False);
             Assert.That(playerSettings.KeepExperinceIsEnabled, Is.False);
-            Assert.That(playerSettings.AutomaticToolSelectionIsEnabled, Is.False);
+            Assert.That(playerSettings.AutomaticToolSelectionIsEnabled);
         }
 
         [Test]
