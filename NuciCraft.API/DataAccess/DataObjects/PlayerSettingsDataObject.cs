@@ -27,5 +27,8 @@ namespace NuciCraft.API.DataAccess.DataObjects
 
         [HmacOrder(8)]
         public bool? PrivateMessagesInterceptionIsEnabled { get; set; }
+
+        [HmacOrder(9)]
+        public string SkinUrl { get; set; }
     }
 }

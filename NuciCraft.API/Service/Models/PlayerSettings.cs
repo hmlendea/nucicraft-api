@@ -17,5 +17,7 @@ namespace NuciCraft.API.Service.Models
         public bool PrivateMessagesInterceptionIsEnabled { get; set; } = false;
 
         public Localisation Localisation { get; set; } = Localisation.Romanian;
+
+        public string SkinUrl { get; set; }
     }
 }

@@ -47,7 +47,7 @@ namespace NuciCraft.API.UnitTests.Responses
             Assert.That(response.LogoutLocation.Yaw, Is.EqualTo(player.LogoutLocation.Yaw));
             Assert.That(response.Settings, Is.Not.Null);
             Assert.That(response.Settings.Localisation, Is.EqualTo(Localisation.Romanian));
-            Assert.That(response.SkinUrl, Is.EqualTo(player.SkinUrl));
+            Assert.That(response.Settings.SkinUrl, Is.EqualTo(player.Settings.SkinUrl));
         }
 
         [Test]
@@ -136,8 +136,7 @@ namespace NuciCraft.API.UnitTests.Responses
             LastDeathLocation = null,
             BackLocation = new() { World = "world", X = 13.0f, Y = 64.0f, Z = -21.5f, Pitch = 30.0f, Yaw = 150.0f },
             LogoutLocation = new() { World = "world_the_end", X = 8.5f, Y = 90.0f, Z = -3.25f, Pitch = 5.0f, Yaw = 240.0f },
-            Settings = new() { Localisation = Localisation.Romanian },
-            SkinUrl = "test.nucilandia.ro"
+            Settings = new() { Localisation = Localisation.Romanian, SkinUrl = "test.nucilandia.ro" }
         };
     }
 }

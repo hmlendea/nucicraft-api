@@ -50,6 +50,7 @@ namespace NuciCraft.API.Service.Mapping
             }
 
             settings.Localisation = Localisation.FromString(dataObject.Localisation);
+            settings.SkinUrl = dataObject.SkinUrl;
 
             return settings;
         }
@@ -70,7 +71,8 @@ namespace NuciCraft.API.Service.Mapping
                 KeepInventoryIsEnabled = serviceModel.KeepInventoryIsEnabled,
                 PrivateMessagesAreEnabled = serviceModel.PrivateMessagesAreEnabled,
                 PrivateMessagesInterceptionIsEnabled = serviceModel.PrivateMessagesInterceptionIsEnabled,
-                Localisation = ToDataObject(serviceModel.Localisation)
+                Localisation = ToDataObject(serviceModel.Localisation),
+                SkinUrl = serviceModel.SkinUrl
             };
         }
 

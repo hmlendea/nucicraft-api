@@ -55,9 +55,6 @@ namespace NuciCraft.API.Responses
         [HmacOrder(15)]
         public Coordinates LogoutLocation { get; set; } = player.LogoutLocation;
 
-        [HmacOrder(16)]
-        public string SkinUrl { get; set; } = player.SkinUrl;
-
         [HmacOrder(17)]
         public PlayerSettings Settings { get; set; } = player.Settings;
     }

@@ -37,8 +37,7 @@ namespace NuciCraft.API.Service.Mapping
             LastDeathLocation = ToServiceModel(dataObject.LastDeathLocation),
             BackLocation = ToServiceModel(dataObject.BackLocation),
             LogoutLocation = ToServiceModel(dataObject.LogoutLocation),
-            Settings = dataObject.Settings.ToServiceModel(),
-            SkinUrl = dataObject.SkinUrl
+            Settings = dataObject.Settings.ToServiceModel()
         };
 
         /// <summary>
@@ -63,8 +62,7 @@ namespace NuciCraft.API.Service.Mapping
             LastDeathLocation = ToDataObject(domainModel.LastDeathLocation),
             BackLocation = ToDataObject(domainModel.BackLocation),
             LogoutLocation = ToDataObject(domainModel.LogoutLocation),
-            Settings = domainModel.Settings.ToDataObject(),
-            SkinUrl = domainModel.SkinUrl
+            Settings = domainModel.Settings.ToDataObject()
         };
 
         /// <summary>

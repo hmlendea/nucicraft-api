@@ -23,8 +23,5 @@ namespace NuciCraft.API.Requests
 
         [HmacOrder(5)]
         public string IpAddress { get; set; }
-
-        [HmacOrder(6)]
-        public string SkinUrl { get; set; }
     }
 }

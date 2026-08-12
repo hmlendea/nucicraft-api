@@ -51,9 +51,9 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo("87300000-0000-0000-0000-000000000000"));
             Assert.That(capturedEntity.Password, Is.EqualTo("NucilandiaPass1"));
             Assert.That(capturedEntity.IpAddress, Is.EqualTo("192.168.1.1"));
-            Assert.That(capturedEntity.SkinUrl, Is.EqualTo("test.nucilandia.ro"));
             Assert.That(capturedEntity.Settings, Is.Not.Null);
-            Assert.That(capturedEntity.Settings.Localisation, Is.EqualTo(string.Empty));
+            Assert.That(capturedEntity.Settings.Localisation, Is.EqualTo("romanian"));
+            Assert.That(capturedEntity.Settings.SkinUrl, Is.Null);
             Assert.That(capturedEntity.LogoutLocation, Is.Null);
         }
 
@@ -181,7 +181,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(player.Settings.KeepExperienceIsEnabled, Is.EqualTo(entity.Settings.KeepExperienceIsEnabled));
             Assert.That(player.Settings.AutomaticToolSelectionIsEnabled, Is.EqualTo(entity.Settings.AutomaticToolSelectionIsEnabled));
             Assert.That(player.Settings.Localisation, Is.EqualTo(Localisation.English));
-            Assert.That(player.SkinUrl, Is.EqualTo(entity.SkinUrl));
+            Assert.That(player.Settings.SkinUrl, Is.EqualTo(entity.Settings.SkinUrl));
         }
 
         [Test]
@@ -280,7 +280,6 @@ namespace NuciCraft.API.UnitTests.Service
                 LastSleptDT = "2026-01-01T00:00:00.0000000+00:00",
                 LastDeathDT = "2026-06-01T00:00:00.0000000+00:00",
                 LastDeathLocation = new() { World = "world_nether", X = 1.0f, Y = 2.0f, Z = 3.0f, Pitch = 4.0f, Yaw = 5.0f },
-                SkinUrl = "new-skin.nucilandia.ro",
                 BackLocation = new() { World = "world", X = 6.0f, Y = 7.0f, Z = 8.0f, Pitch = 9.0f, Yaw = 10.0f },
                 LogoutLocation = new() { World = "world_the_end", X = -10.0f, Y = 80.0f, Z = 41.0f, Pitch = 50.0f, Yaw = 60.0f },
                 Settings = new()
@@ -292,7 +291,8 @@ namespace NuciCraft.API.UnitTests.Service
                     KeepInventoryIsEnabled = false,
                     PrivateMessagesAreEnabled = true,
                     PrivateMessagesInterceptionIsEnabled = false,
-                    Localisation = "romanian"
+                    Localisation = "romanian",
+                    SkinUrl = "new-skin.nucilandia.ro"
                 }
             };
 
@@ -312,7 +312,6 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastDeathLocation.Z, Is.EqualTo(3.0f));
             Assert.That(capturedEntity.LastDeathLocation.Pitch, Is.EqualTo(4.0f));
             Assert.That(capturedEntity.LastDeathLocation.Yaw, Is.EqualTo(5.0f));
-            Assert.That(capturedEntity.SkinUrl, Is.EqualTo("new-skin.nucilandia.ro"));
             Assert.That(capturedEntity.BackLocation, Is.Not.Null);
             Assert.That(capturedEntity.BackLocation.World, Is.EqualTo("world"));
             Assert.That(capturedEntity.BackLocation.X, Is.EqualTo(6.0f));
@@ -329,6 +328,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LogoutLocation.Yaw, Is.EqualTo(60.0f));
             Assert.That(capturedEntity.Settings, Is.Not.Null);
             Assert.That(capturedEntity.Settings.Localisation, Is.EqualTo("romanian"));
+            Assert.That(capturedEntity.Settings.SkinUrl, Is.EqualTo("new-skin.nucilandia.ro"));
             Assert.That(capturedEntity.Settings.AutomaticHotbarRefillingIsEnabled, Is.EqualTo(true));
             Assert.That(capturedEntity.Settings.AutomaticSaplingReplantingIsEnabled, Is.EqualTo(false));
             Assert.That(capturedEntity.Settings.AutomaticToolSelectionIsEnabled, Is.EqualTo(false));
@@ -365,7 +365,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastDeathLocation, Is.EqualTo(original.LastDeathLocation));
             Assert.That(capturedEntity.BackLocation, Is.EqualTo(original.BackLocation));
             Assert.That(capturedEntity.LogoutLocation, Is.EqualTo(original.LogoutLocation));
-            Assert.That(capturedEntity.SkinUrl, Is.EqualTo(original.SkinUrl));
+            Assert.That(capturedEntity.Settings.SkinUrl, Is.EqualTo(original.Settings.SkinUrl));
             Assert.That(capturedEntity.Settings, Is.EqualTo(original.Settings));
         }
 
@@ -674,7 +674,6 @@ namespace NuciCraft.API.UnitTests.Service
             CreatedDT = "2012-09-05T00:00:00.0000000+00:00",
             Password = "NucilandiaPass1",
             IpAddress = "192.168.1.1",
-            SkinUrl = "test.nucilandia.ro"
         };
 
         private static PlayerDataObject BuildPlayerDataObject() => new()
@@ -703,9 +702,9 @@ namespace NuciCraft.API.UnitTests.Service
                 KeepInventoryIsEnabled = true,
                 KeepExperienceIsEnabled = false,
                 AutomaticToolSelectionIsEnabled = true,
-                Localisation = "english"
-            },
-            SkinUrl = "test.nucilandia.ro"
+                Localisation = "english",
+                SkinUrl = "test.nucilandia.ro"
+            }
         };
 
         private static Coordinates BuildCoordinates() => new()

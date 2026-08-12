@@ -27,7 +27,5 @@ namespace NuciCraft.API.DataAccess.DataObjects
         public CoordinatesDataObject LogoutLocation { get; set; }
 
         public PlayerSettingsDataObject Settings { get; set; }
-
-        public string SkinUrl { get; set; }
     }
 }

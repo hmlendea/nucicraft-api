@@ -27,8 +27,7 @@ namespace NuciCraft.API.Service
                 new(MyLogInfoKey.Username, request.Username),
                 new(MyLogInfoKey.OnlineUUID, request.OnlineUUID),
                 new(MyLogInfoKey.CreatedDT, request.CreatedDT),
-                new(MyLogInfoKey.IpAddress, request.IpAddress),
-                new(MyLogInfoKey.SkinUrl, request.SkinUrl)
+                new(MyLogInfoKey.IpAddress, request.IpAddress)
             ];
 
             logger.Info(
@@ -48,7 +47,6 @@ namespace NuciCraft.API.Service
                     Password = request.Password,
                     IpAddress = request.IpAddress,
                     Settings = new PlayerSettings(),
-                    SkinUrl = request.SkinUrl
                 };
 
                 logInfos = logInfos
@@ -197,11 +195,6 @@ namespace NuciCraft.API.Service
                     playerDataObject.LogoutLocation = request.LogoutLocation;
                 }
 
-                if (request.SkinUrl is not null)
-                {
-                    playerDataObject.SkinUrl = request.SkinUrl;
-                }
-
                 if (request.Settings is not null)
                 {
                     playerDataObject.Settings = MergePlayerSettingsDataObject(
@@ -278,6 +271,11 @@ namespace NuciCraft.API.Service
             if (incomingSettings.Localisation is not null)
             {
                 existingSettings.Localisation = incomingSettings.Localisation;
+            }
+
+            if (incomingSettings.SkinUrl is not null)
+            {
+                existingSettings.SkinUrl = incomingSettings.SkinUrl;
             }
 
             return existingSettings;
