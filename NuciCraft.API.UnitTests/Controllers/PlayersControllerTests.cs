@@ -20,7 +20,7 @@ namespace NuciCraft.API.UnitTests.Controllers
                 .GetCustomAttribute<RouteAttribute>();
 
             Assert.That(routeAttribute, Is.Not.Null);
-            Assert.That(routeAttribute.Template, Is.EqualTo("{playerIdentifier}"));
+            Assert.That(routeAttribute.Template, Is.EqualTo("{identifier}"));
         }
 
         [Test]
