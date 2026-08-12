@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 using NuciDAL.Repositories;
@@ -18,6 +19,8 @@ namespace NuciCraft.API.Service
         IFileRepository<ZoneDataObject> repository,
         ILogger logger) : IZoneService
     {
+        private static string RomaniaTimeZoneId => "Europe/Bucharest";
+
         public void Add(AddZoneRequest request)
         {
             IEnumerable<LogInfo> logInfos =
@@ -48,16 +51,18 @@ namespace NuciCraft.API.Service
                     County = request.County,
                     Region = request.Region,
                     Country = request.Country,
-                    CreationDate = request.CreationDate,
+                    CreationDate = GetCreationDateForAddRequest(request),
                     Owners = request.Owners,
-                    Creators = request.Creators,
+                    Creators = GetCreatorsForAddRequest(request),
                     Leaders = request.Leaders,
                     TeleportationPoint = request.TeleportationPoint,
                     LeaderTitle = request.LeaderTitle,
                     Population = request.Population,
                     MapLink = request.MapLink,
                     WikiUrl = request.WikiUrl,
-                    CreatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK")
+                    CreatedDT = DateTimeOffset.UtcNow.ToString(
+                        "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK",
+                        CultureInfo.InvariantCulture)
                 };
 
                 repository.Add(zoneDataObject);
@@ -163,7 +168,9 @@ namespace NuciCraft.API.Service
 
                 ApplyPatchValues(request, zoneDataObject);
 
-                zoneDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK");
+                zoneDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString(
+                    "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK",
+                    CultureInfo.InvariantCulture);
 
                 repository.Update(zoneDataObject);
                 repository.SaveChanges();
@@ -277,6 +284,49 @@ namespace NuciCraft.API.Service
             {
                 zoneDataObject.WikiUrl = request.WikiUrl;
             }
+        }
+
+        private static IEnumerable<string> GetCreatorsForAddRequest(AddZoneRequest request)
+        {
+            if (request.Creators is not null)
+            {
+                return request.Creators;
+            }
+
+            if (request.Owners is null)
+            {
+                return null;
+            }
+
+            string[] owners = request.Owners.ToArray();
+
+            if (owners.Length == 1)
+            {
+                return owners;
+            }
+
+            return null;
+        }
+
+        private static string GetCreationDateForAddRequest(AddZoneRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.CreationDate))
+            {
+                return string.Concat(
+                    GetRomaniaNow().ToString(
+                        "yyyy'-'MM'-'dd",
+                        CultureInfo.InvariantCulture),
+                    " (?)");
+            }
+
+            return request.CreationDate;
+        }
+
+        private static DateTimeOffset GetRomaniaNow()
+        {
+            TimeZoneInfo romaniaTimeZone = TimeZoneInfo.FindSystemTimeZoneById(RomaniaTimeZoneId);
+
+            return TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, romaniaTimeZone);
         }
 
         private static LocalisedStringDataObject MergeLocalisedStringDataObject(
