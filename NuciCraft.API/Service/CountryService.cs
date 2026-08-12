@@ -22,6 +22,8 @@ namespace NuciCraft.API.Service
     {
         public void Add(AddCountryRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.Identifier, request.Identifier),
@@ -131,6 +133,8 @@ namespace NuciCraft.API.Service
 
         public void Update(UpdateCountryRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.Identifier, request.CountryIdentifier)

@@ -23,6 +23,8 @@ namespace NuciCraft.API.Service
     {
         public void Register(RegisterPlayerRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.Username, request.Username),
@@ -78,6 +80,8 @@ namespace NuciCraft.API.Service
 
         public Player Get(GetPlayerRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.PlayerID, request.Identifier),
@@ -159,6 +163,8 @@ namespace NuciCraft.API.Service
 
         public void Update(PatchPlayerRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.PlayerID, request.PlayerIdentifier),

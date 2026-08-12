@@ -156,6 +156,14 @@ namespace NuciCraft.API.UnitTests.Service
                 Throws.TypeOf<InvalidOperationException>());
         }
 
+        [Test]
+        public void GivenANullRequest_WhenRegistering_ThenAnArgumentNullExceptionIsThrown()
+        {
+            Assert.That(
+                () => playerService.Register(null),
+                Throws.TypeOf<ArgumentNullException>());
+        }
+
         // ── Get ────────────────────────────────────────────────────────────────
 
         [Test]
@@ -276,6 +284,14 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(
                 () => playerService.Get(new GetPlayerRequest { Username = "IlarionPintilie" }),
                 Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void GivenANullRequest_WhenGettingAPlayer_ThenAnArgumentNullExceptionIsThrown()
+        {
+            Assert.That(
+                () => playerService.Get(null),
+                Throws.TypeOf<ArgumentNullException>());
         }
 
         // ── Update ─────────────────────────────────────────────────────────────
@@ -695,6 +711,14 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(
                 () => playerService.Update(new PatchPlayerRequest { PlayerIdentifier = "non-existent-player" }),
                 Throws.TypeOf<KeyNotFoundException>());
+        }
+
+        [Test]
+        public void GivenANullRequest_WhenPatchingAPlayer_ThenAnArgumentNullExceptionIsThrown()
+        {
+            Assert.That(
+                () => playerService.Update(null),
+                Throws.TypeOf<ArgumentNullException>());
         }
 
         private static RegisterPlayerRequest BuildRegisterPlayerRequest() => new()

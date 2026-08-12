@@ -260,6 +260,14 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenANullRequest_WhenAddingAZone_ThenAnArgumentNullExceptionIsThrown()
+        {
+            Assert.That(
+                () => zoneService.Add(null),
+                Throws.TypeOf<ArgumentNullException>());
+        }
+
+        [Test]
         public void GivenARequestWithPartialFields_WhenUpdatingAZone_ThenOnlyProvidedFieldsAreUpdated()
         {
             ZoneDataObject original = BuildZoneDataObject();
@@ -567,6 +575,14 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(
                 () => zoneService.Update(new PatchZoneRequest { ZoneIdentifier = "non-existent-zone" }),
                 Throws.TypeOf<KeyNotFoundException>());
+        }
+
+        [Test]
+        public void GivenANullRequest_WhenPatchingAZone_ThenAnArgumentNullExceptionIsThrown()
+        {
+            Assert.That(
+                () => zoneService.Update(null),
+                Throws.TypeOf<ArgumentNullException>());
         }
 
         private static ZoneDataObject BuildZoneDataObject() => new()
