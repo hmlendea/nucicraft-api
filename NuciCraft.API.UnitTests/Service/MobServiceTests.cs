@@ -194,7 +194,7 @@ namespace NuciCraft.API.UnitTests.Service
                 BuildGetMobNameRequest(MobType.Pig));
 
             Assert.That(capturedRequest, Is.Not.Null);
-            Assert.That(capturedRequest.Schema, Is.EqualTo("romanian-animals-pigs"));
+            Assert.That(capturedRequest.Schema, Is.EqualTo("animals-pigs"));
             Assert.That(capturedRequest.Count, Is.EqualTo(1));
         }
 
