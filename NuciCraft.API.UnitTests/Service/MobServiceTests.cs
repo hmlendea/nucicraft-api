@@ -19,7 +19,7 @@ using NuciCraft.API.Service.Models;
 namespace NuciCraft.API.UnitTests.Service
 {
     [TestFixture]
-    public class MobServiceTests
+    public sealed class MobServiceTests
     {
         private Mock<INuciApiClient> universalNameGeneratorClientMock;
         private Mock<ILogger> loggerMock;

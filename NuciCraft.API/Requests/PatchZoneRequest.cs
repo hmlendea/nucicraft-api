@@ -8,7 +8,7 @@ using NuciCraft.API.DataAccess.DataObjects;
 
 namespace NuciCraft.API.Requests
 {
-    public class UpdateZoneRequest : NuciApiRequest
+    public class PatchZoneRequest : NuciApiRequest
     {
         [HmacOrder(1)]
         public string ZoneIdentifier { get; set; }

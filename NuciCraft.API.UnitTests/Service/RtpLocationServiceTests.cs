@@ -17,7 +17,7 @@ using NuciLog.Core;
 namespace NuciCraft.API.UnitTests.Service
 {
     [TestFixture]
-    public class RtpLocationServiceTests
+    public sealed class RtpLocationServiceTests
     {
         private static string TimestampFormat => "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK";
 

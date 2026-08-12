@@ -11,11 +11,11 @@ namespace NuciCraft.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class PlayersController(
+    public sealed class PlayersController(
         IPlayerService service,
         SecuritySettings securitySettings) : NuciApiController
     {
-        readonly NuciApiAuthorisation authorisation = NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
+        private readonly NuciApiAuthorisation authorisation = NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
 
         [HttpPost]
         public ActionResult Register(
@@ -52,7 +52,7 @@ namespace NuciCraft.API.Controllers
         [Route("{playerIdentifier}")]
         public ActionResult PatchByIdentifier(
             string playerIdentifier,
-            [FromBody] UpdatePlayerRequest request)
+            [FromBody] PatchPlayerRequest request)
         {
             request.PlayerIdentifier = playerIdentifier;
 
@@ -66,7 +66,7 @@ namespace NuciCraft.API.Controllers
         [Route("by-username/{username}")]
         public ActionResult PatchByUsername(
             string username,
-            [FromBody] UpdatePlayerRequest request)
+            [FromBody] PatchPlayerRequest request)
         {
             request.PlayerUsername = username;
 
@@ -80,7 +80,7 @@ namespace NuciCraft.API.Controllers
         [Route("by-offline-uuid/{offlineUUID}")]
         public ActionResult PatchByOfflineUuid(
             string offlineUUID,
-            [FromBody] UpdatePlayerRequest request)
+            [FromBody] PatchPlayerRequest request)
         {
             request.PlayerOfflineUUID = offlineUUID;
 
@@ -94,7 +94,7 @@ namespace NuciCraft.API.Controllers
         [Route("by-online-uuid/{onlineUUID}")]
         public ActionResult PatchByOnlineUuid(
             string onlineUUID,
-            [FromBody] UpdatePlayerRequest request)
+            [FromBody] PatchPlayerRequest request)
         {
             request.PlayerOnlineUUID = onlineUUID;
 

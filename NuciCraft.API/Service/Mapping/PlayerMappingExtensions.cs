@@ -11,10 +11,8 @@ namespace NuciCraft.API.Service.Mapping
     /// <summary>
     /// Player mapping extensions for converting between data objects and domain models.
     /// </summary>
-    static class PlayerMappingExtensions
+    internal static class PlayerMappingExtensions
     {
-        static string TimestampFormat => "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK";
-
         /// <summary>
         /// Converts the data object into a domain model.
         /// </summary>
@@ -52,13 +50,13 @@ namespace NuciCraft.API.Service.Mapping
             OfflineUUID = domainModel.OfflineUUID,
             OnlineUUID = domainModel.OnlineUUID,
             Password = domainModel.Password,
-            CreatedDT = domainModel.CreatedDT.ToString(TimestampFormat, CultureInfo.InvariantCulture),
-            UpdatedDT = domainModel.UpdatedDT?.ToString(TimestampFormat, CultureInfo.InvariantCulture),
+            CreatedDT = domainModel.CreatedDT.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
+            UpdatedDT = domainModel.UpdatedDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
             IpAddress = domainModel.IpAddress,
             DiscordId = domainModel.DiscordId,
             EmailAddress = domainModel.EmailAddress,
-            LastSleptDT = domainModel.LastSleptDT?.ToString(TimestampFormat, CultureInfo.InvariantCulture),
-            LastDeathDT = domainModel.LastDeathDT?.ToString(TimestampFormat, CultureInfo.InvariantCulture),
+            LastSleptDT = domainModel.LastSleptDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
+            LastDeathDT = domainModel.LastDeathDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
             LastDeathLocation = domainModel.LastDeathLocation?.ToDataObject(),
             BackLocation = domainModel.BackLocation?.ToDataObject(),
             LogoutLocation = domainModel.LogoutLocation?.ToDataObject(),

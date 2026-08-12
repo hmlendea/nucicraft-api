@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -16,7 +17,7 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Service
 {
-    public class PlayerService(
+    public sealed class PlayerService(
         IFileRepository<PlayerDataObject> repository,
         ILogger logger) : IPlayerService
     {
@@ -43,7 +44,9 @@ namespace NuciCraft.API.Service
                     Username = request.Username,
                     OfflineUUID = GetOfflineUuid(request.Username),
                     OnlineUUID = request.OnlineUUID,
-                    CreatedDT = request.CreatedDT != null ? DateTimeOffset.Parse(request.CreatedDT) : DateTimeOffset.Now,
+                    CreatedDT = request.CreatedDT != null
+                        ? DateTimeOffset.Parse(request.CreatedDT, CultureInfo.InvariantCulture)
+                        : DateTimeOffset.Now,
                     Password = request.Password,
                     IpAddress = request.IpAddress,
                     Settings = new PlayerSettings(),
@@ -61,12 +64,12 @@ namespace NuciCraft.API.Service
                     OperationStatus.Success,
                     logInfos);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 logger.Error(
                     MyOperation.RegisterPlayer,
                     OperationStatus.Failure,
-                    ex,
+                    exception,
                     logInfos);
 
                 throw;
@@ -90,13 +93,15 @@ namespace NuciCraft.API.Service
 
             try
             {
+                Func<PlayerDataObject, bool> matchesRequest = BuildPlayerDataObjectMatcher(
+                    request.Identifier,
+                    request.Username,
+                    request.OfflineUUID,
+                    request.OnlineUUID);
+
                 PlayerDataObject matchingDataObject = repository
                     .GetAll()
-                    .FirstOrDefault(entity =>
-                        (!string.IsNullOrWhiteSpace(request.Identifier) && string.Equals(entity.Id, request.Identifier)) ||
-                        (!string.IsNullOrWhiteSpace(request.Username) && string.Equals(entity.Username, request.Username)) ||
-                        (!string.IsNullOrWhiteSpace(request.OfflineUUID) && string.Equals(entity.OfflineUUID, request.OfflineUUID)) ||
-                        (!string.IsNullOrWhiteSpace(request.OnlineUUID) && string.Equals(entity.OnlineUUID, request.OnlineUUID)));
+                    .FirstOrDefault(matchesRequest);
 
                 if (matchingDataObject is null)
                 {
@@ -152,7 +157,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        public void Update(UpdatePlayerRequest request)
+        public void Update(PatchPlayerRequest request)
         {
             IEnumerable<LogInfo> logInfos =
             [
@@ -175,7 +180,9 @@ namespace NuciCraft.API.Service
 
                 ApplyPatchValues(request, playerDataObject);
 
-                playerDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK");
+                playerDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString(
+                    TimestampFormats.Full,
+                    CultureInfo.InvariantCulture);
 
                 repository.Update(playerDataObject);
                 repository.SaveChanges();
@@ -197,70 +204,54 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private static void ValidatePatchSelectors(UpdatePlayerRequest request)
+        private static void ValidatePatchSelectors(PatchPlayerRequest request)
         {
-            int selectorCount = 0;
+            string[] selectors =
+            [
+                request.PlayerIdentifier,
+                request.PlayerUsername,
+                request.PlayerOfflineUUID,
+                request.PlayerOnlineUUID
+            ];
 
-            if (!string.IsNullOrWhiteSpace(request.PlayerIdentifier))
-            {
-                selectorCount += 1;
-            }
+            int providedSelectorCount = selectors
+                .Count(selectorValue => !string.IsNullOrWhiteSpace(selectorValue));
 
-            if (!string.IsNullOrWhiteSpace(request.PlayerUsername))
-            {
-                selectorCount += 1;
-            }
-
-            if (!string.IsNullOrWhiteSpace(request.PlayerOfflineUUID))
-            {
-                selectorCount += 1;
-            }
-
-            if (!string.IsNullOrWhiteSpace(request.PlayerOnlineUUID))
-            {
-                selectorCount += 1;
-            }
-
-            if (selectorCount != 1)
+            if (providedSelectorCount != 1)
             {
                 throw new ArgumentException("Exactly one player identifier selector must be provided.");
             }
         }
 
-        private PlayerDataObject FindPlayerToPatch(UpdatePlayerRequest request)
+        private static Func<PlayerDataObject, bool> BuildPlayerDataObjectMatcher(
+            string playerIdentifier,
+            string playerUsername,
+            string playerOfflineUuid,
+            string playerOnlineUuid)
+            => playerDataObject =>
+                (!string.IsNullOrWhiteSpace(playerIdentifier) && string.Equals(playerDataObject.Id, playerIdentifier)) ||
+                (!string.IsNullOrWhiteSpace(playerUsername) && string.Equals(playerDataObject.Username, playerUsername)) ||
+                (!string.IsNullOrWhiteSpace(playerOfflineUuid) && string.Equals(playerDataObject.OfflineUUID, playerOfflineUuid)) ||
+                (!string.IsNullOrWhiteSpace(playerOnlineUuid) && string.Equals(playerDataObject.OnlineUUID, playerOnlineUuid));
+
+        private PlayerDataObject FindPlayerToPatch(PatchPlayerRequest request)
         {
-            GetPlayerRequest getPlayerRequest = new()
-            {
-                Identifier = request.PlayerIdentifier,
-                Username = request.PlayerUsername,
-                OfflineUUID = request.PlayerOfflineUUID,
-                OnlineUUID = request.PlayerOnlineUUID
-            };
+            Func<PlayerDataObject, bool> matchesRequest = BuildPlayerDataObjectMatcher(
+                request.PlayerIdentifier,
+                request.PlayerUsername,
+                request.PlayerOfflineUUID,
+                request.PlayerOnlineUUID);
 
             return repository
                 .GetAll()
-                .FirstOrDefault(entity =>
-                    (!string.IsNullOrWhiteSpace(getPlayerRequest.Identifier) && string.Equals(entity.Id, getPlayerRequest.Identifier)) ||
-                    (!string.IsNullOrWhiteSpace(getPlayerRequest.Username) && string.Equals(entity.Username, getPlayerRequest.Username)) ||
-                    (!string.IsNullOrWhiteSpace(getPlayerRequest.OfflineUUID) && string.Equals(entity.OfflineUUID, getPlayerRequest.OfflineUUID)) ||
-                    (!string.IsNullOrWhiteSpace(getPlayerRequest.OnlineUUID) && string.Equals(entity.OnlineUUID, getPlayerRequest.OnlineUUID)))
+                .FirstOrDefault(matchesRequest)
                 ?? throw new KeyNotFoundException("No player found matching the provided criteria.");
         }
 
         private static void ApplyPatchValues(
-            UpdatePlayerRequest request,
+            PatchPlayerRequest request,
             PlayerDataObject playerDataObject)
         {
-            if (request.Username is not null)
-            {
-                playerDataObject.Username = request.Username;
-            }
-
-            if (request.OnlineUUID is not null)
-            {
-                playerDataObject.OnlineUUID = request.OnlineUUID;
-            }
-
             if (request.Password is not null)
             {
                 playerDataObject.Password = request.Password;

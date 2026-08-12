@@ -10,12 +10,13 @@ using NuciLog.Core;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
+using NuciCraft.API.Service.Helpers;
 using NuciCraft.API.Service.Mapping;
 using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Service
 {
-    public class ZoneService(
+    public sealed class ZoneService(
         IFileRepository<ZoneDataObject> repository,
         ILogger logger) : IZoneService
     {
@@ -61,7 +62,7 @@ namespace NuciCraft.API.Service
                     MapLink = request.MapLink,
                     WikiUrl = request.WikiUrl,
                     CreatedDT = DateTimeOffset.UtcNow.ToString(
-                        "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK",
+                        TimestampFormats.Full,
                         CultureInfo.InvariantCulture)
                 };
 
@@ -73,12 +74,12 @@ namespace NuciCraft.API.Service
                     OperationStatus.Success,
                     logInfos);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 logger.Error(
                     MyOperation.AddZone,
                     OperationStatus.Failure,
-                    ex,
+                    exception,
                     logInfos);
 
                 throw;
@@ -108,12 +109,12 @@ namespace NuciCraft.API.Service
 
                 return zone;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 logger.Error(
                     MyOperation.GetZone,
                     OperationStatus.Failure,
-                    ex,
+                    exception,
                     logInfos);
 
                 throw;
@@ -137,18 +138,18 @@ namespace NuciCraft.API.Service
 
                 return zones;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 logger.Error(
                     MyOperation.GetAllZones,
                     OperationStatus.Failure,
-                    ex);
+                    exception);
 
                 throw;
             }
         }
 
-        public void Update(UpdateZoneRequest request)
+        public void Update(PatchZoneRequest request)
         {
             IEnumerable<LogInfo> logInfos =
             [
@@ -169,7 +170,7 @@ namespace NuciCraft.API.Service
                 ApplyPatchValues(request, zoneDataObject);
 
                 zoneDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString(
-                    "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK",
+                    TimestampFormats.Full,
                     CultureInfo.InvariantCulture);
 
                 repository.Update(zoneDataObject);
@@ -180,19 +181,19 @@ namespace NuciCraft.API.Service
                     OperationStatus.Success,
                     logInfos);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 logger.Error(
                     MyOperation.UpdateZone,
                     OperationStatus.Failure,
-                    ex,
+                    exception,
                     logInfos);
 
                 throw;
             }
         }
 
-        private static void ValidatePatchSelector(UpdateZoneRequest request)
+        private static void ValidatePatchSelector(PatchZoneRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.ZoneIdentifier))
             {
@@ -201,21 +202,17 @@ namespace NuciCraft.API.Service
         }
 
         private static void ApplyPatchValues(
-            UpdateZoneRequest request,
+            PatchZoneRequest request,
             ZoneDataObject zoneDataObject)
         {
             if (request.Name is not null)
             {
-                zoneDataObject.Name = MergeLocalisedStringDataObject(
-                    zoneDataObject.Name,
-                    request.Name);
+                zoneDataObject.Name = zoneDataObject.Name.MergeWith(request.Name);
             }
 
             if (request.Nickname is not null)
             {
-                zoneDataObject.Nickname = MergeLocalisedStringDataObject(
-                    zoneDataObject.Nickname,
-                    request.Nickname);
+                zoneDataObject.Nickname = zoneDataObject.Nickname.MergeWith(request.Nickname);
             }
 
             if (request.Level is not null)
@@ -265,9 +262,7 @@ namespace NuciCraft.API.Service
 
             if (request.LeaderTitle is not null)
             {
-                zoneDataObject.LeaderTitle = MergeLocalisedStringDataObject(
-                    zoneDataObject.LeaderTitle,
-                    request.LeaderTitle);
+                zoneDataObject.LeaderTitle = zoneDataObject.LeaderTitle.MergeWith(request.LeaderTitle);
             }
 
             if (request.Population is not null)
@@ -327,64 +322,6 @@ namespace NuciCraft.API.Service
             TimeZoneInfo romaniaTimeZone = TimeZoneInfo.FindSystemTimeZoneById(RomaniaTimeZoneId);
 
             return TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, romaniaTimeZone);
-        }
-
-        private static LocalisedStringDataObject MergeLocalisedStringDataObject(
-            LocalisedStringDataObject existingLocalisedString,
-            LocalisedStringDataObject incomingLocalisedString)
-        {
-            if (existingLocalisedString is null)
-            {
-                return incomingLocalisedString;
-            }
-
-            existingLocalisedString.Default = MergeLocalisedValue(
-                existingLocalisedString.Default,
-                incomingLocalisedString.Default);
-            existingLocalisedString.Chinese = MergeLocalisedValue(
-                existingLocalisedString.Chinese,
-                incomingLocalisedString.Chinese);
-            existingLocalisedString.Dacian = MergeLocalisedValue(
-                existingLocalisedString.Dacian,
-                incomingLocalisedString.Dacian);
-            existingLocalisedString.English = MergeLocalisedValue(
-                existingLocalisedString.English,
-                incomingLocalisedString.English);
-            existingLocalisedString.French = MergeLocalisedValue(
-                existingLocalisedString.French,
-                incomingLocalisedString.French);
-            existingLocalisedString.German = MergeLocalisedValue(
-                existingLocalisedString.German,
-                incomingLocalisedString.German);
-            existingLocalisedString.Italian = MergeLocalisedValue(
-                existingLocalisedString.Italian,
-                incomingLocalisedString.Italian);
-            existingLocalisedString.Japanese = MergeLocalisedValue(
-                existingLocalisedString.Japanese,
-                incomingLocalisedString.Japanese);
-            existingLocalisedString.Latin = MergeLocalisedValue(
-                existingLocalisedString.Latin,
-                incomingLocalisedString.Latin);
-            existingLocalisedString.Nucian = MergeLocalisedValue(
-                existingLocalisedString.Nucian,
-                incomingLocalisedString.Nucian);
-            existingLocalisedString.Romanian = MergeLocalisedValue(
-                existingLocalisedString.Romanian,
-                incomingLocalisedString.Romanian);
-
-            return existingLocalisedString;
-        }
-
-        private static string MergeLocalisedValue(
-            string existingValue,
-            string incomingValue)
-        {
-            if (incomingValue is not null)
-            {
-                return incomingValue;
-            }
-
-            return existingValue;
         }
     }
 }

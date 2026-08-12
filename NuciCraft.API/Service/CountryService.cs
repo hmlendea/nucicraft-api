@@ -10,17 +10,16 @@ using NuciLog.Core;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
+using NuciCraft.API.Service.Helpers;
 using NuciCraft.API.Service.Mapping;
 using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Service
 {
-    public class CountryService(
+    public sealed class CountryService(
         IFileRepository<CountryDataObject> repository,
         ILogger logger) : ICountryService
     {
-        private static string TimestampFormat => "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK";
-
         public void Add(AddCountryRequest request)
         {
             IEnumerable<LogInfo> logInfos =
@@ -43,7 +42,7 @@ namespace NuciCraft.API.Service
                     LeaderTitle = request.LeaderTitle,
                     Leader = request.Leader,
                     CreatedDT = DateTimeOffset.UtcNow.ToString(
-                        TimestampFormat,
+                        TimestampFormats.Full,
                         CultureInfo.InvariantCulture)
                 };
 
@@ -151,7 +150,7 @@ namespace NuciCraft.API.Service
                 ApplyPatchValues(request, countryDataObject);
 
                 countryDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString(
-                    TimestampFormat,
+                    TimestampFormats.Full,
                     CultureInfo.InvariantCulture);
 
                 repository.Update(countryDataObject);
@@ -188,80 +187,18 @@ namespace NuciCraft.API.Service
         {
             if (request.Name is not null)
             {
-                countryDataObject.Name = MergeLocalisedStringDataObject(
-                    countryDataObject.Name,
-                    request.Name);
+                countryDataObject.Name = countryDataObject.Name.MergeWith(request.Name);
             }
 
             if (request.LeaderTitle is not null)
             {
-                countryDataObject.LeaderTitle = MergeLocalisedStringDataObject(
-                    countryDataObject.LeaderTitle,
-                    request.LeaderTitle);
+                countryDataObject.LeaderTitle = countryDataObject.LeaderTitle.MergeWith(request.LeaderTitle);
             }
 
             if (request.Leader is not null)
             {
                 countryDataObject.Leader = request.Leader;
             }
-        }
-
-        private static LocalisedStringDataObject MergeLocalisedStringDataObject(
-            LocalisedStringDataObject existingLocalisedString,
-            LocalisedStringDataObject incomingLocalisedString)
-        {
-            if (existingLocalisedString is null)
-            {
-                return incomingLocalisedString;
-            }
-
-            existingLocalisedString.Default = MergeLocalisedValue(
-                existingLocalisedString.Default,
-                incomingLocalisedString.Default);
-            existingLocalisedString.Chinese = MergeLocalisedValue(
-                existingLocalisedString.Chinese,
-                incomingLocalisedString.Chinese);
-            existingLocalisedString.Dacian = MergeLocalisedValue(
-                existingLocalisedString.Dacian,
-                incomingLocalisedString.Dacian);
-            existingLocalisedString.English = MergeLocalisedValue(
-                existingLocalisedString.English,
-                incomingLocalisedString.English);
-            existingLocalisedString.French = MergeLocalisedValue(
-                existingLocalisedString.French,
-                incomingLocalisedString.French);
-            existingLocalisedString.German = MergeLocalisedValue(
-                existingLocalisedString.German,
-                incomingLocalisedString.German);
-            existingLocalisedString.Italian = MergeLocalisedValue(
-                existingLocalisedString.Italian,
-                incomingLocalisedString.Italian);
-            existingLocalisedString.Japanese = MergeLocalisedValue(
-                existingLocalisedString.Japanese,
-                incomingLocalisedString.Japanese);
-            existingLocalisedString.Latin = MergeLocalisedValue(
-                existingLocalisedString.Latin,
-                incomingLocalisedString.Latin);
-            existingLocalisedString.Nucian = MergeLocalisedValue(
-                existingLocalisedString.Nucian,
-                incomingLocalisedString.Nucian);
-            existingLocalisedString.Romanian = MergeLocalisedValue(
-                existingLocalisedString.Romanian,
-                incomingLocalisedString.Romanian);
-
-            return existingLocalisedString;
-        }
-
-        private static string MergeLocalisedValue(
-            string existingValue,
-            string incomingValue)
-        {
-            if (incomingValue is not null)
-            {
-                return incomingValue;
-            }
-
-            return existingValue;
         }
     }
 }

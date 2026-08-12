@@ -8,7 +8,7 @@ using NuciCraft.API.Service.Models;
 namespace NuciCraft.API.UnitTests.Responses
 {
     [TestFixture]
-    public class GetPlayerResponseTests
+    public sealed class GetPlayerResponseTests
     {
         // ── Field mapping ──────────────────────────────────────────────────────
 

@@ -11,11 +11,11 @@ namespace NuciCraft.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class ZonesController(
+    public sealed class ZonesController(
         IZoneService service,
         SecuritySettings securitySettings) : NuciApiController
     {
-        readonly NuciApiAuthorisation authorisation = NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
+        private readonly NuciApiAuthorisation authorisation = NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
 
         [HttpPost]
         public ActionResult Add(
@@ -48,7 +48,7 @@ namespace NuciCraft.API.Controllers
         [Route("{zoneIdentifier}")]
         public ActionResult PatchByIdentifier(
             string zoneIdentifier,
-            [FromBody] UpdateZoneRequest request)
+            [FromBody] PatchZoneRequest request)
         {
             request.ZoneIdentifier = zoneIdentifier;
 
