@@ -74,6 +74,31 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.OfflineUUID, Does.Match(@"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"));
         }
 
+        [TestCase("AndreiMirea", "7abb798a-c25e-3a21-8b28-ca2aad2881bd")]
+        [TestCase("beepbeep", "ff56aee7-976c-3e7b-8f28-0b33ac2148fd")]
+        [TestCase("Blitzkrieg94", "a01d8afa-3752-3a20-98a2-74bab8778e41")]
+        [TestCase("Ionut22", "b7029140-b155-3deb-8f48-439b16ebcd58")]
+        [TestCase("Mary", "ce43e0a4-598c-3b41-aa45-54ac28944dae")]
+        [TestCase("mibu", "2fd7404d-987c-3665-b1fe-3972615acc9c")]
+        [TestCase("nnivrim", "be1be236-9710-3639-b3e1-81b90cb46688")]
+        [TestCase("qAviis", "84adb7b1-f26f-3702-abd8-b3a097975ac2")]
+        public void GivenAMinecraftUsername_WhenRegistering_ThenTheExpectedOfflineUuidIsCalculated(
+            string username,
+            string expectedOfflineUuid)
+        {
+            RegisterPlayerRequest request = BuildRegisterPlayerRequest(username);
+            PlayerDataObject capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Add(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
+
+            playerService.Register(request);
+
+            Assert.That(capturedEntity, Is.Not.Null);
+            Assert.That(capturedEntity.OfflineUUID, Is.EqualTo(expectedOfflineUuid));
+        }
+
         [Test]
         public void GivenAValidRequestWithExplicitCreatedDT_WhenRegistering_ThenCreatedDTIsParsedAndStored()
         {
@@ -680,6 +705,14 @@ namespace NuciCraft.API.UnitTests.Service
             Password = "NucilandiaPass1",
             IpAddress = "192.168.1.1",
         };
+
+        private static RegisterPlayerRequest BuildRegisterPlayerRequest(string username)
+        {
+            RegisterPlayerRequest request = BuildRegisterPlayerRequest();
+            request.Username = username;
+
+            return request;
+        }
 
         private static PlayerDataObject BuildPlayerDataObject() => new()
         {

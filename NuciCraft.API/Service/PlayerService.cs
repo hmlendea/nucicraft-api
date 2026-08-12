@@ -380,14 +380,15 @@ namespace NuciCraft.API.Service
             string byteArray = hexBuilder.ToString();
 
             // Modify specific bytes (UUID v3 format adjustments)
-            int byte6 = (Convert.ToInt32(byteArray.Substring(6, 2), 16) & 0x0f) | 0x30;
-            int byte8 = (Convert.ToInt32(byteArray.Substring(8, 2), 16) & 0x3f) | 0x80;
+            int byte6 = (Convert.ToInt32(byteArray.Substring(12, 2), 16) & 0x0f) | 0x30;
+            int byte8 = (Convert.ToInt32(byteArray.Substring(16, 2), 16) & 0x3f) | 0x80;
 
             byteArray =
-                byteArray[..6] +
+                byteArray[..12] +
                 byte6.ToString("x2") +
+                byteArray.Substring(14, 2) +
                 byte8.ToString("x2") +
-                byteArray[10..];
+                byteArray[18..];
 
             // Format as UUID
             return
