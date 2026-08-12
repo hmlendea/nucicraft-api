@@ -1,15 +1,15 @@
 using System.Collections.Generic;
+using System.Linq;
 
 using NuciAPI.Responses;
 
 using NuciSecurity.HMAC;
 
 using NuciCraft.API.Service.Models;
-using System.Linq;
 
 namespace NuciCraft.API.Responses
 {
-    public class GetZonesResponse : NuciApiSuccessResponse
+    public sealed class GetZonesResponse : NuciApiSuccessResponse
     {
         [HmacOrder(1)]
         public IEnumerable<Zone> Zones { get; set; }
