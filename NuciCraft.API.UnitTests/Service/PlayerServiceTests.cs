@@ -137,6 +137,17 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenARequestWithInvalidCreatedDT_WhenRegistering_ThenAnArgumentExceptionIsThrown()
+        {
+            RegisterPlayerRequest request = BuildRegisterPlayerRequest();
+            request.CreatedDT = "invalid-timestamp";
+
+            Assert.That(
+                () => playerService.Register(request),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
         public void GivenAValidRequest_WhenRegistering_ThenSaveChangesIsInvoked()
         {
             playerService.Register(BuildRegisterPlayerRequest());
