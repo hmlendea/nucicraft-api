@@ -259,10 +259,11 @@ namespace NuciCraft.API.UnitTests.Service
         public void GivenARequestWithAllFields_WhenUpdatingAPlayer_ThenAllFieldsAreApplied()
         {
             PlayerDataObject capturedEntity = null;
+            PlayerDataObject original = BuildPlayerDataObject();
 
             repositoryMock
                 .Setup(repository => repository.GetAll())
-                .Returns([BuildPlayerDataObject()]);
+                .Returns([original]);
 
             repositoryMock
                 .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
@@ -298,8 +299,8 @@ namespace NuciCraft.API.UnitTests.Service
 
             playerService.Update(request);
 
-            Assert.That(capturedEntity.Username, Is.EqualTo("NewUsername"));
-            Assert.That(capturedEntity.OnlineUUID, Is.EqualTo("11111111-0000-0000-0000-000000000000"));
+            Assert.That(capturedEntity.Username, Is.EqualTo(original.Username));
+            Assert.That(capturedEntity.OnlineUUID, Is.EqualTo(original.OnlineUUID));
             Assert.That(capturedEntity.Password, Is.EqualTo("NewPass"));
             Assert.That(capturedEntity.IpAddress, Is.EqualTo("10.0.0.1"));
             Assert.That(capturedEntity.DiscordId, Is.EqualTo("999"));
@@ -336,6 +337,33 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Settings.KeepInventoryIsEnabled, Is.EqualTo(false));
             Assert.That(capturedEntity.Settings.PrivateMessagesAreEnabled, Is.EqualTo(true));
             Assert.That(capturedEntity.Settings.PrivateMessagesInterceptionIsEnabled, Is.EqualTo(false));
+        }
+
+        [Test]
+        public void GivenPatchRequestWithUsernameAndOnlineUuid_WhenUpdatingAPlayer_ThenIdentityFieldsRemainUnchanged()
+        {
+            PlayerDataObject capturedEntity = null;
+            PlayerDataObject original = BuildPlayerDataObject();
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([original]);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
+
+            playerService.Update(new UpdatePlayerRequest
+            {
+                PlayerIdentifier = "IlarionPintilie",
+                Username = "AnotherUsername",
+                OnlineUUID = "99999999-0000-0000-0000-000000000000",
+                Password = "NucilandiaPass2"
+            });
+
+            Assert.That(capturedEntity.Username, Is.EqualTo(original.Username));
+            Assert.That(capturedEntity.OnlineUUID, Is.EqualTo(original.OnlineUUID));
+            Assert.That(capturedEntity.Password, Is.EqualTo("NucilandiaPass2"));
         }
 
         [Test]

@@ -251,16 +251,6 @@ namespace NuciCraft.API.Service
             UpdatePlayerRequest request,
             PlayerDataObject playerDataObject)
         {
-            if (request.Username is not null)
-            {
-                playerDataObject.Username = request.Username;
-            }
-
-            if (request.OnlineUUID is not null)
-            {
-                playerDataObject.OnlineUUID = request.OnlineUUID;
-            }
-
             if (request.Password is not null)
             {
                 playerDataObject.Password = request.Password;
