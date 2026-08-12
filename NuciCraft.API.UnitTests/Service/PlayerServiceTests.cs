@@ -636,7 +636,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             playerService.Update(new PatchPlayerRequest
             {
-                PlayerUsername = "IlarionPintilie",
+                Username = "IlarionPintilie",
                 Password = "NucilandiaPass2"
             });
 
@@ -660,7 +660,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             playerService.Update(new PatchPlayerRequest
             {
-                PlayerOfflineUUID = "61300000-0000-3000-8000-000000000000",
+                OfflineUUID = "61300000-0000-3000-8000-000000000000",
                 IpAddress = "10.8.0.42"
             });
 
@@ -684,7 +684,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             playerService.Update(new PatchPlayerRequest
             {
-                PlayerOnlineUUID = "87300000-0000-0000-0000-000000000000",
+                OnlineUUID = "87300000-0000-0000-0000-000000000000",
                 EmailAddress = "solaire@astora.com"
             });
 
@@ -699,7 +699,7 @@ namespace NuciCraft.API.UnitTests.Service
                 () => playerService.Update(new PatchPlayerRequest
                 {
                     Identifier = "IlarionPintilie",
-                    PlayerUsername = "IlarionPintilie"
+                    Username = "IlarionPintilie"
                 }),
                 Throws.TypeOf<ArgumentException>());
         }
