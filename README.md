@@ -42,6 +42,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 - Stores and retrieves RTP locations with distance constraints and biome/world filtering
 - Generates random mob names via Universal Name Generator integration
 - Stores, retrieves, and updates zone metadata
+- Assigns a default zone creation date when one is not provided by the caller
 
 ## 🚀 Usage
 
@@ -109,6 +110,8 @@ curl "http://localhost:5000/Mobs/wandering_trader/random-name"
 ```
 
 ### Manage Zones
+
+When creating a zone, `creationDate` is optional. If omitted or whitespace, the service sets it automatically to the current Romania date with an uncertainty suffix in the format `yyyy-MM-dd (?)`.
 
 ```bash
 curl -X POST "http://localhost:5000/Zones" \

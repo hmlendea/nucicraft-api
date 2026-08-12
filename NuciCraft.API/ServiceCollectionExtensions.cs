@@ -53,6 +53,9 @@ namespace NuciCraft.API
             .AddSingleton<IFileRepository<RtpLocationEntity>>(serviceProvider =>
                 new JsonRepository<RtpLocationEntity>(
                     dataStoreSettings.RtpLocationsStorePath))
+            .AddSingleton<IFileRepository<CountryDataObject>>(serviceProvider =>
+                new JsonRepository<CountryDataObject>(
+                    dataStoreSettings.CountriesStorePath))
             .AddSingleton<IFileRepository<ZoneDataObject>>(serviceProvider =>
                 new JsonRepository<ZoneDataObject>(
                     dataStoreSettings.ZonesStorePath))
@@ -62,6 +65,7 @@ namespace NuciCraft.API
                         .GetRequiredService<UniversalNameGeneratorSettings>()
                         .BaseUrl))
             .AddSingleton<IMobService, MobService>()
+            .AddSingleton<ICountryService, CountryService>()
             .AddSingleton<IPlayerService, PlayerService>()
             .AddSingleton<IRtpLocationService, RtpLocationService>()
             .AddSingleton<IZoneService, ZoneService>()
