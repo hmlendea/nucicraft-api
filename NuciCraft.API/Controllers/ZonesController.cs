@@ -48,7 +48,7 @@ namespace NuciCraft.API.Controllers
         [Route("{zoneIdentifier}")]
         public ActionResult PatchByIdentifier(
             string zoneIdentifier,
-            [FromBody] UpdateZoneRequest request)
+            [FromBody] PatchZoneRequest request)
         {
             request.ZoneIdentifier = zoneIdentifier;
 

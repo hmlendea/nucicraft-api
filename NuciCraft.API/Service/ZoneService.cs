@@ -148,7 +148,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        public void Update(UpdateZoneRequest request)
+        public void Update(PatchZoneRequest request)
         {
             IEnumerable<LogInfo> logInfos =
             [
@@ -192,7 +192,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private static void ValidatePatchSelector(UpdateZoneRequest request)
+        private static void ValidatePatchSelector(PatchZoneRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.ZoneIdentifier))
             {
@@ -201,7 +201,7 @@ namespace NuciCraft.API.Service
         }
 
         private static void ApplyPatchValues(
-            UpdateZoneRequest request,
+            PatchZoneRequest request,
             ZoneDataObject zoneDataObject)
         {
             if (request.Name is not null)

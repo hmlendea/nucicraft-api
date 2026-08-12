@@ -152,7 +152,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        public void Update(UpdatePlayerRequest request)
+        public void Update(PatchPlayerRequest request)
         {
             IEnumerable<LogInfo> logInfos =
             [
@@ -197,7 +197,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private static void ValidatePatchSelectors(UpdatePlayerRequest request)
+        private static void ValidatePatchSelectors(PatchPlayerRequest request)
         {
             int selectorCount = 0;
 
@@ -227,7 +227,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private PlayerDataObject FindPlayerToPatch(UpdatePlayerRequest request)
+        private PlayerDataObject FindPlayerToPatch(PatchPlayerRequest request)
         {
             GetPlayerRequest getPlayerRequest = new()
             {
@@ -248,7 +248,7 @@ namespace NuciCraft.API.Service
         }
 
         private static void ApplyPatchValues(
-            UpdatePlayerRequest request,
+            PatchPlayerRequest request,
             PlayerDataObject playerDataObject)
         {
             if (request.Password is not null)

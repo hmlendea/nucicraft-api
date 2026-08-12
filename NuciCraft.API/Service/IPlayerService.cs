@@ -13,6 +13,6 @@ namespace NuciCraft.API.Service
 
         IEnumerable<Player> GetAll();
 
-        void Update(UpdatePlayerRequest request);
+        void Update(PatchPlayerRequest request);
     }
 }
