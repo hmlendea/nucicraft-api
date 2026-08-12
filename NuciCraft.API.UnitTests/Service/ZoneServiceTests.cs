@@ -356,6 +356,77 @@ namespace NuciCraft.API.UnitTests.Service
                 Throws.TypeOf<InvalidOperationException>());
         }
 
+        [Test]
+        public void GivenAnIdentifierSelector_WhenPatchingAZone_ThenTheZoneIsUpdated()
+        {
+            ZoneDataObject capturedEntity = null;
+            ZoneDataObject original = BuildZoneDataObject();
+
+            repositoryMock
+            .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+            .Returns(original);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            zoneService.Patch(new PatchZoneRequest
+            {
+                ZoneIdentifier = "flusseland_mall_shop_9",
+                Population = 4096
+            });
+
+            Assert.That(capturedEntity, Is.Not.Null);
+            Assert.That(capturedEntity.Population, Is.EqualTo(4096));
+        }
+
+        [Test]
+        public void GivenAnIdentifierSelector_WhenPatchingAZone_ThenAnotherFieldCanBeUpdated()
+        {
+            ZoneDataObject capturedEntity = null;
+            ZoneDataObject original = BuildZoneDataObject();
+
+            repositoryMock
+            .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+            .Returns(original);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            zoneService.Patch(new PatchZoneRequest
+            {
+                ZoneIdentifier = "flusseland_mall_shop_9",
+                Country = "Nucilandia"
+            });
+
+            Assert.That(capturedEntity, Is.Not.Null);
+            Assert.That(capturedEntity.Country, Is.EqualTo("Nucilandia"));
+        }
+
+        [Test]
+        public void GivenNoIdentifier_WhenPatchingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            Assert.That(
+                () => zoneService.Patch(new PatchZoneRequest
+                {
+                    Country = "Nucilandia"
+                }),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenANonExistentIdentifier_WhenPatchingAZone_ThenAKeyNotFoundExceptionIsThrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.Get("non-existent-zone"))
+                .Throws<KeyNotFoundException>();
+
+            Assert.That(
+                () => zoneService.Patch(new PatchZoneRequest { ZoneIdentifier = "non-existent-zone" }),
+                Throws.TypeOf<KeyNotFoundException>());
+        }
+
         private static ZoneDataObject BuildZoneDataObject() => new()
         {
             Id = "flusseland_mall_shop_9",

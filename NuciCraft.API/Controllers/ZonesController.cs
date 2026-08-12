@@ -44,6 +44,20 @@ namespace NuciCraft.API.Controllers
                 () => new GetResponse(service.GetAllZones()),
                 authorisation);
 
+        [HttpPatch]
+        [Route("{zoneIdentifier}")]
+        public ActionResult PatchByIdentifier(
+            string zoneIdentifier,
+            [FromBody] PatchZoneRequest request)
+        {
+            request.ZoneIdentifier = zoneIdentifier;
+
+            return ProcessRequest(
+                request,
+                () => service.Patch(request),
+                authorisation);
+        }
+
         [HttpPut]
         [Route("{zoneIdentifier}")]
         public ActionResult Update(
