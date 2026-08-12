@@ -29,30 +29,33 @@ namespace NuciCraft.API.UnitTests.Service
         // ── HandlePlayerDeath ─────────────────────────────────────────────────
 
         [Test]
-        public void GivenAValidRequest_WhenHandlingPlayerDeath_ThenUpdateLastDeathLocationIsCalledForTheCorrectPlayer()
+        public void GivenAValidRequest_WhenHandlingPlayerDeath_ThenUpdateIsCalledForTheCorrectPlayer()
         {
             NotifyPlayerDeathRequest request = BuildNotifyPlayerDeathRequest();
 
             gameEventService.HandlePlayerDeath(request);
 
             playerServiceMock.Verify(
-                service => service.UpdateLastDeathLocation(
-                    request.Player,
-                    It.IsAny<Coordinates>()),
+                service => service.Update(It.Is<UpdatePlayerRequest>(updateRequest =>
+                    string.Equals(updateRequest.PlayerUsername, request.Player))),
                 Times.Once);
         }
 
         [Test]
-        public void GivenAValidRequest_WhenHandlingPlayerDeath_ThenUpdateLastDeathLocationIsCalledWithTheCorrectCoordinates()
+        public void GivenAValidRequest_WhenHandlingPlayerDeath_ThenUpdateIsCalledWithTheCorrectCoordinates()
         {
             NotifyPlayerDeathRequest request = BuildNotifyPlayerDeathRequest();
 
             gameEventService.HandlePlayerDeath(request);
 
             playerServiceMock.Verify(
-                service => service.UpdateLastDeathLocation(
-                    It.IsAny<string>(),
-                    request.DeathLocation),
+                service => service.Update(It.Is<UpdatePlayerRequest>(updateRequest =>
+                    string.Equals(updateRequest.LastDeathLocation.World, request.DeathLocation.World) &&
+                    updateRequest.LastDeathLocation.X.Equals(request.DeathLocation.X) &&
+                    updateRequest.LastDeathLocation.Y.Equals(request.DeathLocation.Y) &&
+                    updateRequest.LastDeathLocation.Z.Equals(request.DeathLocation.Z) &&
+                    updateRequest.LastDeathLocation.Pitch.Equals(request.DeathLocation.Pitch) &&
+                    updateRequest.LastDeathLocation.Yaw.Equals(request.DeathLocation.Yaw))),
                 Times.Once);
         }
 
@@ -60,7 +63,7 @@ namespace NuciCraft.API.UnitTests.Service
         public void GivenAPlayerServiceException_WhenHandlingPlayerDeath_ThenTheExceptionIsPropagated()
         {
             playerServiceMock
-                .Setup(service => service.UpdateLastDeathLocation(It.IsAny<string>(), It.IsAny<Coordinates>()))
+                .Setup(service => service.Update(It.IsAny<UpdatePlayerRequest>()))
                 .Throws<InvalidOperationException>();
 
             Assert.That(
