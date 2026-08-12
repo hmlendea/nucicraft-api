@@ -261,8 +261,8 @@ namespace NuciCraft.API.UnitTests.Service
             PlayerDataObject capturedEntity = null;
 
             repositoryMock
-                .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(BuildPlayerDataObject());
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildPlayerDataObject()]);
 
             repositoryMock
                 .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
@@ -345,8 +345,8 @@ namespace NuciCraft.API.UnitTests.Service
             PlayerDataObject capturedEntity = null;
 
             repositoryMock
-                .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(original);
+                .Setup(repository => repository.GetAll())
+                .Returns([original]);
 
             repositoryMock
                 .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
@@ -385,8 +385,8 @@ namespace NuciCraft.API.UnitTests.Service
             PlayerDataObject capturedEntity = null;
 
             repositoryMock
-                .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(original);
+                .Setup(repository => repository.GetAll())
+                .Returns([original]);
 
             repositoryMock
                 .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
@@ -414,8 +414,8 @@ namespace NuciCraft.API.UnitTests.Service
             PlayerDataObject capturedEntity = null;
 
             repositoryMock
-                .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(original);
+                .Setup(repository => repository.GetAll())
+                .Returns([original]);
 
             repositoryMock
                 .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
@@ -454,8 +454,8 @@ namespace NuciCraft.API.UnitTests.Service
             PlayerDataObject capturedEntity = null;
 
             repositoryMock
-                .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(original);
+                .Setup(repository => repository.GetAll())
+                .Returns([original]);
 
             repositoryMock
                 .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
@@ -480,8 +480,8 @@ namespace NuciCraft.API.UnitTests.Service
             PlayerDataObject capturedEntity = null;
 
             repositoryMock
-                .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(original);
+                .Setup(repository => repository.GetAll())
+                .Returns([original]);
 
             repositoryMock
                 .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
@@ -506,8 +506,8 @@ namespace NuciCraft.API.UnitTests.Service
             PlayerDataObject capturedEntity = null;
 
             repositoryMock
-                .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(BuildPlayerDataObject());
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildPlayerDataObject()]);
 
             repositoryMock
                 .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
@@ -524,8 +524,8 @@ namespace NuciCraft.API.UnitTests.Service
         public void GivenAValidRequest_WhenUpdatingAPlayer_ThenSaveChangesIsInvoked()
         {
             repositoryMock
-                .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(BuildPlayerDataObject());
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildPlayerDataObject()]);
 
             playerService.Update(new UpdatePlayerRequest { Identifier = "IlarionPintilie" });
 
@@ -536,11 +536,115 @@ namespace NuciCraft.API.UnitTests.Service
         public void GivenARepositoryException_WhenUpdatingAPlayer_ThenTheExceptionIsRethrown()
         {
             repositoryMock
-                .Setup(repository => repository.Get(It.IsAny<string>()))
-                .Throws<KeyNotFoundException>();
+                .Setup(repository => repository.GetAll())
+                .Throws<InvalidOperationException>();
 
             Assert.That(
                 () => playerService.Update(new UpdatePlayerRequest { Identifier = "NonExistentPlayer" }),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void GivenAUsernameSelector_WhenPatchingAPlayer_ThenThePlayerIsUpdated()
+        {
+            PlayerDataObject capturedEntity = null;
+            PlayerDataObject original = BuildPlayerDataObject();
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([original]);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
+
+            playerService.Patch(new PatchPlayerRequest
+            {
+                PlayerUsername = "IlarionPintilie",
+                Password = "NucilandiaPass2"
+            });
+
+            Assert.That(capturedEntity, Is.Not.Null);
+            Assert.That(capturedEntity.Password, Is.EqualTo("NucilandiaPass2"));
+        }
+
+        [Test]
+        public void GivenAnOfflineUUIDSelector_WhenPatchingAPlayer_ThenThePlayerIsUpdated()
+        {
+            PlayerDataObject capturedEntity = null;
+            PlayerDataObject original = BuildPlayerDataObject();
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([original]);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
+
+            playerService.Patch(new PatchPlayerRequest
+            {
+                PlayerOfflineUUID = "61300000-0000-3000-8000-000000000000",
+                IpAddress = "10.8.0.42"
+            });
+
+            Assert.That(capturedEntity, Is.Not.Null);
+            Assert.That(capturedEntity.IpAddress, Is.EqualTo("10.8.0.42"));
+        }
+
+        [Test]
+        public void GivenAnOnlineUUIDSelector_WhenPatchingAPlayer_ThenThePlayerIsUpdated()
+        {
+            PlayerDataObject capturedEntity = null;
+            PlayerDataObject original = BuildPlayerDataObject();
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([original]);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
+
+            playerService.Patch(new PatchPlayerRequest
+            {
+                PlayerOnlineUUID = "87300000-0000-0000-0000-000000000000",
+                EmailAddress = "solaire@astora.com"
+            });
+
+            Assert.That(capturedEntity, Is.Not.Null);
+            Assert.That(capturedEntity.EmailAddress, Is.EqualTo("solaire@astora.com"));
+        }
+
+        [Test]
+        public void GivenMultipleSelectors_WhenPatchingAPlayer_ThenAnArgumentExceptionIsThrown()
+        {
+            Assert.That(
+                () => playerService.Patch(new PatchPlayerRequest
+                {
+                    PlayerIdentifier = "IlarionPintilie",
+                    PlayerUsername = "IlarionPintilie"
+                }),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenNoSelectors_WhenPatchingAPlayer_ThenAnArgumentExceptionIsThrown()
+        {
+            Assert.That(
+                () => playerService.Patch(new PatchPlayerRequest { Username = "NewUsername" }),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenANonExistentSelector_WhenPatchingAPlayer_ThenAKeyNotFoundExceptionIsThrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([]);
+
+            Assert.That(
+                () => playerService.Patch(new PatchPlayerRequest { PlayerIdentifier = "non-existent-player" }),
                 Throws.TypeOf<KeyNotFoundException>());
         }
 

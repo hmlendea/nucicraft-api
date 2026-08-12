@@ -125,10 +125,31 @@ namespace NuciCraft.API.Service
         }
 
         public void Update(UpdatePlayerRequest request)
+            => Patch(new PatchPlayerRequest
+            {
+                PlayerIdentifier = request.Identifier,
+                Username = request.Username,
+                OnlineUUID = request.OnlineUUID,
+                Password = request.Password,
+                IpAddress = request.IpAddress,
+                DiscordId = request.DiscordId,
+                EmailAddress = request.EmailAddress,
+                LastSleptDT = request.LastSleptDT,
+                LastDeathDT = request.LastDeathDT,
+                LastDeathLocation = request.LastDeathLocation,
+                BackLocation = request.BackLocation,
+                LogoutLocation = request.LogoutLocation,
+                Settings = request.Settings
+            });
+
+        public void Patch(PatchPlayerRequest request)
         {
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.PlayerID, request.Identifier)
+                new(MyLogInfoKey.PlayerID, request.PlayerIdentifier),
+                new(MyLogInfoKey.Username, request.PlayerUsername),
+                new(MyLogInfoKey.OfflineUUID, request.PlayerOfflineUUID),
+                new(MyLogInfoKey.OnlineUUID, request.PlayerOnlineUUID)
             ];
 
             logger.Info(
@@ -138,69 +159,11 @@ namespace NuciCraft.API.Service
 
             try
             {
-                PlayerDataObject playerDataObject = repository.Get(request.Identifier);
+                ValidatePatchSelectors(request);
 
-                if (request.Username is not null)
-                {
-                    playerDataObject.Username = request.Username;
-                }
+                PlayerDataObject playerDataObject = FindPlayerToPatch(request);
 
-                if (request.OnlineUUID is not null)
-                {
-                    playerDataObject.OnlineUUID = request.OnlineUUID;
-                }
-
-                if (request.Password is not null)
-                {
-                    playerDataObject.Password = request.Password;
-                }
-
-                if (request.IpAddress is not null)
-                {
-                    playerDataObject.IpAddress = request.IpAddress;
-                }
-
-                if (request.DiscordId is not null)
-                {
-                    playerDataObject.DiscordId = request.DiscordId;
-                }
-
-                if (request.EmailAddress is not null)
-                {
-                    playerDataObject.EmailAddress = request.EmailAddress;
-                }
-
-                if (request.LastSleptDT is not null)
-                {
-                    playerDataObject.LastSleptDT = request.LastSleptDT;
-                }
-
-                if (request.LastDeathDT is not null)
-                {
-                    playerDataObject.LastDeathDT = request.LastDeathDT;
-                }
-
-                if (request.LastDeathLocation is not null)
-                {
-                    playerDataObject.LastDeathLocation = request.LastDeathLocation;
-                }
-
-                if (request.BackLocation is not null)
-                {
-                    playerDataObject.BackLocation = request.BackLocation;
-                }
-
-                if (request.LogoutLocation is not null)
-                {
-                    playerDataObject.LogoutLocation = request.LogoutLocation;
-                }
-
-                if (request.Settings is not null)
-                {
-                    playerDataObject.Settings = MergePlayerSettingsDataObject(
-                        playerDataObject.Settings,
-                        request.Settings);
-                }
+                ApplyPatchValues(request, playerDataObject);
 
                 playerDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK");
 
@@ -221,6 +184,123 @@ namespace NuciCraft.API.Service
                     logInfos);
 
                 throw;
+            }
+        }
+
+        private static void ValidatePatchSelectors(PatchPlayerRequest request)
+        {
+            int selectorCount = 0;
+
+            if (!string.IsNullOrWhiteSpace(request.PlayerIdentifier))
+            {
+                selectorCount += 1;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.PlayerUsername))
+            {
+                selectorCount += 1;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.PlayerOfflineUUID))
+            {
+                selectorCount += 1;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.PlayerOnlineUUID))
+            {
+                selectorCount += 1;
+            }
+
+            if (selectorCount != 1)
+            {
+                throw new ArgumentException("Exactly one player identifier selector must be provided.");
+            }
+        }
+
+        private PlayerDataObject FindPlayerToPatch(PatchPlayerRequest request)
+        {
+            GetPlayerRequest getPlayerRequest = new()
+            {
+                Identifier = request.PlayerIdentifier,
+                Username = request.PlayerUsername,
+                OfflineUUID = request.PlayerOfflineUUID,
+                OnlineUUID = request.PlayerOnlineUUID
+            };
+
+            return repository
+                .GetAll()
+                .FirstOrDefault(entity =>
+                    (!string.IsNullOrWhiteSpace(getPlayerRequest.Identifier) && string.Equals(entity.Id, getPlayerRequest.Identifier)) ||
+                    (!string.IsNullOrWhiteSpace(getPlayerRequest.Username) && string.Equals(entity.Username, getPlayerRequest.Username)) ||
+                    (!string.IsNullOrWhiteSpace(getPlayerRequest.OfflineUUID) && string.Equals(entity.OfflineUUID, getPlayerRequest.OfflineUUID)) ||
+                    (!string.IsNullOrWhiteSpace(getPlayerRequest.OnlineUUID) && string.Equals(entity.OnlineUUID, getPlayerRequest.OnlineUUID)))
+                ?? throw new KeyNotFoundException("No player found matching the provided criteria.");
+        }
+
+        private static void ApplyPatchValues(
+            PatchPlayerRequest request,
+            PlayerDataObject playerDataObject)
+        {
+            if (request.Username is not null)
+            {
+                playerDataObject.Username = request.Username;
+            }
+
+            if (request.OnlineUUID is not null)
+            {
+                playerDataObject.OnlineUUID = request.OnlineUUID;
+            }
+
+            if (request.Password is not null)
+            {
+                playerDataObject.Password = request.Password;
+            }
+
+            if (request.IpAddress is not null)
+            {
+                playerDataObject.IpAddress = request.IpAddress;
+            }
+
+            if (request.DiscordId is not null)
+            {
+                playerDataObject.DiscordId = request.DiscordId;
+            }
+
+            if (request.EmailAddress is not null)
+            {
+                playerDataObject.EmailAddress = request.EmailAddress;
+            }
+
+            if (request.LastSleptDT is not null)
+            {
+                playerDataObject.LastSleptDT = request.LastSleptDT;
+            }
+
+            if (request.LastDeathDT is not null)
+            {
+                playerDataObject.LastDeathDT = request.LastDeathDT;
+            }
+
+            if (request.LastDeathLocation is not null)
+            {
+                playerDataObject.LastDeathLocation = request.LastDeathLocation;
+            }
+
+            if (request.BackLocation is not null)
+            {
+                playerDataObject.BackLocation = request.BackLocation;
+            }
+
+            if (request.LogoutLocation is not null)
+            {
+                playerDataObject.LogoutLocation = request.LogoutLocation;
+            }
+
+            if (request.Settings is not null)
+            {
+                playerDataObject.Settings = MergePlayerSettingsDataObject(
+                    playerDataObject.Settings,
+                    request.Settings);
             }
         }
 
