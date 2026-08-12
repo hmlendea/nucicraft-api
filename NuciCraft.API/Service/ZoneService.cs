@@ -19,6 +19,8 @@ namespace NuciCraft.API.Service
         IFileRepository<ZoneDataObject> repository,
         ILogger logger) : IZoneService
     {
+        private static string RomaniaTimeZoneId => "Europe/Bucharest";
+
         public void Add(AddZoneRequest request)
         {
             IEnumerable<LogInfo> logInfos =
@@ -49,7 +51,7 @@ namespace NuciCraft.API.Service
                     County = request.County,
                     Region = request.Region,
                     Country = request.Country,
-                    CreationDate = request.CreationDate,
+                    CreationDate = GetCreationDateForAddRequest(request),
                     Owners = request.Owners,
                     Creators = GetCreatorsForAddRequest(request),
                     Leaders = request.Leaders,
@@ -304,6 +306,27 @@ namespace NuciCraft.API.Service
             }
 
             return null;
+        }
+
+        private static string GetCreationDateForAddRequest(AddZoneRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.CreationDate))
+            {
+                return string.Concat(
+                    GetRomaniaNow().ToString(
+                        "yyyy'-'MM'-'dd",
+                        CultureInfo.InvariantCulture),
+                    " (?)");
+            }
+
+            return request.CreationDate;
+        }
+
+        private static DateTimeOffset GetRomaniaNow()
+        {
+            TimeZoneInfo romaniaTimeZone = TimeZoneInfo.FindSystemTimeZoneById(RomaniaTimeZoneId);
+
+            return TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, romaniaTimeZone);
         }
 
         private static LocalisedStringDataObject MergeLocalisedStringDataObject(

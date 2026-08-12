@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 using Moq;
 
@@ -19,6 +20,8 @@ namespace NuciCraft.API.UnitTests.Service
     [TestFixture]
     public class ZoneServiceTests
     {
+        private static string RomaniaTimeZoneId => "Europe/Bucharest";
+
         private Mock<IFileRepository<ZoneDataObject>> repositoryMock;
         private Mock<ILogger> loggerMock;
         private ZoneService zoneService;
@@ -155,6 +158,82 @@ namespace NuciCraft.API.UnitTests.Service
             zoneService.Add(request);
 
             Assert.That(capturedEntity.Creators, Is.EqualTo(["DummyUser"]));
+        }
+
+        [Test]
+        public void GivenANullCreationDate_WhenAddingAZone_ThenCurrentDateWithUncertaintySuffixIsSet()
+        {
+            ZoneDataObject capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Add(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            DateTimeOffset callStartTime = GetRomaniaNow();
+
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                CreationDate = null
+            };
+
+            zoneService.Add(request);
+
+            DateTimeOffset callEndTime = GetRomaniaNow();
+
+            string expectedCreationDateAtStart = string.Concat(
+                callStartTime.ToString(
+                    "yyyy'-'MM'-'dd",
+                    CultureInfo.InvariantCulture),
+                " (?)");
+            string expectedCreationDateAtEnd = string.Concat(
+                callEndTime.ToString(
+                    "yyyy'-'MM'-'dd",
+                    CultureInfo.InvariantCulture),
+                " (?)");
+
+            Assert.That(
+                capturedEntity.CreationDate,
+                Is.EqualTo(expectedCreationDateAtStart)
+                    .Or.EqualTo(expectedCreationDateAtEnd));
+        }
+
+        [Test]
+        public void GivenAWhitespaceCreationDate_WhenAddingAZone_ThenCurrentDateWithUncertaintySuffixIsSet()
+        {
+            ZoneDataObject capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Add(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            DateTimeOffset callStartTime = GetRomaniaNow();
+
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                CreationDate = "  "
+            };
+
+            zoneService.Add(request);
+
+            DateTimeOffset callEndTime = GetRomaniaNow();
+
+            string expectedCreationDateAtStart = string.Concat(
+                callStartTime.ToString(
+                    "yyyy'-'MM'-'dd",
+                    CultureInfo.InvariantCulture),
+                " (?)");
+            string expectedCreationDateAtEnd = string.Concat(
+                callEndTime.ToString(
+                    "yyyy'-'MM'-'dd",
+                    CultureInfo.InvariantCulture),
+                " (?)");
+
+            Assert.That(
+                capturedEntity.CreationDate,
+                Is.EqualTo(expectedCreationDateAtStart)
+                    .Or.EqualTo(expectedCreationDateAtEnd));
         }
 
         [Test]
@@ -530,5 +609,12 @@ namespace NuciCraft.API.UnitTests.Service
             MapLink = "https://nucilandia.ro/map",
             WikiUrl = "https://nucilandia.ro/wiki"
         };
+
+        private static DateTimeOffset GetRomaniaNow()
+        {
+            TimeZoneInfo romaniaTimeZone = TimeZoneInfo.FindSystemTimeZoneById(RomaniaTimeZoneId);
+
+            return TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, romaniaTimeZone);
+        }
     }
 }
