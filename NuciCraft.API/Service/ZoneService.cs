@@ -15,7 +15,7 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Service
 {
-    public class ZoneService(
+    public sealed class ZoneService(
         IFileRepository<ZoneDataObject> repository,
         ILogger logger) : IZoneService
     {
@@ -61,7 +61,7 @@ namespace NuciCraft.API.Service
                     MapLink = request.MapLink,
                     WikiUrl = request.WikiUrl,
                     CreatedDT = DateTimeOffset.UtcNow.ToString(
-                        "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK",
+                        TimestampFormats.Full,
                         CultureInfo.InvariantCulture)
                 };
 
@@ -73,12 +73,12 @@ namespace NuciCraft.API.Service
                     OperationStatus.Success,
                     logInfos);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 logger.Error(
                     MyOperation.AddZone,
                     OperationStatus.Failure,
-                    ex,
+                    exception,
                     logInfos);
 
                 throw;
@@ -108,12 +108,12 @@ namespace NuciCraft.API.Service
 
                 return zone;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 logger.Error(
                     MyOperation.GetZone,
                     OperationStatus.Failure,
-                    ex,
+                    exception,
                     logInfos);
 
                 throw;
@@ -137,12 +137,12 @@ namespace NuciCraft.API.Service
 
                 return zones;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 logger.Error(
                     MyOperation.GetAllZones,
                     OperationStatus.Failure,
-                    ex);
+                    exception);
 
                 throw;
             }
@@ -169,7 +169,7 @@ namespace NuciCraft.API.Service
                 ApplyPatchValues(request, zoneDataObject);
 
                 zoneDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString(
-                    "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK",
+                    TimestampFormats.Full,
                     CultureInfo.InvariantCulture);
 
                 repository.Update(zoneDataObject);
@@ -180,12 +180,12 @@ namespace NuciCraft.API.Service
                     OperationStatus.Success,
                     logInfos);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 logger.Error(
                     MyOperation.UpdateZone,
                     OperationStatus.Failure,
-                    ex,
+                    exception,
                     logInfos);
 
                 throw;

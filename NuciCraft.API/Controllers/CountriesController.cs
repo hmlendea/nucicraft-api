@@ -11,11 +11,11 @@ namespace NuciCraft.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class CountriesController(
+    public sealed class CountriesController(
         ICountryService service,
         SecuritySettings securitySettings) : NuciApiController
     {
-        readonly NuciApiAuthorisation authorisation = NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
+        private readonly NuciApiAuthorisation authorisation = NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
 
         [HttpPost]
         public ActionResult Add(

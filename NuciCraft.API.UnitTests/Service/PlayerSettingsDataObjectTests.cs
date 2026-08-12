@@ -5,7 +5,7 @@ using NuciCraft.API.DataAccess.DataObjects;
 namespace NuciCraft.API.UnitTests.Service
 {
     [TestFixture]
-    public class PlayerSettingsDataObjectTests
+    public sealed class PlayerSettingsDataObjectTests
     {
         [Test]
         public void GivenANewPlayerSettingsDataObject_WhenReadingTheBooleanProperties_ThenTheyAreNullByDefault()

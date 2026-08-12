@@ -17,7 +17,7 @@ using NuciCraft.API.Service.Models;
 namespace NuciCraft.API.UnitTests.Service
 {
     [TestFixture]
-    public class PlayerServiceTests
+    public sealed class PlayerServiceTests
     {
         Mock<IFileRepository<PlayerDataObject>> repositoryMock;
         Mock<ILogger> loggerMock;

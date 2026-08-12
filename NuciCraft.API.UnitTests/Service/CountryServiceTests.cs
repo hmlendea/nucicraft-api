@@ -18,7 +18,7 @@ using NuciCraft.API.Service.Models;
 namespace NuciCraft.API.UnitTests.Service
 {
     [TestFixture]
-    public class CountryServiceTests
+    public sealed class CountryServiceTests
     {
         private Mock<IFileRepository<CountryDataObject>> repositoryMock;
         private Mock<ILogger> loggerMock;

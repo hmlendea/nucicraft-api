@@ -15,13 +15,11 @@ using NuciLog.Core;
 
 namespace NuciCraft.API.Service
 {
-    public class RtpLocationService(
+    public sealed class RtpLocationService(
         IFileRepository<RtpLocationEntity> rtpLocationsRepository,
         RtpLocationSettings settings,
         ILogger logger) : IRtpLocationService
     {
-        private static string TimestampFormat => "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK";
-
         public void AddRtpLocation(AddRtpLocationRequest request)
         {
             IEnumerable<LogInfo> logInfos =
@@ -61,7 +59,9 @@ namespace NuciCraft.API.Service
                         Y = request.Y,
                         Z = request.Z
                     },
-                    CreatedDT = DateTimeOffset.UtcNow.ToString(TimestampFormat, CultureInfo.InvariantCulture)
+                    CreatedDT = DateTimeOffset.UtcNow.ToString(
+                        TimestampFormats.Full,
+                        CultureInfo.InvariantCulture)
                 });
 
                 rtpLocationsRepository.SaveChanges();
@@ -71,12 +71,12 @@ namespace NuciCraft.API.Service
                     OperationStatus.Success,
                     logInfos);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 logger.Error(
                     MyOperation.AddRtpLocation,
                     OperationStatus.Failure,
-                    ex,
+                    exception,
                     logInfos);
 
                 throw;
@@ -128,30 +128,30 @@ namespace NuciCraft.API.Service
 
                 return rtpLocation;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 logger.Error(
                     MyOperation.GetRandomRtpLocation,
                     OperationStatus.Failure,
-                    ex,
+                    exception,
                     logInfos);
 
                 throw;
             }
         }
 
-        bool IsLocationFarAwayFromOtherLocations(float x, float y)
+        private bool IsLocationFarAwayFromOtherLocations(float x, float y)
             => !rtpLocationsRepository
                 .GetAll()
                 .Any(location => AreLocationsTooClose(x, y, location.Coordinates.X, location.Coordinates.Y, settings.MinimumLocationDistance));
 
-        bool IsLocationFarAwayFromOtherLocationsInTheSameBiome(string biome, float x, float y)
+        private bool IsLocationFarAwayFromOtherLocationsInTheSameBiome(string biome, float x, float y)
             => !rtpLocationsRepository
                 .GetAll()
                 .Where(location => biome.Equals(location.Biome))
                 .Any(location => AreLocationsTooClose(x, y, location.Coordinates.X, location.Coordinates.Y, settings.MinimumBiomeLocationDistance));
 
-        static bool AreLocationsTooClose(
+        private static bool AreLocationsTooClose(
             float x1, float y1,
             float x2, float y2,
             int minimumDistance)

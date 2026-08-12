@@ -15,12 +15,10 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Service
 {
-    public class CountryService(
+    public sealed class CountryService(
         IFileRepository<CountryDataObject> repository,
         ILogger logger) : ICountryService
     {
-        private static string TimestampFormat => "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK";
-
         public void Add(AddCountryRequest request)
         {
             IEnumerable<LogInfo> logInfos =
@@ -43,7 +41,7 @@ namespace NuciCraft.API.Service
                     LeaderTitle = request.LeaderTitle,
                     Leader = request.Leader,
                     CreatedDT = DateTimeOffset.UtcNow.ToString(
-                        TimestampFormat,
+                        TimestampFormats.Full,
                         CultureInfo.InvariantCulture)
                 };
 
@@ -151,7 +149,7 @@ namespace NuciCraft.API.Service
                 ApplyPatchValues(request, countryDataObject);
 
                 countryDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString(
-                    TimestampFormat,
+                    TimestampFormats.Full,
                     CultureInfo.InvariantCulture);
 
                 repository.Update(countryDataObject);

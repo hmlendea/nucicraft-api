@@ -5,7 +5,7 @@ using NuciCraft.API.Service.Models;
 namespace NuciCraft.API.UnitTests.Service
 {
     [TestFixture]
-    public class LocalisationTests
+    public sealed class LocalisationTests
     {
         [Test]
         public void GivenTheEnglishIdentifier_WhenConvertingFromString_ThenEnglishIsReturned()

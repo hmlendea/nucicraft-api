@@ -5,7 +5,7 @@ using NuciCraft.API.Service.Models;
 namespace NuciCraft.API.UnitTests.Service
 {
     [TestFixture]
-    public class PlayerSettingsTests
+    public sealed class PlayerSettingsTests
     {
         [Test]
         public void GivenANewPlayerSettings_WhenReadingTheBooleanProperties_ThenTheExpectedDefaultValuesAreReturned()

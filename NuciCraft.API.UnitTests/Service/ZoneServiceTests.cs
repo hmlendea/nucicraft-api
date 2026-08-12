@@ -18,7 +18,7 @@ using NuciCraft.API.Service.Models;
 namespace NuciCraft.API.UnitTests.Service
 {
     [TestFixture]
-    public class ZoneServiceTests
+    public sealed class ZoneServiceTests
     {
         private static string RomaniaTimeZoneId => "Europe/Bucharest";
 

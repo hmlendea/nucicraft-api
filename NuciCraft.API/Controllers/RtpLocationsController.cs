@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+
 using NuciAPI.Controllers;
+
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Responses;
@@ -9,11 +11,11 @@ namespace NuciCraft.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class RtpLocationsController(
+    public sealed class RtpLocationsController(
         IRtpLocationService service,
         SecuritySettings securitySettings) : NuciApiController
     {
-        readonly NuciApiAuthorisation authorisation = NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
+        private readonly NuciApiAuthorisation authorisation = NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
 
         [HttpPost]
         public ActionResult AddRtpLocation(
