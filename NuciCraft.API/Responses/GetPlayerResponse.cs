@@ -57,5 +57,8 @@ namespace NuciCraft.API.Responses
 
         [HmacOrder(16)]
         public string SkinUrl { get; set; } = player.SkinUrl;
+
+        [HmacOrder(17)]
+        public PlayerSettings Settings { get; set; } = player.Settings;
     }
 }

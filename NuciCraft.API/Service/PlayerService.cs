@@ -47,6 +47,7 @@ namespace NuciCraft.API.Service
                     CreatedDT = request.CreatedDT != null ? DateTimeOffset.Parse(request.CreatedDT) : DateTimeOffset.Now,
                     Password = request.Password,
                     IpAddress = request.IpAddress,
+                    Settings = new PlayerSettings(),
                     SkinUrl = request.SkinUrl
                 };
 
@@ -272,6 +273,11 @@ namespace NuciCraft.API.Service
             if (incomingSettings.PrivateMessagesInterceptionIsEnabled is not null)
             {
                 existingSettings.PrivateMessagesInterceptionIsEnabled = incomingSettings.PrivateMessagesInterceptionIsEnabled.Value;
+            }
+
+            if (incomingSettings.Localisation is not null)
+            {
+                existingSettings.Localisation = incomingSettings.Localisation;
             }
 
             return existingSettings;

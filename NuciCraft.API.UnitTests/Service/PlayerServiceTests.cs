@@ -52,6 +52,8 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Password, Is.EqualTo("NucilandiaPass1"));
             Assert.That(capturedEntity.IpAddress, Is.EqualTo("192.168.1.1"));
             Assert.That(capturedEntity.SkinUrl, Is.EqualTo("test.nucilandia.ro"));
+            Assert.That(capturedEntity.Settings, Is.Not.Null);
+            Assert.That(capturedEntity.Settings.Localisation, Is.EqualTo(string.Empty));
             Assert.That(capturedEntity.LogoutLocation, Is.Null);
         }
 
@@ -178,6 +180,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(player.Settings.KeepInventoryIsEnabled, Is.EqualTo(entity.Settings.KeepInventoryIsEnabled));
             Assert.That(player.Settings.KeepExperienceIsEnabled, Is.EqualTo(entity.Settings.KeepExperienceIsEnabled));
             Assert.That(player.Settings.AutomaticToolSelectionIsEnabled, Is.EqualTo(entity.Settings.AutomaticToolSelectionIsEnabled));
+            Assert.That(player.Settings.Localisation, Is.EqualTo(Localisation.English));
             Assert.That(player.SkinUrl, Is.EqualTo(entity.SkinUrl));
         }
 
@@ -288,7 +291,8 @@ namespace NuciCraft.API.UnitTests.Service
                     KeepExperienceIsEnabled = true,
                     KeepInventoryIsEnabled = false,
                     PrivateMessagesAreEnabled = true,
-                    PrivateMessagesInterceptionIsEnabled = false
+                    PrivateMessagesInterceptionIsEnabled = false,
+                    Localisation = "romanian"
                 }
             };
 
@@ -324,6 +328,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LogoutLocation.Pitch, Is.EqualTo(50.0f));
             Assert.That(capturedEntity.LogoutLocation.Yaw, Is.EqualTo(60.0f));
             Assert.That(capturedEntity.Settings, Is.Not.Null);
+            Assert.That(capturedEntity.Settings.Localisation, Is.EqualTo("romanian"));
             Assert.That(capturedEntity.Settings.AutomaticHotbarRefillingIsEnabled, Is.EqualTo(true));
             Assert.That(capturedEntity.Settings.AutomaticSaplingReplantingIsEnabled, Is.EqualTo(false));
             Assert.That(capturedEntity.Settings.AutomaticToolSelectionIsEnabled, Is.EqualTo(false));
@@ -697,7 +702,8 @@ namespace NuciCraft.API.UnitTests.Service
                 AutomaticHotbarRefillingIsEnabled = false,
                 KeepInventoryIsEnabled = true,
                 KeepExperienceIsEnabled = false,
-                AutomaticToolSelectionIsEnabled = true
+                AutomaticToolSelectionIsEnabled = true,
+                Localisation = "english"
             },
             SkinUrl = "test.nucilandia.ro"
         };
