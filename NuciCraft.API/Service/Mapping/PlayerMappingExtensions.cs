@@ -27,16 +27,16 @@ namespace NuciCraft.API.Service.Mapping
             OfflineUUID = dataObject.OfflineUUID,
             OnlineUUID = dataObject.OnlineUUID,
             Password = dataObject.Password,
-            CreatedDT = ParseTimestamp(dataObject.CreatedDT),
-            UpdatedDT = ParseNullableTimestamp(dataObject.UpdatedDT),
+            CreatedDT = DateTimeOffset.Parse(dataObject.CreatedDT, CultureInfo.InvariantCulture),
+            UpdatedDT = dataObject.UpdatedDT is not null ? DateTimeOffset.Parse(dataObject.UpdatedDT, CultureInfo.InvariantCulture) : null,
             IpAddress = dataObject.IpAddress,
             DiscordId = dataObject.DiscordId,
             EmailAddress = dataObject.EmailAddress,
-            LastSleptDT = ParseNullableTimestamp(dataObject.LastSleptDT),
-            LastDeathDT = ParseNullableTimestamp(dataObject.LastDeathDT),
-            LastDeathLocation = ToServiceModel(dataObject.LastDeathLocation),
-            BackLocation = ToServiceModel(dataObject.BackLocation),
-            LogoutLocation = ToServiceModel(dataObject.LogoutLocation),
+            LastSleptDT = dataObject.LastSleptDT is not null ? DateTimeOffset.Parse(dataObject.LastSleptDT, CultureInfo.InvariantCulture) : null,
+            LastDeathDT = dataObject.LastDeathDT is not null ? DateTimeOffset.Parse(dataObject.LastDeathDT, CultureInfo.InvariantCulture) : null,
+            LastDeathLocation = dataObject.LastDeathLocation?.ToServiceModel(),
+            BackLocation = dataObject.BackLocation?.ToServiceModel(),
+            LogoutLocation = dataObject.LogoutLocation?.ToServiceModel(),
             Settings = dataObject.Settings.ToServiceModel()
         };
 
@@ -53,15 +53,15 @@ namespace NuciCraft.API.Service.Mapping
             OnlineUUID = domainModel.OnlineUUID,
             Password = domainModel.Password,
             CreatedDT = domainModel.CreatedDT.ToString(TimestampFormat, CultureInfo.InvariantCulture),
-            UpdatedDT = ToTimestamp(domainModel.UpdatedDT),
+            UpdatedDT = domainModel.UpdatedDT?.ToString(TimestampFormat, CultureInfo.InvariantCulture),
             IpAddress = domainModel.IpAddress,
             DiscordId = domainModel.DiscordId,
             EmailAddress = domainModel.EmailAddress,
-            LastSleptDT = ToTimestamp(domainModel.LastSleptDT),
-            LastDeathDT = ToTimestamp(domainModel.LastDeathDT),
-            LastDeathLocation = ToDataObject(domainModel.LastDeathLocation),
-            BackLocation = ToDataObject(domainModel.BackLocation),
-            LogoutLocation = ToDataObject(domainModel.LogoutLocation),
+            LastSleptDT = domainModel.LastSleptDT?.ToString(TimestampFormat, CultureInfo.InvariantCulture),
+            LastDeathDT = domainModel.LastDeathDT?.ToString(TimestampFormat, CultureInfo.InvariantCulture),
+            LastDeathLocation = domainModel.LastDeathLocation?.ToDataObject(),
+            BackLocation = domainModel.BackLocation?.ToDataObject(),
+            LogoutLocation = domainModel.LogoutLocation?.ToDataObject(),
             Settings = domainModel.Settings.ToDataObject()
         };
 
@@ -80,48 +80,5 @@ namespace NuciCraft.API.Service.Mapping
         /// <param name="domainModels">The domain models.</param>
         internal static IEnumerable<PlayerDataObject> ToDataObjects(this IEnumerable<Player> domainModels)
             => domainModels.Select(domainModel => domainModel.ToDataObject());
-
-        private static DateTimeOffset ParseTimestamp(string timestamp)
-            => DateTimeOffset.ParseExact(timestamp, TimestampFormat, CultureInfo.InvariantCulture);
-
-        private static DateTimeOffset? ParseNullableTimestamp(string timestamp)
-        {
-            if (timestamp is null)
-            {
-                return null;
-            }
-
-            return ParseTimestamp(timestamp);
-        }
-
-        private static string ToTimestamp(DateTimeOffset? timestamp)
-        {
-            if (timestamp is null)
-            {
-                return null;
-            }
-
-            return timestamp.Value.ToString(TimestampFormat, CultureInfo.InvariantCulture);
-        }
-
-        private static Coordinates ToServiceModel(CoordinatesDataObject dataObject)
-        {
-            if (dataObject is null)
-            {
-                return null;
-            }
-
-            return dataObject.ToServiceModel();
-        }
-
-        private static CoordinatesDataObject ToDataObject(Coordinates serviceModel)
-        {
-            if (serviceModel is null)
-            {
-                return null;
-            }
-
-            return serviceModel.ToDataObject();
-        }
     }
 }
