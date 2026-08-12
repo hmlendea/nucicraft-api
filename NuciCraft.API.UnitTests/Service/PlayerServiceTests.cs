@@ -272,8 +272,6 @@ namespace NuciCraft.API.UnitTests.Service
             PatchPlayerRequest request = new()
             {
                 PlayerIdentifier = "IlarionPintilie",
-                Username = "NewUsername",
-                OnlineUUID = "11111111-0000-0000-0000-000000000000",
                 Password = "NewPass",
                 IpAddress = "10.0.0.1",
                 DiscordId = "999",
@@ -340,7 +338,7 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenPatchRequestWithUsernameAndOnlineUuid_WhenUpdatingAPlayer_ThenIdentityFieldsRemainUnchanged()
+        public void GivenARequestWithoutIdentityPatchFields_WhenUpdatingAPlayer_ThenIdentityFieldsRemainUnchanged()
         {
             PlayerDataObject capturedEntity = null;
             PlayerDataObject original = BuildPlayerDataObject();
@@ -356,8 +354,6 @@ namespace NuciCraft.API.UnitTests.Service
             playerService.Update(new PatchPlayerRequest
             {
                 PlayerIdentifier = "IlarionPintilie",
-                Username = "AnotherUsername",
-                OnlineUUID = "99999999-0000-0000-0000-000000000000",
                 Password = "NucilandiaPass2"
             });
 
@@ -660,7 +656,7 @@ namespace NuciCraft.API.UnitTests.Service
         public void GivenNoSelectors_WhenPatchingAPlayer_ThenAnArgumentExceptionIsThrown()
         {
             Assert.That(
-                () => playerService.Update(new PatchPlayerRequest { Username = "NewUsername" }),
+                () => playerService.Update(new PatchPlayerRequest { Password = "NucilandiaPass2" }),
                 Throws.TypeOf<ArgumentException>());
         }
 
