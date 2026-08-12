@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 using NuciDAL.Repositories;
@@ -50,14 +51,16 @@ namespace NuciCraft.API.Service
                     Country = request.Country,
                     CreationDate = request.CreationDate,
                     Owners = request.Owners,
-                    Creators = request.Creators,
+                    Creators = GetCreatorsForAddRequest(request),
                     Leaders = request.Leaders,
                     TeleportationPoint = request.TeleportationPoint,
                     LeaderTitle = request.LeaderTitle,
                     Population = request.Population,
                     MapLink = request.MapLink,
                     WikiUrl = request.WikiUrl,
-                    CreatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK")
+                    CreatedDT = DateTimeOffset.UtcNow.ToString(
+                        "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK",
+                        CultureInfo.InvariantCulture)
                 };
 
                 repository.Add(zoneDataObject);
@@ -163,7 +166,9 @@ namespace NuciCraft.API.Service
 
                 ApplyPatchValues(request, zoneDataObject);
 
-                zoneDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK");
+                zoneDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString(
+                    "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK",
+                    CultureInfo.InvariantCulture);
 
                 repository.Update(zoneDataObject);
                 repository.SaveChanges();
@@ -277,6 +282,28 @@ namespace NuciCraft.API.Service
             {
                 zoneDataObject.WikiUrl = request.WikiUrl;
             }
+        }
+
+        private static IEnumerable<string> GetCreatorsForAddRequest(AddZoneRequest request)
+        {
+            if (request.Creators is not null)
+            {
+                return request.Creators;
+            }
+
+            if (request.Owners is null)
+            {
+                return null;
+            }
+
+            string[] owners = request.Owners.ToArray();
+
+            if (owners.Length == 1)
+            {
+                return owners;
+            }
+
+            return null;
         }
 
         private static LocalisedStringDataObject MergeLocalisedStringDataObject(

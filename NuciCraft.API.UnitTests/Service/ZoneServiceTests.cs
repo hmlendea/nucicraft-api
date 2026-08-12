@@ -78,9 +78,9 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Region, Is.EqualTo("Nucilandia"));
             Assert.That(capturedEntity.Country, Is.EqualTo("Roman Republic"));
             Assert.That(capturedEntity.CreationDate, Is.EqualTo("2026-08-10"));
-            Assert.That(capturedEntity.Owners, Is.EqualTo(new[] { "Hori873" }));
-            Assert.That(capturedEntity.Creators, Is.EqualTo(new[] { "Hori873" }));
-            Assert.That(capturedEntity.Leaders, Is.EqualTo(new[] { "DummyUser" }));
+            Assert.That(capturedEntity.Owners, Is.EqualTo(["Hori873"]));
+            Assert.That(capturedEntity.Creators, Is.EqualTo(["Hori873"]));
+            Assert.That(capturedEntity.Leaders, Is.EqualTo(["DummyUser"]));
             Assert.That(capturedEntity.TeleportationPoint.World, Is.EqualTo("world"));
             Assert.That(capturedEntity.TeleportationPoint.X, Is.EqualTo(120f));
             Assert.That(capturedEntity.TeleportationPoint.Y, Is.EqualTo(64f));
@@ -92,6 +92,69 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.MapLink, Is.EqualTo("https://nucilandia.ro/map/solara_portal_hub"));
             Assert.That(capturedEntity.WikiUrl, Is.EqualTo("https://nucilandia.ro/wiki/solara_portal_hub"));
             Assert.That(capturedEntity.CreatedDT, Is.Not.Null);
+        }
+
+        [Test]
+        public void GivenASingleOwnerAndNoCreators_WhenAddingAZone_ThenTheOwnerIsSetAsTheSoleCreator()
+        {
+            ZoneDataObject capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Add(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                Owners = ["Hori873"],
+                Creators = null
+            };
+
+            zoneService.Add(request);
+
+            Assert.That(capturedEntity.Creators, Is.EqualTo(["Hori873"]));
+        }
+
+        [Test]
+        public void GivenMultipleOwnersAndNoCreators_WhenAddingAZone_ThenCreatorsRemainUnset()
+        {
+            ZoneDataObject capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Add(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                Owners = ["Hori873", "DummyUser"],
+                Creators = null
+            };
+
+            zoneService.Add(request);
+
+            Assert.That(capturedEntity.Creators, Is.Null);
+        }
+
+        [Test]
+        public void GivenASingleOwnerAndCreators_WhenAddingAZone_ThenProvidedCreatorsArePreserved()
+        {
+            ZoneDataObject capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Add(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                Owners = ["Hori873"],
+                Creators = ["DummyUser"]
+            };
+
+            zoneService.Add(request);
+
+            Assert.That(capturedEntity.Creators, Is.EqualTo(["DummyUser"]));
         }
 
         [Test]
@@ -212,9 +275,9 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Region, Is.EqualTo("Murasaki"));
             Assert.That(capturedEntity.Country, Is.EqualTo("Nucilandia"));
             Assert.That(capturedEntity.CreationDate, Is.EqualTo("2026-08-09"));
-            Assert.That(capturedEntity.Owners, Is.EqualTo(new[] { "IlarionPintilie" }));
-            Assert.That(capturedEntity.Creators, Is.EqualTo(new[] { "IlarionPintilie" }));
-            Assert.That(capturedEntity.Leaders, Is.EqualTo(new[] { "DummyUser" }));
+            Assert.That(capturedEntity.Owners, Is.EqualTo(["IlarionPintilie"]));
+            Assert.That(capturedEntity.Creators, Is.EqualTo(["IlarionPintilie"]));
+            Assert.That(capturedEntity.Leaders, Is.EqualTo(["DummyUser"]));
             Assert.That(capturedEntity.TeleportationPoint.World, Is.EqualTo("world"));
             Assert.That(capturedEntity.TeleportationPoint.X, Is.EqualTo(8));
             Assert.That(capturedEntity.TeleportationPoint.Y, Is.EqualTo(16));
