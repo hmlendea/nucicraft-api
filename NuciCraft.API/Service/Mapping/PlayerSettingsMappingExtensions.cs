@@ -49,6 +49,9 @@ namespace NuciCraft.API.Service.Mapping
                 settings.PrivateMessagesInterceptionIsEnabled = dataObject.PrivateMessagesInterceptionIsEnabled.Value;
             }
 
+            settings.Localisation = Localisation.FromString(dataObject.Localisation);
+            settings.SkinUrl = dataObject.SkinUrl;
+
             return settings;
         }
 
@@ -67,8 +70,20 @@ namespace NuciCraft.API.Service.Mapping
                 KeepExperienceIsEnabled = serviceModel.KeepExperienceIsEnabled,
                 KeepInventoryIsEnabled = serviceModel.KeepInventoryIsEnabled,
                 PrivateMessagesAreEnabled = serviceModel.PrivateMessagesAreEnabled,
-                PrivateMessagesInterceptionIsEnabled = serviceModel.PrivateMessagesInterceptionIsEnabled
+                PrivateMessagesInterceptionIsEnabled = serviceModel.PrivateMessagesInterceptionIsEnabled,
+                Localisation = ToDataObject(serviceModel.Localisation),
+                SkinUrl = serviceModel.SkinUrl
             };
+        }
+
+        private static string ToDataObject(Localisation serviceModel)
+        {
+            if (serviceModel is null)
+            {
+                return null;
+            }
+
+            return serviceModel;
         }
     }
 }

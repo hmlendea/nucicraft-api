@@ -91,7 +91,7 @@ namespace NuciCraft.API
         static void EagerlyLoadRepositories(IServiceProvider serviceProvider)
         {
             serviceProvider
-                .GetRequiredService<IFileRepository<PlayerEntity>>()
+                .GetRequiredService<IFileRepository<PlayerDataObject>>()
                 .GetAll()
                 .ToList();
 

@@ -20,9 +20,15 @@ namespace NuciCraft.API.DataAccess.DataObjects
         public bool? KeepInventoryIsEnabled { get; set; }
 
         [HmacOrder(6)]
-        public bool? PrivateMessagesAreEnabled { get; set; }
+        public string Localisation { get; set; }
 
         [HmacOrder(7)]
+        public bool? PrivateMessagesAreEnabled { get; set; }
+
+        [HmacOrder(8)]
         public bool? PrivateMessagesInterceptionIsEnabled { get; set; }
+
+        [HmacOrder(9)]
+        public string SkinUrl { get; set; }
     }
 }

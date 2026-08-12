@@ -1,6 +1,6 @@
 namespace NuciCraft.API.DataAccess.DataObjects
 {
-    public class PlayerEntity : NuciCraftEntityBase
+    public class PlayerDataObject : NuciCraftEntityBase
     {
         public string Username { get; set; }
 
@@ -24,8 +24,8 @@ namespace NuciCraft.API.DataAccess.DataObjects
 
         public CoordinatesDataObject BackLocation { get; set; }
 
-        public PlayerSettingsDataObject Settings { get; set; }
+        public CoordinatesDataObject LogoutLocation { get; set; }
 
-        public string SkinUrl { get; set; }
+        public PlayerSettingsDataObject Settings { get; set; }
     }
 }

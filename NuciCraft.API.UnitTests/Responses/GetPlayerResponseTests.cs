@@ -38,7 +38,16 @@ namespace NuciCraft.API.UnitTests.Responses
             Assert.That(response.BackLocation.Z, Is.EqualTo(player.BackLocation.Z));
             Assert.That(response.BackLocation.Pitch, Is.EqualTo(player.BackLocation.Pitch));
             Assert.That(response.BackLocation.Yaw, Is.EqualTo(player.BackLocation.Yaw));
-            Assert.That(response.SkinUrl, Is.EqualTo(player.SkinUrl));
+            Assert.That(response.LogoutLocation, Is.Not.Null);
+            Assert.That(response.LogoutLocation.World, Is.EqualTo(player.LogoutLocation.World));
+            Assert.That(response.LogoutLocation.X, Is.EqualTo(player.LogoutLocation.X));
+            Assert.That(response.LogoutLocation.Y, Is.EqualTo(player.LogoutLocation.Y));
+            Assert.That(response.LogoutLocation.Z, Is.EqualTo(player.LogoutLocation.Z));
+            Assert.That(response.LogoutLocation.Pitch, Is.EqualTo(player.LogoutLocation.Pitch));
+            Assert.That(response.LogoutLocation.Yaw, Is.EqualTo(player.LogoutLocation.Yaw));
+            Assert.That(response.Settings, Is.Not.Null);
+            Assert.That(response.Settings.Localisation, Is.EqualTo(Localisation.Romanian));
+            Assert.That(response.Settings.SkinUrl, Is.EqualTo(player.Settings.SkinUrl));
         }
 
         [Test]
@@ -89,6 +98,17 @@ namespace NuciCraft.API.UnitTests.Responses
         }
 
         [Test]
+        public void GivenAPlayerWithNoLogoutLocation_WhenBuildingTheResponse_ThenLogoutLocationIsNull()
+        {
+            Player player = BuildPlayer();
+            player.LogoutLocation = null;
+
+            GetPlayerResponse response = new(player);
+
+            Assert.That(response.LogoutLocation, Is.Null);
+        }
+
+        [Test]
         public void GivenAPlayerWithNoUpdatedDT_WhenBuildingTheResponse_ThenUpdatedDTIsNull()
         {
             Player player = BuildPlayer();
@@ -115,7 +135,8 @@ namespace NuciCraft.API.UnitTests.Responses
             LastDeathDT = null,
             LastDeathLocation = null,
             BackLocation = new() { World = "world", X = 13.0f, Y = 64.0f, Z = -21.5f, Pitch = 30.0f, Yaw = 150.0f },
-            SkinUrl = "test.nucilandia.ro"
+            LogoutLocation = new() { World = "world_the_end", X = 8.5f, Y = 90.0f, Z = -3.25f, Pitch = 5.0f, Yaw = 240.0f },
+            Settings = new() { Localisation = Localisation.Romanian, SkinUrl = "test.nucilandia.ro" }
         };
     }
 }

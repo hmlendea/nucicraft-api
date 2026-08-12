@@ -17,7 +17,7 @@ using NuciCraft.API.Service.Models;
 namespace NuciCraft.API.Service
 {
     public class PlayerService(
-        IFileRepository<PlayerEntity> repository,
+        IFileRepository<PlayerDataObject> repository,
         ILogger logger) : IPlayerService
     {
         public void Register(RegisterPlayerRequest request)
@@ -27,8 +27,7 @@ namespace NuciCraft.API.Service
                 new(MyLogInfoKey.Username, request.Username),
                 new(MyLogInfoKey.OnlineUUID, request.OnlineUUID),
                 new(MyLogInfoKey.CreatedDT, request.CreatedDT),
-                new(MyLogInfoKey.IpAddress, request.IpAddress),
-                new(MyLogInfoKey.SkinUrl, request.SkinUrl)
+                new(MyLogInfoKey.IpAddress, request.IpAddress)
             ];
 
             logger.Info(
@@ -47,7 +46,7 @@ namespace NuciCraft.API.Service
                     CreatedDT = request.CreatedDT != null ? DateTimeOffset.Parse(request.CreatedDT) : DateTimeOffset.Now,
                     Password = request.Password,
                     IpAddress = request.IpAddress,
-                    SkinUrl = request.SkinUrl
+                    Settings = new PlayerSettings(),
                 };
 
                 logInfos = logInfos
@@ -91,7 +90,7 @@ namespace NuciCraft.API.Service
 
             try
             {
-                PlayerEntity matchingEntity = repository
+                PlayerDataObject matchingDataObject = repository
                     .GetAll()
                     .FirstOrDefault(entity =>
                         (!string.IsNullOrWhiteSpace(request.Identifier) && string.Equals(entity.Id, request.Identifier)) ||
@@ -99,12 +98,12 @@ namespace NuciCraft.API.Service
                         (!string.IsNullOrWhiteSpace(request.OfflineUUID) && string.Equals(entity.OfflineUUID, request.OfflineUUID)) ||
                         (!string.IsNullOrWhiteSpace(request.OnlineUUID) && string.Equals(entity.OnlineUUID, request.OnlineUUID)));
 
-                if (matchingEntity is null)
+                if (matchingDataObject is null)
                 {
                     throw new KeyNotFoundException("No player found matching the provided criteria.");
                 }
 
-                Player player = matchingEntity.ToDomainModel();
+                Player player = matchingDataObject.ToDomainModel();
 
                 logger.Info(
                     MyOperation.GetPlayer,
@@ -139,73 +138,73 @@ namespace NuciCraft.API.Service
 
             try
             {
-                PlayerEntity playerEntity = repository.Get(request.Identifier);
+                PlayerDataObject playerDataObject = repository.Get(request.Identifier);
 
                 if (request.Username is not null)
                 {
-                    playerEntity.Username = request.Username;
+                    playerDataObject.Username = request.Username;
                 }
 
                 if (request.OnlineUUID is not null)
                 {
-                    playerEntity.OnlineUUID = request.OnlineUUID;
+                    playerDataObject.OnlineUUID = request.OnlineUUID;
                 }
 
                 if (request.Password is not null)
                 {
-                    playerEntity.Password = request.Password;
+                    playerDataObject.Password = request.Password;
                 }
 
                 if (request.IpAddress is not null)
                 {
-                    playerEntity.IpAddress = request.IpAddress;
+                    playerDataObject.IpAddress = request.IpAddress;
                 }
 
                 if (request.DiscordId is not null)
                 {
-                    playerEntity.DiscordId = request.DiscordId;
+                    playerDataObject.DiscordId = request.DiscordId;
                 }
 
                 if (request.EmailAddress is not null)
                 {
-                    playerEntity.EmailAddress = request.EmailAddress;
+                    playerDataObject.EmailAddress = request.EmailAddress;
                 }
 
                 if (request.LastSleptDT is not null)
                 {
-                    playerEntity.LastSleptDT = request.LastSleptDT;
+                    playerDataObject.LastSleptDT = request.LastSleptDT;
                 }
 
                 if (request.LastDeathDT is not null)
                 {
-                    playerEntity.LastDeathDT = request.LastDeathDT;
+                    playerDataObject.LastDeathDT = request.LastDeathDT;
                 }
 
                 if (request.LastDeathLocation is not null)
                 {
-                    playerEntity.LastDeathLocation = request.LastDeathLocation;
+                    playerDataObject.LastDeathLocation = request.LastDeathLocation;
                 }
 
                 if (request.BackLocation is not null)
                 {
-                    playerEntity.BackLocation = request.BackLocation;
+                    playerDataObject.BackLocation = request.BackLocation;
                 }
 
-                if (request.SkinUrl is not null)
+                if (request.LogoutLocation is not null)
                 {
-                    playerEntity.SkinUrl = request.SkinUrl;
+                    playerDataObject.LogoutLocation = request.LogoutLocation;
                 }
 
                 if (request.Settings is not null)
                 {
-                    playerEntity.Settings = MergePlayerSettingsDataObject(
-                        playerEntity.Settings,
+                    playerDataObject.Settings = MergePlayerSettingsDataObject(
+                        playerDataObject.Settings,
                         request.Settings);
                 }
 
-                playerEntity.UpdatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK");
+                playerDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK");
 
-                repository.Update(playerEntity);
+                repository.Update(playerDataObject);
                 repository.SaveChanges();
 
                 logger.Info(
@@ -267,6 +266,16 @@ namespace NuciCraft.API.Service
             if (incomingSettings.PrivateMessagesInterceptionIsEnabled is not null)
             {
                 existingSettings.PrivateMessagesInterceptionIsEnabled = incomingSettings.PrivateMessagesInterceptionIsEnabled.Value;
+            }
+
+            if (incomingSettings.Localisation is not null)
+            {
+                existingSettings.Localisation = incomingSettings.Localisation;
+            }
+
+            if (incomingSettings.SkinUrl is not null)
+            {
+                existingSettings.SkinUrl = incomingSettings.SkinUrl;
             }
 
             return existingSettings;

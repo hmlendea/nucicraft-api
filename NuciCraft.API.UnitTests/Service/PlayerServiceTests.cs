@@ -19,14 +19,14 @@ namespace NuciCraft.API.UnitTests.Service
     [TestFixture]
     public class PlayerServiceTests
     {
-        Mock<IFileRepository<PlayerEntity>> repositoryMock;
+        Mock<IFileRepository<PlayerDataObject>> repositoryMock;
         Mock<ILogger> loggerMock;
         PlayerService playerService;
 
         [SetUp]
         public void SetUp()
         {
-            repositoryMock = new Mock<IFileRepository<PlayerEntity>>();
+            repositoryMock = new Mock<IFileRepository<PlayerDataObject>>();
             loggerMock = new Mock<ILogger>();
             playerService = new PlayerService(repositoryMock.Object, loggerMock.Object);
         }
@@ -37,11 +37,11 @@ namespace NuciCraft.API.UnitTests.Service
         public void GivenAValidRequest_WhenRegistering_ThenTheEntityIsAddedToTheRepository()
         {
             RegisterPlayerRequest request = BuildRegisterPlayerRequest();
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
-                .Setup(repository => repository.Add(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Add(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             playerService.Register(request);
 
@@ -51,18 +51,21 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo("87300000-0000-0000-0000-000000000000"));
             Assert.That(capturedEntity.Password, Is.EqualTo("NucilandiaPass1"));
             Assert.That(capturedEntity.IpAddress, Is.EqualTo("192.168.1.1"));
-            Assert.That(capturedEntity.SkinUrl, Is.EqualTo("test.nucilandia.ro"));
+            Assert.That(capturedEntity.Settings, Is.Not.Null);
+            Assert.That(capturedEntity.Settings.Localisation, Is.EqualTo("romanian"));
+            Assert.That(capturedEntity.Settings.SkinUrl, Is.Null);
+            Assert.That(capturedEntity.LogoutLocation, Is.Null);
         }
 
         [Test]
         public void GivenAValidRequest_WhenRegistering_ThenTheOfflineUUIDIsCalculated()
         {
             RegisterPlayerRequest request = BuildRegisterPlayerRequest();
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
-                .Setup(repository => repository.Add(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Add(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             playerService.Register(request);
 
@@ -75,11 +78,11 @@ namespace NuciCraft.API.UnitTests.Service
         public void GivenAValidRequestWithExplicitCreatedDT_WhenRegistering_ThenCreatedDTIsParsedAndStored()
         {
             RegisterPlayerRequest request = BuildRegisterPlayerRequest();
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
-                .Setup(repository => repository.Add(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Add(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             playerService.Register(request);
 
@@ -94,11 +97,11 @@ namespace NuciCraft.API.UnitTests.Service
         {
             RegisterPlayerRequest request = BuildRegisterPlayerRequest();
             request.CreatedDT = null;
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
-                .Setup(repository => repository.Add(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Add(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             DateTimeOffset registrationTime = DateTimeOffset.Now;
             playerService.Register(request);
@@ -120,7 +123,7 @@ namespace NuciCraft.API.UnitTests.Service
         public void GivenARepositoryException_WhenRegistering_ThenTheExceptionIsRethrown()
         {
             repositoryMock
-                .Setup(repository => repository.Add(It.IsAny<PlayerEntity>()))
+                .Setup(repository => repository.Add(It.IsAny<PlayerDataObject>()))
                 .Throws<InvalidOperationException>();
 
             Assert.That(
@@ -133,7 +136,7 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenAValidUsername_WhenGettingAPlayer_ThenThePlayerIsReturned()
         {
-            PlayerEntity entity = BuildPlayerEntity();
+            PlayerDataObject entity = BuildPlayerDataObject();
 
             repositoryMock
                 .Setup(repository => repository.GetAll())
@@ -162,6 +165,13 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(player.BackLocation.Z, Is.EqualTo(entity.BackLocation.Z));
             Assert.That(player.BackLocation.Pitch, Is.EqualTo(entity.BackLocation.Pitch));
             Assert.That(player.BackLocation.Yaw, Is.EqualTo(entity.BackLocation.Yaw));
+            Assert.That(player.LogoutLocation, Is.Not.Null);
+            Assert.That(player.LogoutLocation.World, Is.EqualTo(entity.LogoutLocation.World));
+            Assert.That(player.LogoutLocation.X, Is.EqualTo(entity.LogoutLocation.X));
+            Assert.That(player.LogoutLocation.Y, Is.EqualTo(entity.LogoutLocation.Y));
+            Assert.That(player.LogoutLocation.Z, Is.EqualTo(entity.LogoutLocation.Z));
+            Assert.That(player.LogoutLocation.Pitch, Is.EqualTo(entity.LogoutLocation.Pitch));
+            Assert.That(player.LogoutLocation.Yaw, Is.EqualTo(entity.LogoutLocation.Yaw));
             Assert.That(player.Settings, Is.Not.Null);
             Assert.That(player.Settings.AutomaticSaplingReplantingIsEnabled, Is.EqualTo(entity.Settings.AutomaticSaplingReplantingIsEnabled));
             Assert.That(player.Settings.PrivateMessagesAreEnabled, Is.EqualTo(entity.Settings.PrivateMessagesAreEnabled));
@@ -170,13 +180,14 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(player.Settings.KeepInventoryIsEnabled, Is.EqualTo(entity.Settings.KeepInventoryIsEnabled));
             Assert.That(player.Settings.KeepExperienceIsEnabled, Is.EqualTo(entity.Settings.KeepExperienceIsEnabled));
             Assert.That(player.Settings.AutomaticToolSelectionIsEnabled, Is.EqualTo(entity.Settings.AutomaticToolSelectionIsEnabled));
-            Assert.That(player.SkinUrl, Is.EqualTo(entity.SkinUrl));
+            Assert.That(player.Settings.Localisation, Is.EqualTo(Localisation.English));
+            Assert.That(player.Settings.SkinUrl, Is.EqualTo(entity.Settings.SkinUrl));
         }
 
         [Test]
         public void GivenAValidIdentifier_WhenGettingAPlayer_ThenThePlayerIsReturned()
         {
-            PlayerEntity entity = BuildPlayerEntity();
+            PlayerDataObject entity = BuildPlayerDataObject();
 
             repositoryMock
                 .Setup(repository => repository.GetAll())
@@ -191,7 +202,7 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenAValidOfflineUUID_WhenGettingAPlayer_ThenThePlayerIsReturned()
         {
-            PlayerEntity entity = BuildPlayerEntity();
+            PlayerDataObject entity = BuildPlayerDataObject();
 
             repositoryMock
                 .Setup(repository => repository.GetAll())
@@ -206,7 +217,7 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenAValidOnlineUUID_WhenGettingAPlayer_ThenThePlayerIsReturned()
         {
-            PlayerEntity entity = BuildPlayerEntity();
+            PlayerDataObject entity = BuildPlayerDataObject();
 
             repositoryMock
                 .Setup(repository => repository.GetAll())
@@ -247,15 +258,15 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenARequestWithAllFields_WhenUpdatingAPlayer_ThenAllFieldsAreApplied()
         {
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
                 .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(BuildPlayerEntity());
+                .Returns(BuildPlayerDataObject());
 
             repositoryMock
-                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             UpdatePlayerRequest request = new()
             {
@@ -269,8 +280,8 @@ namespace NuciCraft.API.UnitTests.Service
                 LastSleptDT = "2026-01-01T00:00:00.0000000+00:00",
                 LastDeathDT = "2026-06-01T00:00:00.0000000+00:00",
                 LastDeathLocation = new() { World = "world_nether", X = 1.0f, Y = 2.0f, Z = 3.0f, Pitch = 4.0f, Yaw = 5.0f },
-                SkinUrl = "new-skin.nucilandia.ro",
                 BackLocation = new() { World = "world", X = 6.0f, Y = 7.0f, Z = 8.0f, Pitch = 9.0f, Yaw = 10.0f },
+                LogoutLocation = new() { World = "world_the_end", X = -10.0f, Y = 80.0f, Z = 41.0f, Pitch = 50.0f, Yaw = 60.0f },
                 Settings = new()
                 {
                     AutomaticHotbarRefillingIsEnabled = true,
@@ -279,7 +290,9 @@ namespace NuciCraft.API.UnitTests.Service
                     KeepExperienceIsEnabled = true,
                     KeepInventoryIsEnabled = false,
                     PrivateMessagesAreEnabled = true,
-                    PrivateMessagesInterceptionIsEnabled = false
+                    PrivateMessagesInterceptionIsEnabled = false,
+                    Localisation = "romanian",
+                    SkinUrl = "new-skin.nucilandia.ro"
                 }
             };
 
@@ -299,7 +312,6 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastDeathLocation.Z, Is.EqualTo(3.0f));
             Assert.That(capturedEntity.LastDeathLocation.Pitch, Is.EqualTo(4.0f));
             Assert.That(capturedEntity.LastDeathLocation.Yaw, Is.EqualTo(5.0f));
-            Assert.That(capturedEntity.SkinUrl, Is.EqualTo("new-skin.nucilandia.ro"));
             Assert.That(capturedEntity.BackLocation, Is.Not.Null);
             Assert.That(capturedEntity.BackLocation.World, Is.EqualTo("world"));
             Assert.That(capturedEntity.BackLocation.X, Is.EqualTo(6.0f));
@@ -307,7 +319,16 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.BackLocation.Z, Is.EqualTo(8.0f));
             Assert.That(capturedEntity.BackLocation.Pitch, Is.EqualTo(9.0f));
             Assert.That(capturedEntity.BackLocation.Yaw, Is.EqualTo(10.0f));
+            Assert.That(capturedEntity.LogoutLocation, Is.Not.Null);
+            Assert.That(capturedEntity.LogoutLocation.World, Is.EqualTo("world_the_end"));
+            Assert.That(capturedEntity.LogoutLocation.X, Is.EqualTo(-10.0f));
+            Assert.That(capturedEntity.LogoutLocation.Y, Is.EqualTo(80.0f));
+            Assert.That(capturedEntity.LogoutLocation.Z, Is.EqualTo(41.0f));
+            Assert.That(capturedEntity.LogoutLocation.Pitch, Is.EqualTo(50.0f));
+            Assert.That(capturedEntity.LogoutLocation.Yaw, Is.EqualTo(60.0f));
             Assert.That(capturedEntity.Settings, Is.Not.Null);
+            Assert.That(capturedEntity.Settings.Localisation, Is.EqualTo("romanian"));
+            Assert.That(capturedEntity.Settings.SkinUrl, Is.EqualTo("new-skin.nucilandia.ro"));
             Assert.That(capturedEntity.Settings.AutomaticHotbarRefillingIsEnabled, Is.EqualTo(true));
             Assert.That(capturedEntity.Settings.AutomaticSaplingReplantingIsEnabled, Is.EqualTo(false));
             Assert.That(capturedEntity.Settings.AutomaticToolSelectionIsEnabled, Is.EqualTo(false));
@@ -320,16 +341,16 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenARequestWithNullFields_WhenUpdatingAPlayer_ThenExistingValuesArePreserved()
         {
-            PlayerEntity original = BuildPlayerEntity();
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject original = BuildPlayerDataObject();
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
                 .Setup(repository => repository.Get("IlarionPintilie"))
                 .Returns(original);
 
             repositoryMock
-                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             playerService.Update(new UpdatePlayerRequest { Identifier = "IlarionPintilie" });
 
@@ -343,14 +364,15 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastDeathDT, Is.EqualTo(original.LastDeathDT));
             Assert.That(capturedEntity.LastDeathLocation, Is.EqualTo(original.LastDeathLocation));
             Assert.That(capturedEntity.BackLocation, Is.EqualTo(original.BackLocation));
-            Assert.That(capturedEntity.SkinUrl, Is.EqualTo(original.SkinUrl));
+            Assert.That(capturedEntity.LogoutLocation, Is.EqualTo(original.LogoutLocation));
+            Assert.That(capturedEntity.Settings.SkinUrl, Is.EqualTo(original.Settings.SkinUrl));
             Assert.That(capturedEntity.Settings, Is.EqualTo(original.Settings));
         }
 
         [Test]
         public void GivenARequestWithPartialCoordinates_WhenUpdatingAPlayer_ThenTheCoordinatesObjectIsReplaced()
         {
-            PlayerEntity original = BuildPlayerEntity();
+            PlayerDataObject original = BuildPlayerDataObject();
             original.LastDeathLocation = new()
             {
                 World = "world",
@@ -360,15 +382,15 @@ namespace NuciCraft.API.UnitTests.Service
                 Pitch = 45.0f,
                 Yaw = 90.0f
             };
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
                 .Setup(repository => repository.Get("IlarionPintilie"))
                 .Returns(original);
 
             repositoryMock
-                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             playerService.Update(new UpdatePlayerRequest
             {
@@ -388,16 +410,16 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenARequestWithPartialSettings_WhenUpdatingAPlayer_ThenOnlyProvidedSettingsFieldsAreUpdated()
         {
-            PlayerEntity original = BuildPlayerEntity();
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject original = BuildPlayerDataObject();
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
                 .Setup(repository => repository.Get("IlarionPintilie"))
                 .Returns(original);
 
             repositoryMock
-                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             playerService.Update(new UpdatePlayerRequest
             {
@@ -427,17 +449,17 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenARequestWithLastDeathLocationWhenEntityHasNone_WhenUpdatingAPlayer_ThenLastDeathLocationIsCreated()
         {
-            PlayerEntity original = BuildPlayerEntity();
+            PlayerDataObject original = BuildPlayerDataObject();
             original.LastDeathLocation = null;
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
                 .Setup(repository => repository.Get("IlarionPintilie"))
                 .Returns(original);
 
             repositoryMock
-                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             playerService.Update(new UpdatePlayerRequest
             {
@@ -453,17 +475,17 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenARequestWithBackLocationWhenEntityHasNone_WhenUpdatingAPlayer_ThenBackLocationIsCreated()
         {
-            PlayerEntity original = BuildPlayerEntity();
+            PlayerDataObject original = BuildPlayerDataObject();
             original.BackLocation = null;
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
                 .Setup(repository => repository.Get("IlarionPintilie"))
                 .Returns(original);
 
             repositoryMock
-                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             playerService.Update(new UpdatePlayerRequest
             {
@@ -481,15 +503,15 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenAValidRequest_WhenUpdatingAPlayer_ThenUpdatedDTIsStamped()
         {
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
                 .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(BuildPlayerEntity());
+                .Returns(BuildPlayerDataObject());
 
             repositoryMock
-                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             DateTimeOffset callTime = DateTimeOffset.UtcNow;
             playerService.Update(new UpdatePlayerRequest { Identifier = "IlarionPintilie" });
@@ -503,7 +525,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             repositoryMock
                 .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(BuildPlayerEntity());
+                .Returns(BuildPlayerDataObject());
 
             playerService.Update(new UpdatePlayerRequest { Identifier = "IlarionPintilie" });
 
@@ -527,15 +549,15 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenAValidRequest_WhenUpdatingLastDeathLocation_ThenTheEntityIsUpdatedWithTheCorrectCoordinates()
         {
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
                 .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(BuildPlayerEntity());
+                .Returns(BuildPlayerDataObject());
 
             repositoryMock
-                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             Coordinates location = BuildCoordinates();
             playerService.UpdateLastDeathLocation("IlarionPintilie", location);
@@ -560,15 +582,15 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenAPlayerWithABackLocation_WhenUpdatingLastDeathLocation_ThenTheBackLocationIsPreserved()
         {
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
                 .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(BuildPlayerEntity());
+                .Returns(BuildPlayerDataObject());
 
             repositoryMock
-                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             playerService.UpdateLastDeathLocation("IlarionPintilie", BuildCoordinates());
 
@@ -584,15 +606,15 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenAValidRequest_WhenUpdatingLastDeathLocation_ThenLastDeathDTIsSet()
         {
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
                 .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(BuildPlayerEntity());
+                .Returns(BuildPlayerDataObject());
 
             repositoryMock
-                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             DateTimeOffset callTime = DateTimeOffset.UtcNow;
             playerService.UpdateLastDeathLocation("IlarionPintilie", BuildCoordinates());
@@ -604,15 +626,15 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenAValidRequest_WhenUpdatingLastDeathLocation_ThenUpdatedDTIsSet()
         {
-            PlayerEntity capturedEntity = null;
+            PlayerDataObject capturedEntity = null;
 
             repositoryMock
                 .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(BuildPlayerEntity());
+                .Returns(BuildPlayerDataObject());
 
             repositoryMock
-                .Setup(repository => repository.Update(It.IsAny<PlayerEntity>()))
-                .Callback<PlayerEntity>(entity => capturedEntity = entity);
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             DateTimeOffset callTime = DateTimeOffset.UtcNow;
             playerService.UpdateLastDeathLocation("IlarionPintilie", BuildCoordinates());
@@ -626,7 +648,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             repositoryMock
                 .Setup(repository => repository.Get("IlarionPintilie"))
-                .Returns(BuildPlayerEntity());
+                .Returns(BuildPlayerDataObject());
 
             playerService.UpdateLastDeathLocation("IlarionPintilie", BuildCoordinates());
 
@@ -652,10 +674,9 @@ namespace NuciCraft.API.UnitTests.Service
             CreatedDT = "2012-09-05T00:00:00.0000000+00:00",
             Password = "NucilandiaPass1",
             IpAddress = "192.168.1.1",
-            SkinUrl = "test.nucilandia.ro"
         };
 
-        private static PlayerEntity BuildPlayerEntity() => new()
+        private static PlayerDataObject BuildPlayerDataObject() => new()
         {
             Id = "IlarionPintilie",
             Username = "IlarionPintilie",
@@ -671,6 +692,7 @@ namespace NuciCraft.API.UnitTests.Service
             LastDeathDT = null,
             LastDeathLocation = null,
             BackLocation = new() { World = "world", X = 100.5f, Y = 70.0f, Z = -25.25f, Pitch = 45.0f, Yaw = 90.0f },
+            LogoutLocation = new() { World = "world", X = -13.0f, Y = 75.0f, Z = 22.5f, Pitch = 15.0f, Yaw = 40.0f },
             Settings = new()
             {
                 AutomaticSaplingReplantingIsEnabled = true,
@@ -679,9 +701,10 @@ namespace NuciCraft.API.UnitTests.Service
                 AutomaticHotbarRefillingIsEnabled = false,
                 KeepInventoryIsEnabled = true,
                 KeepExperienceIsEnabled = false,
-                AutomaticToolSelectionIsEnabled = true
-            },
-            SkinUrl = "test.nucilandia.ro"
+                AutomaticToolSelectionIsEnabled = true,
+                Localisation = "english",
+                SkinUrl = "test.nucilandia.ro"
+            }
         };
 
         private static Coordinates BuildCoordinates() => new()
