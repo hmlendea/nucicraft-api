@@ -13,6 +13,6 @@ namespace NuciCraft.API.Service
 
         IEnumerable<Country> GetAll();
 
-        void Update(UpdateCountryRequest request);
+        void Update(PatchCountryRequest request);
     }
 }

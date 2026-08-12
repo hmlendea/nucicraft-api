@@ -22,6 +22,8 @@ namespace NuciCraft.API.Service
     {
         public void Add(AddCountryRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.Identifier, request.Identifier),
@@ -129,8 +131,10 @@ namespace NuciCraft.API.Service
             }
         }
 
-        public void Update(UpdateCountryRequest request)
+        public void Update(PatchCountryRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.Identifier, request.CountryIdentifier)
@@ -173,7 +177,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private static void ValidatePatchSelector(UpdateCountryRequest request)
+        private static void ValidatePatchSelector(PatchCountryRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.CountryIdentifier))
             {
@@ -182,7 +186,7 @@ namespace NuciCraft.API.Service
         }
 
         private static void ApplyPatchValues(
-            UpdateCountryRequest request,
+            PatchCountryRequest request,
             CountryDataObject countryDataObject)
         {
             if (request.Name is not null)

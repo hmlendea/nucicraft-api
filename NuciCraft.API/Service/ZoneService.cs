@@ -24,6 +24,8 @@ namespace NuciCraft.API.Service
 
         public void Add(AddZoneRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.Identifier, request.Identifier),
@@ -151,6 +153,8 @@ namespace NuciCraft.API.Service
 
         public void Update(PatchZoneRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.Identifier, request.ZoneIdentifier)

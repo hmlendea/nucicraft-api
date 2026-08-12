@@ -137,6 +137,17 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenARequestWithInvalidCreatedDT_WhenRegistering_ThenAnArgumentExceptionIsThrown()
+        {
+            RegisterPlayerRequest request = BuildRegisterPlayerRequest();
+            request.CreatedDT = "invalid-timestamp";
+
+            Assert.That(
+                () => playerService.Register(request),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
         public void GivenAValidRequest_WhenRegistering_ThenSaveChangesIsInvoked()
         {
             playerService.Register(BuildRegisterPlayerRequest());
@@ -154,6 +165,14 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(
                 () => playerService.Register(BuildRegisterPlayerRequest()),
                 Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void GivenANullRequest_WhenRegistering_ThenAnArgumentNullExceptionIsThrown()
+        {
+            Assert.That(
+                () => playerService.Register(null),
+                Throws.TypeOf<ArgumentNullException>());
         }
 
         // ── Get ────────────────────────────────────────────────────────────────
@@ -276,6 +295,14 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(
                 () => playerService.Get(new GetPlayerRequest { Username = "IlarionPintilie" }),
                 Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void GivenANullRequest_WhenGettingAPlayer_ThenAnArgumentNullExceptionIsThrown()
+        {
+            Assert.That(
+                () => playerService.Get(null),
+                Throws.TypeOf<ArgumentNullException>());
         }
 
         // ── Update ─────────────────────────────────────────────────────────────
@@ -695,6 +722,14 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(
                 () => playerService.Update(new PatchPlayerRequest { PlayerIdentifier = "non-existent-player" }),
                 Throws.TypeOf<KeyNotFoundException>());
+        }
+
+        [Test]
+        public void GivenANullRequest_WhenPatchingAPlayer_ThenAnArgumentNullExceptionIsThrown()
+        {
+            Assert.That(
+                () => playerService.Update(null),
+                Throws.TypeOf<ArgumentNullException>());
         }
 
         private static RegisterPlayerRequest BuildRegisterPlayerRequest() => new()

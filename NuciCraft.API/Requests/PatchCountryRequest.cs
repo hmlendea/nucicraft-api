@@ -6,7 +6,7 @@ using NuciCraft.API.DataAccess.DataObjects;
 
 namespace NuciCraft.API.Requests
 {
-    public class UpdateCountryRequest : NuciApiRequest
+    public class PatchCountryRequest : NuciApiRequest
     {
         [HmacOrder(1)]
         public string CountryIdentifier { get; set; }

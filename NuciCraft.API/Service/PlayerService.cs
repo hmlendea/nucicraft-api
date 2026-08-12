@@ -23,6 +23,8 @@ namespace NuciCraft.API.Service
     {
         public void Register(RegisterPlayerRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.Username, request.Username),
@@ -44,9 +46,7 @@ namespace NuciCraft.API.Service
                     Username = request.Username,
                     OfflineUUID = GetOfflineUuid(request.Username),
                     OnlineUUID = request.OnlineUUID,
-                    CreatedDT = request.CreatedDT != null
-                        ? DateTimeOffset.Parse(request.CreatedDT, CultureInfo.InvariantCulture)
-                        : DateTimeOffset.Now,
+                    CreatedDT = GetCreatedDateTimeForRegisterRequest(request),
                     Password = request.Password,
                     IpAddress = request.IpAddress,
                     Settings = new PlayerSettings(),
@@ -78,6 +78,8 @@ namespace NuciCraft.API.Service
 
         public Player Get(GetPlayerRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.PlayerID, request.Identifier),
@@ -159,6 +161,8 @@ namespace NuciCraft.API.Service
 
         public void Update(PatchPlayerRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.PlayerID, request.PlayerIdentifier),
@@ -360,6 +364,27 @@ namespace NuciCraft.API.Service
             }
 
             return existingSettings;
+        }
+
+        private static DateTimeOffset GetCreatedDateTimeForRegisterRequest(RegisterPlayerRequest request)
+        {
+            if (request.CreatedDT is null)
+            {
+                return DateTimeOffset.Now;
+            }
+
+            if (DateTimeOffset.TryParseExact(
+                    request.CreatedDT,
+                    TimestampFormats.Full,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out DateTimeOffset createdDateTimeOffset))
+            {
+                return createdDateTimeOffset;
+            }
+
+            throw new ArgumentException(
+                $"The created timestamp must match format '{TimestampFormats.Full}'.");
         }
 
         private static string GetOfflineUuid(string username)

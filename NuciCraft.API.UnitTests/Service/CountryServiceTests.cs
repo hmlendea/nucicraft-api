@@ -86,6 +86,14 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenANullRequest_WhenAddingACountry_ThenAnArgumentNullExceptionIsThrown()
+        {
+            Assert.That(
+                () => countryService.Add(null),
+                Throws.TypeOf<ArgumentNullException>());
+        }
+
+        [Test]
         public void GivenAnExistingCountry_WhenGettingACountry_ThenTheCountryIsReturned()
         {
             repositoryMock
@@ -135,7 +143,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.Update(It.IsAny<CountryDataObject>()))
                 .Callback<CountryDataObject>(entity => capturedEntity = entity);
 
-            UpdateCountryRequest request = new()
+            PatchCountryRequest request = new()
             {
                 CountryIdentifier = "nucilandia",
                 Name = new()
@@ -165,7 +173,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.Update(It.IsAny<CountryDataObject>()))
                 .Callback<CountryDataObject>(entity => capturedEntity = entity);
 
-            UpdateCountryRequest request = new()
+            PatchCountryRequest request = new()
             {
                 CountryIdentifier = "nucilandia",
                 Name = new() { English = "New California Republic" },
@@ -184,7 +192,7 @@ namespace NuciCraft.API.UnitTests.Service
         public void GivenNoIdentifier_WhenUpdatingACountry_ThenAnArgumentExceptionIsThrown()
         {
             Assert.That(
-                () => countryService.Update(new UpdateCountryRequest
+                () => countryService.Update(new PatchCountryRequest
                 {
                     Leader = "DummyUser"
                 }),
@@ -204,7 +212,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.Update(It.IsAny<CountryDataObject>()))
                 .Callback<CountryDataObject>(entity => capturedEntity = entity);
 
-            countryService.Update(new UpdateCountryRequest
+            countryService.Update(new PatchCountryRequest
             {
                 CountryIdentifier = "nucilandia"
             });
@@ -219,7 +227,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.Get("nucilandia"))
                 .Returns(BuildCountryDataObject());
 
-            countryService.Update(new UpdateCountryRequest
+            countryService.Update(new PatchCountryRequest
             {
                 CountryIdentifier = "nucilandia"
             });
@@ -235,8 +243,16 @@ namespace NuciCraft.API.UnitTests.Service
                 .Throws<InvalidOperationException>();
 
             Assert.That(
-                () => countryService.Update(new UpdateCountryRequest { CountryIdentifier = "nucilandia" }),
+                () => countryService.Update(new PatchCountryRequest { CountryIdentifier = "nucilandia" }),
                 Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void GivenANullRequest_WhenUpdatingACountry_ThenAnArgumentNullExceptionIsThrown()
+        {
+            Assert.That(
+                () => countryService.Update(null),
+                Throws.TypeOf<ArgumentNullException>());
         }
 
         private static CountryDataObject BuildCountryDataObject() => new()
