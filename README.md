@@ -5,7 +5,7 @@
 
 # NuciCraft API
 
-NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft server operations, including player registration and updates, RTP location management, zone management, mob name generation, and game event processing.
+NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft server operations, including player registration and updates, RTP location management, zone management, and mob name generation.
 
 ## 📑 Table of Contents
 
@@ -18,7 +18,6 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
   - [Get a Random RTP Location](#get-a-random-rtp-location)
   - [Get a Random Mob Name](#get-a-random-mob-name)
   - [Manage Zones](#manage-zones)
-  - [Notify Player Death](#notify-player-death)
 - [Known Limitations](#known-limitations)
 - [Installation](#installation)
   - [CLI Installation](#cli-installation)
@@ -43,7 +42,6 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 - Stores and retrieves RTP locations with distance constraints and biome/world filtering
 - Generates random mob names via Universal Name Generator integration
 - Stores, retrieves, and updates zone metadata
-- Handles player-death game events and records last death location
 
 ## 🚀 Usage
 
@@ -134,22 +132,6 @@ curl -X PATCH "http://localhost:5000/Zones/spawn-city" \
 	-H "Content-Type: application/json" \
 	-d '{
 		"population": 121
-	}'
-```
-
-### Notify Player Death
-
-```bash
-curl -X POST "http://localhost:5000/GameEvents/player-death" \
-	-H "Content-Type: application/json" \
-	-d '{
-		"player": "PlayerName",
-		"deathLocation": {
-			"world": "world",
-			"x": 100,
-			"y": 65,
-			"z": -200
-		}
 	}'
 ```
 
