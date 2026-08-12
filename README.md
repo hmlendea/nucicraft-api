@@ -5,7 +5,7 @@
 
 # NuciCraft API
 
-NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft server operations, including player registration and updates, RTP location management, zone management, and mob name generation.
+NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft server operations, including player registration and updates, RTP location management, country and zone management, and mob name generation.
 
 ## 📑 Table of Contents
 
@@ -17,6 +17,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
   - [Add an RTP Location](#add-an-rtp-location)
   - [Get a Random RTP Location](#get-a-random-rtp-location)
   - [Get a Random Mob Name](#get-a-random-mob-name)
+	- [Manage Countries](#manage-countries)
   - [Manage Zones](#manage-zones)
 - [Known Limitations](#known-limitations)
 - [Installation](#installation)
@@ -41,7 +42,9 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 - Registers, retrieves, and updates players via protected API endpoints
 - Stores and retrieves RTP locations with distance constraints and biome/world filtering
 - Generates random mob names via Universal Name Generator integration
+- Stores, retrieves, and updates country metadata
 - Stores, retrieves, and updates zone metadata
+- Assigns a default zone creation date when one is not provided by the caller
 
 ## 🚀 Usage
 
@@ -108,7 +111,41 @@ curl "http://localhost:5000/RtpLocations/random?username=PlayerName&world=world&
 curl "http://localhost:5000/Mobs/wandering_trader/random-name"
 ```
 
+### Manage Countries
+
+```bash
+curl -X POST "http://localhost:5000/Countries" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"identifier": "nucilandia",
+		"name": {
+			"english": "Nucilandia",
+			"romanian": "Nucilandia"
+		},
+		"leaderTitle": {
+			"english": "Great Walnut",
+			"romanian": "Marele Nuc"
+		},
+		"leader": "Hori"
+	}'
+```
+
+```bash
+curl "http://localhost:5000/Countries/nucilandia"
+curl "http://localhost:5000/Countries"
+```
+
+```bash
+curl -X PATCH "http://localhost:5000/Countries/nucilandia" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"leader": "Horațiu"
+	}'
+```
+
 ### Manage Zones
+
+When creating a zone, `creationDate` is optional. If omitted or whitespace, the service sets it automatically to the current Romania date with an uncertainty suffix in the format `yyyy-MM-dd (?)`.
 
 ```bash
 curl -X POST "http://localhost:5000/Zones" \
@@ -158,6 +195,7 @@ All settings are loaded from the configuration file. The subsequent keys are rec
 
 | Section | Key | Description |
 |---------|-----|-------------|
+| `dataStoreSettings` | `countriesStorePath` | Path to the countries JSON store. |
 | `dataStoreSettings` | `playersStorePath` | Path to the players JSON store. |
 | `dataStoreSettings` | `rtpLocationsStorePath` | Path to the RTP locations JSON store. |
 | `dataStoreSettings` | `zonesStorePath` | Path to the zones JSON store. |
@@ -234,7 +272,7 @@ The key directories inside `NuciCraft.API/` are:
 |-----------|---------|
 | `Configuration` | Strongly typed settings models bound from `appsettings.json`. |
 | `Controllers` | REST endpoint definitions and HTTP request handling. |
-| `Data` | JSON data stores for players, RTP locations, and zones. |
+| `Data` | JSON data stores for countries, players, RTP locations, and zones. |
 | `DataAccess` | Data objects and repository mappings for persistence. |
 | `Logging` | Operation and log metadata keys used for diagnostics. |
 | `Requests` | API request DTOs and validation attributes. |

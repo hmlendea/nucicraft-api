@@ -25,7 +25,7 @@ namespace NuciCraft.API.Service
         {
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.ZoneIdentifier, request.Identifier),
+                new(MyLogInfoKey.Identifier, request.Identifier),
             ];
 
             logger.Info(
@@ -89,7 +89,7 @@ namespace NuciCraft.API.Service
         {
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.ZoneIdentifier, zoneIdentifier)
+                new(MyLogInfoKey.Identifier, zoneIdentifier)
             ];
 
             logger.Info(
@@ -152,7 +152,7 @@ namespace NuciCraft.API.Service
         {
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.ZoneIdentifier, request.ZoneIdentifier)
+                new(MyLogInfoKey.Identifier, request.ZoneIdentifier)
             ];
 
             logger.Info(

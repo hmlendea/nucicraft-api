@@ -66,6 +66,7 @@ namespace NuciCraft.API
 
             CreateStoreIfMissing(dataStoreSettings.RtpLocationsStorePath);
             CreateStoreIfMissing(dataStoreSettings.PlayersStorePath);
+            CreateStoreIfMissing(dataStoreSettings.CountriesStorePath);
             CreateStoreIfMissing(dataStoreSettings.ZonesStorePath);
 
             EagerlyLoadRepositories(applicationBuilder.ApplicationServices);
@@ -97,6 +98,11 @@ namespace NuciCraft.API
 
             serviceProvider
                 .GetRequiredService<IFileRepository<RtpLocationEntity>>()
+                .GetAll()
+                .ToList();
+
+            serviceProvider
+                .GetRequiredService<IFileRepository<CountryDataObject>>()
                 .GetAll()
                 .ToList();
 
