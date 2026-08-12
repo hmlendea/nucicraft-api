@@ -12,7 +12,10 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 - [Capabilities](#capabilities)
 - [Usage](#usage)
   - [Register a Player](#register-a-player)
-  - [Get a Player](#get-a-player)
+	- [Get a Player by ID](#get-a-player-by-id)
+	- [Get a Player by Username](#get-a-player-by-username)
+	- [Get a Player by Offline UUID](#get-a-player-by-offline-uuid)
+	- [Get a Player by Online UUID](#get-a-player-by-online-uuid)
   - [Get All Players](#get-all-players)
 	- [Patch a Player](#patch-a-player)
   - [Add an RTP Location](#add-an-rtp-location)
@@ -68,10 +71,28 @@ curl -X POST "http://localhost:5000/Players" \
 	}'
 ```
 
-### Get a Player
+### Get a Player by ID
 
 ```bash
-curl "http://localhost:5000/Players/PlayerName"
+curl "http://localhost:5000/Players/8b9d0f3e-2cc2-4d67-93dd-5c5270b19d4c"
+```
+
+### Get a Player by Username
+
+```bash
+curl "http://localhost:5000/Players/by-username/PlayerName"
+```
+
+### Get a Player by Offline UUID
+
+```bash
+curl "http://localhost:5000/Players/by-offline-uuid/61300000-0000-3000-8000-000000000000"
+```
+
+### Get a Player by Online UUID
+
+```bash
+curl "http://localhost:5000/Players/by-online-uuid/87300000-0000-0000-0000-000000000000"
 ```
 
 ### Get All Players
