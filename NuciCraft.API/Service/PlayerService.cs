@@ -370,7 +370,7 @@ namespace NuciCraft.API.Service
         {
             if (request.CreatedDT is null)
             {
-                return DateTimeOffset.Now;
+                return DateTimeOffset.UtcNow;
             }
 
             if (DateTimeOffset.TryParseExact(
