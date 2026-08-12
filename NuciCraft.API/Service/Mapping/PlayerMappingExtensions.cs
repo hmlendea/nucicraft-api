@@ -20,7 +20,7 @@ namespace NuciCraft.API.Service.Mapping
         /// </summary>
         /// <returns>The domain model.</returns>
         /// <param name="dataObject">The data object.</param>
-        internal static Player ToDomainModel(this PlayerEntity dataObject) => new()
+        internal static Player ToDomainModel(this PlayerDataObject dataObject) => new()
         {
             Identifier = dataObject.Id,
             Username = dataObject.Username,
@@ -45,7 +45,7 @@ namespace NuciCraft.API.Service.Mapping
         /// </summary>
         /// <returns>The data object.</returns>
         /// <param name="domainModel">The domain model.</param>
-        internal static PlayerEntity ToDataObject(this Player domainModel) => new()
+        internal static PlayerDataObject ToDataObject(this Player domainModel) => new()
         {
             Id = domainModel.Identifier,
             Username = domainModel.Username,
@@ -70,7 +70,7 @@ namespace NuciCraft.API.Service.Mapping
         /// </summary>
         /// <returns>The domain models.</returns>
         /// <param name="dataObjects">The data objects.</param>
-        internal static IEnumerable<Player> ToDomainModels(this IEnumerable<PlayerEntity> dataObjects)
+        internal static IEnumerable<Player> ToDomainModels(this IEnumerable<PlayerDataObject> dataObjects)
             => dataObjects.Select(dataObject => dataObject.ToDomainModel());
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace NuciCraft.API.Service.Mapping
         /// </summary>
         /// <returns>The data objects.</returns>
         /// <param name="domainModels">The domain models.</param>
-        internal static IEnumerable<PlayerEntity> ToDataObjects(this IEnumerable<Player> domainModels)
+        internal static IEnumerable<PlayerDataObject> ToDataObjects(this IEnumerable<Player> domainModels)
             => domainModels.Select(domainModel => domainModel.ToDataObject());
 
         private static DateTimeOffset ParseTimestamp(string timestamp)
