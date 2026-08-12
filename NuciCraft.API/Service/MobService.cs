@@ -31,7 +31,7 @@ namespace NuciCraft.API.Service
 
         private static string CowNamesSchema => "romanian-animals-cows";
 
-        private static string PigNamesSchema => "romanian-animals-pigs";
+        private static string PigNamesSchema => "animals-pigs";
 
         private static string ZaganianMaleNamesSchema => "pinched-zaganian-persons-male";
 
