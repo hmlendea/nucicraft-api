@@ -10,6 +10,7 @@ namespace NuciCraft.API.Logging
         public static Operation AddRtpLocation => new MyOperation(nameof(AddRtpLocation));
         public static Operation AddZone => new MyOperation(nameof(AddZone));
         public static Operation GetAllCountries => new MyOperation(nameof(GetAllCountries));
+        public static Operation GetAllPlayers => new MyOperation(nameof(GetAllPlayers));
         public static Operation GetAllZones => new MyOperation(nameof(GetAllZones));
         public static Operation GetCountry => new MyOperation(nameof(GetCountry));
         public static Operation GetPlayer => new MyOperation(nameof(GetPlayer));

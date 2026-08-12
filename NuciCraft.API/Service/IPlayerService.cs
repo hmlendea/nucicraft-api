@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service.Models;
 
@@ -8,6 +10,8 @@ namespace NuciCraft.API.Service
         void Register(RegisterPlayerRequest request);
 
         Player Get(GetPlayerRequest request);
+
+        IEnumerable<Player> GetAll();
 
         void Update(UpdatePlayerRequest request);
     }

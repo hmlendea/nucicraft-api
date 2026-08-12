@@ -26,11 +26,26 @@ namespace NuciCraft.API.Controllers
                 authorisation);
 
         [HttpGet]
+        [Route("{playerIdentifier}")]
         public ActionResult Get(
-            [FromQuery] GetPlayerRequest request)
-            => ProcessRequest(
+            string playerIdentifier)
+        {
+            GetPlayerRequest request = new()
+            {
+                Identifier = playerIdentifier
+            };
+
+            return ProcessRequest(
                 request,
                 () => new GetPlayerResponse(service.Get(request)),
+                authorisation);
+        }
+
+        [HttpGet]
+        public ActionResult GetAll()
+            => ProcessRequest(
+                new GetPlayersRequest(),
+                () => new GetResponse(service.GetAll()),
                 authorisation);
 
         [HttpPatch]
