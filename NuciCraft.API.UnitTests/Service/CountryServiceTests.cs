@@ -145,7 +145,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             PatchCountryRequest request = new()
             {
-                CountryIdentifier = "nucilandia",
+                Identifier = "nucilandia",
                 Name = new()
                 {
                     Romanian = "Nucilandia"
@@ -175,7 +175,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             PatchCountryRequest request = new()
             {
-                CountryIdentifier = "nucilandia",
+                Identifier = "nucilandia",
                 Name = new() { English = "New California Republic" },
                 LeaderTitle = new() { English = "Chancellor" },
                 Leader = "DummyUser"
@@ -214,7 +214,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             countryService.Update(new PatchCountryRequest
             {
-                CountryIdentifier = "nucilandia"
+                Identifier = "nucilandia"
             });
 
             Assert.That(capturedEntity.UpdatedDT, Is.Not.Null);
@@ -229,7 +229,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             countryService.Update(new PatchCountryRequest
             {
-                CountryIdentifier = "nucilandia"
+                Identifier = "nucilandia"
             });
 
             repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
@@ -243,7 +243,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Throws<InvalidOperationException>();
 
             Assert.That(
-                () => countryService.Update(new PatchCountryRequest { CountryIdentifier = "nucilandia" }),
+                () => countryService.Update(new PatchCountryRequest { Identifier = "nucilandia" }),
                 Throws.TypeOf<InvalidOperationException>());
         }
 

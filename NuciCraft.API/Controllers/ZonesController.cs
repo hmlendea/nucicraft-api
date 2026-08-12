@@ -50,7 +50,7 @@ namespace NuciCraft.API.Controllers
             string zoneIdentifier,
             [FromBody] PatchZoneRequest request)
         {
-            request.ZoneIdentifier = zoneIdentifier;
+            request.Identifier = zoneIdentifier;
 
             return ProcessRequest(
                 request,

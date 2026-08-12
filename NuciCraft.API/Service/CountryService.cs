@@ -137,7 +137,7 @@ namespace NuciCraft.API.Service
 
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.Identifier, request.CountryIdentifier)
+                new(MyLogInfoKey.Identifier, request.Identifier)
             ];
 
             logger.Info(
@@ -149,7 +149,7 @@ namespace NuciCraft.API.Service
             {
                 ValidatePatchSelector(request);
 
-                CountryDataObject countryDataObject = repository.Get(request.CountryIdentifier);
+                CountryDataObject countryDataObject = repository.Get(request.Identifier);
 
                 ApplyPatchValues(request, countryDataObject);
 
@@ -179,7 +179,7 @@ namespace NuciCraft.API.Service
 
         private static void ValidatePatchSelector(PatchCountryRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.CountryIdentifier))
+            if (string.IsNullOrWhiteSpace(request.Identifier))
             {
                 throw new ArgumentException("The country identifier must be provided.");
             }

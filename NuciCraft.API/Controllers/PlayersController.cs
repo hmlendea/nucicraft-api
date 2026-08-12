@@ -54,7 +54,7 @@ namespace NuciCraft.API.Controllers
             string playerIdentifier,
             [FromBody] PatchPlayerRequest request)
         {
-            request.PlayerIdentifier = playerIdentifier;
+            request.Identifier = playerIdentifier;
 
             return ProcessRequest(
                 request,

@@ -165,7 +165,7 @@ namespace NuciCraft.API.Service
 
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.PlayerID, request.PlayerIdentifier),
+                new(MyLogInfoKey.PlayerID, request.Identifier),
                 new(MyLogInfoKey.Username, request.PlayerUsername),
                 new(MyLogInfoKey.OfflineUUID, request.PlayerOfflineUUID),
                 new(MyLogInfoKey.OnlineUUID, request.PlayerOnlineUUID)
@@ -212,7 +212,7 @@ namespace NuciCraft.API.Service
         {
             string[] selectors =
             [
-                request.PlayerIdentifier,
+                request.Identifier,
                 request.PlayerUsername,
                 request.PlayerOfflineUUID,
                 request.PlayerOnlineUUID
@@ -241,7 +241,7 @@ namespace NuciCraft.API.Service
         private PlayerDataObject FindPlayerToPatch(PatchPlayerRequest request)
         {
             Func<PlayerDataObject, bool> matchesRequest = BuildPlayerDataObjectMatcher(
-                request.PlayerIdentifier,
+                request.Identifier,
                 request.PlayerUsername,
                 request.PlayerOfflineUUID,
                 request.PlayerOnlineUUID);
