@@ -32,6 +32,8 @@ namespace NuciCraft.API.Service.Models
 
         public Coordinates BackLocation { get; set; }
 
+        public Coordinates LogoutLocation { get; set; }
+
         public PlayerSettings Settings { get; set; }
 
         public string SkinUrl { get; set; }

@@ -52,6 +52,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Password, Is.EqualTo("NucilandiaPass1"));
             Assert.That(capturedEntity.IpAddress, Is.EqualTo("192.168.1.1"));
             Assert.That(capturedEntity.SkinUrl, Is.EqualTo("test.nucilandia.ro"));
+            Assert.That(capturedEntity.LogoutLocation, Is.Null);
         }
 
         [Test]
@@ -162,6 +163,13 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(player.BackLocation.Z, Is.EqualTo(entity.BackLocation.Z));
             Assert.That(player.BackLocation.Pitch, Is.EqualTo(entity.BackLocation.Pitch));
             Assert.That(player.BackLocation.Yaw, Is.EqualTo(entity.BackLocation.Yaw));
+            Assert.That(player.LogoutLocation, Is.Not.Null);
+            Assert.That(player.LogoutLocation.World, Is.EqualTo(entity.LogoutLocation.World));
+            Assert.That(player.LogoutLocation.X, Is.EqualTo(entity.LogoutLocation.X));
+            Assert.That(player.LogoutLocation.Y, Is.EqualTo(entity.LogoutLocation.Y));
+            Assert.That(player.LogoutLocation.Z, Is.EqualTo(entity.LogoutLocation.Z));
+            Assert.That(player.LogoutLocation.Pitch, Is.EqualTo(entity.LogoutLocation.Pitch));
+            Assert.That(player.LogoutLocation.Yaw, Is.EqualTo(entity.LogoutLocation.Yaw));
             Assert.That(player.Settings, Is.Not.Null);
             Assert.That(player.Settings.AutomaticSaplingReplantingIsEnabled, Is.EqualTo(entity.Settings.AutomaticSaplingReplantingIsEnabled));
             Assert.That(player.Settings.PrivateMessagesAreEnabled, Is.EqualTo(entity.Settings.PrivateMessagesAreEnabled));
@@ -271,6 +279,7 @@ namespace NuciCraft.API.UnitTests.Service
                 LastDeathLocation = new() { World = "world_nether", X = 1.0f, Y = 2.0f, Z = 3.0f, Pitch = 4.0f, Yaw = 5.0f },
                 SkinUrl = "new-skin.nucilandia.ro",
                 BackLocation = new() { World = "world", X = 6.0f, Y = 7.0f, Z = 8.0f, Pitch = 9.0f, Yaw = 10.0f },
+                LogoutLocation = new() { World = "world_the_end", X = -10.0f, Y = 80.0f, Z = 41.0f, Pitch = 50.0f, Yaw = 60.0f },
                 Settings = new()
                 {
                     AutomaticHotbarRefillingIsEnabled = true,
@@ -307,6 +316,13 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.BackLocation.Z, Is.EqualTo(8.0f));
             Assert.That(capturedEntity.BackLocation.Pitch, Is.EqualTo(9.0f));
             Assert.That(capturedEntity.BackLocation.Yaw, Is.EqualTo(10.0f));
+            Assert.That(capturedEntity.LogoutLocation, Is.Not.Null);
+            Assert.That(capturedEntity.LogoutLocation.World, Is.EqualTo("world_the_end"));
+            Assert.That(capturedEntity.LogoutLocation.X, Is.EqualTo(-10.0f));
+            Assert.That(capturedEntity.LogoutLocation.Y, Is.EqualTo(80.0f));
+            Assert.That(capturedEntity.LogoutLocation.Z, Is.EqualTo(41.0f));
+            Assert.That(capturedEntity.LogoutLocation.Pitch, Is.EqualTo(50.0f));
+            Assert.That(capturedEntity.LogoutLocation.Yaw, Is.EqualTo(60.0f));
             Assert.That(capturedEntity.Settings, Is.Not.Null);
             Assert.That(capturedEntity.Settings.AutomaticHotbarRefillingIsEnabled, Is.EqualTo(true));
             Assert.That(capturedEntity.Settings.AutomaticSaplingReplantingIsEnabled, Is.EqualTo(false));
@@ -343,6 +359,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastDeathDT, Is.EqualTo(original.LastDeathDT));
             Assert.That(capturedEntity.LastDeathLocation, Is.EqualTo(original.LastDeathLocation));
             Assert.That(capturedEntity.BackLocation, Is.EqualTo(original.BackLocation));
+            Assert.That(capturedEntity.LogoutLocation, Is.EqualTo(original.LogoutLocation));
             Assert.That(capturedEntity.SkinUrl, Is.EqualTo(original.SkinUrl));
             Assert.That(capturedEntity.Settings, Is.EqualTo(original.Settings));
         }
@@ -671,6 +688,7 @@ namespace NuciCraft.API.UnitTests.Service
             LastDeathDT = null,
             LastDeathLocation = null,
             BackLocation = new() { World = "world", X = 100.5f, Y = 70.0f, Z = -25.25f, Pitch = 45.0f, Yaw = 90.0f },
+            LogoutLocation = new() { World = "world", X = -13.0f, Y = 75.0f, Z = 22.5f, Pitch = 15.0f, Yaw = 40.0f },
             Settings = new()
             {
                 AutomaticSaplingReplantingIsEnabled = true,

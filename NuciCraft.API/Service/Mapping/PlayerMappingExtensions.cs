@@ -36,6 +36,7 @@ namespace NuciCraft.API.Service.Mapping
             LastDeathDT = ParseNullableTimestamp(dataObject.LastDeathDT),
             LastDeathLocation = ToServiceModel(dataObject.LastDeathLocation),
             BackLocation = ToServiceModel(dataObject.BackLocation),
+            LogoutLocation = ToServiceModel(dataObject.LogoutLocation),
             Settings = dataObject.Settings.ToServiceModel(),
             SkinUrl = dataObject.SkinUrl
         };
@@ -61,6 +62,7 @@ namespace NuciCraft.API.Service.Mapping
             LastDeathDT = ToTimestamp(domainModel.LastDeathDT),
             LastDeathLocation = ToDataObject(domainModel.LastDeathLocation),
             BackLocation = ToDataObject(domainModel.BackLocation),
+            LogoutLocation = ToDataObject(domainModel.LogoutLocation),
             Settings = domainModel.Settings.ToDataObject(),
             SkinUrl = domainModel.SkinUrl
         };

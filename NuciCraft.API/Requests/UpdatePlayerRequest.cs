@@ -45,9 +45,12 @@ namespace NuciCraft.API.Requests
         public CoordinatesDataObject BackLocation { get; set; }
 
         [HmacOrder(12)]
-        public string SkinUrl { get; set; }
+        public CoordinatesDataObject LogoutLocation { get; set; }
 
         [HmacOrder(13)]
+        public string SkinUrl { get; set; }
+
+        [HmacOrder(14)]
         public PlayerSettingsDataObject Settings { get; set; }
     }
 }

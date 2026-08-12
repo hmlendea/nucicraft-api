@@ -191,6 +191,11 @@ namespace NuciCraft.API.Service
                     playerDataObject.BackLocation = request.BackLocation;
                 }
 
+                if (request.LogoutLocation is not null)
+                {
+                    playerDataObject.LogoutLocation = request.LogoutLocation;
+                }
+
                 if (request.SkinUrl is not null)
                 {
                     playerDataObject.SkinUrl = request.SkinUrl;

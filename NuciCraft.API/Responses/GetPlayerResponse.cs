@@ -8,70 +8,54 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Responses
 {
-    public class GetPlayerResponse : NuciApiSuccessResponse
+    public class GetPlayerResponse(Player player) : NuciApiSuccessResponse
     {
         [HmacOrder(1)]
-        public string Identifier { get; set; }
+        public string Identifier { get; set; } = player.Identifier;
 
         [HmacOrder(2)]
-        public string Username { get; set; }
+        public string Username { get; set; } = player.Username;
 
         [HmacOrder(3)]
-        public string OfflineUUID { get; set; }
+        public string OfflineUUID { get; set; } = player.OfflineUUID;
 
         [HmacOrder(4)]
-        public string OnlineUUID { get; set; }
+        public string OnlineUUID { get; set; } = player.OnlineUUID;
 
         [HmacOrder(5)]
-        public string Password { get; set; }
+        public string Password { get; set; } = player.Password;
 
         [HmacOrder(6)]
-        public DateTimeOffset CreatedDT { get; set; }
+        public DateTimeOffset CreatedDT { get; set; } = player.CreatedDT;
 
         [HmacOrder(7)]
-        public DateTimeOffset? UpdatedDT { get; set; }
+        public DateTimeOffset? UpdatedDT { get; set; } = player.UpdatedDT;
 
         [HmacOrder(8)]
-        public string IpAddress { get; set; }
+        public string IpAddress { get; set; } = player.IpAddress;
 
         [HmacOrder(9)]
-        public string DiscordId { get; set; }
+        public string DiscordId { get; set; } = player.DiscordId;
 
         [HmacOrder(10)]
-        public string EmailAddress { get; set; }
+        public string EmailAddress { get; set; } = player.EmailAddress;
 
         [HmacOrder(11)]
-        public DateTimeOffset? LastSleptDT { get; set; }
+        public DateTimeOffset? LastSleptDT { get; set; } = player.LastSleptDT;
 
         [HmacOrder(12)]
-        public DateTimeOffset? LastDeathDT { get; set; }
+        public DateTimeOffset? LastDeathDT { get; set; } = player.LastDeathDT;
 
         [HmacOrder(13)]
-        public Coordinates LastDeathLocation { get; set; }
+        public Coordinates LastDeathLocation { get; set; } = player.LastDeathLocation;
 
         [HmacOrder(14)]
-        public Coordinates BackLocation { get; set; }
+        public Coordinates BackLocation { get; set; } = player.BackLocation;
 
         [HmacOrder(15)]
-        public string SkinUrl { get; set; }
+        public Coordinates LogoutLocation { get; set; } = player.LogoutLocation;
 
-        public GetPlayerResponse(Player player)
-        {
-            Identifier = player.Identifier;
-            Username = player.Username;
-            OfflineUUID = player.OfflineUUID;
-            OnlineUUID = player.OnlineUUID;
-            Password = player.Password;
-            CreatedDT = player.CreatedDT;
-            UpdatedDT = player.UpdatedDT;
-            IpAddress = player.IpAddress;
-            DiscordId = player.DiscordId;
-            EmailAddress = player.EmailAddress;
-            LastSleptDT = player.LastSleptDT;
-            LastDeathDT = player.LastDeathDT;
-            LastDeathLocation = player.LastDeathLocation;
-            BackLocation = player.BackLocation;
-            SkinUrl = player.SkinUrl;
-        }
+        [HmacOrder(16)]
+        public string SkinUrl { get; set; } = player.SkinUrl;
     }
 }
