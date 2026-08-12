@@ -130,7 +130,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             RtpLocationEntity nearbyEntity = BuildRtpLocationEntity();
             nearbyEntity.Coordinates.X = 100;
-            nearbyEntity.Coordinates.Y = 0;
+            nearbyEntity.Coordinates.Z = 0;
 
             repositoryMock
                 .Setup(repository => repository.GetAll())
@@ -138,7 +138,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             AddRtpLocationRequest request = BuildAddRtpLocationRequest();
             request.X = 0;
-            request.Y = 0;
+            request.Z = 0;
 
             Assert.That(
                 () => rtpLocationService.AddRtpLocation(request),
@@ -151,7 +151,7 @@ namespace NuciCraft.API.UnitTests.Service
             RtpLocationEntity nearbySameBiomeEntity = BuildRtpLocationEntity();
             nearbySameBiomeEntity.Biome = "Forest";
             nearbySameBiomeEntity.Coordinates.X = 700;
-            nearbySameBiomeEntity.Coordinates.Y = 0;
+            nearbySameBiomeEntity.Coordinates.Z = 0;
 
             repositoryMock
                 .Setup(repository => repository.GetAll())
@@ -160,7 +160,7 @@ namespace NuciCraft.API.UnitTests.Service
             AddRtpLocationRequest request = BuildAddRtpLocationRequest();
             request.Biome = "Forest";
             request.X = 0;
-            request.Y = 0;
+            request.Z = 0;
 
             Assert.That(
                 () => rtpLocationService.AddRtpLocation(request),
@@ -181,6 +181,31 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(
                 () => rtpLocationService.AddRtpLocation(BuildAddRtpLocationRequest()),
                 Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void GivenAnIdenticalXAndZButDifferentWorld_WhenAddingAnRtpLocation_ThenTheLocationIsAccepted()
+        {
+            RtpLocationEntity existingLocationInOtherWorld = BuildRtpLocationEntity();
+            existingLocationInOtherWorld.Coordinates.World = "world_nether";
+            existingLocationInOtherWorld.Coordinates.X = 10000;
+            existingLocationInOtherWorld.Coordinates.Z = 613;
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([existingLocationInOtherWorld]);
+
+            AddRtpLocationRequest request = BuildAddRtpLocationRequest();
+            request.World = "world";
+            request.X = 10000;
+            request.Z = 613;
+
+            Assert.That(
+                () => rtpLocationService.AddRtpLocation(request),
+                Throws.Nothing);
+
+            repositoryMock.Verify(repository => repository.Add(It.IsAny<RtpLocationEntity>()), Times.Once);
+            repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
         }
 
         // ── GetRtpLocation ────────────────────────────────────────────────────
