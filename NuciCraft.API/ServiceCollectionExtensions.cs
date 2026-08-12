@@ -61,7 +61,6 @@ namespace NuciCraft.API
                     serviceProvider
                         .GetRequiredService<UniversalNameGeneratorSettings>()
                         .BaseUrl))
-            .AddSingleton<IGameEventService, GameEventService>()
             .AddSingleton<IMobService, MobService>()
             .AddSingleton<IPlayerService, PlayerService>()
             .AddSingleton<IRtpLocationService, RtpLocationService>()
