@@ -48,7 +48,7 @@ namespace NuciCraft.API.Controllers
         [Route("{countryIdentifier}")]
         public ActionResult PatchByIdentifier(
             string countryIdentifier,
-            [FromBody] UpdateCountryRequest request)
+            [FromBody] PatchCountryRequest request)
         {
             request.CountryIdentifier = countryIdentifier;
 

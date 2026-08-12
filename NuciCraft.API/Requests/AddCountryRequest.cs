@@ -5,12 +5,14 @@ using NuciAPI.Requests;
 using NuciSecurity.HMAC;
 
 using NuciCraft.API.DataAccess.DataObjects;
+using System.Text.Json.Serialization;
 
 namespace NuciCraft.API.Requests
 {
     public class AddCountryRequest : NuciApiRequest
     {
         [HmacOrder(1)]
+        [JsonPropertyName("id")]
         [Required]
         public string Identifier { get; set; }
 
