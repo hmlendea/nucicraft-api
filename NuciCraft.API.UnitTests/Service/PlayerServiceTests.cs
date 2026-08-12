@@ -270,7 +270,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             UpdatePlayerRequest request = new()
             {
-                Identifier = "IlarionPintilie",
+                PlayerIdentifier = "IlarionPintilie",
                 Username = "NewUsername",
                 OnlineUUID = "11111111-0000-0000-0000-000000000000",
                 Password = "NewPass",
@@ -352,7 +352,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
                 .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
-            playerService.Update(new UpdatePlayerRequest { Identifier = "IlarionPintilie" });
+            playerService.Update(new UpdatePlayerRequest { PlayerIdentifier = "IlarionPintilie" });
 
             Assert.That(capturedEntity.Username, Is.EqualTo(original.Username));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo(original.OnlineUUID));
@@ -394,7 +394,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             playerService.Update(new UpdatePlayerRequest
             {
-                Identifier = "IlarionPintilie",
+                PlayerIdentifier = "IlarionPintilie",
                 LastDeathLocation = new() { Y = 64.0f }
             });
 
@@ -423,7 +423,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             playerService.Update(new UpdatePlayerRequest
             {
-                Identifier = "IlarionPintilie",
+                PlayerIdentifier = "IlarionPintilie",
                 Settings = new()
                 {
                     KeepInventoryIsEnabled = false,
@@ -463,7 +463,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             playerService.Update(new UpdatePlayerRequest
             {
-                Identifier = "IlarionPintilie",
+                PlayerIdentifier = "IlarionPintilie",
                 LastDeathLocation = new() { World = "world_the_end", X = 0f, Y = 64f, Z = 0f }
             });
 
@@ -489,7 +489,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             playerService.Update(new UpdatePlayerRequest
             {
-                Identifier = "IlarionPintilie",
+                PlayerIdentifier = "IlarionPintilie",
                 BackLocation = new() { World = "world_the_end", X = 0f, Y = 64f, Z = 0f, Pitch = 11f, Yaw = 12f }
             });
 
@@ -514,7 +514,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
             DateTimeOffset callTime = DateTimeOffset.UtcNow;
-            playerService.Update(new UpdatePlayerRequest { Identifier = "IlarionPintilie" });
+            playerService.Update(new UpdatePlayerRequest { PlayerIdentifier = "IlarionPintilie" });
 
             Assert.That(capturedEntity.UpdatedDT, Is.Not.Null);
             Assert.That(DateTimeOffset.Parse(capturedEntity.UpdatedDT), Is.GreaterThanOrEqualTo(callTime));
@@ -527,7 +527,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.GetAll())
                 .Returns([BuildPlayerDataObject()]);
 
-            playerService.Update(new UpdatePlayerRequest { Identifier = "IlarionPintilie" });
+            playerService.Update(new UpdatePlayerRequest { PlayerIdentifier = "IlarionPintilie" });
 
             repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
         }
@@ -540,7 +540,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Throws<InvalidOperationException>();
 
             Assert.That(
-                () => playerService.Update(new UpdatePlayerRequest { Identifier = "NonExistentPlayer" }),
+                () => playerService.Update(new UpdatePlayerRequest { PlayerIdentifier = "NonExistentPlayer" }),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
@@ -558,7 +558,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
                 .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
-            playerService.Patch(new PatchPlayerRequest
+            playerService.Update(new UpdatePlayerRequest
             {
                 PlayerUsername = "IlarionPintilie",
                 Password = "NucilandiaPass2"
@@ -582,7 +582,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
                 .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
-            playerService.Patch(new PatchPlayerRequest
+            playerService.Update(new UpdatePlayerRequest
             {
                 PlayerOfflineUUID = "61300000-0000-3000-8000-000000000000",
                 IpAddress = "10.8.0.42"
@@ -606,7 +606,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
                 .Callback<PlayerDataObject>(entity => capturedEntity = entity);
 
-            playerService.Patch(new PatchPlayerRequest
+            playerService.Update(new UpdatePlayerRequest
             {
                 PlayerOnlineUUID = "87300000-0000-0000-0000-000000000000",
                 EmailAddress = "solaire@astora.com"
@@ -620,7 +620,7 @@ namespace NuciCraft.API.UnitTests.Service
         public void GivenMultipleSelectors_WhenPatchingAPlayer_ThenAnArgumentExceptionIsThrown()
         {
             Assert.That(
-                () => playerService.Patch(new PatchPlayerRequest
+                () => playerService.Update(new UpdatePlayerRequest
                 {
                     PlayerIdentifier = "IlarionPintilie",
                     PlayerUsername = "IlarionPintilie"
@@ -632,7 +632,7 @@ namespace NuciCraft.API.UnitTests.Service
         public void GivenNoSelectors_WhenPatchingAPlayer_ThenAnArgumentExceptionIsThrown()
         {
             Assert.That(
-                () => playerService.Patch(new PatchPlayerRequest { Username = "NewUsername" }),
+                () => playerService.Update(new UpdatePlayerRequest { Username = "NewUsername" }),
                 Throws.TypeOf<ArgumentException>());
         }
 
@@ -644,7 +644,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Returns([]);
 
             Assert.That(
-                () => playerService.Patch(new PatchPlayerRequest { PlayerIdentifier = "non-existent-player" }),
+                () => playerService.Update(new UpdatePlayerRequest { PlayerIdentifier = "non-existent-player" }),
                 Throws.TypeOf<KeyNotFoundException>());
         }
 

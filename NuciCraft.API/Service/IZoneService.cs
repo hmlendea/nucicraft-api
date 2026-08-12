@@ -15,7 +15,5 @@ namespace NuciCraft.API.Service
         IEnumerable<Zone> GetAllZones();
 
         void Update(UpdateZoneRequest request);
-
-        void Patch(PatchZoneRequest request);
     }
 }

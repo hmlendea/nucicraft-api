@@ -37,13 +37,13 @@ namespace NuciCraft.API.Controllers
         [Route("{playerIdentifier}")]
         public ActionResult PatchByIdentifier(
             string playerIdentifier,
-            [FromBody] PatchPlayerRequest request)
+            [FromBody] UpdatePlayerRequest request)
         {
             request.PlayerIdentifier = playerIdentifier;
 
             return ProcessRequest(
                 request,
-                () => service.Patch(request),
+                () => service.Update(request),
                 authorisation);
         }
 
@@ -51,13 +51,13 @@ namespace NuciCraft.API.Controllers
         [Route("by-username/{username}")]
         public ActionResult PatchByUsername(
             string username,
-            [FromBody] PatchPlayerRequest request)
+            [FromBody] UpdatePlayerRequest request)
         {
             request.PlayerUsername = username;
 
             return ProcessRequest(
                 request,
-                () => service.Patch(request),
+                () => service.Update(request),
                 authorisation);
         }
 
@@ -65,13 +65,13 @@ namespace NuciCraft.API.Controllers
         [Route("by-offline-uuid/{offlineUUID}")]
         public ActionResult PatchByOfflineUuid(
             string offlineUUID,
-            [FromBody] PatchPlayerRequest request)
+            [FromBody] UpdatePlayerRequest request)
         {
             request.PlayerOfflineUUID = offlineUUID;
 
             return ProcessRequest(
                 request,
-                () => service.Patch(request),
+                () => service.Update(request),
                 authorisation);
         }
 
@@ -79,22 +79,14 @@ namespace NuciCraft.API.Controllers
         [Route("by-online-uuid/{onlineUUID}")]
         public ActionResult PatchByOnlineUuid(
             string onlineUUID,
-            [FromBody] PatchPlayerRequest request)
+            [FromBody] UpdatePlayerRequest request)
         {
             request.PlayerOnlineUUID = onlineUUID;
 
             return ProcessRequest(
                 request,
-                () => service.Patch(request),
-                authorisation);
-        }
-
-        [HttpPut]
-        public ActionResult Update(
-            [FromBody] UpdatePlayerRequest request)
-            => ProcessRequest(
-                request,
                 () => service.Update(request),
                 authorisation);
+        }
     }
 }

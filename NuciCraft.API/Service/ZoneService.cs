@@ -144,27 +144,6 @@ namespace NuciCraft.API.Service
         }
 
         public void Update(UpdateZoneRequest request)
-            => Patch(new PatchZoneRequest
-            {
-                ZoneIdentifier = request.Identifier,
-                Name = request.Name,
-                Nickname = request.Nickname,
-                Level = request.Level,
-                County = request.County,
-                Region = request.Region,
-                Country = request.Country,
-                CreationDate = request.CreationDate,
-                Owners = request.Owners,
-                Creators = request.Creators,
-                Leaders = request.Leaders,
-                TeleportationPoint = request.TeleportationPoint,
-                LeaderTitle = request.LeaderTitle,
-                Population = request.Population,
-                MapLink = request.MapLink,
-                WikiUrl = request.WikiUrl
-            });
-
-        public void Patch(PatchZoneRequest request)
         {
             IEnumerable<LogInfo> logInfos =
             [
@@ -206,7 +185,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private static void ValidatePatchSelector(PatchZoneRequest request)
+        private static void ValidatePatchSelector(UpdateZoneRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.ZoneIdentifier))
             {
@@ -215,7 +194,7 @@ namespace NuciCraft.API.Service
         }
 
         private static void ApplyPatchValues(
-            PatchZoneRequest request,
+            UpdateZoneRequest request,
             ZoneDataObject zoneDataObject)
         {
             if (request.Name is not null)
