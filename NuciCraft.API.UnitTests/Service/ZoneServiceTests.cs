@@ -133,7 +133,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             UpdateZoneRequest request = new()
             {
-                Identifier = "flusseland_mall_shop_9",
+                ZoneIdentifier = "flusseland_mall_shop_9",
                 CreationDate = "2026-08-09",
                 TeleportationPoint = new()
                 {
@@ -177,7 +177,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             UpdateZoneRequest request = new()
             {
-                Identifier = "flusseland_mall_shop_9",
+                ZoneIdentifier = "flusseland_mall_shop_9",
                 Name = new() { English = "Flusseland Shop 9" },
                 Nickname = new() { English = "Shop Nine" },
                 Level = "district",
@@ -242,7 +242,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             zoneService.Update(new UpdateZoneRequest
             {
-                Identifier = "flusseland_mall_shop_9",
+                ZoneIdentifier = "flusseland_mall_shop_9",
                 Population = 0
             });
 
@@ -265,7 +265,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             zoneService.Update(new UpdateZoneRequest
             {
-                Identifier = "flusseland_mall_shop_9"
+                ZoneIdentifier = "flusseland_mall_shop_9"
             });
 
             Assert.That(capturedEntity.Name, Is.EqualTo(original.Name));
@@ -300,7 +300,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             zoneService.Update(new UpdateZoneRequest
             {
-                Identifier = "flusseland_mall_shop_9",
+                ZoneIdentifier = "flusseland_mall_shop_9",
                 Name = new LocalisedStringDataObject
                 {
                     Romanian = "123"
@@ -326,7 +326,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Callback<ZoneDataObject>(entity => capturedEntity = entity);
 
             DateTimeOffset callTime = DateTimeOffset.UtcNow;
-            zoneService.Update(new UpdateZoneRequest { Identifier = "flusseland_mall_shop_9" });
+            zoneService.Update(new UpdateZoneRequest { ZoneIdentifier = "flusseland_mall_shop_9" });
 
             Assert.That(capturedEntity.UpdatedDT, Is.Not.Null);
             Assert.That(DateTimeOffset.Parse(capturedEntity.UpdatedDT), Is.GreaterThanOrEqualTo(callTime));
@@ -339,7 +339,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.Get("flusseland_mall_shop_9"))
                 .Returns(BuildZoneDataObject());
 
-            zoneService.Update(new UpdateZoneRequest { Identifier = "flusseland_mall_shop_9" });
+            zoneService.Update(new UpdateZoneRequest { ZoneIdentifier = "flusseland_mall_shop_9" });
 
             repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
         }
@@ -352,8 +352,79 @@ namespace NuciCraft.API.UnitTests.Service
                 .Throws<InvalidOperationException>();
 
             Assert.That(
-                () => zoneService.Update(new UpdateZoneRequest { Identifier = "flusseland_mall_shop_9" }),
+                () => zoneService.Update(new UpdateZoneRequest { ZoneIdentifier = "flusseland_mall_shop_9" }),
                 Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void GivenAnIdentifierSelector_WhenPatchingAZone_ThenTheZoneIsUpdated()
+        {
+            ZoneDataObject capturedEntity = null;
+            ZoneDataObject original = BuildZoneDataObject();
+
+            repositoryMock
+            .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+            .Returns(original);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            zoneService.Update(new UpdateZoneRequest
+            {
+                ZoneIdentifier = "flusseland_mall_shop_9",
+                Population = 4096
+            });
+
+            Assert.That(capturedEntity, Is.Not.Null);
+            Assert.That(capturedEntity.Population, Is.EqualTo(4096));
+        }
+
+        [Test]
+        public void GivenAnIdentifierSelector_WhenPatchingAZone_ThenAnotherFieldCanBeUpdated()
+        {
+            ZoneDataObject capturedEntity = null;
+            ZoneDataObject original = BuildZoneDataObject();
+
+            repositoryMock
+            .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+            .Returns(original);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            zoneService.Update(new UpdateZoneRequest
+            {
+                ZoneIdentifier = "flusseland_mall_shop_9",
+                Country = "Nucilandia"
+            });
+
+            Assert.That(capturedEntity, Is.Not.Null);
+            Assert.That(capturedEntity.Country, Is.EqualTo("Nucilandia"));
+        }
+
+        [Test]
+        public void GivenNoIdentifier_WhenPatchingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            Assert.That(
+                () => zoneService.Update(new UpdateZoneRequest
+                {
+                    Country = "Nucilandia"
+                }),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenANonExistentIdentifier_WhenPatchingAZone_ThenAKeyNotFoundExceptionIsThrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.Get("non-existent-zone"))
+                .Throws<KeyNotFoundException>();
+
+            Assert.That(
+                () => zoneService.Update(new UpdateZoneRequest { ZoneIdentifier = "non-existent-zone" }),
+                Throws.TypeOf<KeyNotFoundException>());
         }
 
         private static ZoneDataObject BuildZoneDataObject() => new()

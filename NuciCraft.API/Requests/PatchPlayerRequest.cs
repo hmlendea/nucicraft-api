@@ -6,7 +6,7 @@ using NuciCraft.API.DataAccess.DataObjects;
 
 namespace NuciCraft.API.Requests
 {
-    public class PatchPlayerRequest : NuciApiRequest
+    public class UpdatePlayerRequest : NuciApiRequest
     {
         [HmacOrder(1)]
         public string PlayerIdentifier { get; set; }

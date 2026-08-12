@@ -147,7 +147,7 @@ namespace NuciCraft.API.Service
         {
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.ZoneIdentifier, request.Identifier)
+                new(MyLogInfoKey.ZoneIdentifier, request.ZoneIdentifier)
             ];
 
             logger.Info(
@@ -157,88 +157,11 @@ namespace NuciCraft.API.Service
 
             try
             {
-                ZoneDataObject zoneDataObject = repository.Get(request.Identifier);
+                ValidatePatchSelector(request);
 
-                if (request.Name is not null)
-                {
-                    zoneDataObject.Name = MergeLocalisedStringDataObject(
-                        zoneDataObject.Name,
-                        request.Name);
-                }
+                ZoneDataObject zoneDataObject = repository.Get(request.ZoneIdentifier);
 
-                if (request.Nickname is not null)
-                {
-                    zoneDataObject.Nickname = MergeLocalisedStringDataObject(
-                        zoneDataObject.Nickname,
-                        request.Nickname);
-                }
-
-                if (request.Level is not null)
-                {
-                    zoneDataObject.Level = request.Level;
-                }
-
-                if (request.County is not null)
-                {
-                    zoneDataObject.County = request.County;
-                }
-
-                if (request.Region is not null)
-                {
-                    zoneDataObject.Region = request.Region;
-                }
-
-                if (request.Country is not null)
-                {
-                    zoneDataObject.Country = request.Country;
-                }
-
-                if (request.CreationDate is not null)
-                {
-                    zoneDataObject.CreationDate = request.CreationDate;
-                }
-
-                if (request.Owners is not null)
-                {
-                    zoneDataObject.Owners = request.Owners;
-                }
-
-                if (request.Creators is not null)
-                {
-                    zoneDataObject.Creators = request.Creators;
-                }
-
-                if (request.Leaders is not null)
-                {
-                    zoneDataObject.Leaders = request.Leaders;
-                }
-
-                if (request.TeleportationPoint is not null)
-                {
-                    zoneDataObject.TeleportationPoint = request.TeleportationPoint;
-                }
-
-                if (request.LeaderTitle is not null)
-                {
-                    zoneDataObject.LeaderTitle = MergeLocalisedStringDataObject(
-                        zoneDataObject.LeaderTitle,
-                        request.LeaderTitle);
-                }
-
-                if (request.Population is not null)
-                {
-                    zoneDataObject.Population = request.Population.Value;
-                }
-
-                if (request.MapLink is not null)
-                {
-                    zoneDataObject.MapLink = request.MapLink;
-                }
-
-                if (request.WikiUrl is not null)
-                {
-                    zoneDataObject.WikiUrl = request.WikiUrl;
-                }
+                ApplyPatchValues(request, zoneDataObject);
 
                 zoneDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK");
 
@@ -259,6 +182,100 @@ namespace NuciCraft.API.Service
                     logInfos);
 
                 throw;
+            }
+        }
+
+        private static void ValidatePatchSelector(UpdateZoneRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.ZoneIdentifier))
+            {
+                throw new ArgumentException("Zone identifier must be provided.");
+            }
+        }
+
+        private static void ApplyPatchValues(
+            UpdateZoneRequest request,
+            ZoneDataObject zoneDataObject)
+        {
+            if (request.Name is not null)
+            {
+                zoneDataObject.Name = MergeLocalisedStringDataObject(
+                    zoneDataObject.Name,
+                    request.Name);
+            }
+
+            if (request.Nickname is not null)
+            {
+                zoneDataObject.Nickname = MergeLocalisedStringDataObject(
+                    zoneDataObject.Nickname,
+                    request.Nickname);
+            }
+
+            if (request.Level is not null)
+            {
+                zoneDataObject.Level = request.Level;
+            }
+
+            if (request.County is not null)
+            {
+                zoneDataObject.County = request.County;
+            }
+
+            if (request.Region is not null)
+            {
+                zoneDataObject.Region = request.Region;
+            }
+
+            if (request.Country is not null)
+            {
+                zoneDataObject.Country = request.Country;
+            }
+
+            if (request.CreationDate is not null)
+            {
+                zoneDataObject.CreationDate = request.CreationDate;
+            }
+
+            if (request.Owners is not null)
+            {
+                zoneDataObject.Owners = request.Owners;
+            }
+
+            if (request.Creators is not null)
+            {
+                zoneDataObject.Creators = request.Creators;
+            }
+
+            if (request.Leaders is not null)
+            {
+                zoneDataObject.Leaders = request.Leaders;
+            }
+
+            if (request.TeleportationPoint is not null)
+            {
+                zoneDataObject.TeleportationPoint = request.TeleportationPoint;
+            }
+
+            if (request.LeaderTitle is not null)
+            {
+                zoneDataObject.LeaderTitle = MergeLocalisedStringDataObject(
+                    zoneDataObject.LeaderTitle,
+                    request.LeaderTitle);
+            }
+
+            if (request.Population is not null)
+            {
+                zoneDataObject.Population = request.Population.Value;
+            }
+
+            if (request.MapLink is not null)
+            {
+                zoneDataObject.MapLink = request.MapLink;
+            }
+
+            if (request.WikiUrl is not null)
+            {
+                zoneDataObject.WikiUrl = request.WikiUrl;
             }
         }
 

@@ -44,13 +44,13 @@ namespace NuciCraft.API.Controllers
                 () => new GetResponse(service.GetAllZones()),
                 authorisation);
 
-        [HttpPut]
+        [HttpPatch]
         [Route("{zoneIdentifier}")]
-        public ActionResult Update(
+        public ActionResult PatchByIdentifier(
             string zoneIdentifier,
             [FromBody] UpdateZoneRequest request)
         {
-            request.Identifier = zoneIdentifier;
+            request.ZoneIdentifier = zoneIdentifier;
 
             return ProcessRequest(
                 request,

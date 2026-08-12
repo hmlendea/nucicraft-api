@@ -13,7 +13,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 - [Usage](#usage)
   - [Register a Player](#register-a-player)
   - [Get a Player](#get-a-player)
-  - [Update a Player](#update-a-player)
+	- [Patch a Player](#patch-a-player)
   - [Add an RTP Location](#add-an-rtp-location)
   - [Get a Random RTP Location](#get-a-random-rtp-location)
   - [Get a Random Mob Name](#get-a-random-mob-name)
@@ -72,13 +72,12 @@ curl -X POST "http://localhost:5000/Players" \
 curl "http://localhost:5000/Players?username=PlayerName"
 ```
 
-### Update a Player
+### Patch a Player
 
 ```bash
-curl -X PUT "http://localhost:5000/Players" \
+curl -X PATCH "http://localhost:5000/Players/by-username/PlayerName" \
 	-H "Content-Type: application/json" \
 	-d '{
-		"identifier": "1f74d4aa-c7c1-467a-95ba-671a0cf08ce3",
 		"emailAddress": "player@example.com",
 		"discordId": "1234567890"
 	}'
@@ -131,7 +130,7 @@ curl "http://localhost:5000/Zones"
 ```
 
 ```bash
-curl -X PUT "http://localhost:5000/Zones/spawn-city" \
+curl -X PATCH "http://localhost:5000/Zones/spawn-city" \
 	-H "Content-Type: application/json" \
 	-d '{
 		"population": 121

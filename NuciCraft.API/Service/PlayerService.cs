@@ -125,24 +125,6 @@ namespace NuciCraft.API.Service
         }
 
         public void Update(UpdatePlayerRequest request)
-            => Patch(new PatchPlayerRequest
-            {
-                PlayerIdentifier = request.Identifier,
-                Username = request.Username,
-                OnlineUUID = request.OnlineUUID,
-                Password = request.Password,
-                IpAddress = request.IpAddress,
-                DiscordId = request.DiscordId,
-                EmailAddress = request.EmailAddress,
-                LastSleptDT = request.LastSleptDT,
-                LastDeathDT = request.LastDeathDT,
-                LastDeathLocation = request.LastDeathLocation,
-                BackLocation = request.BackLocation,
-                LogoutLocation = request.LogoutLocation,
-                Settings = request.Settings
-            });
-
-        public void Patch(PatchPlayerRequest request)
         {
             IEnumerable<LogInfo> logInfos =
             [
@@ -187,7 +169,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private static void ValidatePatchSelectors(PatchPlayerRequest request)
+        private static void ValidatePatchSelectors(UpdatePlayerRequest request)
         {
             int selectorCount = 0;
 
@@ -217,7 +199,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private PlayerDataObject FindPlayerToPatch(PatchPlayerRequest request)
+        private PlayerDataObject FindPlayerToPatch(UpdatePlayerRequest request)
         {
             GetPlayerRequest getPlayerRequest = new()
             {
@@ -238,7 +220,7 @@ namespace NuciCraft.API.Service
         }
 
         private static void ApplyPatchValues(
-            PatchPlayerRequest request,
+            UpdatePlayerRequest request,
             PlayerDataObject playerDataObject)
         {
             if (request.Username is not null)
