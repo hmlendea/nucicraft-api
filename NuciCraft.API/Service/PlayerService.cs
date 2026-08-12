@@ -166,9 +166,9 @@ namespace NuciCraft.API.Service
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.PlayerID, request.Identifier),
-                new(MyLogInfoKey.Username, request.PlayerUsername),
-                new(MyLogInfoKey.OfflineUUID, request.PlayerOfflineUUID),
-                new(MyLogInfoKey.OnlineUUID, request.PlayerOnlineUUID)
+                new(MyLogInfoKey.Username, request.Username),
+                new(MyLogInfoKey.OfflineUUID, request.OfflineUUID),
+                new(MyLogInfoKey.OnlineUUID, request.OnlineUUID)
             ];
 
             logger.Info(
@@ -213,9 +213,9 @@ namespace NuciCraft.API.Service
             string[] selectors =
             [
                 request.Identifier,
-                request.PlayerUsername,
-                request.PlayerOfflineUUID,
-                request.PlayerOnlineUUID
+                request.Username,
+                request.OfflineUUID,
+                request.OnlineUUID
             ];
 
             int providedSelectorCount = selectors
@@ -242,9 +242,9 @@ namespace NuciCraft.API.Service
         {
             Func<PlayerDataObject, bool> matchesRequest = BuildPlayerDataObjectMatcher(
                 request.Identifier,
-                request.PlayerUsername,
-                request.PlayerOfflineUUID,
-                request.PlayerOnlineUUID);
+                request.Username,
+                request.OfflineUUID,
+                request.OnlineUUID);
 
             return repository
                 .GetAll()
