@@ -54,7 +54,7 @@ namespace NuciCraft.API.Controllers
             string playerIdentifier,
             [FromBody] PatchPlayerRequest request)
         {
-            request.PlayerIdentifier = playerIdentifier;
+            request.Identifier = playerIdentifier;
 
             return ProcessRequest(
                 request,
@@ -68,7 +68,7 @@ namespace NuciCraft.API.Controllers
             string username,
             [FromBody] PatchPlayerRequest request)
         {
-            request.PlayerUsername = username;
+            request.Username = username;
 
             return ProcessRequest(
                 request,
@@ -82,7 +82,7 @@ namespace NuciCraft.API.Controllers
             string offlineUUID,
             [FromBody] PatchPlayerRequest request)
         {
-            request.PlayerOfflineUUID = offlineUUID;
+            request.OfflineUUID = offlineUUID;
 
             return ProcessRequest(
                 request,
@@ -96,7 +96,7 @@ namespace NuciCraft.API.Controllers
             string onlineUUID,
             [FromBody] PatchPlayerRequest request)
         {
-            request.PlayerOnlineUUID = onlineUUID;
+            request.OnlineUUID = onlineUUID;
 
             return ProcessRequest(
                 request,

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 using NuciAPI.Requests;
 
@@ -11,7 +12,8 @@ namespace NuciCraft.API.Requests
     public class PatchZoneRequest : NuciApiRequest
     {
         [HmacOrder(1)]
-        public string ZoneIdentifier { get; set; }
+        [JsonPropertyName("id")]
+        public string Identifier { get; set; }
 
         [HmacOrder(2)]
         public LocalisedStringDataObject Name { get; set; }

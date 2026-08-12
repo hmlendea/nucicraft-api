@@ -283,7 +283,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             PatchZoneRequest request = new()
             {
-                ZoneIdentifier = "flusseland_mall_shop_9",
+                Identifier = "flusseland_mall_shop_9",
                 CreationDate = "2026-08-09",
                 TeleportationPoint = new()
                 {
@@ -327,7 +327,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             PatchZoneRequest request = new()
             {
-                ZoneIdentifier = "flusseland_mall_shop_9",
+                Identifier = "flusseland_mall_shop_9",
                 Name = new() { English = "Flusseland Shop 9" },
                 Nickname = new() { English = "Shop Nine" },
                 Level = "district",
@@ -392,7 +392,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             zoneService.Update(new PatchZoneRequest
             {
-                ZoneIdentifier = "flusseland_mall_shop_9",
+                Identifier = "flusseland_mall_shop_9",
                 Population = 0
             });
 
@@ -415,7 +415,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             zoneService.Update(new PatchZoneRequest
             {
-                ZoneIdentifier = "flusseland_mall_shop_9"
+                Identifier = "flusseland_mall_shop_9"
             });
 
             Assert.That(capturedEntity.Name, Is.EqualTo(original.Name));
@@ -450,7 +450,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             zoneService.Update(new PatchZoneRequest
             {
-                ZoneIdentifier = "flusseland_mall_shop_9",
+                Identifier = "flusseland_mall_shop_9",
                 Name = new LocalisedStringDataObject
                 {
                     Romanian = "123"
@@ -476,7 +476,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Callback<ZoneDataObject>(entity => capturedEntity = entity);
 
             DateTimeOffset callTime = DateTimeOffset.UtcNow;
-            zoneService.Update(new PatchZoneRequest { ZoneIdentifier = "flusseland_mall_shop_9" });
+            zoneService.Update(new PatchZoneRequest { Identifier = "flusseland_mall_shop_9" });
 
             Assert.That(capturedEntity.UpdatedDT, Is.Not.Null);
             Assert.That(DateTimeOffset.Parse(capturedEntity.UpdatedDT), Is.GreaterThanOrEqualTo(callTime));
@@ -489,7 +489,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.Get("flusseland_mall_shop_9"))
                 .Returns(BuildZoneDataObject());
 
-            zoneService.Update(new PatchZoneRequest { ZoneIdentifier = "flusseland_mall_shop_9" });
+            zoneService.Update(new PatchZoneRequest { Identifier = "flusseland_mall_shop_9" });
 
             repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
         }
@@ -502,7 +502,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Throws<InvalidOperationException>();
 
             Assert.That(
-                () => zoneService.Update(new PatchZoneRequest { ZoneIdentifier = "flusseland_mall_shop_9" }),
+                () => zoneService.Update(new PatchZoneRequest { Identifier = "flusseland_mall_shop_9" }),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
@@ -522,7 +522,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             zoneService.Update(new PatchZoneRequest
             {
-                ZoneIdentifier = "flusseland_mall_shop_9",
+                Identifier = "flusseland_mall_shop_9",
                 Population = 4096
             });
 
@@ -546,7 +546,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             zoneService.Update(new PatchZoneRequest
             {
-                ZoneIdentifier = "flusseland_mall_shop_9",
+                Identifier = "flusseland_mall_shop_9",
                 Country = "Nucilandia"
             });
 
@@ -573,7 +573,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Throws<KeyNotFoundException>();
 
             Assert.That(
-                () => zoneService.Update(new PatchZoneRequest { ZoneIdentifier = "non-existent-zone" }),
+                () => zoneService.Update(new PatchZoneRequest { Identifier = "non-existent-zone" }),
                 Throws.TypeOf<KeyNotFoundException>());
         }
 

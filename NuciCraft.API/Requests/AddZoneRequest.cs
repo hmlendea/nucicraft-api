@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 using NuciAPI.Requests;
 
@@ -11,8 +12,9 @@ namespace NuciCraft.API.Requests
 {
     public class AddZoneRequest : NuciApiRequest
     {
-        [HmacOrder(1)]
         [Required]
+        [HmacOrder(1)]
+        [JsonPropertyName("id")]
         public string Identifier { get; set; }
 
         [HmacOrder(2)]

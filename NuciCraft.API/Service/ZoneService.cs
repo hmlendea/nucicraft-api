@@ -157,7 +157,7 @@ namespace NuciCraft.API.Service
 
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.Identifier, request.ZoneIdentifier)
+                new(MyLogInfoKey.Identifier, request.Identifier)
             ];
 
             logger.Info(
@@ -169,7 +169,7 @@ namespace NuciCraft.API.Service
             {
                 ValidatePatchSelector(request);
 
-                ZoneDataObject zoneDataObject = repository.Get(request.ZoneIdentifier);
+                ZoneDataObject zoneDataObject = repository.Get(request.Identifier);
 
                 ApplyPatchValues(request, zoneDataObject);
 
@@ -199,7 +199,7 @@ namespace NuciCraft.API.Service
 
         private static void ValidatePatchSelector(PatchZoneRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.ZoneIdentifier))
+            if (string.IsNullOrWhiteSpace(request.Identifier))
             {
                 throw new ArgumentException("Zone identifier must be provided.");
             }

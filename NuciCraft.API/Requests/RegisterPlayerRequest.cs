@@ -8,8 +8,8 @@ namespace NuciCraft.API.Requests
 {
     public class RegisterPlayerRequest : NuciApiRequest
     {
-        [HmacOrder(1)]
         [Required]
+        [HmacOrder(1)]
         public string Username { get; set; }
 
         [HmacOrder(2)]

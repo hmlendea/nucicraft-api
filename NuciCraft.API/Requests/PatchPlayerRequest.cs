@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using NuciAPI.Requests;
 
 using NuciSecurity.HMAC;
@@ -9,16 +11,17 @@ namespace NuciCraft.API.Requests
     public class PatchPlayerRequest : NuciApiRequest
     {
         [HmacOrder(1)]
-        public string PlayerIdentifier { get; set; }
+        [JsonPropertyName("id")]
+        public string Identifier { get; set; }
 
         [HmacOrder(2)]
-        public string PlayerUsername { get; set; }
+        public string Username { get; set; }
 
         [HmacOrder(3)]
-        public string PlayerOfflineUUID { get; set; }
+        public string OfflineUUID { get; set; }
 
         [HmacOrder(4)]
-        public string PlayerOnlineUUID { get; set; }
+        public string OnlineUUID { get; set; }
 
         [HmacOrder(5)]
         public string Password { get; set; }

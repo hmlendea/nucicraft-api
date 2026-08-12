@@ -165,10 +165,10 @@ namespace NuciCraft.API.Service
 
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.PlayerID, request.PlayerIdentifier),
-                new(MyLogInfoKey.Username, request.PlayerUsername),
-                new(MyLogInfoKey.OfflineUUID, request.PlayerOfflineUUID),
-                new(MyLogInfoKey.OnlineUUID, request.PlayerOnlineUUID)
+                new(MyLogInfoKey.PlayerID, request.Identifier),
+                new(MyLogInfoKey.Username, request.Username),
+                new(MyLogInfoKey.OfflineUUID, request.OfflineUUID),
+                new(MyLogInfoKey.OnlineUUID, request.OnlineUUID)
             ];
 
             logger.Info(
@@ -212,10 +212,10 @@ namespace NuciCraft.API.Service
         {
             string[] selectors =
             [
-                request.PlayerIdentifier,
-                request.PlayerUsername,
-                request.PlayerOfflineUUID,
-                request.PlayerOnlineUUID
+                request.Identifier,
+                request.Username,
+                request.OfflineUUID,
+                request.OnlineUUID
             ];
 
             int providedSelectorCount = selectors
@@ -241,10 +241,10 @@ namespace NuciCraft.API.Service
         private PlayerDataObject FindPlayerToPatch(PatchPlayerRequest request)
         {
             Func<PlayerDataObject, bool> matchesRequest = BuildPlayerDataObjectMatcher(
-                request.PlayerIdentifier,
-                request.PlayerUsername,
-                request.PlayerOfflineUUID,
-                request.PlayerOnlineUUID);
+                request.Identifier,
+                request.Username,
+                request.OfflineUUID,
+                request.OnlineUUID);
 
             return repository
                 .GetAll()
@@ -370,7 +370,7 @@ namespace NuciCraft.API.Service
         {
             if (request.CreatedDT is null)
             {
-                return DateTimeOffset.Now;
+                return DateTimeOffset.UtcNow;
             }
 
             if (DateTimeOffset.TryParseExact(

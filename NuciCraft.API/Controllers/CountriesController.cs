@@ -50,7 +50,7 @@ namespace NuciCraft.API.Controllers
             string countryIdentifier,
             [FromBody] PatchCountryRequest request)
         {
-            request.CountryIdentifier = countryIdentifier;
+            request.Identifier = countryIdentifier;
 
             return ProcessRequest(
                 request,
