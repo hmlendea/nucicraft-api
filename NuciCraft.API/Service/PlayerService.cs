@@ -124,6 +124,34 @@ namespace NuciCraft.API.Service
             }
         }
 
+        public IEnumerable<Player> GetAll()
+        {
+            logger.Info(
+                MyOperation.GetAllPlayers,
+                OperationStatus.Started);
+
+            try
+            {
+                IEnumerable<Player> players = repository.GetAll().ToDomainModels();
+
+                logger.Info(
+                    MyOperation.GetAllPlayers,
+                    OperationStatus.Success,
+                    new LogInfo(MyLogInfoKey.Count, players.Count()));
+
+                return players;
+            }
+            catch (Exception exception)
+            {
+                logger.Error(
+                    MyOperation.GetAllPlayers,
+                    OperationStatus.Failure,
+                    exception);
+
+                throw;
+            }
+        }
+
         public void Update(UpdatePlayerRequest request)
         {
             IEnumerable<LogInfo> logInfos =
