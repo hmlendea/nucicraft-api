@@ -15,6 +15,12 @@ namespace NuciCraft.API.Service.Models
                     string.Empty)
             },
             {
+                nameof(Cow),
+                new MobType(
+                    nameof(Cow),
+                    "cow")
+            },
+            {
                 nameof(EnderDragon),
                 new MobType(
                     nameof(EnderDragon),
@@ -37,6 +43,12 @@ namespace NuciCraft.API.Service.Models
                 new MobType(
                     nameof(Pillager),
                     "pillager")
+            },
+            {
+                nameof(Pig),
+                new MobType(
+                    nameof(Pig),
+                    "pig")
             },
             {
                 nameof(Villager),
@@ -72,6 +84,8 @@ namespace NuciCraft.API.Service.Models
 
         public static MobType Unsupported => values[nameof(Unsupported)];
 
+        public static MobType Cow => values[nameof(Cow)];
+
         public static MobType EnderDragon => values[nameof(EnderDragon)];
 
         public static MobType Evoker => values[nameof(Evoker)];
@@ -79,6 +93,8 @@ namespace NuciCraft.API.Service.Models
         public static MobType Illusioner => values[nameof(Illusioner)];
 
         public static MobType Pillager => values[nameof(Pillager)];
+
+        public static MobType Pig => values[nameof(Pig)];
 
         public static MobType WanderingTrader => values[nameof(WanderingTrader)];
 
