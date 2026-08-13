@@ -140,7 +140,8 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "solara_portal_hub",
                 Owners = ["Hori873"],
-                Creators = null
+                Creators = null,
+                Bounds = BuildZoneBoundsDataObject()
             };
 
             zoneService.Add(request);
@@ -161,7 +162,8 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "solara_portal_hub",
                 Owners = ["Hori873", "DummyUser"],
-                Creators = null
+                Creators = null,
+                Bounds = BuildZoneBoundsDataObject()
             };
 
             zoneService.Add(request);
@@ -182,7 +184,8 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "solara_portal_hub",
                 Owners = ["Hori873"],
-                Creators = ["DummyUser"]
+                Creators = ["DummyUser"],
+                Bounds = BuildZoneBoundsDataObject()
             };
 
             zoneService.Add(request);
@@ -204,7 +207,8 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
-                CreationDate = null
+                CreationDate = null,
+                Bounds = BuildZoneBoundsDataObject()
             };
 
             zoneService.Add(request);
@@ -242,7 +246,8 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
-                CreationDate = "  "
+                CreationDate = "  ",
+                Bounds = BuildZoneBoundsDataObject()
             };
 
             zoneService.Add(request);
@@ -271,7 +276,8 @@ namespace NuciCraft.API.UnitTests.Service
         {
             zoneService.Add(new AddZoneRequest
             {
-                Identifier = "solara_portal_hub"
+                Identifier = "solara_portal_hub",
+                Bounds = BuildZoneBoundsDataObject()
             });
 
             repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
@@ -285,7 +291,11 @@ namespace NuciCraft.API.UnitTests.Service
                 .Throws<InvalidOperationException>();
 
             Assert.That(
-                () => zoneService.Add(new AddZoneRequest { Identifier = "solara_portal_hub" }),
+                () => zoneService.Add(new AddZoneRequest
+                {
+                    Identifier = "solara_portal_hub",
+                    Bounds = BuildZoneBoundsDataObject()
+                }),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
@@ -295,6 +305,19 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(
                 () => zoneService.Add(null),
                 Throws.TypeOf<ArgumentNullException>());
+        }
+
+        [Test]
+        public void GivenRequestWithoutBounds_WhenAddingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub"
+            };
+
+            Assert.That(
+                () => zoneService.Add(request),
+                Throws.TypeOf<ArgumentException>());
         }
 
         [Test]
@@ -849,6 +872,24 @@ namespace NuciCraft.API.UnitTests.Service
             Population = 42,
             MapLink = "https://nucilandia.ro/map",
             WikiUrl = "https://nucilandia.ro/wiki"
+        };
+
+        private static ZoneBoundsDataObject BuildZoneBoundsDataObject() => new()
+        {
+            FirstCorner = new CoordinatesDataObject
+            {
+                World = "world",
+                X = 32,
+                Y = 48,
+                Z = 96,
+            },
+            SecondCorner = new CoordinatesDataObject
+            {
+                World = "world",
+                X = 96,
+                Y = 96,
+                Z = 192,
+            }
         };
 
         private static DateTimeOffset GetRomaniaNow()

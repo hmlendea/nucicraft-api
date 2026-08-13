@@ -26,7 +26,7 @@ namespace NuciCraft.API.Service
         {
             ArgumentNullException.ThrowIfNull(request);
 
-            ValidateBounds(request.Bounds);
+            ValidateBoundsForAdd(request.Bounds);
 
             IEnumerable<LogInfo> logInfos =
             [
@@ -377,6 +377,16 @@ namespace NuciCraft.API.Service
                 throw new ArgumentException(
                     $"Zone bounds must be in the same world. First corner world: '{bounds.FirstCorner.World}'. Second corner world: '{bounds.SecondCorner.World}'.");
             }
+        }
+
+        private static void ValidateBoundsForAdd(ZoneBoundsDataObject bounds)
+        {
+            if (bounds is null)
+            {
+                throw new ArgumentException("Zone bounds must be provided.");
+            }
+
+            ValidateBounds(bounds);
         }
 
         private static ZoneBoundsDataObject MergeBounds(
