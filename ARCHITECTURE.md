@@ -1,156 +1,320 @@
 # NuciCraft API Architecture
 
-Last verified: 13 August 2026
+This document records the verified current architecture of the NuciCraft API process, including its HTTP boundary, application services, persistence, external name-generation integration, and operational constraints. It is intended for contributors and operators evaluating the impact of a modification; it does not define a target architecture or duplicate endpoint usage guidance. Last verified: 13 August 2026.
 
-NuciCraft API is a .NET 10 ASP.NET Core modular monolith. It exposes Minecraft server operations through HTTP controllers, implements domain rules in application services, persists state through JSON-file repositories, and delegates mob-name generation to the Universal Name Generator API.
+## 📑 Table of Contents
 
-This document describes the implemented architecture. Endpoint examples and operator instructions remain in [README.md](./README.md), while vulnerability disclosure information remains in [SECURITY.md](./SECURITY.md).
+- [Table of Contents](#table-of-contents)
+- [Purpose](#purpose)
+- [System Context](#system-context)
+- [Architectural Style](#architectural-style)
+- [Runtime Flow](#runtime-flow)
+- [Components](#components)
+- [Architectural Areas](#architectural-areas)
+    - [Host Composition](#host-composition)
+    - [HTTP Boundary](#http-boundary)
+    - [Application Services](#application-services)
+    - [Persistence Boundary](#persistence-boundary)
+- [Data Architecture](#data-architecture)
+- [Interfaces and Integrations](#interfaces-and-integrations)
+- [Key Flows](#key-flows)
+    - [File-Backed Domain Request](#file-backed-domain-request)
+    - [Mob Name Generation](#mob-name-generation)
+- [Domain Invariants](#domain-invariants)
+    - [Zone Bounds](#zone-bounds)
+    - [RTP Location Proximity](#rtp-location-proximity)
+- [Cross-Cutting Concerns](#cross-cutting-concerns)
+    - [Security and Privacy](#security-and-privacy)
+    - [Error Handling](#error-handling)
+    - [Observability](#observability)
+    - [Configuration](#configuration)
+    - [Concurrency and Resource Use](#concurrency-and-resource-use)
+- [Dependency Direction and Rules](#dependency-direction-and-rules)
+- [External Dependencies](#external-dependencies)
+- [Deployment and Operations](#deployment-and-operations)
+- [Compatibility Contracts](#compatibility-contracts)
+- [Testing and Verification](#testing-and-verification)
+- [Design Constraints](#design-constraints)
+- [Extension Points](#extension-points)
+    - [Add a File-Backed Domain](#add-a-file-backed-domain)
+    - [Replace File Persistence](#replace-file-persistence)
+- [Source Map](#source-map)
+- [Related Documentation](#related-documentation)
 
-## Architectural Goals
+## 🎯 Purpose
 
-The current design prioritises:
-- A compact service that is economical to operate for one NuciCraft server
-- Explicit boundaries between transport contracts, application logic, and persisted records
-- Portable persistence without a separate database service
-- Consistent authorisation, logging, and error responses through the Nuci libraries
-- Focused unit testing of controllers, services, mappings, and host composition
+NuciCraft API provides authenticated HTTP operations for NuciCraft player registration, country and zone metadata, random-teleport locations, and mob-name generation. This document defines the process boundary, runtime ownership, dependency direction, persisted contracts, and material constraints that contributors must preserve. Recording these boundaries permits modifications to be assessed without requiring every contributor to reconstruct host composition and data flow from individual classes.
 
-The current design does not target horizontally scaled or high-concurrency deployment. JSON files, synchronous persistence, and process-local singleton repositories are deliberate constraints of the present implementation.
+## 🌐 System Context
 
-## System Context
+The system boundary is one `NuciCraft.API` ASP.NET Core process. Authorised API clients initiate requests, while deployment operators provide configuration, secrets, writable storage, and network access. The process owns its HTTP responses and JSON schemas, writes operational records through NuciLog, and contacts the Universal Name Generator only for mob-name requests.
 
 ```mermaid
 flowchart LR
-    Client["NuciCraft clients"] -->|"HTTPS and API key"| Host["NuciCraft API host"]
+        Client["Authorised API clients"] -->|"HTTPS requests and JSON responses"| Host
+        Operator["Deployment operator"] -->|"Configuration and secrets"| Host
 
-    subgraph Application["ASP.NET Core application"]
-        Pipeline["Cross-cutting middleware"] --> Controllers["HTTP controllers"]
-        Controllers --> Services["Application services"]
-        Services --> Repositories["NuciDAL file repositories"]
-        Services --> NameClient["NuciAPI client"]
+        subgraph System["NuciCraft API process"]
+                Host["ASP.NET Core host"]
     end
 
-    Repositories -->|"Read and write"| Stores[("JSON stores")]
-    NameClient -->|"Bearer-authenticated GET /Names"| NameGenerator["Universal Name Generator API"]
+        Host -->|"Read and write JSON"| Stores[("Four configured data stores")]
+        Host -->|"Structured records"| Logs[("Configured log file")]
+        Host -->|"Bearer-authenticated GET /Names"| NameGenerator["Universal Name Generator API"]
 ```
 
-The solution contains two projects:
+The principal external boundaries are:
+- **Authorised API clients:** Supply route, query, and JSON request data plus an API-key credential; they receive Nuci API success or error contracts.
+- **Deployment environment:** Supplies settings and secret values through the standard ASP.NET Core configuration boundary without committing genuine credentials.
+- **Filesystem:** Stores application-owned JSON records and optional file logs; the operator owns path permissions, durability, backup, and access control.
+- **Universal Name Generator API:** Accepts an outbound bearer-authenticated name request and owns remote availability and response production.
 
-| Project | Responsibility |
-|---------|----------------|
-| [NuciCraft.API](./NuciCraft.API/) | ASP.NET Core host, controllers, contracts, application services, mappings, configuration, and file-persistence records. |
-| [NuciCraft.API.UnitTests](./NuciCraft.API.UnitTests/) | NUnit and Moq tests for host composition, controllers, services, response contracts, logging metadata, and mappings. |
+## 🏗️ Architectural Style
 
-The solution membership is declared in [NuciCraft.API.slnx](./NuciCraft.API.slnx).
+NuciCraft API is a layered modular monolith with interface-based adapters at its persistence and outbound HTTP boundaries. One project and process contain every runtime domain, while controllers, service interfaces, service implementations, mapping extensions, and persistence records provide explicit ownership boundaries. The domains are not independently deployable and share host composition, middleware, configuration, logging, and filesystem infrastructure.
 
-## Runtime Composition
+```mermaid
+flowchart TB
+    Composition["Program, Startup, and DI composition"] --> Pipeline["ASP.NET Core middleware"]
+    Pipeline --> Controllers["Controllers and HTTP contracts"]
+    Controllers -->|"Invoke"| ServiceInterfaces["Application service interfaces"]
+    Services["Application service implementations"] -.->|"Implement"| ServiceInterfaces
+    Services -->|"Query and mutate"| RepositoryInterfaces["IFileRepository<T>"]
+    Services -->|"Map"| Models["Service models and data objects"]
+    Services -->|"Generate mob names"| ClientInterface["INuciApiClient"]
+    JsonRepositories["JsonRepository<T>"] -.->|"Implement"| RepositoryInterfaces
+    JsonRepositories --> Stores[("JSON stores")]
+    NuciClient["NuciApiClient"] -.->|"Implements"| ClientInterface
+    NuciClient --> Generator["Universal Name Generator API"]
+```
 
-[Program.cs](./NuciCraft.API/Program.cs) creates the default ASP.NET Core host and delegates application composition to [Startup.cs](./NuciCraft.API/Startup.cs).
+The principal architecture boundaries are:
+- **HTTP boundary:** Controllers and transport contracts own routes, payload validation metadata, response wrappers, and delegation through `ProcessRequest`; they may depend upon service interfaces but not repositories.
+- **Application boundary:** Services own domain validation, selection, mutation, mapping orchestration, outbound requests, and operation logging.
+- **Persistence boundary:** Data objects and `IFileRepository<T>` own serialisable representation and store access; they do not define the public HTTP contract.
+- **Composition boundary:** `Program`, `Startup`, and `ServiceCollectionExtensions` select concrete middleware, settings, clients, repositories, service implementations, and lifetimes.
 
-### Dependency Injection
-
-[ServiceCollectionExtensions.cs](./NuciCraft.API/ServiceCollectionExtensions.cs) registers the principal components:
-
-| Lifetime | Components |
-|----------|------------|
-| Singleton | Strongly typed settings, four `IFileRepository<T>` instances, `INuciApiClient`, all five application services, and text utilities. |
-| Scoped | NuciLog's `ILogger` implementation. |
-| Framework managed | Controllers and ASP.NET Core infrastructure. |
-
-Application services and repositories must remain stateless or thread-safe because they are shared for the process lifetime. The current registrations also inject a scoped logger into singleton services; any alteration to logger state or lifetime must be validated through host-composition tests.
-
-### Startup Sequence
-
-The host starts in the subsequent sequence:
-1. The default host loads configuration and creates the web host.
-2. `ConfigureServices` adds controllers, binds settings, registers scanner protection, and registers custom services.
-3. `Configure` prepares all configured JSON stores before accepting requests.
-4. Missing parent directories are created and missing store files are initialised to `[]`.
-5. Every repository is resolved and its complete data set is materialised once through `GetAll().ToList()`.
-6. The HTTP middleware pipeline and controller endpoints are registered.
-
-Repository preparation causes invalid paths, permissions, or malformed stores to surface during application startup rather than during the first relevant request.
-
-### Middleware Order
-
-Middleware executes in this order:
-1. Nuci API exception handling
-2. Nuci API scanner protection
-3. Nuci API request logging
-4. ASP.NET Core developer exception page in the Development environment
-5. HTTPS redirection
-6. Default-file resolution
-7. Static-file serving
-8. Routing
-9. ASP.NET Core authorisation
-10. Controller endpoints
-
-Store preparation precedes pipeline construction and is not middleware.
-
-## Request Lifecycle
+## 🔄 Runtime Flow
 
 ```mermaid
 sequenceDiagram
     actor Client
+    participant Program
+    participant Startup
+    participant Stores as JSON stores
     participant Pipeline as Middleware pipeline
     participant Controller
     participant Processor as NuciApiController.ProcessRequest
     participant Service as Application service
     participant Dependency as Repository or external API
-    participant Logger as NuciLog
 
+    Program->>Startup: Create default host and use Startup
+    Startup->>Startup: Bind settings and register dependencies
+    Startup->>Stores: Create missing files and materialise GetAll()
     Client->>Pipeline: HTTP request
     Pipeline->>Controller: Routed action
     Controller->>Processor: Request DTO, service delegate, API-key authorisation
     Processor->>Service: Invoke validated operation
-    Service->>Logger: Operation started
-    Service->>Dependency: Query, mutate, or request a name
-    Dependency-->>Service: Data or API response
-    Service->>Logger: Operation succeeded
+    Service->>Dependency: Query, mutate, save, or request a name
+    Dependency-->>Service: Persisted data or API response
     Service-->>Processor: Result
     Processor-->>Client: Standard response
 
     alt Operation fails
-        Service->>Logger: Operation failed with exception
         Service-->>Pipeline: Rethrow exception
         Pipeline-->>Client: Standard error response
     end
 ```
 
-All controllers inherit from the external `NuciApiController` type and use attribute routing rooted at `[controller]`. Their responsibilities are intentionally restricted to:
-- Constructing request DTOs from route, query, and body values
-- Selecting an application-service operation
-- Wrapping returned models in response DTOs where required
-- Passing an API-key authorisation descriptor to `ProcessRequest`
+The principal runtime sequence is:
+1. [Program.cs](./NuciCraft.API/Program.cs) creates the default ASP.NET Core host and delegates composition to [Startup.cs](./NuciCraft.API/Startup.cs).
+2. `ConfigureServices` adds controllers, binds strongly typed settings, registers scanner protection, and registers the repositories, clients, services, utilities, and logger.
+3. `Configure` prepares all four JSON stores before accepting requests: missing parent directories and files are created, then each repository is resolved and materialised through `GetAll().ToList()`.
+4. The middleware pipeline executes exception handling, scanner protection, request logging, the Development-only exception page, HTTPS redirection, default files, static files, routing, authorisation, and controller endpoints in that order.
+5. A controller constructs or receives a request DTO and delegates through `ProcessRequest` with a service operation and API-key authorisation descriptor.
+6. The service logs the operation, executes domain logic, and accesses either an `IFileRepository<T>` or `INuciApiClient`.
+7. File-backed mutations call `SaveChanges` synchronously; mob-name requests synchronously await the external client's asynchronous operation.
+8. Success returns through the Nuci response boundary, while services log and rethrow failures for the exception middleware to translate.
 
-Controllers do not access repositories directly. Application services own validation, selection, mutation, external calls, and structured operation logging.
+Store preparation precedes middleware construction and is not itself middleware. Invalid paths, insufficient permissions, or unreadable store data can therefore prevent startup.
 
-## Application Layers
+## 🧩 Components
 
-| Layer | Location | Responsibility |
-|-------|----------|----------------|
-| HTTP controllers | [Controllers](./NuciCraft.API/Controllers/) | Routes, request assembly, API-key authorisation descriptors, service invocation, and response wrappers. |
-| Request and response contracts | [Requests](./NuciCraft.API/Requests/) and [Responses](./NuciCraft.API/Responses/) | HTTP payload shape, data annotations, JSON names, and canonical HMAC property order. |
-| Application services | [Service](./NuciCraft.API/Service/) | Business rules, orchestration, persistence operations, and operation-level logging. |
-| Service models | [Service/Models](./NuciCraft.API/Service/Models/) | In-process representations returned by services. |
-| Mapping | [Service/Mapping](./NuciCraft.API/Service/Mapping/) | Translation between service models and persistence data objects. |
-| Persistence records | [DataAccess/DataObjects](./NuciCraft.API/DataAccess/DataObjects/) | JSON-serialisable records consumed by `IFileRepository<T>`. |
-| Configuration | [Configuration](./NuciCraft.API/Configuration/) | Strongly typed settings bound at startup. |
-| Logging vocabulary | [Logging](./NuciCraft.API/Logging/) | Stable operation names and structured contextual keys. |
+| Component | Responsibility | Principal Dependencies | Lifetime or Ownership |
+|-----------|----------------|------------------------|-----------------------|
+| `Program` and `Startup` | Construct the host, register the request pipeline, and prepare stores. | ASP.NET Core, configuration, DI container, `DataStoreSettings`. | One composition root per process. |
+| Controllers | Own routes, assemble request DTOs, select service operations, and delegate authorisation and response processing. | `NuciApiController`, service interfaces, `SecuritySettings`. | Framework-created request handlers. |
+| `PlayerService` | Register, retrieve, list, and patch players through identifier, username, offline UUID, or online UUID selectors. | Player repository and logger. | Singleton. |
+| `CountryService` | Add, retrieve, list, and patch country metadata, including merged localised values. | Country repository, logger. | Singleton. |
+| `ZoneService` | Add, retrieve, list, and patch zones while enforcing bounds and localised merge rules. | Zone repository, logger. | Singleton. |
+| `RtpLocationService` | Enforce proximity rules, persist RTP locations, and select random filtered locations. | RTP repository, `RtpLocationSettings`, logger. | Singleton. |
+| `MobService` | Map supported mobs to schemas and obtain one name from the external generator. | `INuciApiClient`, `UniversalNameGeneratorSettings`, logger. | Singleton. |
+| `JsonRepository<T>` | Provide file-backed `IFileRepository<T>` operations for one data-object type. | NuciDAL, configured store path. | One singleton per store. |
+| `NuciApiClient` | Send typed requests to the Universal Name Generator API. | Configured base URL and per-request bearer information. | Singleton. |
+| `NuciLogger` | Emit structured operation records consumed by services and request middleware. | NuciLog settings. | Scoped registration; consumed by singleton services. |
 
-Dependencies proceed inward from controllers to service interfaces. Services depend upon repositories, clients, settings, and logging abstractions. Mapping extensions prevent persistence-specific timestamp and nested-object representations from leaking into controllers.
+## 🗂️ Architectural Areas
 
-## Domain Components
+### Host Composition
 
-| Domain | Entry Point | Service | State or Dependency | Principal Rules |
-|--------|-------------|---------|---------------------|-----------------|
-| Players | `PlayersController` | `IPlayerService` / `PlayerService` | `players.json` | Registers, retrieves, lists, and patches players; supports identifier, username, offline UUID, and online UUID selectors; derives Minecraft offline UUIDs during registration. |
-| Countries | `CountriesController` | `ICountryService` / `CountryService` | `countries.json` | Adds, retrieves, lists, and patches country metadata; partial updates merge provided localised values with persisted values. |
-| Zones | `ZonesController` | `IZoneService` / `ZoneService` | `zones.json` | Adds, retrieves, lists, and patches zones; validates and canonicalises bounds; merges partial localised values and partial bounds. |
-| RTP locations | `RtpLocationsController` | `IRtpLocationService` / `RtpLocationService` | `rtp_locations.json` | Adds locations subject to distance constraints and returns a random location after optional world and biome filtering. |
-| Mobs | `MobsController` | `IMobService` / `MobService` | Universal Name Generator API | Maps supported mob types to name schemas and requests one generated name. |
+Paths:
+- [NuciCraft.API/Program.cs](./NuciCraft.API/Program.cs)
+- [NuciCraft.API/Startup.cs](./NuciCraft.API/Startup.cs)
+- [NuciCraft.API/ServiceCollectionExtensions.cs](./NuciCraft.API/ServiceCollectionExtensions.cs)
+- [NuciCraft.API/Configuration](./NuciCraft.API/Configuration/)
 
-### Zone Invariants
+Responsibilities:
+- Construct the ASP.NET Core host and middleware pipeline.
+- Bind configuration, select concrete adapters, define lifetimes, and initialise file stores.
+
+Boundary rules:
+- Concrete infrastructure selection belongs at this composition boundary.
+- Store preparation must remain consistent with every registered file repository.
+
+### HTTP Boundary
+
+Paths:
+- [NuciCraft.API/Controllers](./NuciCraft.API/Controllers/)
+- [NuciCraft.API/Requests](./NuciCraft.API/Requests/)
+- [NuciCraft.API/Responses](./NuciCraft.API/Responses/)
+
+Responsibilities:
+- Define attribute routes, transport payloads, validation metadata, response wrappers, and API-key authorisation descriptors.
+- Translate route and query values into request DTOs before invoking application services.
+
+Boundary rules:
+- Controllers depend upon service interfaces and must not access repositories directly.
+- Persistence data objects must not become public request or response contracts.
+
+### Application Services
+
+Paths:
+- [NuciCraft.API/Service](./NuciCraft.API/Service/)
+- [NuciCraft.API/Service/Helpers](./NuciCraft.API/Service/Helpers/)
+- [NuciCraft.API/Service/Mapping](./NuciCraft.API/Service/Mapping/)
+- [NuciCraft.API/Service/Models](./NuciCraft.API/Service/Models/)
+- [NuciCraft.API/Logging](./NuciCraft.API/Logging/)
+
+Responsibilities:
+- Own domain invariants, queries, mutations, outbound orchestration, model conversion, and structured operation logging.
+- Present stable service interfaces to controllers.
+
+Boundary rules:
+- Services may depend upon repository, client, logger, utility, and settings abstractions selected by the composition root.
+- Mapping extensions isolate service models from persistence-specific timestamp and nested-object representations.
+
+### Persistence Boundary
+
+Paths:
+- [NuciCraft.API/DataAccess/DataObjects](./NuciCraft.API/DataAccess/DataObjects/)
+- [NuciCraft.API/Data](./NuciCraft.API/Data/)
+
+Responsibilities:
+- Define JSON-serialisable records and retain player, country, zone, and RTP location state.
+- Persist service mutations when `SaveChanges` is invoked.
+
+Boundary rules:
+- Each store has one configured record type and one singleton repository registration.
+- The process must prepare every configured store before requests are accepted.
+
+## 💾 Data Architecture
+
+Transport DTOs are owned by the HTTP boundary. Application services either construct persistence records directly or use mapping extensions to translate between data objects and service models. NuciDAL repositories own file access, while the application owns each record schema and the point at which `SaveChanges` is invoked. No independent application cache or data-migration mechanism is configured in this repository.
+
+```mermaid
+flowchart LR
+    Request["Request DTO"] --> Service["Application service"]
+    Service -->|"Construct or map writes"| DataObject["Persistence data object"]
+    DataObject -->|"Add or update"| Repository["IFileRepository<T>"]
+    Service -->|"SaveChanges"| Repository
+    Repository -->|"Serialise"| Stores[("JSON store")]
+    Stores -->|"Read"| Repository
+    Repository --> DataObject
+    DataObject -->|"Mapping extension"| Model["Service model"]
+    Model --> Response["Response contract"]
+```
+
+| Data or Store | Owner | Representation and Storage | Lifecycle or Consistency |
+|---------------|-------|----------------------------|--------------------------|
+| `players.json` | `PlayerService` | `PlayerDataObject` records at `Data/players.json` by default. | Created during registration and patched synchronously; selectors include identifier, username, offline UUID, and online UUID. |
+| `countries.json` | `CountryService` | `CountryDataObject` records at `Data/countries.json` by default. | Added and patched synchronously; provided localised properties merge with persisted values. |
+| `zones.json` | `ZoneService` | `ZoneDataObject` records at `Data/zones.json` by default. | Added and patched synchronously; bounds are validated and canonicalised on writes and reads. |
+| `rtp_locations.json` | `RtpLocationService` | `RtpLocationEntity` records at `Data/rtp_locations.json` by default. | Append-oriented additions after proximity validation; reads select a random optional world/biome match. |
+| Operational logs | NuciLog | Structured records with optional file output at the configured log path. | Services emit started, success, and failure records; retention and access control belong to the operator. |
+
+At startup, missing parent directories and store files are created, absent files receive `[]`, and every repository is resolved and queried. Persisted timestamps use invariant-culture strings; mapping extensions expose typed `DateTimeOffset` values where applicable. Writes are synchronous, and there is no application-level transaction across multiple stores.
+
+## 🔌 Interfaces and Integrations
+
+| Interface or Integration | Direction | Contract | Owner | Failure Semantics |
+|--------------------------|-----------|----------|-------|-------------------|
+| NuciCraft HTTP API | Inbound | ASP.NET Core attribute routes rooted at `[controller]`, JSON request/response contracts, and API-key authorisation passed to `ProcessRequest`. | Controllers and request/response DTOs. | Validation and authorisation failures remain within the Nuci controller boundary; uncaught service failures reach exception middleware. |
+| JSON stores | Bidirectional | `IFileRepository<T>` operations over one configured file per data-object type. | `Startup`, application services, and NuciDAL adapters. | Invalid paths or initial reads can prevent startup; operation failures are logged and rethrown. |
+| Universal Name Generator API | Outbound | Typed GET request to `Names` with one schema, count of one, and bearer authorisation. | `MobService` through `INuciApiClient`. | Unsuccessful, unexpected, or vacant responses become `InvalidOperationException`; no local retry or fallback is configured. |
+| ASP.NET Core configuration | Inbound | Strongly typed sections bound by `ServiceCollectionExtensions`. | Composition root and settings classes. | Invalid store settings surface during startup; mob settings are checked when name generation is requested. |
+
+## 🔀 Key Flows
+
+### File-Backed Domain Request
+
+```mermaid
+sequenceDiagram
+    actor Client
+    participant Controller
+    participant Processor as ProcessRequest
+    participant Service
+    participant Logger
+    participant Repository as IFileRepository
+
+    Client->>Controller: Route, query, or JSON request
+    Controller->>Processor: DTO, operation delegate, API-key authorisation
+    Processor->>Processor: Validate request and authorisation
+    Processor->>Service: Invoke operation
+    Service->>Logger: Record Started
+    Service->>Repository: Get or GetAll
+    opt Mutation
+        Service->>Repository: Add or Update
+        Service->>Repository: SaveChanges
+    end
+    Repository-->>Service: Persisted record or collection
+    Service->>Logger: Record Success
+    Service-->>Client: Model through response boundary
+
+    alt Validation, domain, or persistence failure
+        Service->>Logger: Record Failure
+        Service-->>Processor: Rethrow
+        Processor-->>Client: Nuci API error response
+    end
+```
+
+Controllers assemble transport requests but do not own domain mutation. The selected singleton service validates domain invariants, accesses its repository, and explicitly persists mutations. Reads are mapped into service models before response wrapping where required. A service records and rethrows exceptions rather than translating them into HTTP status codes itself.
+
+### Mob Name Generation
+
+```mermaid
+sequenceDiagram
+    actor Client
+    participant Controller as MobsController
+    participant Service as MobService
+    participant ApiClient as INuciApiClient
+    participant Generator as Universal Name Generator
+
+    Client->>Controller: Request random name for mob type
+    Controller->>Service: GetRandomMobName
+    Service->>Service: Validate settings and select schema
+    Service->>ApiClient: GET Names with request and bearer information
+    ApiClient->>Generator: Authenticated request
+    Generator-->>ApiClient: Nuci API response
+    ApiClient-->>Service: Typed or error response
+    Service->>Service: Validate success, response type, and first name
+    Service-->>Client: Generated name through response boundary
+```
+
+`MobService` maps supported mob types to hard-coded schemas, creates a `GenerateNamesRequest`, and supplies `UniversalNameGeneratorSettings.ApiKey` as `NuciApiRequestAuthorisationInfo.BearerToken`. It synchronously waits for the asynchronous client with `GetAwaiter().GetResult()`. Unsupported mobs and invalid external responses terminate the request through the standard logged exception path.
+
+## ⚙️ Domain Invariants
+
+### Zone Bounds
 
 Zone creation requires both opposite corners. Both corners must contain a non-vacant world and must refer to the identical world using ordinal comparison.
 
@@ -159,9 +323,9 @@ Bounds are canonicalised on creation, update, and retrieval:
 - `SecondCorner` receives maximum X, minimum Y, and maximum Z.
 - Pitch and yaw are set to zero for canonical bounds.
 
-A bounds patch may provide one corner; the service merges it with the persisted opposite corner before validation. Localised name, nickname, and leader-title patches similarly preserve unspecified languages. When `CreationDate` is absent on creation, the service records the current `Europe/Bucharest` date with an uncertainty suffix, for example `2026-08-13 (?)`.
+A bounds patch may provide one corner; `ZoneService` merges it with the persisted opposite corner before validation. Localised name, nickname, and leader-title patches preserve unspecified languages. When `CreationDate` is absent on creation, the service records the current `Europe/Bucharest` date with an uncertainty suffix, for example `2026-08-13 (?)`.
 
-### RTP Location Invariants
+### RTP Location Proximity
 
 Distance checks use horizontal X/Z squared Euclidean distance and compare locations only when their worlds are ordinally equal. The configured defaults are:
 - At least 200 blocks from every existing location in the identical world
@@ -169,140 +333,169 @@ Distance checks use horizontal X/Z squared Euclidean distance and compare locati
 
 Both limits are supplied by `RtpLocationSettings`. Addition performs linear scans over the current collection, so validation cost increases with the number of persisted locations.
 
-## Persistence
+## 🧵 Cross-Cutting Concerns
 
-NuciDAL's `JsonRepository<T>` implements `IFileRepository<T>` for four independently configured stores:
+### Security and Privacy
 
-| Setting | Default Path | Record Type |
-|---------|--------------|-------------|
-| `dataStoreSettings.countriesStorePath` | `Data/countries.json` | `CountryDataObject` |
-| `dataStoreSettings.playersStorePath` | `Data/players.json` | `PlayerDataObject` |
-| `dataStoreSettings.rtpLocationsStorePath` | `Data/rtp_locations.json` | `RtpLocationEntity` |
-| `dataStoreSettings.zonesStorePath` | `Data/zones.json` | `ZoneDataObject` |
+Every controller constructs `NuciApiAuthorisation.ApiKey(SecuritySettings.ApiKey)` and supplies it to `ProcessRequest`. API-key enforcement therefore belongs to the external Nuci controller-processing boundary and is distinct from scanner-protection middleware. The host invokes `UseAuthorization`, but this repository does not configure a separate ASP.NET Core authentication scheme or policy.
 
-Services mutate a repository with `Add` or `Update` and then call `SaveChanges` synchronously. Reads call `Get` or `GetAll`, after which mapping extensions produce service models. Persisted timestamps use invariant-culture strings; service models expose typed `DateTimeOffset` values where applicable.
+Request and response contracts use `HmacOrder` attributes where canonical property ordering is necessary. Signing and verification semantics belong to referenced Nuci packages and are not reimplemented locally. HTTPS redirection is active, and request DTO validation metadata constrains untrusted input before service execution.
 
-The persistence model imposes these operational constraints:
-- The process requires read and write access to every configured store and its parent directory.
-- There is no application-level transaction spanning multiple store files.
-- No distributed locking, cache invalidation, or cross-instance coordination is configured in this repository.
-- Multiple application instances referencing the identical files can observe stale state or overwrite one another.
-- Backups must preserve all store files consistently and must not expose player or location data.
+Committed secret fields contain deployment placeholders. Production deployments must inject genuine values through protected configuration sources. API keys, player credentials, personal identifiers, IP addresses, and location data are sensitive at transport, persistence, logging, and backup boundaries.
 
-The supported topology is therefore one application process with durable local or mounted storage. A database migration requires both repository-registration changes and elimination or adaptation of the file-specific preparation in `Startup`.
+### Error Handling
 
-## External Name Generation
+Application services record failure context and rethrow exceptions. Nuci API exception middleware owns the outer translation into an HTTP error contract. Domain validation can raise argument exceptions, missing records propagate repository failures, unsupported mob types raise `NotImplementedException`, and external response failures become `InvalidOperationException`.
 
-`MobService` uses the singleton `INuciApiClient` configured with `UniversalNameGeneratorSettings.BaseUrl`. For each supported mob type, it:
-1. Selects a hard-coded Universal Name Generator schema.
-2. creates a `GenerateNamesRequest` with a count of one.
-3. Creates `NuciApiRequestAuthorisationInfo` with `BearerToken` sourced from `UniversalNameGeneratorSettings.ApiKey`.
-4. Sends a GET request to the `Names` endpoint.
-5. Rejects unsuccessful, unexpected, or vacant responses.
-6. Returns the first generated name.
+Store preparation executes during startup; an invalid path, insufficient permissions, or unreadable data can terminate host initialisation. Request operations have no local retry, fallback, or partial-degradation policy.
 
-The underlying client API is asynchronous, but `MobService` waits synchronously with `GetAwaiter().GetResult()`. No retry, circuit-breaker, or fallback policy is configured locally. Consequently, external latency occupies a request thread and external failures propagate through the standard service logging and exception middleware path.
+### Observability
 
-Mob-to-schema mappings reside in `MobService`; supporting a novel mob category or schema currently requires a code modification and deployment.
+Nuci API request-logging middleware records inbound request activity, while services emit structured NuciLog operations using `MyOperation`, `MyLogInfoKey`, and started, success, or failure statuses. File output and its path are controlled by `nuciLoggerSettings`.
 
-## Cross-Cutting Concerns
+Some records contain usernames, UUIDs, IP addresses, coordinates, and identifiers. Operators must restrict log access and retention accordingly. The repository defines no metrics, distributed traces, audit store, or health endpoint, so operational visibility is limited to logs and process responses.
 
 ### Configuration
 
-The default host supplies the standard ASP.NET Core configuration providers. [appsettings.json](./NuciCraft.API/appsettings.json) defines these application sections:
+The default ASP.NET Core host supplies file, environment, and command-line configuration providers. [appsettings.json](./NuciCraft.API/appsettings.json) defines the committed defaults and deployment placeholders.
 
-| Section | Purpose |
-|---------|---------|
-| `dataStoreSettings` | JSON store paths. |
-| `rtpLocationSettings` | General and same-biome distance thresholds. |
-| `securitySettings` | Inbound API key. |
-| `universalNameGeneratorSettings` | External API base URL and bearer token. |
-| `nuciLoggerSettings` | Log-file path and file-output activation. |
+| Configuration Area | Source | Responsibility | Override or Secret Policy |
+|--------------------|--------|----------------|---------------------------|
+| `dataStoreSettings` | `appsettings.json` and default host providers. | Select four JSON store paths. | May be overridden per deployment; paths must resolve to protected writable storage. |
+| `rtpLocationSettings` | `appsettings.json` and default host providers. | Select general and same-biome proximity limits. | Non-secret operational values may be overridden per environment. |
+| `securitySettings` | Deployment placeholder and default host providers. | Supply inbound API-key authorisation material. | Genuine values must originate from a protected secret source. |
+| `universalNameGeneratorSettings` | Deployment placeholders and default host providers. | Supply the external base URL and bearer token. | The base URL is environmental; the API key must originate from a protected secret source. |
+| `nuciLoggerSettings` | `appsettings.json` and default host providers. | Select log-file path and file-output activation. | Operators own destination permissions, access, and retention. |
 
-Secret values are represented by deployment placeholders in the committed configuration. Production deployments must inject secrets through protected configuration sources and must never persist genuine keys in source control or logs.
+### Concurrency and Resource Use
 
-### Security
+The five application services, four repositories, outbound client, settings, and text utilities are singleton registrations. They can be reached by concurrent requests and must not acquire unprotected request-specific mutable state. The logger is registered as scoped but consumed by singleton services, so code must not presume that those service-held logger references provide per-request identity.
 
-Every controller constructs `NuciApiAuthorisation.ApiKey(SecuritySettings.ApiKey)` and supplies it to `ProcessRequest`. API-key enforcement is therefore part of the external Nuci controller-processing boundary, distinct from scanner-protection middleware. The host also invokes `UseAuthorization`, although this repository does not configure a separate ASP.NET Core authentication scheme or policy.
+Repository writes and the outbound mob-name wait are synchronous from the service contract's perspective. No application-level locking or cross-instance coordination is present. RTP addition performs linear scans, and each process has independent singleton repository instances; these constraints favour one process and modest data volumes.
 
-Request and response contracts use `HmacOrder` attributes where canonical property ordering is necessary. Signing and verification semantics belong to the referenced Nuci packages and are not reimplemented in this repository.
+## 🧭 Dependency Direction and Rules
 
-HTTPS redirection is active. API keys, player credentials, personal identifiers, and stored location data must be treated as sensitive information at configuration, logging, backup, and transport boundaries.
+The composition root may reference every concrete runtime component because it selects implementations and lifetimes. At request time, dependencies proceed from controllers to service interfaces, from service implementations to repository or client abstractions, and from those abstractions to adapters selected in `ServiceCollectionExtensions`. Mapping extensions connect service models and persistence records without making either representation the other's public contract.
 
-### Logging and Errors
+```mermaid
+flowchart LR
+    Composition["Composition root"] --> Controllers["Controllers"]
+    Composition --> Services["Service implementations"]
+    Composition --> Adapters["Infrastructure adapters"]
+    Controllers --> ServiceContracts["Service interfaces"]
+    Services -.->|"Implement"| ServiceContracts
+    Services --> RepositoryContracts["Repository interfaces"]
+    Services --> ClientContract["Client interface"]
+    Services --> Mapping["Mapping extensions"]
+    Mapping --> Models["Service models"]
+    Mapping --> DataObjects["Data objects"]
+    Adapters -.->|"Implement"| RepositoryContracts
+    Adapters -.->|"Implement"| ClientContract
+```
 
-Application services use NuciLog with stable operations from `MyOperation` and contextual keys from `MyLogInfoKey`. The prevalent service pattern is:
-1. Record `Started` with relevant context.
-2. Execute the operation in a `try` block.
-3. Record `Success` and return.
-4. On an exception, record `Failure` and rethrow.
+The principal dependency rules are:
+- Concrete adapter construction and lifetime selection belong in `ServiceCollectionExtensions` and `Startup`.
+- Controllers may depend upon service interfaces and transport contracts, but must not depend upon repositories or persistence data objects.
+- Services own domain logic and may depend upon repository, client, logger, utility, and settings abstractions.
+- Persistence data objects and service models may be translated only at the service or mapping boundary; neither representation may replace public HTTP contracts implicitly.
+- Cross-cutting request policies belong in middleware or shared Nuci abstractions rather than duplicated controller logic.
+- Infrastructure adapters must not acquire dependencies upon controllers.
 
-The outer exception middleware converts uncaught failures into the Nuci API error contract. Request logging and service logging are separate concerns.
+## 📦 External Dependencies
 
-Some operations include usernames, UUIDs, IP addresses, coordinates, and identifiers as log context. Operators must restrict log access, configure an appropriate retention period, and refrain from collecting more context than incident diagnosis requires.
+| Dependency | Responsibility | Integration Boundary | Architectural Consequence |
+|------------|----------------|----------------------|---------------------------|
+| .NET 10 and ASP.NET Core | Host process, dependency injection, configuration, middleware, routing, controller activation, and JSON transport. | `Program`, `Startup`, controllers, and project manifest. | The deployment requires a compatible .NET 10 runtime and follows ASP.NET Core lifecycle semantics. |
+| NuciAPI package family | Base request/response contracts, controller processing, outbound API client, scanner protection, request logging, and exception handling. | HTTP boundary, middleware pipeline, and `MobService`. | Authorisation and error-contract details partly reside outside this repository and vary with package upgrades. |
+| NuciDAL | `IFileRepository<T>` and `JsonRepository<T>` persistence. | Service repository dependencies and DI registrations. | Persistence semantics and file serialisation are coupled to the selected NuciDAL version. |
+| NuciLog | Structured logger, operation statuses, and configurable file output. | Request middleware and application services. | Operational visibility depends upon logger configuration and protection of potentially sensitive context. |
+| NuciSecurity.HMAC | Canonical request and response property-order metadata. | Attributes on transport contracts. | Property ordering is a compatibility-sensitive contract even though signing semantics are external. |
+| Universal Name Generator API | Remote generation of names for supported mob categories. | `MobService` through `INuciApiClient`. | Name requests depend upon external latency, availability, schemas, and valid bearer credentials. |
 
-## Testing Strategy
+## 🚀 Deployment and Operations
 
-The unit-test project mirrors the production structure and uses NUnit, Moq, and the Microsoft .NET test SDK.
+The deployment unit is one .NET 10 ASP.NET Core process containing every controller, service, repository, and integration adapter. It requires protected configuration, writable durable storage for four JSON stores, optional writable log storage, and outbound network access to the Universal Name Generator. The repository defines no database, message broker, distributed cache, container manifest, OpenAPI interface, or health endpoint.
 
-Test responsibilities include:
-- Host and service-registration composition
-- Store preparation and eager repository access
-- Controller routes, request construction, authorisation, and service delegation
-- Application-service success, validation, and failure paths
-- Persistence-to-service model mappings, including internal extension methods invoked through `MappingMethodInvoker`
-- Response contracts and logging enumeration values
+| Concern | Current Design | Architectural Consequence |
+|---------|----------------|---------------------------|
+| Process topology | One modular-monolith process. | Domains share availability, memory, configuration, and deployment cadence. |
+| Persistent state | Four independently configured JSON files. | The operator must provide writable durable paths, coherent backups, and restricted access. |
+| Startup | Creates missing directories and files, then queries every repository before serving requests. | Invalid paths, permissions, or unreadable data can prevent process startup. |
+| Scaling | No distributed locking, invalidation, or cross-instance coordination is configured. | The supported topology is one process; multiple writers can produce stale reads or overwritten state. |
+| External connectivity | Mob-name requests call the Universal Name Generator synchronously from the service contract. | Remote latency and failure affect the initiating request; no local fallback exists. |
+| Diagnostics | Request and operation logs, with optional file output. | Operators must monitor process and log outputs without a repository-defined health or metrics endpoint. |
+| Release | [release.sh](./release.sh) downloads and executes an external .NET 10 release helper. | Release execution requires network access and prior inspection of externally supplied script content. |
 
-Repository and logger abstractions are mocked in service tests, while controller tests provide a controlled HTTP context. The repository contains no separate end-to-end or external-service integration-test project, so package behaviour, real file concurrency, middleware integration, and Universal Name Generator availability remain integration risks.
+## 🛡️ Compatibility Contracts
 
-Execute the complete suite with:
+| Contract | Owner | Invariant | Verification | Change Policy |
+|----------|-------|-----------|--------------|---------------|
+| HTTP routes and payloads | Controllers and request/response DTOs. | Unversioned route shapes, JSON property names, required values, and response wrappers remain coherent for clients. | Controller, request, and response tests. | Preserve the public contract unless an incompatible modification is intentional, documented, and coordinated. |
+| HMAC property order | Request and response DTOs. | `HmacOrder` values retain the canonical sequence expected by Nuci security consumers. | Contract tests and attribute review. | Alter only with coordinated client and server compatibility validation. |
+| JSON record schemas | Data objects and mapping extensions. | Identifiers, nested values, and invariant-culture timestamps remain readable by the configured repositories and mappers. | Mapping tests and startup repository tests. | Introduce an explicit data migration before an incompatible persisted-shape modification. |
+| Zone bounds | `ZoneService`. | Canonical first and second corners retain their minimum/maximum axis orientation and identical-world requirement. | Zone service and mapping tests. | Preserve read and write canonicalisation or migrate every producer and consumer together. |
+| Configuration sections | Settings classes and `ServiceCollectionExtensions`. | Section names and required values continue to bind into the composition root. | Service-collection and startup tests. | Coordinate key revisions with every deployment configuration and documentation source. |
+
+## ✅ Testing and Verification
+
+The [NuciCraft.API.UnitTests](./NuciCraft.API.UnitTests/) project mirrors production areas and uses NUnit, Moq, and the Microsoft .NET test SDK. Root fixtures verify host and service registration, controller fixtures verify routes, request construction, authorisation, and delegation, service fixtures isolate repositories and logging, and mapping fixtures invoke internal extension methods through `MappingMethodInvoker`.
+
+The suite verifies domain success and failure paths, store preparation, response contracts, and logging enumerations. It does not provide a separate end-to-end or integration-test project. Real concurrent file access, complete external middleware semantics, deployment configuration, and live Universal Name Generator availability therefore remain integration verification gaps.
+
+Execute the principal automated verification with:
 
 ```bash
 dotnet test NuciCraft.API.slnx
 ```
 
-## Deployment and Operations
+## ⚠️ Design Constraints
 
-The API targets .NET 10 and is built and executed with:
+- **File-Backed Persistence:** JSON stores minimise operational dependencies but provide no application-level transaction across files and restrict concurrent writer safety.
+- **Single-Process Consistency:** Process-lifetime repositories have no distributed coordination, so horizontal scale-out is not a supported consistency model.
+- **Synchronous Service Contracts:** Repository persistence and the wait on outbound HTTP occupy request threads until completion.
+- **Singleton Lifetime Graph:** Application services and repositories are singleton registrations, while the logger is scoped; service-held dependencies must not presume request-specific mutable identity.
+- **Linear RTP Validation:** Each RTP addition scans current locations for general and same-biome proximity, causing validation cost to increase linearly with stored volume.
+- **Hard-Coded Name Schemas:** Mob-to-schema mappings are compiled into `MobService`, so schema revisions require a code modification and deployment.
+- **Unversioned HTTP Routes:** The API has no explicit version segment or policy, which increases coordination requirements for incompatible contract changes.
+- **External Package Boundaries:** Controller processing, repository internals, logging sinks, and middleware response details are supplied by versioned Nuci packages and are not fully visible to local tests.
 
-```bash
-dotnet build NuciCraft.API/NuciCraft.API.csproj
-dotnet run --project NuciCraft.API/NuciCraft.API.csproj
-```
+## 🔧 Extension Points
 
-A deployment must provide:
-- A .NET 10 runtime
-- Valid API and Universal Name Generator configuration
-- Writable, durable paths for all four JSON stores
-- Network access to the Universal Name Generator when mob names are requested
-- HTTPS termination either in Kestrel or in correctly configured infrastructure
+### Add a File-Backed Domain
 
-The repository does not define a database, message broker, distributed cache, health endpoint, OpenAPI interface, or container manifest. [release.sh](./release.sh) delegates packaging and release operations to an externally downloaded .NET 10 deployment script; operators must inspect that external script before execution.
+1. Define request and response contracts at the HTTP boundary and a service interface at the application boundary.
+2. Implement domain rules in a service and introduce service models only where they clarify the persistence boundary.
+3. Add a data object, mapping extensions, a configured store path, and an `IFileRepository<T>` registration.
+4. Extend `Startup` store preparation for the new repository and add controller actions that delegate through `ProcessRequest` with API-key authorisation.
+5. Add focused controller, service, mapping, configuration, and startup tests.
 
-## Architectural Constraints
+Follow the existing plural controller naming, interface-to-implementation registration, singleton service and repository lifetimes, explicit `SaveChanges` calls, timestamp format, and structured operation logging conventions.
 
-The principal constraints and their consequences are:
+### Replace File Persistence
 
-| Constraint | Consequence | Evolution Path |
-|------------|-------------|----------------|
-| JSON-file repositories | Economical local operation, but restricted concurrency and no scale-out coordination. | Introduce a transactional database-backed repository abstraction and revise startup preparation. |
-| Singleton services and repositories | Minimal allocation and shared process state, but all dependencies must tolerate concurrent requests. | Prefer stateless services and validate lifetimes whenever mutable dependencies are introduced. |
-| Synchronous repository persistence | Simple service contracts, but request threads perform file I/O. | Introduce asynchronous repository and service contracts together. |
-| Synchronous wait on external HTTP | Simple controller contract, but external latency blocks a request thread. | Propagate `Task`-based APIs from the client through service interfaces and controllers. |
-| Hard-coded mob schemas | Explicit and testable mappings, but configuration changes require deployment. | Move mappings into validated configuration if operational modification becomes necessary. |
-| Linear RTP proximity checks | Straightforward correctness for modest data sets. | Introduce a spatial index or database query when location volume warrants it. |
-| Unversioned controller routes | Compact public API, but incompatible contract changes are difficult. | Add explicit API versioning before the first incompatible public-contract revision. |
+1. Define a repository contract and data-migration plan that preserve service query, mutation, identifier, and timestamp semantics.
+2. Register the replacement adapters in `ServiceCollectionExtensions` and revise or eliminate the file-specific preparation in `Startup`.
+3. Migrate existing records and add integration verification for consistency, concurrency, failure translation, and deployment configuration.
 
-## Extension Rules
+The current `IFileRepository<T>` boundary is file-oriented. A database adapter must either honour that contract completely or revise dependent services as one coordinated architectural modification; registering a novel adapter alone is insufficient while `Startup` still assumes file paths.
 
-When introducing a domain capability, preserve the current dependency direction:
-1. Define request and response contracts at the HTTP boundary.
-2. Define a service interface and place rules in its implementation.
-3. Introduce service models only when they provide a useful boundary from persistence records.
-4. Add data objects and mapping extensions for persisted state.
-5. Register services, repositories, clients, and settings in `ServiceCollectionExtensions`.
-6. Extend store preparation in `Startup` only for novel file repositories.
-7. Add controller actions that delegate through `ProcessRequest` with API-key authorisation.
-8. Add focused tests at every modified boundary.
+## 🗺️ Source Map
 
-Controllers must not contain persistence logic, and persistence data objects must not become the public HTTP contract. Cross-cutting policies belong in middleware or shared abstractions rather than duplicated controller code.
+| Area | Path |
+|------|------|
+| Solution membership | [NuciCraft.API.slnx](./NuciCraft.API.slnx) |
+| Host entry and composition | [NuciCraft.API/Program.cs](./NuciCraft.API/Program.cs), [NuciCraft.API/Startup.cs](./NuciCraft.API/Startup.cs), [NuciCraft.API/ServiceCollectionExtensions.cs](./NuciCraft.API/ServiceCollectionExtensions.cs) |
+| Runtime dependencies | [NuciCraft.API/NuciCraft.API.csproj](./NuciCraft.API/NuciCraft.API.csproj) |
+| Configuration contracts | [NuciCraft.API/Configuration](./NuciCraft.API/Configuration/), [NuciCraft.API/appsettings.json](./NuciCraft.API/appsettings.json) |
+| HTTP boundary | [NuciCraft.API/Controllers](./NuciCraft.API/Controllers/), [NuciCraft.API/Requests](./NuciCraft.API/Requests/), [NuciCraft.API/Responses](./NuciCraft.API/Responses/) |
+| Application services | [NuciCraft.API/Service](./NuciCraft.API/Service/) |
+| Models and mappings | [NuciCraft.API/Service/Models](./NuciCraft.API/Service/Models/), [NuciCraft.API/Service/Mapping](./NuciCraft.API/Service/Mapping/) |
+| Persistence records and stores | [NuciCraft.API/DataAccess/DataObjects](./NuciCraft.API/DataAccess/DataObjects/), [NuciCraft.API/Data](./NuciCraft.API/Data/) |
+| Logging vocabulary | [NuciCraft.API/Logging](./NuciCraft.API/Logging/) |
+| Automated tests | [NuciCraft.API.UnitTests](./NuciCraft.API.UnitTests/) |
+| Release entry point | [release.sh](./release.sh) |
+
+## 📚 Related Documentation
+
+- [README.md](./README.md) describes capabilities, endpoint usage, configuration keys, development commands, project structure, and contribution guidance.
+- [SECURITY.md](./SECURITY.md) defines supported release channels, vulnerability scope, reporting, disclosure, and safe-harbour policy.
