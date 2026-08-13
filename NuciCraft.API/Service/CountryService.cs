@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 using NuciDAL.Repositories;
@@ -43,9 +42,7 @@ namespace NuciCraft.API.Service
                     Name = request.Name,
                     LeaderTitle = request.LeaderTitle,
                     Leader = request.Leader,
-                    CreatedDT = DateTimeOffset.UtcNow.ToString(
-                        TimestampFormats.Full,
-                        CultureInfo.InvariantCulture)
+                    CreatedDT = TimestampFormats.GetCurrentUtcTimestamp()
                 };
 
                 repository.Add(countryDataObject);
@@ -153,9 +150,7 @@ namespace NuciCraft.API.Service
 
                 ApplyPatchValues(request, countryDataObject);
 
-                countryDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString(
-                    TimestampFormats.Full,
-                    CultureInfo.InvariantCulture);
+                countryDataObject.UpdatedDT = TimestampFormats.GetCurrentUtcTimestamp();
 
                 repository.Update(countryDataObject);
                 repository.SaveChanges();

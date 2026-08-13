@@ -72,9 +72,7 @@ namespace NuciCraft.API.Service
                     Population = request.Population,
                     MapLink = request.MapLink,
                     WikiUrl = request.WikiUrl,
-                    CreatedDT = DateTimeOffset.UtcNow.ToString(
-                        TimestampFormats.Full,
-                        CultureInfo.InvariantCulture)
+                    CreatedDT = TimestampFormats.GetCurrentUtcTimestamp()
                 };
 
                 repository.Add(zoneDataObject);
@@ -201,9 +199,7 @@ namespace NuciCraft.API.Service
                     zoneDataObject.Bounds = mergedBounds;
                 }
 
-                zoneDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString(
-                    TimestampFormats.Full,
-                    CultureInfo.InvariantCulture);
+                zoneDataObject.UpdatedDT = TimestampFormats.GetCurrentUtcTimestamp();
 
                 repository.Update(zoneDataObject);
                 repository.SaveChanges();
