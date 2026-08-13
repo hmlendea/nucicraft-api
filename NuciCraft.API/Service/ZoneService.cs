@@ -26,6 +26,8 @@ namespace NuciCraft.API.Service
         {
             ArgumentNullException.ThrowIfNull(request);
 
+            ValidateBounds(request.Bounds);
+
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.Identifier, request.Identifier),
@@ -59,6 +61,7 @@ namespace NuciCraft.API.Service
                     Creators = GetCreatorsForAddRequest(request),
                     Leaders = request.Leaders,
                     TeleportationPoint = request.TeleportationPoint,
+                    Bounds = request.Bounds,
                     LeaderTitle = request.LeaderTitle,
                     Population = request.Population,
                     MapLink = request.MapLink,
@@ -171,7 +174,19 @@ namespace NuciCraft.API.Service
 
                 ZoneDataObject zoneDataObject = repository.Get(request.Identifier);
 
+                ZoneBoundsDataObject mergedBounds = GetMergedBounds(request, zoneDataObject);
+
+                if (request.Bounds is not null)
+                {
+                    ValidateBounds(mergedBounds);
+                }
+
                 ApplyPatchValues(request, zoneDataObject);
+
+                if (request.Bounds is not null)
+                {
+                    zoneDataObject.Bounds = mergedBounds;
+                }
 
                 zoneDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString(
                     TimestampFormats.Full,
@@ -319,6 +334,79 @@ namespace NuciCraft.API.Service
             }
 
             return request.CreationDate;
+        }
+
+        private static ZoneBoundsDataObject GetMergedBounds(
+            PatchZoneRequest request,
+            ZoneDataObject zoneDataObject)
+        {
+            if (request.Bounds is null)
+            {
+                return zoneDataObject.Bounds;
+            }
+
+            ZoneBoundsDataObject existingBounds = zoneDataObject.Bounds;
+
+            return MergeBounds(request.Bounds, existingBounds);
+        }
+
+        private static void ValidateBounds(ZoneBoundsDataObject bounds)
+        {
+            if (bounds is null)
+            {
+                return;
+            }
+
+            if (bounds.FirstCorner is null || bounds.SecondCorner is null)
+            {
+                throw new ArgumentException("Zone bounds must include both opposite corners.");
+            }
+
+            if (string.IsNullOrWhiteSpace(bounds.FirstCorner.World))
+            {
+                throw new ArgumentException("Zone bounds first corner world must be provided.");
+            }
+
+            if (string.IsNullOrWhiteSpace(bounds.SecondCorner.World))
+            {
+                throw new ArgumentException("Zone bounds second corner world must be provided.");
+            }
+
+            if (!string.Equals(bounds.FirstCorner.World, bounds.SecondCorner.World, StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    $"Zone bounds must be in the same world. First corner world: '{bounds.FirstCorner.World}'. Second corner world: '{bounds.SecondCorner.World}'.");
+            }
+        }
+
+        private static ZoneBoundsDataObject MergeBounds(
+            ZoneBoundsDataObject bounds,
+            ZoneBoundsDataObject existingBounds)
+        {
+            if (existingBounds is null)
+            {
+                return bounds;
+            }
+
+            CoordinatesDataObject firstCorner = existingBounds.FirstCorner;
+
+            if (bounds.FirstCorner is not null)
+            {
+                firstCorner = bounds.FirstCorner;
+            }
+
+            CoordinatesDataObject secondCorner = existingBounds.SecondCorner;
+
+            if (bounds.SecondCorner is not null)
+            {
+                secondCorner = bounds.SecondCorner;
+            }
+
+            return new ZoneBoundsDataObject
+            {
+                FirstCorner = firstCorner,
+                SecondCorner = secondCorner,
+            };
         }
 
         private static DateTimeOffset GetRomaniaNow()

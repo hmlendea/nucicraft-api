@@ -61,5 +61,8 @@ namespace NuciCraft.API.Requests
 
         [HmacOrder(16)]
         public string WikiUrl { get; set; }
+
+        [HmacOrder(17)]
+        public ZoneBoundsDataObject Bounds { get; set; }
     }
 }

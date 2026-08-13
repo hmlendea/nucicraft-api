@@ -28,6 +28,8 @@ namespace NuciCraft.API.Service.Models
 
         public Coordinates TeleportationPoint { get; set; }
 
+        public ZoneBounds Bounds { get; set; }
+
         public LocalisedString LeaderTitle { get; set; }
 
         public int Population { get; set; }

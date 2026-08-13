@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 using Moq;
 
@@ -65,6 +66,27 @@ namespace NuciCraft.API.UnitTests.Service
                     Pitch = 0f,
                     Yaw = 180f
                 },
+                Bounds = new()
+                {
+                    FirstCorner = new()
+                    {
+                        World = "world",
+                        X = 96f,
+                        Y = 48f,
+                        Z = -96f,
+                        Pitch = 0f,
+                        Yaw = 179.9f,
+                    },
+                    SecondCorner = new()
+                    {
+                        World = "world",
+                        X = 160f,
+                        Y = 96f,
+                        Z = 0f,
+                        Pitch = 0f,
+                        Yaw = 179.9f,
+                    }
+                },
                 LeaderTitle = new() { English = "Mayor" },
                 Population = 128,
                 MapLink = "https://nucilandia.ro/map/solara_portal_hub",
@@ -90,6 +112,14 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.TeleportationPoint.Z, Is.EqualTo(-48f));
             Assert.That(capturedEntity.TeleportationPoint.Pitch, Is.EqualTo(0f));
             Assert.That(capturedEntity.TeleportationPoint.Yaw, Is.EqualTo(180f));
+            Assert.That(capturedEntity.Bounds.FirstCorner.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.Bounds.FirstCorner.X, Is.EqualTo(96f));
+            Assert.That(capturedEntity.Bounds.FirstCorner.Y, Is.EqualTo(48f));
+            Assert.That(capturedEntity.Bounds.FirstCorner.Z, Is.EqualTo(-96f));
+            Assert.That(capturedEntity.Bounds.SecondCorner.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.Bounds.SecondCorner.X, Is.EqualTo(160f));
+            Assert.That(capturedEntity.Bounds.SecondCorner.Y, Is.EqualTo(96f));
+            Assert.That(capturedEntity.Bounds.SecondCorner.Z, Is.EqualTo(0f));
             Assert.That(capturedEntity.LeaderTitle.English, Is.EqualTo("Mayor"));
             Assert.That(capturedEntity.Population, Is.EqualTo(128));
             Assert.That(capturedEntity.MapLink, Is.EqualTo("https://nucilandia.ro/map/solara_portal_hub"));
@@ -268,6 +298,71 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenRequestWithBoundsInDifferentWorlds_WhenAddingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                Bounds = new()
+                {
+                    FirstCorner = new()
+                    {
+                        World = "world",
+                        X = 4,
+                        Y = 8,
+                        Z = 16
+                    },
+                    SecondCorner = new()
+                    {
+                        World = "world_nether",
+                        X = 32,
+                        Y = 42,
+                        Z = 48
+                    }
+                }
+            };
+
+            Assert.That(
+                () => zoneService.Add(request),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenAZoneWithBounds_WhenGettingAZone_ThenBoundsAreReturned()
+        {
+            repositoryMock
+                .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+                .Returns(BuildZoneDataObject());
+
+            Zone zone = zoneService.GetZone("flusseland_mall_shop_9");
+
+            Assert.That(zone.Bounds, Is.Not.Null);
+            Assert.That(zone.Bounds.FirstCorner.World, Is.EqualTo("world"));
+            Assert.That(zone.Bounds.FirstCorner.X, Is.EqualTo(32));
+            Assert.That(zone.Bounds.FirstCorner.Y, Is.EqualTo(48));
+            Assert.That(zone.Bounds.FirstCorner.Z, Is.EqualTo(96));
+            Assert.That(zone.Bounds.SecondCorner.World, Is.EqualTo("world"));
+            Assert.That(zone.Bounds.SecondCorner.X, Is.EqualTo(96));
+            Assert.That(zone.Bounds.SecondCorner.Y, Is.EqualTo(96));
+            Assert.That(zone.Bounds.SecondCorner.Z, Is.EqualTo(192));
+        }
+
+        [Test]
+        public void GivenZonesWithBounds_WhenGettingAllZones_ThenBoundsAreReturned()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildZoneDataObject()]);
+
+            Zone[] zones = zoneService.GetAllZones().ToArray();
+
+            Assert.That(zones, Has.Length.EqualTo(1));
+            Assert.That(zones[0].Bounds, Is.Not.Null);
+            Assert.That(zones[0].Bounds.FirstCorner.World, Is.EqualTo("world"));
+            Assert.That(zones[0].Bounds.SecondCorner.World, Is.EqualTo("world"));
+        }
+
+        [Test]
         public void GivenARequestWithPartialFields_WhenUpdatingAZone_ThenOnlyProvidedFieldsAreUpdated()
         {
             ZoneDataObject original = BuildZoneDataObject();
@@ -293,6 +388,23 @@ namespace NuciCraft.API.UnitTests.Service
                     Z = 873,
                     Pitch = 6.13f,
                     Yaw = 8.73f
+                },
+                Bounds = new()
+                {
+                    FirstCorner = new()
+                    {
+                        World = "world_nether",
+                        X = 512,
+                        Y = 32,
+                        Z = 768,
+                    },
+                    SecondCorner = new()
+                    {
+                        World = "world_nether",
+                        X = 640,
+                        Y = 96,
+                        Z = 896,
+                    }
                 }
             };
 
@@ -305,6 +417,10 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.TeleportationPoint.Z, Is.EqualTo(873));
             Assert.That(capturedEntity.TeleportationPoint.Pitch, Is.EqualTo(6.13f));
             Assert.That(capturedEntity.TeleportationPoint.Yaw, Is.EqualTo(8.73f));
+            Assert.That(capturedEntity.Bounds.FirstCorner.World, Is.EqualTo("world_nether"));
+            Assert.That(capturedEntity.Bounds.FirstCorner.X, Is.EqualTo(512));
+            Assert.That(capturedEntity.Bounds.SecondCorner.World, Is.EqualTo("world_nether"));
+            Assert.That(capturedEntity.Bounds.SecondCorner.Z, Is.EqualTo(896));
             Assert.That(capturedEntity.Level, Is.EqualTo(original.Level));
             Assert.That(capturedEntity.Country, Is.EqualTo(original.Country));
             Assert.That(capturedEntity.Population, Is.EqualTo(original.Population));
@@ -347,6 +463,23 @@ namespace NuciCraft.API.UnitTests.Service
                     Pitch = 3.14f,
                     Yaw = 6.13f
                 },
+                Bounds = new()
+                {
+                    FirstCorner = new()
+                    {
+                        World = "world",
+                        X = 4,
+                        Y = 8,
+                        Z = 16,
+                    },
+                    SecondCorner = new()
+                    {
+                        World = "world",
+                        X = 64,
+                        Y = 96,
+                        Z = 128,
+                    }
+                },
                 LeaderTitle = new() { English = "Mayor" },
                 Population = 2048,
                 MapLink = "https://dummy-url.com/map",
@@ -371,10 +504,84 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.TeleportationPoint.Z, Is.EqualTo(32));
             Assert.That(capturedEntity.TeleportationPoint.Pitch, Is.EqualTo(3.14f));
             Assert.That(capturedEntity.TeleportationPoint.Yaw, Is.EqualTo(6.13f));
+            Assert.That(capturedEntity.Bounds.FirstCorner.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.Bounds.FirstCorner.X, Is.EqualTo(4));
+            Assert.That(capturedEntity.Bounds.SecondCorner.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.Bounds.SecondCorner.Z, Is.EqualTo(128));
             Assert.That(capturedEntity.LeaderTitle.English, Is.EqualTo("Mayor"));
             Assert.That(capturedEntity.Population, Is.EqualTo(2048));
             Assert.That(capturedEntity.MapLink, Is.EqualTo("https://dummy-url.com/map"));
             Assert.That(capturedEntity.WikiUrl, Is.EqualTo("https://dummy-url.com/wiki"));
+        }
+
+        [Test]
+        public void GivenARequestWithOnlyOneBoundsCorner_WhenUpdatingAZone_ThenExistingOtherCornerIsPreserved()
+        {
+            ZoneDataObject capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+                .Returns(BuildZoneDataObject());
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            zoneService.Update(new PatchZoneRequest
+            {
+                Identifier = "flusseland_mall_shop_9",
+                Bounds = new ZoneBoundsDataObject
+                {
+                    FirstCorner = new CoordinatesDataObject
+                    {
+                        World = "world",
+                        X = 256,
+                        Y = 64,
+                        Z = 512,
+                    }
+                }
+            });
+
+            Assert.That(capturedEntity.Bounds.FirstCorner.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.Bounds.FirstCorner.X, Is.EqualTo(256));
+            Assert.That(capturedEntity.Bounds.FirstCorner.Y, Is.EqualTo(64));
+            Assert.That(capturedEntity.Bounds.FirstCorner.Z, Is.EqualTo(512));
+            Assert.That(capturedEntity.Bounds.SecondCorner.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.Bounds.SecondCorner.X, Is.EqualTo(96));
+            Assert.That(capturedEntity.Bounds.SecondCorner.Y, Is.EqualTo(96));
+            Assert.That(capturedEntity.Bounds.SecondCorner.Z, Is.EqualTo(192));
+        }
+
+        [Test]
+        public void GivenARequestWithBoundsInDifferentWorlds_WhenUpdatingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+                .Returns(BuildZoneDataObject());
+
+            Assert.That(
+                () => zoneService.Update(new PatchZoneRequest
+                {
+                    Identifier = "flusseland_mall_shop_9",
+                    Bounds = new ZoneBoundsDataObject
+                    {
+                        FirstCorner = new CoordinatesDataObject
+                        {
+                            World = "world_nether",
+                            X = 4,
+                            Y = 8,
+                            Z = 16,
+                        },
+                        SecondCorner = new CoordinatesDataObject
+                        {
+                            World = "world",
+                            X = 32,
+                            Y = 42,
+                            Z = 48,
+                        }
+                    }
+                }),
+                Throws.TypeOf<ArgumentException>());
         }
 
         [Test]
@@ -429,6 +636,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Creators, Is.EqualTo(original.Creators));
             Assert.That(capturedEntity.Leaders, Is.EqualTo(original.Leaders));
             Assert.That(capturedEntity.TeleportationPoint, Is.EqualTo(original.TeleportationPoint));
+            Assert.That(capturedEntity.Bounds, Is.EqualTo(original.Bounds));
             Assert.That(capturedEntity.LeaderTitle, Is.EqualTo(original.LeaderTitle));
             Assert.That(capturedEntity.Population, Is.EqualTo(original.Population));
             Assert.That(capturedEntity.MapLink, Is.EqualTo(original.MapLink));
@@ -615,6 +823,23 @@ namespace NuciCraft.API.UnitTests.Service
                 Z = 128,
                 Pitch = 0,
                 Yaw = 179.9f
+            },
+            Bounds = new ZoneBoundsDataObject
+            {
+                FirstCorner = new CoordinatesDataObject
+                {
+                    World = "world",
+                    X = 32,
+                    Y = 48,
+                    Z = 96,
+                },
+                SecondCorner = new CoordinatesDataObject
+                {
+                    World = "world",
+                    X = 96,
+                    Y = 96,
+                    Z = 192,
+                }
             },
             LeaderTitle = new LocalisedStringDataObject
             {

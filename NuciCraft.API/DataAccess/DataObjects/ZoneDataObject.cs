@@ -26,6 +26,8 @@ namespace NuciCraft.API.DataAccess.DataObjects
 
         public CoordinatesDataObject TeleportationPoint { get; set; }
 
+        public ZoneBoundsDataObject Bounds { get; set; }
+
         public LocalisedStringDataObject LeaderTitle { get; set; }
 
         public int Population { get; set; }
