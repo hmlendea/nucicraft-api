@@ -48,6 +48,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 - Generates random mob names via Universal Name Generator integration
 - Stores, retrieves, and updates country metadata
 - Stores, retrieves, and updates zone metadata
+- Validates zone bounds so both corners share the identical world and are necessary on zone creation
 - Assigns a default zone creation date when one is not provided by the caller
 
 ## 🚀 Usage
@@ -173,15 +174,31 @@ curl -X PATCH "http://localhost:5000/Countries/nucilandia" \
 
 ### Manage Zones
 
+When creating a zone, `bounds` is necessary and must contain both opposite corners of the zone volume. Both corners must use the identical `world` value. On patch requests, `bounds` remains optional, and a partial bounds update preserves the untouched corner before validation.
+
 When creating a zone, `creationDate` is optional. If omitted or whitespace, the service sets it automatically to the current Romania date with an uncertainty suffix in the format `yyyy-MM-dd (?)`.
 
 ```bash
 curl -X POST "http://localhost:5000/Zones" \
 	-H "Content-Type: application/json" \
 	-d '{
-		"identifier": "spawn-city",
+		"id": "spawn-city",
 		"name": {
 			"en": "Spawn City"
+		},
+		"bounds": {
+			"firstCorner": {
+				"world": "world",
+				"x": 32,
+				"y": 64,
+				"z": -48
+			},
+			"secondCorner": {
+				"world": "world",
+				"x": 96,
+				"y": 96,
+				"z": 24
+			}
 		},
 		"population": 120
 	}'
@@ -196,7 +213,15 @@ curl "http://localhost:5000/Zones"
 curl -X PATCH "http://localhost:5000/Zones/spawn-city" \
 	-H "Content-Type: application/json" \
 	-d '{
-		"population": 121
+		"population": 121,
+		"bounds": {
+			"firstCorner": {
+				"world": "world",
+				"x": 40,
+				"y": 64,
+				"z": -40
+			}
+		}
 	}'
 ```
 
