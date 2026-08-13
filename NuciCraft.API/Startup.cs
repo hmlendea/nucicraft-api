@@ -60,7 +60,7 @@ namespace NuciCraft.API
             });
         }
 
-        static void PrepareRepositories(IApplicationBuilder applicationBuilder)
+        private static void PrepareRepositories(IApplicationBuilder applicationBuilder)
         {
             DataStoreSettings dataStoreSettings = applicationBuilder.ApplicationServices.GetRequiredService<DataStoreSettings>();
 
@@ -72,7 +72,7 @@ namespace NuciCraft.API
             EagerlyLoadRepositories(applicationBuilder.ApplicationServices);
         }
 
-        static void CreateStoreIfMissing(string storePath)
+        private static void CreateStoreIfMissing(string storePath)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(storePath);
 
@@ -89,27 +89,19 @@ namespace NuciCraft.API
             }
         }
 
-        static void EagerlyLoadRepositories(IServiceProvider serviceProvider)
+        private static void EagerlyLoadRepositories(IServiceProvider serviceProvider)
         {
-            serviceProvider
-                .GetRequiredService<IFileRepository<PlayerDataObject>>()
-                .GetAll()
-                .ToList();
-
-            serviceProvider
-                .GetRequiredService<IFileRepository<RtpLocationEntity>>()
-                .GetAll()
-                .ToList();
-
-            serviceProvider
-                .GetRequiredService<IFileRepository<CountryDataObject>>()
-                .GetAll()
-                .ToList();
-
-            serviceProvider
-                .GetRequiredService<IFileRepository<ZoneDataObject>>()
-                .GetAll()
-                .ToList();
+            EagerlyLoadRepository<PlayerDataObject>(serviceProvider);
+            EagerlyLoadRepository<RtpLocationEntity>(serviceProvider);
+            EagerlyLoadRepository<CountryDataObject>(serviceProvider);
+            EagerlyLoadRepository<ZoneDataObject>(serviceProvider);
         }
+
+        private static void EagerlyLoadRepository<TDataObject>(IServiceProvider serviceProvider)
+            where TDataObject : NuciCraftEntityBase
+            => serviceProvider
+                .GetRequiredService<IFileRepository<TDataObject>>()
+                .GetAll()
+                .ToList();
     }
 }

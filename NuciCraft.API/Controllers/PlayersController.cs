@@ -27,67 +27,35 @@ namespace NuciCraft.API.Controllers
 
         [HttpGet]
         [Route("{identifier}")]
-        public ActionResult Get(
-            string identifier)
-        {
-            GetPlayerRequest request = new()
+        public ActionResult Get(string identifier)
+            => ProcessGetRequest(new()
             {
                 Identifier = identifier
-            };
-
-            return ProcessRequest(
-                request,
-                () => new GetPlayerResponse(service.Get(request)),
-                authorisation);
-        }
+            });
 
         [HttpGet]
         [Route("by-username/{username}")]
-        public ActionResult GetByUsername(
-            string username)
-        {
-            GetPlayerRequest request = new()
+        public ActionResult GetByUsername(string username)
+            => ProcessGetRequest(new()
             {
                 Username = username
-            };
-
-            return ProcessRequest(
-                request,
-                () => new GetPlayerResponse(service.Get(request)),
-                authorisation);
-        }
+            });
 
         [HttpGet]
         [Route("by-offline-uuid/{offlineUUID}")]
-        public ActionResult GetByOfflineUuid(
-            string offlineUUID)
-        {
-            GetPlayerRequest request = new()
+        public ActionResult GetByOfflineUuid(string offlineUUID)
+            => ProcessGetRequest(new()
             {
                 OfflineUUID = offlineUUID
-            };
-
-            return ProcessRequest(
-                request,
-                () => new GetPlayerResponse(service.Get(request)),
-                authorisation);
-        }
+            });
 
         [HttpGet]
         [Route("by-online-uuid/{onlineUUID}")]
-        public ActionResult GetByOnlineUuid(
-            string onlineUUID)
-        {
-            GetPlayerRequest request = new()
+        public ActionResult GetByOnlineUuid(string onlineUUID)
+            => ProcessGetRequest(new()
             {
                 OnlineUUID = onlineUUID
-            };
-
-            return ProcessRequest(
-                request,
-                () => new GetPlayerResponse(service.Get(request)),
-                authorisation);
-        }
+            });
 
         [HttpGet]
         public ActionResult GetAll()
@@ -104,10 +72,7 @@ namespace NuciCraft.API.Controllers
         {
             request.Identifier = playerIdentifier;
 
-            return ProcessRequest(
-                request,
-                () => service.Update(request),
-                authorisation);
+            return ProcessPatchRequest(request);
         }
 
         [HttpPatch]
@@ -118,10 +83,7 @@ namespace NuciCraft.API.Controllers
         {
             request.Username = username;
 
-            return ProcessRequest(
-                request,
-                () => service.Update(request),
-                authorisation);
+            return ProcessPatchRequest(request);
         }
 
         [HttpPatch]
@@ -132,10 +94,7 @@ namespace NuciCraft.API.Controllers
         {
             request.OfflineUUID = offlineUUID;
 
-            return ProcessRequest(
-                request,
-                () => service.Update(request),
-                authorisation);
+            return ProcessPatchRequest(request);
         }
 
         [HttpPatch]
@@ -146,10 +105,19 @@ namespace NuciCraft.API.Controllers
         {
             request.OnlineUUID = onlineUUID;
 
-            return ProcessRequest(
+            return ProcessPatchRequest(request);
+        }
+
+        private ActionResult ProcessGetRequest(GetPlayerRequest request)
+            => ProcessRequest(
+                request,
+                () => new GetPlayerResponse(service.Get(request)),
+                authorisation);
+
+        private ActionResult ProcessPatchRequest(PatchPlayerRequest request)
+            => ProcessRequest(
                 request,
                 () => service.Update(request),
                 authorisation);
-        }
     }
 }

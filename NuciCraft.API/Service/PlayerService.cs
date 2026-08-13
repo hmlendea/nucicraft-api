@@ -21,6 +21,20 @@ namespace NuciCraft.API.Service
         IFileRepository<PlayerDataObject> repository,
         ILogger logger) : IPlayerService
     {
+        private static string OfflinePlayerNamePrefix => "OfflinePlayer:";
+
+        private static int OfflineUuidVersionByteIndex => 6;
+
+        private static int OfflineUuidVariantByteIndex => 8;
+
+        private static byte UuidVersionMask => 0x0f;
+
+        private static byte UuidVersionThreeBits => 0x30;
+
+        private static byte UuidVariantMask => 0x3f;
+
+        private static byte UuidRfc4122VariantBits => 0x80;
+
         public void Register(RegisterPlayerRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);
@@ -95,20 +109,11 @@ namespace NuciCraft.API.Service
 
             try
             {
-                Func<PlayerDataObject, bool> matchesRequest = BuildPlayerDataObjectMatcher(
+                PlayerDataObject matchingDataObject = FindPlayerDataObject(
                     request.Identifier,
                     request.Username,
                     request.OfflineUUID,
                     request.OnlineUUID);
-
-                PlayerDataObject matchingDataObject = repository
-                    .GetAll()
-                    .FirstOrDefault(matchesRequest);
-
-                if (matchingDataObject is null)
-                {
-                    throw new KeyNotFoundException("No player found matching the provided criteria.");
-                }
 
                 Player player = matchingDataObject.ToDomainModel();
 
@@ -180,13 +185,15 @@ namespace NuciCraft.API.Service
             {
                 ValidatePatchSelectors(request);
 
-                PlayerDataObject playerDataObject = FindPlayerToPatch(request);
+                PlayerDataObject playerDataObject = FindPlayerDataObject(
+                    request.Identifier,
+                    request.Username,
+                    request.OfflineUUID,
+                    request.OnlineUUID);
 
                 ApplyPatchValues(request, playerDataObject);
 
-                playerDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString(
-                    TimestampFormats.Full,
-                    CultureInfo.InvariantCulture);
+                playerDataObject.UpdatedDT = TimestampFormats.GetCurrentUtcTimestamp();
 
                 repository.Update(playerDataObject);
                 repository.SaveChanges();
@@ -231,26 +238,40 @@ namespace NuciCraft.API.Service
             string playerIdentifier,
             string playerUsername,
             string playerOfflineUuid,
-            string playerOnlineUuid)
-            => playerDataObject =>
-                (!string.IsNullOrWhiteSpace(playerIdentifier) && string.Equals(playerDataObject.Id, playerIdentifier)) ||
-                (!string.IsNullOrWhiteSpace(playerUsername) && string.Equals(playerDataObject.Username, playerUsername)) ||
-                (!string.IsNullOrWhiteSpace(playerOfflineUuid) && string.Equals(playerDataObject.OfflineUUID, playerOfflineUuid)) ||
-                (!string.IsNullOrWhiteSpace(playerOnlineUuid) && string.Equals(playerDataObject.OnlineUUID, playerOnlineUuid));
+            string playerOnlineUuid) =>
+            playerDataObject =>
+                MatchesPlayerSelector(playerIdentifier, playerDataObject.Id) ||
+                MatchesPlayerSelector(playerUsername, playerDataObject.Username) ||
+                MatchesPlayerSelector(playerOfflineUuid, playerDataObject.OfflineUUID) ||
+                MatchesPlayerSelector(playerOnlineUuid, playerDataObject.OnlineUUID);
 
-        private PlayerDataObject FindPlayerToPatch(PatchPlayerRequest request)
+        private PlayerDataObject FindPlayerDataObject(
+            string playerIdentifier,
+            string playerUsername,
+            string playerOfflineUuid,
+            string playerOnlineUuid)
         {
             Func<PlayerDataObject, bool> matchesRequest = BuildPlayerDataObjectMatcher(
-                request.Identifier,
-                request.Username,
-                request.OfflineUUID,
-                request.OnlineUUID);
+                playerIdentifier,
+                playerUsername,
+                playerOfflineUuid,
+                playerOnlineUuid);
 
-            return repository
+            PlayerDataObject matchingDataObject = repository
                 .GetAll()
-                .FirstOrDefault(matchesRequest)
-                ?? throw new KeyNotFoundException("No player found matching the provided criteria.");
+                .FirstOrDefault(matchesRequest);
+
+            if (matchingDataObject is null)
+            {
+                throw new KeyNotFoundException("No player found matching the provided criteria.");
+            }
+
+            return matchingDataObject;
         }
+
+        private static bool MatchesPlayerSelector(string selectorValue, string playerValue)
+            => !string.IsNullOrWhiteSpace(selectorValue) &&
+                string.Equals(playerValue, selectorValue);
 
         private static void ApplyPatchValues(
             PatchPlayerRequest request,
@@ -303,67 +324,8 @@ namespace NuciCraft.API.Service
 
             if (request.Settings is not null)
             {
-                playerDataObject.Settings = MergePlayerSettingsDataObject(
-                    playerDataObject.Settings,
-                    request.Settings);
+                playerDataObject.Settings = playerDataObject.Settings.MergeWith(request.Settings);
             }
-        }
-
-        private static PlayerSettingsDataObject MergePlayerSettingsDataObject(
-            PlayerSettingsDataObject existingSettings,
-            PlayerSettingsDataObject incomingSettings)
-        {
-            if (existingSettings is null)
-            {
-                existingSettings = new PlayerSettingsDataObject();
-            }
-
-            if (incomingSettings.AutomaticHotbarRefillingIsEnabled is not null)
-            {
-                existingSettings.AutomaticHotbarRefillingIsEnabled = incomingSettings.AutomaticHotbarRefillingIsEnabled.Value;
-            }
-
-            if (incomingSettings.AutomaticSaplingReplantingIsEnabled is not null)
-            {
-                existingSettings.AutomaticSaplingReplantingIsEnabled = incomingSettings.AutomaticSaplingReplantingIsEnabled.Value;
-            }
-
-            if (incomingSettings.AutomaticToolSelectionIsEnabled is not null)
-            {
-                existingSettings.AutomaticToolSelectionIsEnabled = incomingSettings.AutomaticToolSelectionIsEnabled.Value;
-            }
-
-            if (incomingSettings.KeepExperienceIsEnabled is not null)
-            {
-                existingSettings.KeepExperienceIsEnabled = incomingSettings.KeepExperienceIsEnabled.Value;
-            }
-
-            if (incomingSettings.KeepInventoryIsEnabled is not null)
-            {
-                existingSettings.KeepInventoryIsEnabled = incomingSettings.KeepInventoryIsEnabled.Value;
-            }
-
-            if (incomingSettings.PrivateMessagesAreEnabled is not null)
-            {
-                existingSettings.PrivateMessagesAreEnabled = incomingSettings.PrivateMessagesAreEnabled.Value;
-            }
-
-            if (incomingSettings.PrivateMessagesInterceptionIsEnabled is not null)
-            {
-                existingSettings.PrivateMessagesInterceptionIsEnabled = incomingSettings.PrivateMessagesInterceptionIsEnabled.Value;
-            }
-
-            if (incomingSettings.Localisation is not null)
-            {
-                existingSettings.Localisation = incomingSettings.Localisation;
-            }
-
-            if (incomingSettings.SkinUrl is not null)
-            {
-                existingSettings.SkinUrl = incomingSettings.SkinUrl;
-            }
-
-            return existingSettings;
         }
 
         private static DateTimeOffset GetCreatedDateTimeForRegisterRequest(RegisterPlayerRequest request)
@@ -389,39 +351,19 @@ namespace NuciCraft.API.Service
 
         private static string GetOfflineUuid(string username)
         {
-            string input = $"OfflinePlayer:{username}";
+            byte[] hashBytes = MD5.HashData(
+                Encoding.UTF8.GetBytes($"{OfflinePlayerNamePrefix}{username}"));
 
-            // Compute MD5 hash
-            MD5 md5 = MD5.Create();
-            byte[] hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
+            hashBytes[OfflineUuidVersionByteIndex] = (byte)(
+                hashBytes[OfflineUuidVersionByteIndex] & UuidVersionMask |
+                UuidVersionThreeBits);
+            hashBytes[OfflineUuidVariantByteIndex] = (byte)(
+                hashBytes[OfflineUuidVariantByteIndex] & UuidVariantMask |
+                UuidRfc4122VariantBits);
 
-            // Convert to hex string
-            StringBuilder hexBuilder = new StringBuilder();
-            foreach (byte b in hashBytes)
-            {
-                hexBuilder.Append(b.ToString("x2"));
-            }
+            Guid offlineUuid = new(hashBytes, bigEndian: true);
 
-            string byteArray = hexBuilder.ToString();
-
-            // Modify specific bytes (UUID v3 format adjustments)
-            int byte6 = (Convert.ToInt32(byteArray.Substring(12, 2), 16) & 0x0f) | 0x30;
-            int byte8 = (Convert.ToInt32(byteArray.Substring(16, 2), 16) & 0x3f) | 0x80;
-
-            byteArray =
-                byteArray[..12] +
-                byte6.ToString("x2") +
-                byteArray.Substring(14, 2) +
-                byte8.ToString("x2") +
-                byteArray[18..];
-
-            // Format as UUID
-            return
-                $"{byteArray[..8]}-" +
-                $"{byteArray.Substring(8, 4)}-" +
-                $"{byteArray.Substring(12, 4)}-" +
-                $"{byteArray.Substring(16, 4)}-" +
-                $"{byteArray[20..]}";
+            return offlineUuid.ToString();
         }
     }
 }

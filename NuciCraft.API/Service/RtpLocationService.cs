@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
@@ -59,9 +58,7 @@ namespace NuciCraft.API.Service
                         Y = request.Y,
                         Z = request.Z
                     },
-                    CreatedDT = DateTimeOffset.UtcNow.ToString(
-                        TimestampFormats.Full,
-                        CultureInfo.InvariantCulture)
+                    CreatedDT = TimestampFormats.GetCurrentUtcTimestamp()
                 });
 
                 rtpLocationsRepository.SaveChanges();
@@ -141,33 +138,41 @@ namespace NuciCraft.API.Service
         }
 
         private bool IsLocationFarAwayFromOtherLocations(string world, float x, float z)
-            => !rtpLocationsRepository
-                .GetAll()
-                .Any(location => AreLocationsTooClose(
-                    world,
-                    x,
-                    z,
-                    location.Coordinates.World,
-                    location.Coordinates.X,
-                    location.Coordinates.Z,
-                    settings.MinimumLocationDistance));
+            => IsLocationFarAwayFromLocations(
+                rtpLocationsRepository.GetAll(),
+                world,
+                x,
+                z,
+                settings.MinimumLocationDistance);
 
         private bool IsLocationFarAwayFromOtherLocationsInTheSameBiome(
             string biome,
             string world,
             float x,
             float z)
-            => !rtpLocationsRepository
-                .GetAll()
-                .Where(location => biome.Equals(location.Biome))
-                .Any(location => AreLocationsTooClose(
+            => IsLocationFarAwayFromLocations(
+                rtpLocationsRepository
+                    .GetAll()
+                    .Where(location => biome.Equals(location.Biome)),
+                world,
+                x,
+                z,
+                settings.MinimumBiomeLocationDistance);
+
+        private static bool IsLocationFarAwayFromLocations(
+            IEnumerable<RtpLocationEntity> locationEntities,
+            string world,
+            float x,
+            float z,
+            int minimumDistance)
+            => !locationEntities.Any(location => AreLocationsTooClose(
                     world,
                     x,
                     z,
                     location.Coordinates.World,
                     location.Coordinates.X,
                     location.Coordinates.Z,
-                    settings.MinimumBiomeLocationDistance));
+                    minimumDistance));
 
         private static bool AreLocationsTooClose(
             string world1,

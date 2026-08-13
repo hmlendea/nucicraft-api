@@ -116,10 +116,14 @@ namespace NuciCraft.API.Service
                     $"The Universal Name Generator API request has failed with the '{apiResponse.Code}' code: {apiResponse.Message}");
             }
 
-            GenerateNamesResponse generateNamesResponse =
-                apiResponse as GenerateNamesResponse ??
+            GenerateNamesResponse generateNamesResponse = apiResponse as GenerateNamesResponse;
+
+            if (generateNamesResponse is null)
+            {
                 throw new InvalidOperationException(
                     $"The Universal Name Generator API returned an unexpected response type: '{apiResponse.GetType().Name}'.");
+            }
+
             string generatedName = null;
 
             if (generateNamesResponse.Names is not null)
@@ -185,30 +189,11 @@ namespace NuciCraft.API.Service
                 $"The '{mobType}' mob type does not have a configured schema.");
         }
 
-        private static bool UsesZaganianMaleNamesSchema(MobType mobType)
-        {
-            if (Equals(mobType, MobType.Evoker))
-            {
-                return true;
-            }
-
-            if (Equals(mobType, MobType.Illusioner))
-            {
-                return true;
-            }
-
-            if (Equals(mobType, MobType.Pillager))
-            {
-                return true;
-            }
-
-            if (Equals(mobType, MobType.Vindicator))
-            {
-                return true;
-            }
-
-            return false;
-        }
+        private static bool UsesZaganianMaleNamesSchema(MobType mobType) =>
+            Equals(mobType, MobType.Evoker) ||
+            Equals(mobType, MobType.Illusioner) ||
+            Equals(mobType, MobType.Pillager) ||
+            Equals(mobType, MobType.Vindicator);
 
         private static string GetRandomVillageSchema()
         {

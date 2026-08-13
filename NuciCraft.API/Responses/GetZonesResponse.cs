@@ -15,6 +15,17 @@ namespace NuciCraft.API.Responses
         public IEnumerable<Zone> Zones { get; set; }
 
         [HmacIgnore]
-        public int Count => Zones?.Count() ?? 0;
+        public int Count
+        {
+            get
+            {
+                if (Zones is null)
+                {
+                    return 0;
+                }
+
+                return Zones.Count();
+            }
+        }
     }
 }

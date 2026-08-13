@@ -1,8 +1,11 @@
+using System;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using NuciAPI.Client;
 
+using NuciDAL.DataObjects;
 using NuciDAL.Repositories;
 
 using NuciLog;
@@ -19,7 +22,6 @@ namespace NuciCraft.API
 {
     public static class ServiceCollectionExtensions
     {
-
         private static DataStoreSettings dataStoreSettings;
 
         public static IServiceCollection AddConfigurations(
@@ -47,18 +49,10 @@ namespace NuciCraft.API
         }
 
         public static IServiceCollection AddCustomServices(this IServiceCollection services) => services
-            .AddSingleton<IFileRepository<PlayerDataObject>>(serviceProvider =>
-                new JsonRepository<PlayerDataObject>(
-                    dataStoreSettings.PlayersStorePath))
-            .AddSingleton<IFileRepository<RtpLocationEntity>>(serviceProvider =>
-                new JsonRepository<RtpLocationEntity>(
-                    dataStoreSettings.RtpLocationsStorePath))
-            .AddSingleton<IFileRepository<CountryDataObject>>(serviceProvider =>
-                new JsonRepository<CountryDataObject>(
-                    dataStoreSettings.CountriesStorePath))
-            .AddSingleton<IFileRepository<ZoneDataObject>>(serviceProvider =>
-                new JsonRepository<ZoneDataObject>(
-                    dataStoreSettings.ZonesStorePath))
+            .AddJsonRepository<PlayerDataObject>(() => dataStoreSettings.PlayersStorePath)
+            .AddJsonRepository<RtpLocationEntity>(() => dataStoreSettings.RtpLocationsStorePath)
+            .AddJsonRepository<CountryDataObject>(() => dataStoreSettings.CountriesStorePath)
+            .AddJsonRepository<ZoneDataObject>(() => dataStoreSettings.ZonesStorePath)
             .AddSingleton<INuciApiClient>(serviceProvider =>
                 new NuciApiClient(
                     serviceProvider
@@ -72,5 +66,12 @@ namespace NuciCraft.API
             .AddSingleton<INuciTextNormaliser, NuciTextNormaliser>()
             .AddSingleton<INuciTextObfuscator, NuciTextObfuscator>()
             .AddScoped<ILogger, NuciLogger>();
+
+        private static IServiceCollection AddJsonRepository<TDataObject>(
+            this IServiceCollection services,
+            Func<string> storePathProvider)
+            where TDataObject : EntityBase
+            => services.AddSingleton<IFileRepository<TDataObject>>(
+                _ => new JsonRepository<TDataObject>(storePathProvider()));
     }
 }
