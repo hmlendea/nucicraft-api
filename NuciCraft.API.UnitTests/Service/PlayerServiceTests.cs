@@ -286,6 +286,51 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenNoMatchingOnlineUUID_WhenGettingAPlayer_ThenAKeyNotFoundExceptionIsThrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildPlayerDataObject()]);
+
+            Assert.That(
+                () => playerService.Get(new GetPlayerRequest
+                {
+                    OnlineUUID = "61300000-8730-3000-8000-000000000000"
+                }),
+                Throws.TypeOf<KeyNotFoundException>());
+        }
+
+        [Test]
+        public void GivenNoMatchingIdentifier_WhenGettingAPlayer_ThenAKeyNotFoundExceptionIsThrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildPlayerDataObject()]);
+
+            Assert.That(
+                () => playerService.Get(new GetPlayerRequest
+                {
+                    Identifier = "61300000-8730-3000-8000-000000000000"
+                }),
+                Throws.TypeOf<KeyNotFoundException>());
+        }
+
+        [Test]
+        public void GivenNoMatchingOfflineUUID_WhenGettingAPlayer_ThenAKeyNotFoundExceptionIsThrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildPlayerDataObject()]);
+
+            Assert.That(
+                () => playerService.Get(new GetPlayerRequest
+                {
+                    OfflineUUID = "87300000-6130-3000-8000-000000000000"
+                }),
+                Throws.TypeOf<KeyNotFoundException>());
+        }
+
+        [Test]
         public void GivenARepositoryException_WhenGettingAPlayer_ThenTheExceptionIsRethrown()
         {
             repositoryMock
@@ -303,6 +348,30 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(
                 () => playerService.Get(null),
                 Throws.TypeOf<ArgumentNullException>());
+        }
+
+        [Test]
+        public void GivenPlayersInTheRepository_WhenGettingAllPlayers_ThenAllPlayersAreReturned()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildPlayerDataObject()]);
+
+            IEnumerable<Player> players = playerService.GetAll();
+
+            Assert.That(players, Has.Exactly(1).Items);
+        }
+
+        [Test]
+        public void GivenARepositoryException_WhenGettingAllPlayers_ThenTheExceptionIsRethrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Throws<InvalidOperationException>();
+
+            Assert.That(
+                () => playerService.GetAll(),
+                Throws.TypeOf<InvalidOperationException>());
         }
 
         // ── Update ─────────────────────────────────────────────────────────────
@@ -520,6 +589,34 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Settings.KeepInventoryIsEnabled, Is.EqualTo(false));
             Assert.That(capturedEntity.Settings.KeepExperienceIsEnabled, Is.EqualTo(false));
             Assert.That(capturedEntity.Settings.AutomaticToolSelectionIsEnabled, Is.EqualTo(true));
+        }
+
+        [Test]
+        public void GivenNullExistingSettings_WhenUpdatingPlayerSettings_ThenSettingsAreCreated()
+        {
+            PlayerDataObject original = BuildPlayerDataObject();
+            original.Settings = null;
+            PlayerDataObject capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([original]);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
+
+            playerService.Update(new PatchPlayerRequest
+            {
+                Identifier = "IlarionPintilie",
+                Settings = new()
+                {
+                    SkinUrl = "test.nucilandia.ro"
+                }
+            });
+
+            Assert.That(capturedEntity.Settings, Is.Not.Null);
+            Assert.That(capturedEntity.Settings.SkinUrl, Is.EqualTo("test.nucilandia.ro"));
         }
 
         [Test]

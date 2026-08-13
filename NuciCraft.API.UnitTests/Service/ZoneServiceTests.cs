@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 
 using Moq;
 
@@ -22,6 +23,8 @@ namespace NuciCraft.API.UnitTests.Service
     public sealed class ZoneServiceTests
     {
         private static string RomaniaTimeZoneId => "Europe/Bucharest";
+
+        private static string ValidateBoundsMethodName => "ValidateBounds";
 
         private Mock<IFileRepository<ZoneDataObject>> repositoryMock;
         private Mock<ILogger> loggerMock;
@@ -355,6 +358,76 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenRequestWithBoundsWithoutAFirstCorner_WhenAddingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                Bounds = new()
+                {
+                    SecondCorner = new()
+                    {
+                        World = "world"
+                    }
+                }
+            };
+
+            Assert.That(
+                () => zoneService.Add(request),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenRequestWithBoundsWithoutASecondCorner_WhenAddingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                Bounds = new()
+                {
+                    FirstCorner = new()
+                    {
+                        World = "world"
+                    }
+                }
+            };
+
+            Assert.That(
+                () => zoneService.Add(request),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenRequestWithBoundsWithoutAFirstCornerWorld_WhenAddingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                Bounds = BuildZoneBoundsDataObject()
+            };
+            request.Bounds.FirstCorner.World = " ";
+
+            Assert.That(
+                () => zoneService.Add(request),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenRequestWithBoundsWithoutASecondCornerWorld_WhenAddingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                Bounds = BuildZoneBoundsDataObject()
+            };
+            request.Bounds.SecondCorner.World = null;
+
+            Assert.That(
+                () => zoneService.Add(request),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
         public void GivenRequestWithReversedBoundsCorners_WhenAddingAZone_ThenBoundsAreNormalised()
         {
             ZoneDataObject capturedEntity = null;
@@ -457,6 +530,65 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenAZoneWithoutBounds_WhenGettingAZone_ThenBoundsRemainNull()
+        {
+            ZoneDataObject zoneDataObject = BuildZoneDataObject();
+            zoneDataObject.Bounds = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+                .Returns(zoneDataObject);
+
+            Zone zone = zoneService.GetZone("flusseland_mall_shop_9");
+
+            Assert.That(zone.Bounds, Is.Null);
+        }
+
+        [Test]
+        public void GivenAZoneWithoutAFirstBoundsCorner_WhenGettingAZone_ThenTheSecondCornerIsReturned()
+        {
+            ZoneDataObject zoneDataObject = BuildZoneDataObject();
+            zoneDataObject.Bounds.FirstCorner = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+                .Returns(zoneDataObject);
+
+            Zone zone = zoneService.GetZone("flusseland_mall_shop_9");
+
+            Assert.That(zone.Bounds.FirstCorner, Is.Null);
+            Assert.That(zone.Bounds.SecondCorner, Is.Not.Null);
+        }
+
+        [Test]
+        public void GivenAZoneWithoutASecondBoundsCorner_WhenGettingAZone_ThenTheFirstCornerIsReturned()
+        {
+            ZoneDataObject zoneDataObject = BuildZoneDataObject();
+            zoneDataObject.Bounds.SecondCorner = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+                .Returns(zoneDataObject);
+
+            Zone zone = zoneService.GetZone("flusseland_mall_shop_9");
+
+            Assert.That(zone.Bounds.FirstCorner, Is.Not.Null);
+            Assert.That(zone.Bounds.SecondCorner, Is.Null);
+        }
+
+        [Test]
+        public void GivenARepositoryException_WhenGettingAZone_ThenTheExceptionIsRethrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+                .Throws<InvalidOperationException>();
+
+            Assert.That(
+                () => zoneService.GetZone("flusseland_mall_shop_9"),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
         public void GivenZonesWithBounds_WhenGettingAllZones_ThenBoundsAreReturned()
         {
             repositoryMock
@@ -469,6 +601,18 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(zones[0].Bounds, Is.Not.Null);
             Assert.That(zones[0].Bounds.FirstCorner.World, Is.EqualTo("world"));
             Assert.That(zones[0].Bounds.SecondCorner.World, Is.EqualTo("world"));
+        }
+
+        [Test]
+        public void GivenARepositoryException_WhenGettingAllZones_ThenTheExceptionIsRethrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Throws<InvalidOperationException>();
+
+            Assert.That(
+                () => zoneService.GetAllZones(),
+                Throws.TypeOf<InvalidOperationException>());
         }
 
         [Test]
@@ -659,6 +803,31 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Bounds.SecondCorner.X, Is.EqualTo(256));
             Assert.That(capturedEntity.Bounds.SecondCorner.Y, Is.EqualTo(48));
             Assert.That(capturedEntity.Bounds.SecondCorner.Z, Is.EqualTo(512));
+        }
+
+        [Test]
+        public void GivenAZoneWithoutExistingBounds_WhenUpdatingBounds_ThenRequestedBoundsAreApplied()
+        {
+            ZoneDataObject zoneDataObject = BuildZoneDataObject();
+            zoneDataObject.Bounds = null;
+            ZoneDataObject capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+                .Returns(zoneDataObject);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            zoneService.Update(new PatchZoneRequest
+            {
+                Identifier = "flusseland_mall_shop_9",
+                Bounds = BuildZoneBoundsDataObject()
+            });
+
+            Assert.That(capturedEntity.Bounds.FirstCorner, Is.Not.Null);
+            Assert.That(capturedEntity.Bounds.SecondCorner, Is.Not.Null);
         }
 
         [Test]
@@ -951,6 +1120,12 @@ namespace NuciCraft.API.UnitTests.Service
                 Throws.TypeOf<ArgumentNullException>());
         }
 
+        [Test]
+        public void GivenNullBounds_WhenValidatingBounds_ThenNoExceptionIsThrown()
+            => Assert.That(
+                () => InvokeValidateBounds(null),
+                Throws.Nothing);
+
         private static ZoneDataObject BuildZoneDataObject() => new()
         {
             Id = "flusseland_mall_shop_9",
@@ -1033,5 +1208,10 @@ namespace NuciCraft.API.UnitTests.Service
 
             return TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, romaniaTimeZone);
         }
+
+        private static void InvokeValidateBounds(ZoneBoundsDataObject bounds)
+            => typeof(ZoneService)
+                .GetMethod(ValidateBoundsMethodName, BindingFlags.NonPublic | BindingFlags.Static)
+                .Invoke(null, [bounds]);
     }
 }
