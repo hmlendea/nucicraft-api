@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Reflection;
 
@@ -11,6 +12,7 @@ using NuciSecurity.HMAC;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
+using NuciCraft.API.Responses;
 using NuciCraft.API.Service;
 
 using NuciLog.Core;
@@ -21,6 +23,14 @@ namespace NuciCraft.API.UnitTests.Service
     [TestFixture]
     public sealed class MobServiceTests
     {
+        private static int MaximumVillageSchemaAttempts => 8192;
+
+        private static int VillageSchemaVariantsCount => 2;
+
+        private static string GetRandomVillageSchemaMethodName => "GetRandomVillageSchema";
+
+        private static string GetSchemaForMobTypeMethodName => "GetSchemaForMobType";
+
         private Mock<INuciApiClient> universalNameGeneratorClientMock;
         private Mock<ILogger> loggerMock;
         private UniversalNameGeneratorSettings settings;
@@ -329,6 +339,60 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenNullNamesInTheUniversalNameGeneratorResponse_WhenGettingARandomMobName_ThenAnInvalidOperationExceptionIsThrown()
+        {
+            universalNameGeneratorClientMock
+                .Setup(client => client
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                        HttpMethod.Get,
+                        It.IsAny<GenerateNamesRequest>(),
+                        It.IsAny<NuciApiRequestAuthorisationInfo>(),
+                        "Names"))
+                .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
+                {
+                    Names = null
+                });
+
+            Assert.That(
+                () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void GivenASuccessfulUnexpectedResponseType_WhenGettingARandomMobName_ThenAnInvalidOperationExceptionIsThrown()
+        {
+            universalNameGeneratorClientMock
+                .Setup(client => client
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                        HttpMethod.Get,
+                        It.IsAny<GenerateNamesRequest>(),
+                        It.IsAny<NuciApiRequestAuthorisationInfo>(),
+                        "Names"))
+                .ReturnsAsync((NuciApiResponse)new GetResponse("Nucile rullz"));
+
+            Assert.That(
+                () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void GivenANullUniversalNameGeneratorResponse_WhenGettingARandomMobName_ThenAnArgumentNullExceptionIsThrown()
+        {
+            universalNameGeneratorClientMock
+                .Setup(client => client
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                        HttpMethod.Get,
+                        It.IsAny<GenerateNamesRequest>(),
+                        It.IsAny<NuciApiRequestAuthorisationInfo>(),
+                        "Names"))
+                .ReturnsAsync((NuciApiResponse)null);
+
+            Assert.That(
+                () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
+                Throws.TypeOf<ArgumentNullException>());
+        }
+
+        [Test]
         public void GivenAnUngErrorResponse_WhenGettingARandomMobName_ThenAnInvalidOperationExceptionContainsTheUngFailureDetails()
         {
             universalNameGeneratorClientMock
@@ -361,6 +425,54 @@ namespace NuciCraft.API.UnitTests.Service
                 Throws.TypeOf<ArgumentException>());
         }
 
+        [Test]
+        public void GivenAMissingApiKey_WhenGettingARandomMobName_ThenAnArgumentExceptionIsThrown()
+        {
+            settings.ApiKey = string.Empty;
+
+            Assert.That(
+                () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenANullRequest_WhenGettingARandomMobName_ThenAnArgumentNullExceptionIsThrown()
+            => Assert.That(
+                () => mobService.GetRandomMobName(null),
+                Throws.TypeOf<ArgumentNullException>());
+
+        [Test]
+        public void GivenAWhitespaceMobType_WhenGettingARandomMobName_ThenAnArgumentExceptionIsThrown()
+            => Assert.That(
+                () => mobService.GetRandomMobName(new GetMobNameRequest { MobType = " " }),
+                Throws.TypeOf<ArgumentException>());
+
+        [Test]
+        public void GivenAnUnsupportedMobType_WhenGettingItsSchema_ThenANotImplementedExceptionIsThrown()
+            => Assert.That(
+                () => InvokeGetSchemaForMobType(MobType.Unsupported),
+                Throws.TypeOf<NotImplementedException>());
+
+        [Test]
+        public void GivenRepeatedVillageSchemaSelections_WhenSelectingSchemas_ThenBothVariantsAreReturned()
+        {
+            HashSet<string> schemas = [];
+
+            for (int attemptCount = 0;
+                attemptCount < MaximumVillageSchemaAttempts && schemas.Count < VillageSchemaVariantsCount;
+                attemptCount += 1)
+            {
+                schemas.Add(InvokeGetRandomVillageSchema());
+            }
+
+            Assert.That(
+                schemas,
+                Is.EquivalentTo([
+                    "romanian-persons-male",
+                    "romanian-persons-female",
+                ]));
+        }
+
         private static GetMobNameRequest BuildGetMobNameRequest()
             => BuildGetMobNameRequest(MobType.WanderingTrader);
 
@@ -368,5 +480,25 @@ namespace NuciCraft.API.UnitTests.Service
         {
             MobType = mobType
         };
+
+        private static string InvokeGetRandomVillageSchema()
+        {
+            MethodInfo method = typeof(MobService).GetMethod(
+                GetRandomVillageSchemaMethodName,
+                BindingFlags.NonPublic | BindingFlags.Static);
+            Func<string> getRandomVillageSchema = method.CreateDelegate<Func<string>>();
+
+            return getRandomVillageSchema();
+        }
+
+        private static string InvokeGetSchemaForMobType(MobType mobType)
+        {
+            MethodInfo method = typeof(MobService).GetMethod(
+                GetSchemaForMobTypeMethodName,
+                BindingFlags.NonPublic | BindingFlags.Static);
+            Func<MobType, string> getSchemaForMobType = method.CreateDelegate<Func<MobType, string>>();
+
+            return getSchemaForMobType(mobType);
+        }
     }
 }

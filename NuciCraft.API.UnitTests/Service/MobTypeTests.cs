@@ -1,3 +1,6 @@
+using System;
+using System.Reflection;
+
 using NUnit.Framework;
 
 using NuciCraft.API.Service.Models;
@@ -122,6 +125,18 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenANullExternalName_WhenConvertingFromString_ThenUnsupportedIsReturned()
+            => Assert.That(
+                MobType.FromString(null),
+                Is.EqualTo(MobType.Unsupported));
+
+        [Test]
+        public void GivenAWhitespaceExternalName_WhenConvertingFromString_ThenUnsupportedIsReturned()
+            => Assert.That(
+                MobType.FromString(" "),
+                Is.EqualTo(MobType.Unsupported));
+
+        [Test]
         public void GivenAMobType_WhenConvertingToString_ThenTheExternalNameIsReturned()
             => Assert.That(
                 (string)MobType.WanderingTrader,
@@ -164,5 +179,132 @@ namespace NuciCraft.API.UnitTests.Service
             => Assert.That(
                 (string)MobType.Villager,
                 Is.EqualTo("villager"));
+
+        [Test]
+        public void GivenAllMobTypes_WhenGettingValues_ThenEveryMobTypeIsReturned()
+            => Assert.That(
+                MobType.GetValues(),
+                Has.Length.EqualTo(10));
+
+        [Test]
+        public void GivenNull_WhenComparingTypedMobTypes_ThenFalseIsReturned()
+            => Assert.That(
+                MobType.Cow.Equals((MobType)null),
+                Is.False);
+
+        [Test]
+        public void GivenTheIdenticalInstance_WhenComparingTypedMobTypes_ThenTrueIsReturned()
+            => Assert.That(MobType.Cow.Equals(MobType.Cow));
+
+        [Test]
+        public void GivenDistinctEquivalentInstances_WhenComparingTypedMobTypes_ThenTrueIsReturned()
+        {
+            MobType mobType = BuildMobType(
+                nameof(MobType.Cow),
+                "cow");
+
+            Assert.That(MobType.Cow.Equals(mobType));
+        }
+
+        [Test]
+        public void GivenMatchingNamesAndDifferentExternalNames_WhenComparingTypedMobTypes_ThenFalseIsReturned()
+        {
+            MobType mobType = BuildMobType(
+                nameof(MobType.Cow),
+                "pig");
+
+            Assert.That(MobType.Cow.Equals(mobType), Is.False);
+        }
+
+        [Test]
+        public void GivenDifferentMobTypes_WhenComparingTypedMobTypes_ThenFalseIsReturned()
+            => Assert.That(
+                MobType.Cow.Equals(MobType.Pig),
+                Is.False);
+
+        [Test]
+        public void GivenNull_WhenComparingObjectMobTypes_ThenFalseIsReturned()
+            => Assert.That(
+                MobType.Cow.Equals((object)null),
+                Is.False);
+
+        [Test]
+        public void GivenTheIdenticalInstance_WhenComparingObjectMobTypes_ThenTrueIsReturned()
+            => Assert.That(MobType.Cow.Equals((object)MobType.Cow));
+
+        [Test]
+        public void GivenAnotherType_WhenComparingObjectMobTypes_ThenFalseIsReturned()
+            => Assert.That(
+                MobType.Cow.Equals("cow"),
+                Is.False);
+
+        [Test]
+        public void GivenDistinctEquivalentInstances_WhenComparingObjectMobTypes_ThenTrueIsReturned()
+        {
+            object mobType = BuildMobType(
+                nameof(MobType.Cow),
+                "cow");
+
+            Assert.That(MobType.Cow.Equals(mobType));
+        }
+
+        [Test]
+        public void GivenAnEquivalentMobType_WhenGettingHashCodes_ThenTheHashCodesAreEqual()
+        {
+            MobType mobType = BuildMobType(
+                nameof(MobType.Cow),
+                "cow");
+
+            Assert.That(
+                MobType.Cow.GetHashCode(),
+                Is.EqualTo(mobType.GetHashCode()));
+        }
+
+        [Test]
+        public void GivenAMobType_WhenCallingToString_ThenTheExternalNameIsReturned()
+            => Assert.That(
+                MobType.Cow.ToString(),
+                Is.EqualTo("cow"));
+
+        [Test]
+        public void GivenTwoNullMobTypes_WhenUsingTheEqualityOperator_ThenTrueIsReturned()
+        {
+            MobType current = null;
+            MobType other = null;
+
+            Assert.That(current == other);
+        }
+
+        [Test]
+        public void GivenNullAndNonNullMobTypes_WhenUsingTheEqualityOperator_ThenFalseIsReturned()
+        {
+            MobType current = null;
+
+            Assert.That(current == MobType.Cow, Is.False);
+        }
+
+        [Test]
+        public void GivenEquivalentMobTypes_WhenUsingTheEqualityOperator_ThenTrueIsReturned()
+        {
+            MobType mobType = BuildMobType(
+                nameof(MobType.Cow),
+                "cow");
+
+            Assert.That(MobType.Cow == mobType);
+        }
+
+        [Test]
+        public void GivenDifferentMobTypes_WhenUsingTheInequalityOperator_ThenTrueIsReturned()
+            => Assert.That(MobType.Cow != MobType.Pig);
+
+        private static MobType BuildMobType(
+            string name,
+            string externalName)
+            => Activator.CreateInstance(
+                typeof(MobType),
+                BindingFlags.Instance | BindingFlags.NonPublic,
+                null,
+                [name, externalName],
+                null) as MobType;
     }
 }

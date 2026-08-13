@@ -272,6 +272,21 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenALocationWithoutCoordinates_WhenGettingAnRtpLocation_ThenNullCoordinatesAreReturned()
+        {
+            RtpLocationEntity entity = BuildRtpLocationEntity();
+            entity.Coordinates = null;
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([entity]);
+
+            RtpLocation location = rtpLocationService.GetRtpLocation(new GetRtpLocationRequest());
+
+            Assert.That(location.Coordinates, Is.Null);
+        }
+
+        [Test]
         public void GivenARepositoryException_WhenGettingAnRtpLocation_ThenTheExceptionIsRethrown()
         {
             repositoryMock

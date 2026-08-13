@@ -109,6 +109,18 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenARepositoryException_WhenGettingACountry_ThenTheExceptionIsRethrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.Get("nucilandia"))
+                .Throws<InvalidOperationException>();
+
+            Assert.That(
+                () => countryService.Get("nucilandia"),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
         public void GivenCountriesInTheRepository_WhenGettingAllCountries_ThenAllCountriesAreReturned()
         {
             repositoryMock
@@ -127,6 +139,18 @@ namespace NuciCraft.API.UnitTests.Service
             List<Country> countries = countryService.GetAll().ToList();
 
             Assert.That(countries, Has.Count.EqualTo(2));
+        }
+
+        [Test]
+        public void GivenARepositoryException_WhenGettingAllCountries_ThenTheExceptionIsRethrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Throws<InvalidOperationException>();
+
+            Assert.That(
+                () => countryService.GetAll(),
+                Throws.TypeOf<InvalidOperationException>());
         }
 
         [Test]
@@ -186,6 +210,33 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Name.English, Is.EqualTo("New California Republic"));
             Assert.That(capturedEntity.LeaderTitle.English, Is.EqualTo("Chancellor"));
             Assert.That(capturedEntity.Leader, Is.EqualTo("DummyUser"));
+        }
+
+        [Test]
+        public void GivenNullExistingLocalisedFields_WhenUpdatingACountry_ThenRequestedValuesAreApplied()
+        {
+            CountryDataObject countryDataObject = BuildCountryDataObject();
+            countryDataObject.Name = null;
+            countryDataObject.LeaderTitle = null;
+            CountryDataObject capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("nucilandia"))
+                .Returns(countryDataObject);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<CountryDataObject>()))
+                .Callback<CountryDataObject>(entity => capturedEntity = entity);
+
+            countryService.Update(new PatchCountryRequest
+            {
+                Identifier = "nucilandia",
+                Name = new() { English = "Nucilandia" },
+                LeaderTitle = new() { English = "President" }
+            });
+
+            Assert.That(capturedEntity.Name.English, Is.EqualTo("Nucilandia"));
+            Assert.That(capturedEntity.LeaderTitle.English, Is.EqualTo("President"));
         }
 
         [Test]
