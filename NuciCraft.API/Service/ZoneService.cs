@@ -20,11 +20,19 @@ namespace NuciCraft.API.Service
         IFileRepository<ZoneDataObject> repository,
         ILogger logger) : IZoneService
     {
+        private static float BoundsPitch => 0f;
+
+        private static float BoundsYaw => 0f;
+
         private static string RomaniaTimeZoneId => "Europe/Bucharest";
 
         public void Add(AddZoneRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);
+
+            ValidateBoundsForAdd(request.Bounds);
+
+            ZoneBoundsDataObject normalisedBounds = GetNormalisedBounds(request.Bounds);
 
             IEnumerable<LogInfo> logInfos =
             [
@@ -59,6 +67,7 @@ namespace NuciCraft.API.Service
                     Creators = GetCreatorsForAddRequest(request),
                     Leaders = request.Leaders,
                     TeleportationPoint = request.TeleportationPoint,
+                    Bounds = normalisedBounds,
                     LeaderTitle = request.LeaderTitle,
                     Population = request.Population,
                     MapLink = request.MapLink,
@@ -102,7 +111,11 @@ namespace NuciCraft.API.Service
 
             try
             {
-                Zone zone = repository.Get(zoneIdentifier).ToServiceModel();
+                ZoneDataObject zoneDataObject = repository.Get(zoneIdentifier);
+
+                zoneDataObject.Bounds = GetNormalisedBounds(zoneDataObject.Bounds);
+
+                Zone zone = zoneDataObject.ToServiceModel();
 
                 logger.Info(
                     MyOperation.GetZone,
@@ -131,7 +144,9 @@ namespace NuciCraft.API.Service
 
             try
             {
-                IEnumerable<Zone> zones = repository.GetAll().ToServiceModels();
+                IEnumerable<ZoneDataObject> zoneDataObjects = repository.GetAll()
+                    .Select(zoneDataObject => GetNormalisedZoneDataObject(zoneDataObject));
+                IEnumerable<Zone> zones = zoneDataObjects.ToServiceModels();
 
                 logger.Info(
                     MyOperation.GetAllZones,
@@ -171,7 +186,20 @@ namespace NuciCraft.API.Service
 
                 ZoneDataObject zoneDataObject = repository.Get(request.Identifier);
 
+                ZoneBoundsDataObject mergedBounds = GetMergedBounds(request, zoneDataObject);
+
+                if (request.Bounds is not null)
+                {
+                    ValidateBounds(mergedBounds);
+                    mergedBounds = GetNormalisedBounds(mergedBounds);
+                }
+
                 ApplyPatchValues(request, zoneDataObject);
+
+                if (request.Bounds is not null)
+                {
+                    zoneDataObject.Bounds = mergedBounds;
+                }
 
                 zoneDataObject.UpdatedDT = DateTimeOffset.UtcNow.ToString(
                     TimestampFormats.Full,
@@ -319,6 +347,133 @@ namespace NuciCraft.API.Service
             }
 
             return request.CreationDate;
+        }
+
+        private static ZoneBoundsDataObject GetMergedBounds(
+            PatchZoneRequest request,
+            ZoneDataObject zoneDataObject)
+        {
+            if (request.Bounds is null)
+            {
+                return zoneDataObject.Bounds;
+            }
+
+            ZoneBoundsDataObject existingBounds = zoneDataObject.Bounds;
+
+            return MergeBounds(request.Bounds, existingBounds);
+        }
+
+        private static ZoneDataObject GetNormalisedZoneDataObject(ZoneDataObject zoneDataObject)
+        {
+            zoneDataObject.Bounds = GetNormalisedBounds(zoneDataObject.Bounds);
+
+            return zoneDataObject;
+        }
+
+        private static ZoneBoundsDataObject GetNormalisedBounds(ZoneBoundsDataObject bounds)
+        {
+            if (bounds is null)
+            {
+                return null;
+            }
+
+            if (bounds.FirstCorner is null || bounds.SecondCorner is null)
+            {
+                return bounds;
+            }
+
+            string world = bounds.FirstCorner.World;
+
+            return new ZoneBoundsDataObject
+            {
+                FirstCorner = new CoordinatesDataObject
+                {
+                    World = world,
+                    X = Math.Min(bounds.FirstCorner.X, bounds.SecondCorner.X),
+                    Y = Math.Max(bounds.FirstCorner.Y, bounds.SecondCorner.Y),
+                    Z = Math.Min(bounds.FirstCorner.Z, bounds.SecondCorner.Z),
+                    Pitch = BoundsPitch,
+                    Yaw = BoundsYaw,
+                },
+                SecondCorner = new CoordinatesDataObject
+                {
+                    World = world,
+                    X = Math.Max(bounds.FirstCorner.X, bounds.SecondCorner.X),
+                    Y = Math.Min(bounds.FirstCorner.Y, bounds.SecondCorner.Y),
+                    Z = Math.Max(bounds.FirstCorner.Z, bounds.SecondCorner.Z),
+                    Pitch = BoundsPitch,
+                    Yaw = BoundsYaw,
+                },
+            };
+        }
+
+        private static void ValidateBounds(ZoneBoundsDataObject bounds)
+        {
+            if (bounds is null)
+            {
+                return;
+            }
+
+            if (bounds.FirstCorner is null || bounds.SecondCorner is null)
+            {
+                throw new ArgumentException("Zone bounds must include both opposite corners.");
+            }
+
+            if (string.IsNullOrWhiteSpace(bounds.FirstCorner.World))
+            {
+                throw new ArgumentException("Zone bounds first corner world must be provided.");
+            }
+
+            if (string.IsNullOrWhiteSpace(bounds.SecondCorner.World))
+            {
+                throw new ArgumentException("Zone bounds second corner world must be provided.");
+            }
+
+            if (!string.Equals(bounds.FirstCorner.World, bounds.SecondCorner.World, StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    $"Zone bounds must be in the same world. First corner world: '{bounds.FirstCorner.World}'. Second corner world: '{bounds.SecondCorner.World}'.");
+            }
+        }
+
+        private static void ValidateBoundsForAdd(ZoneBoundsDataObject bounds)
+        {
+            if (bounds is null)
+            {
+                throw new ArgumentException("The zone bounds must be provided.");
+            }
+
+            ValidateBounds(bounds);
+        }
+
+        private static ZoneBoundsDataObject MergeBounds(
+            ZoneBoundsDataObject bounds,
+            ZoneBoundsDataObject existingBounds)
+        {
+            if (existingBounds is null)
+            {
+                return bounds;
+            }
+
+            CoordinatesDataObject firstCorner = existingBounds.FirstCorner;
+
+            if (bounds.FirstCorner is not null)
+            {
+                firstCorner = bounds.FirstCorner;
+            }
+
+            CoordinatesDataObject secondCorner = existingBounds.SecondCorner;
+
+            if (bounds.SecondCorner is not null)
+            {
+                secondCorner = bounds.SecondCorner;
+            }
+
+            return new ZoneBoundsDataObject
+            {
+                FirstCorner = firstCorner,
+                SecondCorner = secondCorner,
+            };
         }
 
         private static DateTimeOffset GetRomaniaNow()
