@@ -20,6 +20,10 @@ namespace NuciCraft.API.Service
         IFileRepository<ZoneDataObject> repository,
         ILogger logger) : IZoneService
     {
+        private static float BoundsPitch => 0f;
+
+        private static float BoundsYaw => 0f;
+
         private static string RomaniaTimeZoneId => "Europe/Bucharest";
 
         public void Add(AddZoneRequest request)
@@ -27,6 +31,8 @@ namespace NuciCraft.API.Service
             ArgumentNullException.ThrowIfNull(request);
 
             ValidateBoundsForAdd(request.Bounds);
+
+            ZoneBoundsDataObject normalisedBounds = GetNormalisedBounds(request.Bounds);
 
             IEnumerable<LogInfo> logInfos =
             [
@@ -61,7 +67,7 @@ namespace NuciCraft.API.Service
                     Creators = GetCreatorsForAddRequest(request),
                     Leaders = request.Leaders,
                     TeleportationPoint = request.TeleportationPoint,
-                    Bounds = request.Bounds,
+                    Bounds = normalisedBounds,
                     LeaderTitle = request.LeaderTitle,
                     Population = request.Population,
                     MapLink = request.MapLink,
@@ -105,7 +111,11 @@ namespace NuciCraft.API.Service
 
             try
             {
-                Zone zone = repository.Get(zoneIdentifier).ToServiceModel();
+                ZoneDataObject zoneDataObject = repository.Get(zoneIdentifier);
+
+                zoneDataObject.Bounds = GetNormalisedBounds(zoneDataObject.Bounds);
+
+                Zone zone = zoneDataObject.ToServiceModel();
 
                 logger.Info(
                     MyOperation.GetZone,
@@ -134,7 +144,9 @@ namespace NuciCraft.API.Service
 
             try
             {
-                IEnumerable<Zone> zones = repository.GetAll().ToServiceModels();
+                IEnumerable<ZoneDataObject> zoneDataObjects = repository.GetAll()
+                    .Select(zoneDataObject => GetNormalisedZoneDataObject(zoneDataObject));
+                IEnumerable<Zone> zones = zoneDataObjects.ToServiceModels();
 
                 logger.Info(
                     MyOperation.GetAllZones,
@@ -179,6 +191,7 @@ namespace NuciCraft.API.Service
                 if (request.Bounds is not null)
                 {
                     ValidateBounds(mergedBounds);
+                    mergedBounds = GetNormalisedBounds(mergedBounds);
                 }
 
                 ApplyPatchValues(request, zoneDataObject);
@@ -350,6 +363,50 @@ namespace NuciCraft.API.Service
             return MergeBounds(request.Bounds, existingBounds);
         }
 
+        private static ZoneDataObject GetNormalisedZoneDataObject(ZoneDataObject zoneDataObject)
+        {
+            zoneDataObject.Bounds = GetNormalisedBounds(zoneDataObject.Bounds);
+
+            return zoneDataObject;
+        }
+
+        private static ZoneBoundsDataObject GetNormalisedBounds(ZoneBoundsDataObject bounds)
+        {
+            if (bounds is null)
+            {
+                return null;
+            }
+
+            if (bounds.FirstCorner is null || bounds.SecondCorner is null)
+            {
+                return bounds;
+            }
+
+            string world = bounds.FirstCorner.World;
+
+            return new ZoneBoundsDataObject
+            {
+                FirstCorner = new CoordinatesDataObject
+                {
+                    World = world,
+                    X = Math.Min(bounds.FirstCorner.X, bounds.SecondCorner.X),
+                    Y = Math.Max(bounds.FirstCorner.Y, bounds.SecondCorner.Y),
+                    Z = Math.Min(bounds.FirstCorner.Z, bounds.SecondCorner.Z),
+                    Pitch = BoundsPitch,
+                    Yaw = BoundsYaw,
+                },
+                SecondCorner = new CoordinatesDataObject
+                {
+                    World = world,
+                    X = Math.Max(bounds.FirstCorner.X, bounds.SecondCorner.X),
+                    Y = Math.Min(bounds.FirstCorner.Y, bounds.SecondCorner.Y),
+                    Z = Math.Max(bounds.FirstCorner.Z, bounds.SecondCorner.Z),
+                    Pitch = BoundsPitch,
+                    Yaw = BoundsYaw,
+                },
+            };
+        }
+
         private static void ValidateBounds(ZoneBoundsDataObject bounds)
         {
             if (bounds is null)
@@ -383,7 +440,7 @@ namespace NuciCraft.API.Service
         {
             if (bounds is null)
             {
-                throw new ArgumentException("Zone bounds must be provided.");
+                throw new ArgumentException("The zone bounds must be provided.");
             }
 
             ValidateBounds(bounds);
