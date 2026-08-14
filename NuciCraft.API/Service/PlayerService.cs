@@ -44,7 +44,7 @@ namespace NuciCraft.API.Service
                 new(MyLogInfoKey.Username, request.Username),
                 new(MyLogInfoKey.OnlineUUID, request.OnlineUUID),
                 new(MyLogInfoKey.CreatedDT, request.CreatedDT),
-                new(MyLogInfoKey.IpAddress, request.IpAddress)
+                new(MyLogInfoKey.LastIpAddress, request.LastIpAddress)
             ];
 
             logger.Info(
@@ -62,7 +62,7 @@ namespace NuciCraft.API.Service
                     OnlineUUID = request.OnlineUUID,
                     Password = request.Password,
                     CreatedDT = GetCreatedDateTimeForRegisterRequest(request),
-                    IpAddress = request.IpAddress,
+                    LastIpAddress = request.LastIpAddress,
                     WikiUrl = request.WikiUrl,
                     IsBanned = request.IsBanned,
                     BannedDT = ParseOptionalTimestamp(request.BannedDT, nameof(request.BannedDT)),
@@ -292,9 +292,9 @@ namespace NuciCraft.API.Service
                 playerDataObject.Password = request.Password;
             }
 
-            if (request.IpAddress is not null)
+            if (request.LastIpAddress is not null)
             {
-                playerDataObject.IpAddress = request.IpAddress;
+                playerDataObject.LastIpAddress = request.LastIpAddress;
             }
 
             if (request.DiscordId is not null)

@@ -32,7 +32,7 @@ namespace NuciCraft.API.Responses
         public DateTimeOffset? UpdatedDT { get; set; } = player.UpdatedDT;
 
         [HmacOrder(8)]
-        public string IpAddress { get; set; } = player.IpAddress;
+        public string LastIpAddress { get; set; } = player.LastIpAddress;
 
         [HmacOrder(9)]
         public string DiscordId { get; set; } = player.DiscordId;

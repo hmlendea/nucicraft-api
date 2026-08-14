@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace NuciCraft.API.Service.Models
 {
@@ -18,7 +19,17 @@ namespace NuciCraft.API.Service.Models
 
         public DateTimeOffset? UpdatedDT { get; set; }
 
-        public string IpAddress { get; set; }
+        public DateTimeOffset LastSeenDT => Enumerable.Max(
+            [
+                CreatedDT,
+                LastLoginDT,
+                LastLogoutDT,
+                LastSleptDT,
+                LastDeathDT,
+                BackDT
+            ]).Value;
+
+        public string LastIpAddress { get; set; }
 
         public string DiscordId { get; set; }
 

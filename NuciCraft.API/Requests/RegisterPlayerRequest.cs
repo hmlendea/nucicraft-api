@@ -24,7 +24,7 @@ namespace NuciCraft.API.Requests
         public string CreatedDT { get; set; }
 
         [HmacOrder(5)]
-        public string IpAddress { get; set; }
+        public string LastIpAddress { get; set; }
 
         [HmacOrder(6)]
         public string WikiUrl { get; set; }

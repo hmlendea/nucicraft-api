@@ -27,7 +27,7 @@ namespace NuciCraft.API.Requests
         public string Password { get; set; }
 
         [HmacOrder(6)]
-        public string IpAddress { get; set; }
+        public string LastIpAddress { get; set; }
 
         [HmacOrder(7)]
         public string DiscordId { get; set; }

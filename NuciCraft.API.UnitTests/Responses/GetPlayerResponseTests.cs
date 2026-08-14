@@ -24,7 +24,7 @@ namespace NuciCraft.API.UnitTests.Responses
             Assert.That(response.Password, Is.EqualTo(player.Password));
             Assert.That(response.CreatedDT, Is.EqualTo(player.CreatedDT));
             Assert.That(response.UpdatedDT, Is.EqualTo(player.UpdatedDT));
-            Assert.That(response.IpAddress, Is.EqualTo(player.IpAddress));
+            Assert.That(response.LastIpAddress, Is.EqualTo(player.LastIpAddress));
             Assert.That(response.DiscordId, Is.EqualTo(player.DiscordId));
             Assert.That(response.EmailAddress, Is.EqualTo(player.EmailAddress));
             Assert.That(response.WikiUrl, Is.EqualTo(player.WikiUrl));
@@ -171,7 +171,7 @@ namespace NuciCraft.API.UnitTests.Responses
             Password = "NucilandiaPass1",
             CreatedDT = DateTimeOffset.Parse("2012-09-05T00:00:00.0000000+00:00"),
             UpdatedDT = DateTimeOffset.Parse("2026-01-01T00:00:00.0000000+00:00"),
-            IpAddress = "192.168.1.1",
+            LastIpAddress = "192.168.1.1",
             DiscordId = "613873000",
             EmailAddress = "ilarion.pintilie@nucilandia.ro",
             WikiUrl = "https://test.nucilandia.ro",

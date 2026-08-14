@@ -48,7 +48,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Username, Is.EqualTo("IlarionPintilie"));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo("87300000-0000-0000-0000-000000000000"));
             Assert.That(capturedEntity.Password, Is.EqualTo("NucilandiaPass1"));
-            Assert.That(capturedEntity.IpAddress, Is.EqualTo("192.168.1.1"));
+            Assert.That(capturedEntity.LastIpAddress, Is.EqualTo("192.168.1.1"));
             Assert.That(capturedEntity.WikiUrl, Is.EqualTo("https://test.nucilandia.ro"));
             Assert.That(capturedEntity.IsBanned);
             Assert.That(capturedEntity.BannedDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
@@ -237,7 +237,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(player.Password, Is.EqualTo(entity.Password));
             Assert.That(player.CreatedDT, Is.EqualTo(DateTimeOffset.Parse(entity.CreatedDT)));
             Assert.That(player.UpdatedDT, Is.Null);
-            Assert.That(player.IpAddress, Is.EqualTo(entity.IpAddress));
+            Assert.That(player.LastIpAddress, Is.EqualTo(entity.LastIpAddress));
             Assert.That(player.DiscordId, Is.EqualTo(entity.DiscordId));
             Assert.That(player.EmailAddress, Is.EqualTo(entity.EmailAddress));
             Assert.That(player.WikiUrl, Is.EqualTo(entity.WikiUrl));
@@ -448,7 +448,7 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "IlarionPintilie",
                 Password = "NewPass",
-                IpAddress = "10.0.0.1",
+                LastIpAddress = "10.0.0.1",
                 DiscordId = "999",
                 EmailAddress = "new@nucilandia.ro",
                 WikiUrl = "https://dummy-url.ro",
@@ -484,7 +484,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Username, Is.EqualTo(original.Username));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo(original.OnlineUUID));
             Assert.That(capturedEntity.Password, Is.EqualTo("NewPass"));
-            Assert.That(capturedEntity.IpAddress, Is.EqualTo("10.0.0.1"));
+            Assert.That(capturedEntity.LastIpAddress, Is.EqualTo("10.0.0.1"));
             Assert.That(capturedEntity.DiscordId, Is.EqualTo("999"));
             Assert.That(capturedEntity.EmailAddress, Is.EqualTo("new@nucilandia.ro"));
             Assert.That(capturedEntity.WikiUrl, Is.EqualTo("https://dummy-url.ro"));
@@ -580,7 +580,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Username, Is.EqualTo(original.Username));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo(original.OnlineUUID));
             Assert.That(capturedEntity.Password, Is.EqualTo(original.Password));
-            Assert.That(capturedEntity.IpAddress, Is.EqualTo(original.IpAddress));
+            Assert.That(capturedEntity.LastIpAddress, Is.EqualTo(original.LastIpAddress));
             Assert.That(capturedEntity.DiscordId, Is.EqualTo(original.DiscordId));
             Assert.That(capturedEntity.EmailAddress, Is.EqualTo(original.EmailAddress));
             Assert.That(capturedEntity.WikiUrl, Is.EqualTo(original.WikiUrl));
@@ -845,11 +845,11 @@ namespace NuciCraft.API.UnitTests.Service
             playerService.Update(new PatchPlayerRequest
             {
                 OfflineUUID = "61300000-0000-3000-8000-000000000000",
-                IpAddress = "10.8.0.42"
+                LastIpAddress = "10.8.0.42"
             });
 
             Assert.That(capturedEntity, Is.Not.Null);
-            Assert.That(capturedEntity.IpAddress, Is.EqualTo("10.8.0.42"));
+            Assert.That(capturedEntity.LastIpAddress, Is.EqualTo("10.8.0.42"));
         }
 
         [Test]
@@ -922,7 +922,7 @@ namespace NuciCraft.API.UnitTests.Service
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             CreatedDT = "2012-09-05T00:00:00.0000000+00:00",
             Password = "NucilandiaPass1",
-            IpAddress = "192.168.1.1",
+            LastIpAddress = "192.168.1.1",
             WikiUrl = "https://test.nucilandia.ro",
             IsBanned = true,
             BannedDT = "2026-08-13T00:00:00.0000000+00:00",
@@ -952,7 +952,7 @@ namespace NuciCraft.API.UnitTests.Service
             Password = "NucilandiaPass1",
             CreatedDT = "2012-09-05T00:00:00.0000000+00:00",
             UpdatedDT = null,
-            IpAddress = "192.168.1.1",
+            LastIpAddress = "192.168.1.1",
             DiscordId = null,
             EmailAddress = "ilarion.pintilie@nucilandia.ro",
             WikiUrl = "https://test.nucilandia.ro",

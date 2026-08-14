@@ -10,7 +10,7 @@ namespace NuciCraft.API.DataAccess.DataObjects
 
         public string Password { get; set; }
 
-        public string IpAddress { get; set; }
+        public string LastIpAddress { get; set; }
 
         public string DiscordId { get; set; }
 

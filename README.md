@@ -68,7 +68,7 @@ curl -X POST "http://localhost:5000/Players" \
 		"onlineUUID": "6f6f5f2d-6f7e-4f6c-8e1d-03a9b8d939f0",
 		"createdDT": "2026-04-01T12:00:00+00:00",
 		"password": "example-password",
-		"ipAddress": "127.0.0.1",
+		"lastIpAddress": "127.0.0.1",
 		"skinUrl": "https://example.com/skin.png"
 	}'
 ```
