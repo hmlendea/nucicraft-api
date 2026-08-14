@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 using Moq;
 
@@ -19,6 +20,9 @@ namespace NuciCraft.API.UnitTests.Service
     [TestFixture]
     public sealed class PlayerServiceTests
     {
+        private static string OfflineUuidVersionThreeRfc4122Pattern
+            => "^[0-9a-f]{8}-[0-9a-f]{4}-3[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$";
+
         private Mock<IFileRepository<PlayerDataObject>> repositoryMock;
         private Mock<ILogger> loggerMock;
         private PlayerService playerService;
@@ -119,6 +123,21 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.OfflineUUID, Does.Match(@"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"));
         }
 
+        [Test]
+        public void GivenAUsername_WhenRegistering_ThenTheOfflineUuidUsesVersionThreeAndTheRfc4122Variant()
+        {
+            PlayerDataObject capturedEntity = null;
+            repositoryMock
+                .Setup(repository => repository.Add(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
+
+            playerService.Register(BuildRegisterPlayerRequest());
+
+            Assert.That(
+                capturedEntity.OfflineUUID,
+                Does.Match(OfflineUuidVersionThreeRfc4122Pattern));
+        }
+
         [TestCase("AndreiMirea", "7abb798a-c25e-3a21-8b28-ca2aad2881bd")]
         [TestCase("beepbeep", "ff56aee7-976c-3e7b-8f28-0b33ac2148fd")]
         [TestCase("Blitzkrieg94", "a01d8afa-3752-3a20-98a2-74bab8778e41")]
@@ -190,6 +209,54 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(
                 () => playerService.Register(request),
                 Throws.TypeOf<ArgumentException>());
+        }
+
+        [TestCase("")]
+        [TestCase(" ")]
+        [TestCase("\t\r\n")]
+        [TestCase(" 2012-09-05T00:00:00.0000000+00:00")]
+        [TestCase("2012-09-05T00:00:00.0000000+00:00 ")]
+        [TestCase("2012-09-05T00:00:00.000000+00:00")]
+        [TestCase("2012-09-05T00:00:00.00000000+00:00")]
+        [TestCase("2012-09-05t00:00:00.0000000+00:00")]
+        [TestCase("2012-09-05T00:00:00,0000000+00:00")]
+        public void GivenANonConformingCreatedTimestamp_WhenRegistering_ThenAnArgumentExceptionIsThrown(
+            string createdTimestamp)
+        {
+            RegisterPlayerRequest request = BuildRegisterPlayerRequest();
+            request.CreatedDT = createdTimestamp;
+
+            Assert.That(
+                () => playerService.Register(request),
+                Throws.TypeOf<ArgumentException>()
+                    .With.Property(nameof(ArgumentException.ParamName))
+                    .EqualTo(nameof(RegisterPlayerRequest.CreatedDT)));
+            repositoryMock.Verify(
+                repository => repository.Add(It.IsAny<PlayerDataObject>()),
+                Times.Never);
+        }
+
+        [TestCase(nameof(RegisterPlayerRequest.BannedDT))]
+        [TestCase(nameof(RegisterPlayerRequest.MutedDT))]
+        [TestCase(nameof(RegisterPlayerRequest.LastLoginDT))]
+        [TestCase(nameof(RegisterPlayerRequest.LastLogoutDT))]
+        [TestCase(nameof(RegisterPlayerRequest.BackDT))]
+        public void GivenANonConformingOptionalTimestamp_WhenRegistering_ThenAnArgumentExceptionIdentifiesTheTimestamp(
+            string timestampPropertyName)
+        {
+            RegisterPlayerRequest request = BuildRegisterPlayerRequest();
+            PropertyInfo timestampProperty = typeof(RegisterPlayerRequest)
+                .GetProperty(timestampPropertyName);
+            timestampProperty.SetValue(request, "invalid-timestamp");
+
+            Assert.That(
+                () => playerService.Register(request),
+                Throws.TypeOf<ArgumentException>()
+                    .With.Property(nameof(ArgumentException.ParamName))
+                    .EqualTo(timestampPropertyName));
+            repositoryMock.Verify(
+                repository => repository.Add(It.IsAny<PlayerDataObject>()),
+                Times.Never);
         }
 
         [Test]

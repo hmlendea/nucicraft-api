@@ -152,7 +152,10 @@ namespace NuciCraft.API.UnitTests.Controllers
             Assert.That(result.Value, Is.TypeOf<GetPlayerResponse>());
             serviceMock.Verify(
                 service => service.Get(It.Is<GetPlayerRequest>(request =>
-                    string.Equals(request.Identifier, "613"))),
+                    string.Equals(request.Identifier, "613") &&
+                    string.Equals(request.Username, null) &&
+                    string.Equals(request.OfflineUUID, null) &&
+                    string.Equals(request.OnlineUUID, null))),
                 Times.Once);
         }
 
@@ -166,7 +169,10 @@ namespace NuciCraft.API.UnitTests.Controllers
             Assert.That(result.Value, Is.TypeOf<GetPlayerResponse>());
             serviceMock.Verify(
                 service => service.Get(It.Is<GetPlayerRequest>(request =>
-                    string.Equals(request.Username, "IlarionPintilie"))),
+                    string.Equals(request.Identifier, null) &&
+                    string.Equals(request.Username, "IlarionPintilie") &&
+                    string.Equals(request.OfflineUUID, null) &&
+                    string.Equals(request.OnlineUUID, null))),
                 Times.Once);
         }
 
@@ -180,9 +186,12 @@ namespace NuciCraft.API.UnitTests.Controllers
             Assert.That(result.Value, Is.TypeOf<GetPlayerResponse>());
             serviceMock.Verify(
                 service => service.Get(It.Is<GetPlayerRequest>(request =>
+                    string.Equals(request.Identifier, null) &&
+                    string.Equals(request.Username, null) &&
                     string.Equals(
                         request.OfflineUUID,
-                        "61300000-0000-3000-8000-000000000000"))),
+                        "61300000-0000-3000-8000-000000000000") &&
+                    string.Equals(request.OnlineUUID, null))),
                 Times.Once);
         }
 
@@ -196,6 +205,9 @@ namespace NuciCraft.API.UnitTests.Controllers
             Assert.That(result.Value, Is.TypeOf<GetPlayerResponse>());
             serviceMock.Verify(
                 service => service.Get(It.Is<GetPlayerRequest>(request =>
+                    string.Equals(request.Identifier, null) &&
+                    string.Equals(request.Username, null) &&
+                    string.Equals(request.OfflineUUID, null) &&
                     string.Equals(
                         request.OnlineUUID,
                         "87300000-0000-0000-0000-000000000000"))),
@@ -220,9 +232,49 @@ namespace NuciCraft.API.UnitTests.Controllers
         }
 
         [Test]
+        public void GivenNoPlayers_WhenGettingAllPlayers_ThenAnEmptyResponseCollectionIsReturned()
+        {
+            serviceMock
+                .Setup(service => service.GetAll())
+                .Returns([]);
+
+            OkObjectResult result = controller.GetAll() as OkObjectResult;
+            GetResponse response = result.Value as GetResponse;
+            IEnumerable<GetPlayerResponse> playerResponses = response.Content as IEnumerable<GetPlayerResponse>;
+
+            Assert.That(playerResponses, Is.Empty);
+            serviceMock.Verify(service => service.GetAll(), Times.Once);
+        }
+
+        [Test]
+        public void GivenMultiplePlayers_WhenGettingAllPlayers_ThenTheirResponseOrderIsPreserved()
+        {
+            Player firstPlayer = BuildPlayer();
+            Player secondPlayer = new()
+            {
+                Identifier = "873",
+                Username = "solaire_of_astora"
+            };
+            serviceMock
+                .Setup(service => service.GetAll())
+                .Returns([firstPlayer, secondPlayer]);
+
+            OkObjectResult result = controller.GetAll() as OkObjectResult;
+            GetResponse response = result.Value as GetResponse;
+            IEnumerable<GetPlayerResponse> playerResponses = response.Content as IEnumerable<GetPlayerResponse>;
+
+            Assert.That(
+                playerResponses.Select(playerResponse => playerResponse.Username),
+                Is.EqualTo([firstPlayer.Username, secondPlayer.Username]));
+        }
+
+        [Test]
         public void GivenAnIdentifier_WhenPatchingAPlayer_ThenTheIdentifierSelectorIsApplied()
         {
-            PatchPlayerRequest request = new();
+            PatchPlayerRequest request = new()
+            {
+                Identifier = "873"
+            };
 
             OkObjectResult result = controller.PatchByIdentifier("613", request) as OkObjectResult;
 
@@ -234,7 +286,10 @@ namespace NuciCraft.API.UnitTests.Controllers
         [Test]
         public void GivenAUsername_WhenPatchingAPlayer_ThenTheUsernameSelectorIsApplied()
         {
-            PatchPlayerRequest request = new();
+            PatchPlayerRequest request = new()
+            {
+                Username = "DummyUser"
+            };
 
             OkObjectResult result = controller.PatchByUsername("IlarionPintilie", request) as OkObjectResult;
 
@@ -246,7 +301,10 @@ namespace NuciCraft.API.UnitTests.Controllers
         [Test]
         public void GivenAnOfflineUUID_WhenPatchingAPlayer_ThenTheOfflineUUIDSelectorIsApplied()
         {
-            PatchPlayerRequest request = new();
+            PatchPlayerRequest request = new()
+            {
+                OfflineUUID = "87300000-0000-3000-8000-000000000000"
+            };
 
             OkObjectResult result = controller.PatchByOfflineUuid(
                 "61300000-0000-3000-8000-000000000000",
@@ -262,7 +320,10 @@ namespace NuciCraft.API.UnitTests.Controllers
         [Test]
         public void GivenAnOnlineUUID_WhenPatchingAPlayer_ThenTheOnlineUUIDSelectorIsApplied()
         {
-            PatchPlayerRequest request = new();
+            PatchPlayerRequest request = new()
+            {
+                OnlineUUID = "61300000-0000-0000-0000-000000000000"
+            };
 
             OkObjectResult result = controller.PatchByOnlineUuid(
                 "87300000-0000-0000-0000-000000000000",

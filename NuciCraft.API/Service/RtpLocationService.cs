@@ -1,16 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using NuciDAL.Repositories;
+
+using NuciExtensions;
+
+using NuciLog.Core;
+
 using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service.Mapping;
 using NuciCraft.API.Service.Models;
-
-using NuciDAL.Repositories;
-using NuciExtensions;
-using NuciLog.Core;
 
 namespace NuciCraft.API.Service
 {
@@ -107,6 +110,11 @@ namespace NuciCraft.API.Service
                 {
                     rtpLocationEntities = rtpLocationEntities
                         .Where(location => request.Biome.Equals(location.Biome));
+                }
+
+                if (!rtpLocationEntities.Any())
+                {
+                    throw new KeyNotFoundException("No RTP location found matching the provided criteria.");
                 }
 
                 RtpLocation rtpLocation = rtpLocationEntities

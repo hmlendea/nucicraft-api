@@ -397,30 +397,38 @@ namespace NuciCraft.API.UnitTests.Service
                 Throws.TypeOf<ArgumentException>());
         }
 
-        [Test]
-        public void GivenRequestWithBoundsWithoutAFirstCornerWorld_WhenAddingAZone_ThenAnArgumentExceptionIsThrown()
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase(" ")]
+        [TestCase("\t\r\n")]
+        public void GivenARequestWithBoundsWithoutAFirstCornerWorld_WhenAddingAZone_ThenAnArgumentExceptionIsThrown(
+            string world)
         {
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
                 Bounds = BuildZoneBoundsDataObject()
             };
-            request.Bounds.FirstCorner.World = " ";
+            request.Bounds.FirstCorner.World = world;
 
             Assert.That(
                 () => zoneService.Add(request),
                 Throws.TypeOf<ArgumentException>());
         }
 
-        [Test]
-        public void GivenRequestWithBoundsWithoutASecondCornerWorld_WhenAddingAZone_ThenAnArgumentExceptionIsThrown()
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase(" ")]
+        [TestCase("\t\r\n")]
+        public void GivenARequestWithBoundsWithoutASecondCornerWorld_WhenAddingAZone_ThenAnArgumentExceptionIsThrown(
+            string world)
         {
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
                 Bounds = BuildZoneBoundsDataObject()
             };
-            request.Bounds.SecondCorner.World = null;
+            request.Bounds.SecondCorner.World = world;
 
             Assert.That(
                 () => zoneService.Add(request),
@@ -466,6 +474,81 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Bounds.SecondCorner.X, Is.EqualTo(96));
             Assert.That(capturedEntity.Bounds.SecondCorner.Y, Is.EqualTo(32));
             Assert.That(capturedEntity.Bounds.SecondCorner.Z, Is.EqualTo(192));
+        }
+
+        [Test]
+        public void GivenBoundsWithIdenticalCorners_WhenAddingAZone_ThenTheDegenerateBoundsArePreserved()
+        {
+            ZoneDataObject capturedEntity = null;
+            repositoryMock
+                .Setup(repository => repository.Add(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            CoordinatesDataObject corner = new()
+            {
+                World = "world",
+                X = 42,
+                Y = 64,
+                Z = 128
+            };
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                Bounds = new()
+                {
+                    FirstCorner = corner,
+                    SecondCorner = corner
+                }
+            };
+
+            zoneService.Add(request);
+
+            Assert.That(capturedEntity.Bounds.FirstCorner.X, Is.EqualTo(corner.X));
+            Assert.That(capturedEntity.Bounds.FirstCorner.Y, Is.EqualTo(corner.Y));
+            Assert.That(capturedEntity.Bounds.FirstCorner.Z, Is.EqualTo(corner.Z));
+            Assert.That(capturedEntity.Bounds.SecondCorner.X, Is.EqualTo(corner.X));
+            Assert.That(capturedEntity.Bounds.SecondCorner.Y, Is.EqualTo(corner.Y));
+            Assert.That(capturedEntity.Bounds.SecondCorner.Z, Is.EqualTo(corner.Z));
+        }
+
+        [Test]
+        public void GivenBoundsSpanningNegativeAndPositiveCoordinates_WhenAddingAZone_ThenEveryAxisIsNormalised()
+        {
+            ZoneDataObject capturedEntity = null;
+            repositoryMock
+                .Setup(repository => repository.Add(It.IsAny<ZoneDataObject>()))
+                .Callback<ZoneDataObject>(entity => capturedEntity = entity);
+
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                Bounds = new()
+                {
+                    FirstCorner = new()
+                    {
+                        World = "world",
+                        X = 613,
+                        Y = -873,
+                        Z = 42
+                    },
+                    SecondCorner = new()
+                    {
+                        World = "world",
+                        X = -873,
+                        Y = 613,
+                        Z = -613
+                    }
+                }
+            };
+
+            zoneService.Add(request);
+
+            Assert.That(capturedEntity.Bounds.FirstCorner.X, Is.EqualTo(-873));
+            Assert.That(capturedEntity.Bounds.FirstCorner.Y, Is.EqualTo(613));
+            Assert.That(capturedEntity.Bounds.FirstCorner.Z, Is.EqualTo(-613));
+            Assert.That(capturedEntity.Bounds.SecondCorner.X, Is.EqualTo(613));
+            Assert.That(capturedEntity.Bounds.SecondCorner.Y, Is.EqualTo(-873));
+            Assert.That(capturedEntity.Bounds.SecondCorner.Z, Is.EqualTo(42));
         }
 
         [Test]

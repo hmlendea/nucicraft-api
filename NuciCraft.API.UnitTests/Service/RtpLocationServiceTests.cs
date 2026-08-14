@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.Globalization;
 
 using Moq;
+
 using NUnit.Framework;
+
+using NuciDAL.Repositories;
+
+using NuciLog.Core;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service;
 using NuciCraft.API.Service.Models;
-
-using NuciDAL.Repositories;
-using NuciLog.Core;
 
 namespace NuciCraft.API.UnitTests.Service
 {
@@ -21,10 +23,10 @@ namespace NuciCraft.API.UnitTests.Service
     {
         private static string TimestampFormat => "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK";
 
-        Mock<IFileRepository<RtpLocationEntity>> repositoryMock;
-        Mock<ILogger> loggerMock;
-        RtpLocationSettings settings;
-        RtpLocationService rtpLocationService;
+        private Mock<IFileRepository<RtpLocationEntity>> repositoryMock;
+        private Mock<ILogger> loggerMock;
+        private RtpLocationSettings settings;
+        private RtpLocationService rtpLocationService;
 
         [SetUp]
         public void SetUp()
@@ -38,10 +40,11 @@ namespace NuciCraft.API.UnitTests.Service
                 MinimumBiomeLocationDistance = 873
             };
 
-            rtpLocationService = new RtpLocationService(repositoryMock.Object, settings, loggerMock.Object);
+            rtpLocationService = new RtpLocationService(
+                repositoryMock.Object,
+                settings,
+                loggerMock.Object);
         }
-
-        // ── AddRtpLocation ────────────────────────────────────────────────────
 
         [Test]
         public void GivenAValidRequest_WhenAddingAnRtpLocation_ThenTheEntityIsAddedToTheRepository()
@@ -146,6 +149,47 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenALocationExactlyTheMinimumDistanceAwayAcrossNegativeCoordinates_WhenAddingAnRtpLocation_ThenAnArgumentExceptionIsThrown()
+        {
+            RtpLocationEntity existingLocation = BuildRtpLocationEntity();
+            existingLocation.Coordinates.X = -settings.MinimumLocationDistance;
+
+            AddRtpLocationRequest request = BuildAddRtpLocationRequest();
+            request.X = default;
+            request.Z = existingLocation.Coordinates.Z;
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([existingLocation]);
+
+            Assert.That(
+                () => rtpLocationService.AddRtpLocation(request),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenALocationBeyondTheMinimumDistance_WhenAddingAnRtpLocation_ThenTheLocationIsAccepted()
+        {
+            RtpLocationEntity existingLocation = BuildRtpLocationEntity();
+            existingLocation.Coordinates.X = default;
+
+            AddRtpLocationRequest request = BuildAddRtpLocationRequest();
+            request.X = float.BitIncrement(settings.MinimumLocationDistance);
+            request.Z = existingLocation.Coordinates.Z;
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([existingLocation]);
+
+            Assert.That(
+                () => rtpLocationService.AddRtpLocation(request),
+                Throws.Nothing);
+            repositoryMock.Verify(
+                repository => repository.Add(It.IsAny<RtpLocationEntity>()),
+                Times.Once);
+        }
+
+        [Test]
         public void GivenALocationTooCloseToAnotherLocationInTheSameBiome_WhenAddingAnRtpLocation_ThenAnArgumentExceptionIsThrown()
         {
             RtpLocationEntity nearbySameBiomeEntity = BuildRtpLocationEntity();
@@ -207,8 +251,6 @@ namespace NuciCraft.API.UnitTests.Service
             repositoryMock.Verify(repository => repository.Add(It.IsAny<RtpLocationEntity>()), Times.Once);
             repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
         }
-
-        // ── GetRtpLocation ────────────────────────────────────────────────────
 
         [Test]
         public void GivenNoFilters_WhenGettingAnRtpLocation_ThenARtpLocationIsReturned()
@@ -296,6 +338,82 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(
                 () => rtpLocationService.GetRtpLocation(new() { Biome = null, World = null }),
                 Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void GivenAnEmptyRepository_WhenGettingAnRtpLocation_ThenAKeyNotFoundExceptionIsThrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([]);
+
+            Assert.That(
+                () => rtpLocationService.GetRtpLocation(new()),
+                Throws.TypeOf<KeyNotFoundException>());
+        }
+
+        [Test]
+        public void GivenFiltersWithoutAMatchingLocation_WhenGettingAnRtpLocation_ThenAKeyNotFoundExceptionIsThrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildRtpLocationEntity()]);
+
+            GetRtpLocationRequest request = new()
+            {
+                Biome = "Desert",
+                World = "world_nether"
+            };
+
+            Assert.That(
+                () => rtpLocationService.GetRtpLocation(request),
+                Throws.TypeOf<KeyNotFoundException>());
+        }
+
+        [Test]
+        public void GivenWhitespaceOnlyFilters_WhenGettingAnRtpLocation_ThenTheFiltersAreIgnored()
+        {
+            RtpLocationEntity entity = BuildRtpLocationEntity();
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([entity]);
+
+            GetRtpLocationRequest request = new()
+            {
+                Biome = "\r\n",
+                World = " \t"
+            };
+
+            RtpLocation location = rtpLocationService.GetRtpLocation(request);
+
+            Assert.That(location.Id, Is.EqualTo(entity.Id));
+        }
+
+        [Test]
+        public void GivenWorldAndBiomeFilters_WhenGettingAnRtpLocation_ThenOnlyALocationMatchingBothIsReturned()
+        {
+            RtpLocationEntity matchingEntity = BuildRtpLocationEntity();
+            RtpLocationEntity otherWorldEntity = BuildRtpLocationEntity();
+            otherWorldEntity.Id = "other-world-id";
+            otherWorldEntity.Coordinates.World = "world_nether";
+            RtpLocationEntity otherBiomeEntity = BuildRtpLocationEntity();
+            otherBiomeEntity.Id = "other-biome-id";
+            otherBiomeEntity.Biome = "Desert";
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([matchingEntity, otherWorldEntity, otherBiomeEntity]);
+
+            GetRtpLocationRequest request = new()
+            {
+                Biome = matchingEntity.Biome,
+                World = matchingEntity.Coordinates.World
+            };
+
+            RtpLocation location = rtpLocationService.GetRtpLocation(request);
+
+            Assert.That(location.Id, Is.EqualTo(matchingEntity.Id));
         }
 
         private static AddRtpLocationRequest BuildAddRtpLocationRequest() => new()
