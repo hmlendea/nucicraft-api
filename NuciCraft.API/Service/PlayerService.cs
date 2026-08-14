@@ -60,9 +60,19 @@ namespace NuciCraft.API.Service
                     Username = request.Username,
                     OfflineUUID = GetOfflineUuid(request.Username),
                     OnlineUUID = request.OnlineUUID,
-                    CreatedDT = GetCreatedDateTimeForRegisterRequest(request),
                     Password = request.Password,
+                    CreatedDT = GetCreatedDateTimeForRegisterRequest(request),
                     IpAddress = request.IpAddress,
+                    WikiUrl = request.WikiUrl,
+                    IsBanned = request.IsBanned,
+                    BannedDT = ParseOptionalTimestamp(request.BannedDT, nameof(request.BannedDT)),
+                    IsMuted = request.IsMuted,
+                    MutedDT = ParseOptionalTimestamp(request.MutedDT, nameof(request.MutedDT)),
+                    LastLoginDT = ParseOptionalTimestamp(request.LastLoginDT, nameof(request.LastLoginDT)),
+                    LastLogoutDT = ParseOptionalTimestamp(request.LastLogoutDT, nameof(request.LastLogoutDT)),
+                    LastLogoutLocation = request.LastLogoutLocation?.ToServiceModel(),
+                    BedLocation = request.BedLocation?.ToServiceModel(),
+                    BackDT = ParseOptionalTimestamp(request.BackDT, nameof(request.BackDT)),
                     Settings = new PlayerSettings(),
                 };
 
@@ -297,9 +307,48 @@ namespace NuciCraft.API.Service
                 playerDataObject.EmailAddress = request.EmailAddress;
             }
 
+            if (request.WikiUrl is not null)
+            {
+                playerDataObject.WikiUrl = request.WikiUrl;
+            }
+
+            playerDataObject.IsBanned = request.IsBanned;
+
+            if (request.BannedDT is not null)
+            {
+                playerDataObject.BannedDT = request.BannedDT;
+            }
+
+            playerDataObject.IsMuted = request.IsMuted;
+
+            if (request.MutedDT is not null)
+            {
+                playerDataObject.MutedDT = request.MutedDT;
+            }
+
+            if (request.LastLoginDT is not null)
+            {
+                playerDataObject.LastLoginDT = request.LastLoginDT;
+            }
+
+            if (request.LastLogoutDT is not null)
+            {
+                playerDataObject.LastLogoutDT = request.LastLogoutDT;
+            }
+
+            if (request.LastLogoutLocation is not null)
+            {
+                playerDataObject.LastLogoutLocation = request.LastLogoutLocation;
+            }
+
             if (request.LastSleptDT is not null)
             {
                 playerDataObject.LastSleptDT = request.LastSleptDT;
+            }
+
+            if (request.BedLocation is not null)
+            {
+                playerDataObject.BedLocation = request.BedLocation;
             }
 
             if (request.LastDeathDT is not null)
@@ -312,14 +361,14 @@ namespace NuciCraft.API.Service
                 playerDataObject.LastDeathLocation = request.LastDeathLocation;
             }
 
+            if (request.BackDT is not null)
+            {
+                playerDataObject.BackDT = request.BackDT;
+            }
+
             if (request.BackLocation is not null)
             {
                 playerDataObject.BackLocation = request.BackLocation;
-            }
-
-            if (request.LogoutLocation is not null)
-            {
-                playerDataObject.LogoutLocation = request.LogoutLocation;
             }
 
             if (request.Settings is not null)
@@ -335,18 +384,38 @@ namespace NuciCraft.API.Service
                 return DateTimeOffset.UtcNow;
             }
 
+            return ParseTimestamp(request.CreatedDT, nameof(request.CreatedDT));
+        }
+
+        private static DateTimeOffset? ParseOptionalTimestamp(
+            string timestamp,
+            string timestampName)
+        {
+            if (timestamp is null)
+            {
+                return null;
+            }
+
+            return ParseTimestamp(timestamp, timestampName);
+        }
+
+        private static DateTimeOffset ParseTimestamp(
+            string timestamp,
+            string timestampName)
+        {
             if (DateTimeOffset.TryParseExact(
-                    request.CreatedDT,
+                    timestamp,
                     TimestampFormats.Full,
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.None,
-                    out DateTimeOffset createdDateTimeOffset))
+                    out DateTimeOffset dateTimeOffset))
             {
-                return createdDateTimeOffset;
+                return dateTimeOffset;
             }
 
             throw new ArgumentException(
-                $"The created timestamp must match format '{TimestampFormats.Full}'.");
+                $"The {timestampName} timestamp must match format '{TimestampFormats.Full}'.",
+                timestampName);
         }
 
         private static string GetOfflineUuid(string username)

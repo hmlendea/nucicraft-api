@@ -41,21 +41,48 @@ namespace NuciCraft.API.Responses
         public string EmailAddress { get; set; } = player.EmailAddress;
 
         [HmacOrder(11)]
-        public DateTimeOffset? LastSleptDT { get; set; } = player.LastSleptDT;
+        public string WikiUrl { get; set; } = player.WikiUrl;
 
         [HmacOrder(12)]
-        public DateTimeOffset? LastDeathDT { get; set; } = player.LastDeathDT;
+        public bool IsBanned { get; set; } = player.IsBanned;
 
         [HmacOrder(13)]
-        public Coordinates LastDeathLocation { get; set; } = player.LastDeathLocation;
+        public DateTimeOffset? BannedDT { get; set; } = player.BannedDT;
 
         [HmacOrder(14)]
-        public Coordinates BackLocation { get; set; } = player.BackLocation;
+        public bool IsMuted { get; set; } = player.IsMuted;
 
         [HmacOrder(15)]
-        public Coordinates LogoutLocation { get; set; } = player.LogoutLocation;
+        public DateTimeOffset? MutedDT { get; set; } = player.MutedDT;
+
+        [HmacOrder(16)]
+        public DateTimeOffset? LastLoginDT { get; set; } = player.LastLoginDT;
 
         [HmacOrder(17)]
+        public DateTimeOffset? LastLogoutDT { get; set; } = player.LastLogoutDT;
+
+        [HmacOrder(18)]
+        public Coordinates LastLogoutLocation { get; set; } = player.LastLogoutLocation;
+
+        [HmacOrder(19)]
+        public DateTimeOffset? LastSleptDT { get; set; } = player.LastSleptDT;
+
+        [HmacOrder(20)]
+        public Coordinates BedLocation { get; set; } = player.BedLocation;
+
+        [HmacOrder(21)]
+        public DateTimeOffset? LastDeathDT { get; set; } = player.LastDeathDT;
+
+        [HmacOrder(22)]
+        public Coordinates LastDeathLocation { get; set; } = player.LastDeathLocation;
+
+        [HmacOrder(23)]
+        public DateTimeOffset? BackDT { get; set; } = player.BackDT;
+
+        [HmacOrder(24)]
+        public Coordinates BackLocation { get; set; } = player.BackLocation;
+
+        [HmacOrder(25)]
         public PlayerSettings Settings { get; set; } = player.Settings;
     }
 }

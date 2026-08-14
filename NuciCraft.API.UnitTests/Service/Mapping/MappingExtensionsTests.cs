@@ -239,7 +239,24 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 .ToArray();
 
             Assert.That(domainModels, Has.Length.EqualTo(2));
+            Assert.That(domainModels[0].WikiUrl, Is.EqualTo("https://test.nucilandia.ro"));
+            Assert.That(domainModels[0].IsBanned);
+            Assert.That(domainModels[0].BannedDT, Is.Not.Null);
+            Assert.That(domainModels[0].IsMuted);
+            Assert.That(domainModels[0].MutedDT, Is.Not.Null);
+            Assert.That(domainModels[0].LastLoginDT, Is.Not.Null);
+            Assert.That(domainModels[0].LastLogoutDT, Is.Not.Null);
+            Assert.That(domainModels[0].LastLogoutLocation, Is.Not.Null);
+            Assert.That(domainModels[0].BedLocation, Is.Not.Null);
+            Assert.That(domainModels[0].BackDT, Is.Not.Null);
             Assert.That(domainModels[0].LastDeathLocation, Is.Not.Null);
+            Assert.That(domainModels[1].BannedDT, Is.Null);
+            Assert.That(domainModels[1].MutedDT, Is.Null);
+            Assert.That(domainModels[1].LastLoginDT, Is.Null);
+            Assert.That(domainModels[1].LastLogoutDT, Is.Null);
+            Assert.That(domainModels[1].LastLogoutLocation, Is.Null);
+            Assert.That(domainModels[1].BedLocation, Is.Null);
+            Assert.That(domainModels[1].BackDT, Is.Null);
             Assert.That(domainModels[1].LastDeathLocation, Is.Null);
             Assert.That(domainModels[1].Settings, Is.Null);
         }
@@ -261,7 +278,24 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 .ToArray();
 
             Assert.That(dataObjects, Has.Length.EqualTo(2));
+            Assert.That(dataObjects[0].WikiUrl, Is.EqualTo("https://test.nucilandia.ro"));
+            Assert.That(dataObjects[0].IsBanned);
+            Assert.That(dataObjects[0].BannedDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
+            Assert.That(dataObjects[0].IsMuted);
+            Assert.That(dataObjects[0].MutedDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
+            Assert.That(dataObjects[0].LastLoginDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
+            Assert.That(dataObjects[0].LastLogoutDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
+            Assert.That(dataObjects[0].LastLogoutLocation, Is.Not.Null);
+            Assert.That(dataObjects[0].BedLocation, Is.Not.Null);
+            Assert.That(dataObjects[0].BackDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
             Assert.That(dataObjects[0].LastDeathLocation, Is.Not.Null);
+            Assert.That(dataObjects[1].BannedDT, Is.Null);
+            Assert.That(dataObjects[1].MutedDT, Is.Null);
+            Assert.That(dataObjects[1].LastLoginDT, Is.Null);
+            Assert.That(dataObjects[1].LastLogoutDT, Is.Null);
+            Assert.That(dataObjects[1].LastLogoutLocation, Is.Null);
+            Assert.That(dataObjects[1].BedLocation, Is.Null);
+            Assert.That(dataObjects[1].BackDT, Is.Null);
             Assert.That(dataObjects[1].LastDeathLocation, Is.Null);
             Assert.That(dataObjects[1].Settings, Is.Null);
         }
@@ -451,11 +485,20 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Password = "NucileRullz!",
             CreatedDT = new DateTimeOffset(2012, 9, 5, 0, 0, 0, TimeSpan.Zero),
             UpdatedDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
+            WikiUrl = "https://test.nucilandia.ro",
+            IsBanned = true,
+            BannedDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
+            IsMuted = true,
+            MutedDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
+            LastLoginDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
+            LastLogoutDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
+            LastLogoutLocation = BuildCoordinates(),
             LastSleptDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
+            BedLocation = BuildCoordinates(),
             LastDeathDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
             LastDeathLocation = BuildCoordinates(),
+            BackDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
             BackLocation = BuildCoordinates(),
-            LogoutLocation = BuildCoordinates(),
             Settings = new PlayerSettings
             {
                 Localisation = Localisation.English,
@@ -469,11 +512,17 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Username = "DummyUser",
             CreatedDT = new DateTimeOffset(2012, 9, 5, 0, 0, 0, TimeSpan.Zero),
             UpdatedDT = null,
+            BannedDT = null,
+            MutedDT = null,
+            LastLoginDT = null,
+            LastLogoutDT = null,
+            LastLogoutLocation = null,
             LastSleptDT = null,
+            BedLocation = null,
             LastDeathDT = null,
             LastDeathLocation = null,
+            BackDT = null,
             BackLocation = null,
-            LogoutLocation = null,
             Settings = null
         };
 
@@ -486,11 +535,20 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Password = "NucileRullz!",
             CreatedDT = "2012-09-05T00:00:00.0000000+00:00",
             UpdatedDT = "2026-08-13T00:00:00.0000000+00:00",
+            WikiUrl = "https://test.nucilandia.ro",
+            IsBanned = true,
+            BannedDT = "2026-08-13T00:00:00.0000000+00:00",
+            IsMuted = true,
+            MutedDT = "2026-08-13T00:00:00.0000000+00:00",
+            LastLoginDT = "2026-08-13T00:00:00.0000000+00:00",
+            LastLogoutDT = "2026-08-13T00:00:00.0000000+00:00",
+            LastLogoutLocation = BuildCoordinatesDataObject(),
             LastSleptDT = "2026-08-13T00:00:00.0000000+00:00",
+            BedLocation = BuildCoordinatesDataObject(),
             LastDeathDT = "2026-08-13T00:00:00.0000000+00:00",
             LastDeathLocation = BuildCoordinatesDataObject(),
+            BackDT = "2026-08-13T00:00:00.0000000+00:00",
             BackLocation = BuildCoordinatesDataObject(),
-            LogoutLocation = BuildCoordinatesDataObject(),
             Settings = new PlayerSettingsDataObject
             {
                 Localisation = "english",
@@ -504,11 +562,17 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Username = "DummyUser",
             CreatedDT = "2012-09-05T00:00:00.0000000+00:00",
             UpdatedDT = null,
+            BannedDT = null,
+            MutedDT = null,
+            LastLoginDT = null,
+            LastLogoutDT = null,
+            LastLogoutLocation = null,
             LastSleptDT = null,
+            BedLocation = null,
             LastDeathDT = null,
             LastDeathLocation = null,
+            BackDT = null,
             BackLocation = null,
-            LogoutLocation = null,
             Settings = null
         };
 

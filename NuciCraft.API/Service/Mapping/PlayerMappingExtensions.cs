@@ -26,15 +26,24 @@ namespace NuciCraft.API.Service.Mapping
             OnlineUUID = dataObject.OnlineUUID,
             Password = dataObject.Password,
             CreatedDT = DateTimeOffset.Parse(dataObject.CreatedDT, CultureInfo.InvariantCulture),
-            UpdatedDT = dataObject.UpdatedDT is not null ? DateTimeOffset.Parse(dataObject.UpdatedDT, CultureInfo.InvariantCulture) : null,
+            UpdatedDT = ParseNullableTimestamp(dataObject.UpdatedDT),
             IpAddress = dataObject.IpAddress,
             DiscordId = dataObject.DiscordId,
             EmailAddress = dataObject.EmailAddress,
-            LastSleptDT = dataObject.LastSleptDT is not null ? DateTimeOffset.Parse(dataObject.LastSleptDT, CultureInfo.InvariantCulture) : null,
-            LastDeathDT = dataObject.LastDeathDT is not null ? DateTimeOffset.Parse(dataObject.LastDeathDT, CultureInfo.InvariantCulture) : null,
+            WikiUrl = dataObject.WikiUrl,
+            IsBanned = dataObject.IsBanned,
+            BannedDT = ParseNullableTimestamp(dataObject.BannedDT),
+            IsMuted = dataObject.IsMuted,
+            MutedDT = ParseNullableTimestamp(dataObject.MutedDT),
+            LastLoginDT = ParseNullableTimestamp(dataObject.LastLoginDT),
+            LastLogoutDT = ParseNullableTimestamp(dataObject.LastLogoutDT),
+            LastLogoutLocation = dataObject.LastLogoutLocation?.ToServiceModel(),
+            LastSleptDT = ParseNullableTimestamp(dataObject.LastSleptDT),
+            BedLocation = dataObject.BedLocation?.ToServiceModel(),
+            LastDeathDT = ParseNullableTimestamp(dataObject.LastDeathDT),
             LastDeathLocation = dataObject.LastDeathLocation?.ToServiceModel(),
+            BackDT = ParseNullableTimestamp(dataObject.BackDT),
             BackLocation = dataObject.BackLocation?.ToServiceModel(),
-            LogoutLocation = dataObject.LogoutLocation?.ToServiceModel(),
             Settings = dataObject.Settings.ToServiceModel()
         };
 
@@ -55,11 +64,20 @@ namespace NuciCraft.API.Service.Mapping
             IpAddress = domainModel.IpAddress,
             DiscordId = domainModel.DiscordId,
             EmailAddress = domainModel.EmailAddress,
+            WikiUrl = domainModel.WikiUrl,
+            IsBanned = domainModel.IsBanned,
+            BannedDT = domainModel.BannedDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
+            IsMuted = domainModel.IsMuted,
+            MutedDT = domainModel.MutedDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
+            LastLoginDT = domainModel.LastLoginDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
+            LastLogoutDT = domainModel.LastLogoutDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
+            LastLogoutLocation = domainModel.LastLogoutLocation?.ToDataObject(),
             LastSleptDT = domainModel.LastSleptDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
+            BedLocation = domainModel.BedLocation?.ToDataObject(),
             LastDeathDT = domainModel.LastDeathDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
             LastDeathLocation = domainModel.LastDeathLocation?.ToDataObject(),
+            BackDT = domainModel.BackDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
             BackLocation = domainModel.BackLocation?.ToDataObject(),
-            LogoutLocation = domainModel.LogoutLocation?.ToDataObject(),
             Settings = domainModel.Settings.ToDataObject()
         };
 
@@ -78,5 +96,15 @@ namespace NuciCraft.API.Service.Mapping
         /// <param name="domainModels">The domain models.</param>
         internal static IEnumerable<PlayerDataObject> ToDataObjects(this IEnumerable<Player> domainModels)
             => domainModels.Select(domainModel => domainModel.ToDataObject());
+
+        private static DateTimeOffset? ParseNullableTimestamp(string timestamp)
+        {
+            if (timestamp is null)
+            {
+                return null;
+            }
+
+            return DateTimeOffset.Parse(timestamp, CultureInfo.InvariantCulture);
+        }
     }
 }

@@ -36,21 +36,48 @@ namespace NuciCraft.API.Requests
         public string EmailAddress { get; set; }
 
         [HmacOrder(9)]
-        public string LastSleptDT { get; set; }
+        public string WikiUrl { get; set; }
 
         [HmacOrder(10)]
-        public string LastDeathDT { get; set; }
+        public bool IsBanned { get; set; }
 
         [HmacOrder(11)]
-        public CoordinatesDataObject LastDeathLocation { get; set; }
+        public string BannedDT { get; set; }
 
         [HmacOrder(12)]
-        public CoordinatesDataObject BackLocation { get; set; }
+        public bool IsMuted { get; set; }
 
         [HmacOrder(13)]
-        public CoordinatesDataObject LogoutLocation { get; set; }
+        public string MutedDT { get; set; }
 
         [HmacOrder(14)]
+        public string LastLoginDT { get; set; }
+
+        [HmacOrder(15)]
+        public string LastLogoutDT { get; set; }
+
+        [HmacOrder(16)]
+        public CoordinatesDataObject LastLogoutLocation { get; set; }
+
+        [HmacOrder(17)]
+        public string LastSleptDT { get; set; }
+
+        [HmacOrder(18)]
+        public CoordinatesDataObject BedLocation { get; set; }
+
+        [HmacOrder(19)]
+        public string LastDeathDT { get; set; }
+
+        [HmacOrder(20)]
+        public CoordinatesDataObject LastDeathLocation { get; set; }
+
+        [HmacOrder(21)]
+        public string BackDT { get; set; }
+
+        [HmacOrder(22)]
+        public CoordinatesDataObject BackLocation { get; set; }
+
+        [HmacOrder(23)]
         public PlayerSettingsDataObject Settings { get; set; }
     }
 }
