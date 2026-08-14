@@ -239,6 +239,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 .ToArray();
 
             Assert.That(domainModels, Has.Length.EqualTo(2));
+            Assert.That(domainModels[0].DisplayName, Is.EqualTo("Ilarion Pintilie"));
             Assert.That(domainModels[0].WikiUrl, Is.EqualTo("https://test.nucilandia.ro"));
             Assert.That(domainModels[0].IsBanned);
             Assert.That(domainModels[0].BannedDT, Is.Not.Null);
@@ -250,6 +251,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Assert.That(domainModels[0].BedLocation, Is.Not.Null);
             Assert.That(domainModels[0].BackDT, Is.Not.Null);
             Assert.That(domainModels[0].LastDeathLocation, Is.Not.Null);
+            Assert.That(domainModels[1].DisplayName, Is.Null);
             Assert.That(domainModels[1].BannedDT, Is.Null);
             Assert.That(domainModels[1].MutedDT, Is.Null);
             Assert.That(domainModels[1].LastLoginDT, Is.Null);
@@ -278,6 +280,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 .ToArray();
 
             Assert.That(dataObjects, Has.Length.EqualTo(2));
+            Assert.That(dataObjects[0].DisplayName, Is.EqualTo("Ilarion Pintilie"));
             Assert.That(dataObjects[0].WikiUrl, Is.EqualTo("https://test.nucilandia.ro"));
             Assert.That(dataObjects[0].IsBanned);
             Assert.That(dataObjects[0].BannedDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
@@ -289,6 +292,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Assert.That(dataObjects[0].BedLocation, Is.Not.Null);
             Assert.That(dataObjects[0].BackDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
             Assert.That(dataObjects[0].LastDeathLocation, Is.Not.Null);
+            Assert.That(dataObjects[1].DisplayName, Is.Null);
             Assert.That(dataObjects[1].BannedDT, Is.Null);
             Assert.That(dataObjects[1].MutedDT, Is.Null);
             Assert.That(dataObjects[1].LastLoginDT, Is.Null);
@@ -480,6 +484,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
         {
             Identifier = "61300000-8730-3000-8000-000000000000",
             Username = "IlarionPintilie",
+            DisplayName = "Ilarion Pintilie",
             OfflineUUID = "61300000-0000-3000-8000-000000000000",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             Password = "NucileRullz!",
@@ -510,6 +515,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
         {
             Identifier = "87300000-6130-3000-8000-000000000000",
             Username = "DummyUser",
+            DisplayName = null,
             CreatedDT = new DateTimeOffset(2012, 9, 5, 0, 0, 0, TimeSpan.Zero),
             UpdatedDT = null,
             BannedDT = null,
@@ -530,6 +536,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
         {
             Id = "61300000-8730-3000-8000-000000000000",
             Username = "IlarionPintilie",
+            DisplayName = "Ilarion Pintilie",
             OfflineUUID = "61300000-0000-3000-8000-000000000000",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             Password = "NucileRullz!",
@@ -560,6 +567,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
         {
             Id = "87300000-6130-3000-8000-000000000000",
             Username = "DummyUser",
+            DisplayName = null,
             CreatedDT = "2012-09-05T00:00:00.0000000+00:00",
             UpdatedDT = null,
             BannedDT = null,

@@ -9,6 +9,8 @@ namespace NuciCraft.API.Service.Models
 
         public string Username { get; set; }
 
+        public string DisplayName { get; set; }
+
         public string OfflineUUID { get; set; }
 
         public string OnlineUUID { get; set; }

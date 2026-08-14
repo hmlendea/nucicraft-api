@@ -22,6 +22,7 @@ namespace NuciCraft.API.Service.Mapping
         {
             Identifier = dataObject.Id,
             Username = dataObject.Username,
+            DisplayName = dataObject.DisplayName,
             OfflineUUID = dataObject.OfflineUUID,
             OnlineUUID = dataObject.OnlineUUID,
             Password = dataObject.Password,
@@ -56,6 +57,7 @@ namespace NuciCraft.API.Service.Mapping
         {
             Id = domainModel.Identifier,
             Username = domainModel.Username,
+            DisplayName = domainModel.DisplayName,
             OfflineUUID = domainModel.OfflineUUID,
             OnlineUUID = domainModel.OnlineUUID,
             Password = domainModel.Password,

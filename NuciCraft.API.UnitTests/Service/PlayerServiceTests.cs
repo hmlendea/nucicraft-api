@@ -46,6 +46,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity, Is.Not.Null);
             Assert.That(capturedEntity.Id, Does.Match(@"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"));
             Assert.That(capturedEntity.Username, Is.EqualTo("IlarionPintilie"));
+            Assert.That(capturedEntity.DisplayName, Is.EqualTo("Ilarion Pintilie"));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo("87300000-0000-0000-0000-000000000000"));
             Assert.That(capturedEntity.Password, Is.EqualTo("NucilandiaPass1"));
             Assert.That(capturedEntity.LastIpAddress, Is.EqualTo("192.168.1.1"));
@@ -88,6 +89,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             playerService.Register(request);
 
+            Assert.That(capturedEntity.DisplayName, Is.Null);
             Assert.That(capturedEntity.WikiUrl, Is.Null);
             Assert.That(capturedEntity.IsBanned, Is.False);
             Assert.That(capturedEntity.BannedDT, Is.Null);
@@ -232,6 +234,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(player, Is.Not.Null);
             Assert.That(player.Identifier, Is.EqualTo(entity.Id));
             Assert.That(player.Username, Is.EqualTo(entity.Username));
+            Assert.That(player.DisplayName, Is.EqualTo(entity.DisplayName));
             Assert.That(player.OfflineUUID, Is.EqualTo(entity.OfflineUUID));
             Assert.That(player.OnlineUUID, Is.EqualTo(entity.OnlineUUID));
             Assert.That(player.Password, Is.EqualTo(entity.Password));
@@ -447,6 +450,7 @@ namespace NuciCraft.API.UnitTests.Service
             PatchPlayerRequest request = new()
             {
                 Identifier = "IlarionPintilie",
+                DisplayName = "Ilarion Pintilie",
                 Password = "NewPass",
                 LastIpAddress = "10.0.0.1",
                 DiscordId = "999",
@@ -482,6 +486,7 @@ namespace NuciCraft.API.UnitTests.Service
             playerService.Update(request);
 
             Assert.That(capturedEntity.Username, Is.EqualTo(original.Username));
+            Assert.That(capturedEntity.DisplayName, Is.EqualTo("Ilarion Pintilie"));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo(original.OnlineUUID));
             Assert.That(capturedEntity.Password, Is.EqualTo("NewPass"));
             Assert.That(capturedEntity.LastIpAddress, Is.EqualTo("10.0.0.1"));
@@ -557,6 +562,7 @@ namespace NuciCraft.API.UnitTests.Service
             });
 
             Assert.That(capturedEntity.Username, Is.EqualTo(original.Username));
+            Assert.That(capturedEntity.DisplayName, Is.EqualTo(original.DisplayName));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo(original.OnlineUUID));
             Assert.That(capturedEntity.Password, Is.EqualTo("NucilandiaPass2"));
         }
@@ -578,6 +584,7 @@ namespace NuciCraft.API.UnitTests.Service
             playerService.Update(new PatchPlayerRequest { Identifier = "IlarionPintilie" });
 
             Assert.That(capturedEntity.Username, Is.EqualTo(original.Username));
+            Assert.That(capturedEntity.DisplayName, Is.EqualTo(original.DisplayName));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo(original.OnlineUUID));
             Assert.That(capturedEntity.Password, Is.EqualTo(original.Password));
             Assert.That(capturedEntity.LastIpAddress, Is.EqualTo(original.LastIpAddress));
@@ -919,6 +926,7 @@ namespace NuciCraft.API.UnitTests.Service
         private static RegisterPlayerRequest BuildRegisterPlayerRequest() => new()
         {
             Username = "IlarionPintilie",
+            DisplayName = "Ilarion Pintilie",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             CreatedDT = "2012-09-05T00:00:00.0000000+00:00",
             Password = "NucilandiaPass1",
@@ -947,6 +955,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             Id = "IlarionPintilie",
             Username = "IlarionPintilie",
+            DisplayName = "Ilarion",
             OfflineUUID = "61300000-0000-3000-8000-000000000000",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             Password = "NucilandiaPass1",

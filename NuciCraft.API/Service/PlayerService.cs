@@ -58,6 +58,7 @@ namespace NuciCraft.API.Service
                 {
                     Identifier = Guid.NewGuid().ToString(),
                     Username = request.Username,
+                    DisplayName = request.DisplayName,
                     OfflineUUID = GetOfflineUuid(request.Username),
                     OnlineUUID = request.OnlineUUID,
                     Password = request.Password,
@@ -287,6 +288,11 @@ namespace NuciCraft.API.Service
             PatchPlayerRequest request,
             PlayerDataObject playerDataObject)
         {
+            if (request.DisplayName is not null)
+            {
+                playerDataObject.DisplayName = request.DisplayName;
+            }
+
             if (request.Password is not null)
             {
                 playerDataObject.Password = request.Password;

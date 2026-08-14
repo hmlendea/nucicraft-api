@@ -19,6 +19,7 @@ namespace NuciCraft.API.UnitTests.Responses
 
             Assert.That(response.Identifier, Is.EqualTo(player.Identifier));
             Assert.That(response.Username, Is.EqualTo(player.Username));
+            Assert.That(response.DisplayName, Is.EqualTo(player.DisplayName));
             Assert.That(response.OfflineUUID, Is.EqualTo(player.OfflineUUID));
             Assert.That(response.OnlineUUID, Is.EqualTo(player.OnlineUUID));
             Assert.That(response.Password, Is.EqualTo(player.Password));
@@ -61,6 +62,17 @@ namespace NuciCraft.API.UnitTests.Responses
             Assert.That(response.Settings, Is.Not.Null);
             Assert.That(response.Settings.Localisation, Is.EqualTo(Localisation.Romanian));
             Assert.That(response.Settings.SkinUrl, Is.EqualTo(player.Settings.SkinUrl));
+        }
+
+        [Test]
+        public void GivenAPlayerWithNoDisplayName_WhenBuildingTheResponse_ThenUsernameIsUsed()
+        {
+            Player player = BuildPlayer();
+            player.DisplayName = null;
+
+            GetPlayerResponse response = new(player);
+
+            Assert.That(response.DisplayName, Is.EqualTo(player.Username));
         }
 
         [Test]
@@ -166,6 +178,7 @@ namespace NuciCraft.API.UnitTests.Responses
         {
             Identifier = "61300000-8730-3000-8000-000000000000",
             Username = "IlarionPintilie",
+            DisplayName = "Ilarion Pintilie",
             OfflineUUID = "61300000-0000-3000-8000-000000000000",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             Password = "NucilandiaPass1",
