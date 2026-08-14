@@ -1,3 +1,5 @@
+using System.Linq;
+
 using Microsoft.AspNetCore.Mvc;
 
 using NuciAPI.Controllers;
@@ -61,7 +63,9 @@ namespace NuciCraft.API.Controllers
         public ActionResult GetAll()
             => ProcessRequest(
                 new GetPlayersRequest(),
-                () => new GetResponse(service.GetAll()),
+                () => new GetResponse(service
+                    .GetAll()
+                    .Select(player => new GetPlayerResponse(player))),
                 authorisation);
 
         [HttpPatch]

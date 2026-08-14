@@ -22,19 +22,29 @@ namespace NuciCraft.API.Service.Mapping
         {
             Identifier = dataObject.Id,
             Username = dataObject.Username,
+            DisplayName = dataObject.DisplayName,
             OfflineUUID = dataObject.OfflineUUID,
             OnlineUUID = dataObject.OnlineUUID,
             Password = dataObject.Password,
             CreatedDT = DateTimeOffset.Parse(dataObject.CreatedDT, CultureInfo.InvariantCulture),
-            UpdatedDT = dataObject.UpdatedDT is not null ? DateTimeOffset.Parse(dataObject.UpdatedDT, CultureInfo.InvariantCulture) : null,
-            IpAddress = dataObject.IpAddress,
+            UpdatedDT = ParseNullableTimestamp(dataObject.UpdatedDT),
+            LastIpAddress = dataObject.LastIpAddress,
             DiscordId = dataObject.DiscordId,
             EmailAddress = dataObject.EmailAddress,
-            LastSleptDT = dataObject.LastSleptDT is not null ? DateTimeOffset.Parse(dataObject.LastSleptDT, CultureInfo.InvariantCulture) : null,
-            LastDeathDT = dataObject.LastDeathDT is not null ? DateTimeOffset.Parse(dataObject.LastDeathDT, CultureInfo.InvariantCulture) : null,
+            WikiUrl = dataObject.WikiUrl,
+            IsBanned = dataObject.IsBanned,
+            BannedDT = ParseNullableTimestamp(dataObject.BannedDT),
+            IsMuted = dataObject.IsMuted,
+            MutedDT = ParseNullableTimestamp(dataObject.MutedDT),
+            LastLoginDT = ParseNullableTimestamp(dataObject.LastLoginDT),
+            LastLogoutDT = ParseNullableTimestamp(dataObject.LastLogoutDT),
+            LastLogoutLocation = dataObject.LastLogoutLocation?.ToServiceModel(),
+            LastSleptDT = ParseNullableTimestamp(dataObject.LastSleptDT),
+            BedLocation = dataObject.BedLocation?.ToServiceModel(),
+            LastDeathDT = ParseNullableTimestamp(dataObject.LastDeathDT),
             LastDeathLocation = dataObject.LastDeathLocation?.ToServiceModel(),
+            BackDT = ParseNullableTimestamp(dataObject.BackDT),
             BackLocation = dataObject.BackLocation?.ToServiceModel(),
-            LogoutLocation = dataObject.LogoutLocation?.ToServiceModel(),
             Settings = dataObject.Settings.ToServiceModel()
         };
 
@@ -47,19 +57,29 @@ namespace NuciCraft.API.Service.Mapping
         {
             Id = domainModel.Identifier,
             Username = domainModel.Username,
+            DisplayName = domainModel.DisplayName,
             OfflineUUID = domainModel.OfflineUUID,
             OnlineUUID = domainModel.OnlineUUID,
             Password = domainModel.Password,
             CreatedDT = domainModel.CreatedDT.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
             UpdatedDT = domainModel.UpdatedDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
-            IpAddress = domainModel.IpAddress,
+            LastIpAddress = domainModel.LastIpAddress,
             DiscordId = domainModel.DiscordId,
             EmailAddress = domainModel.EmailAddress,
+            WikiUrl = domainModel.WikiUrl,
+            IsBanned = domainModel.IsBanned,
+            BannedDT = domainModel.BannedDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
+            IsMuted = domainModel.IsMuted,
+            MutedDT = domainModel.MutedDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
+            LastLoginDT = domainModel.LastLoginDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
+            LastLogoutDT = domainModel.LastLogoutDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
+            LastLogoutLocation = domainModel.LastLogoutLocation?.ToDataObject(),
             LastSleptDT = domainModel.LastSleptDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
+            BedLocation = domainModel.BedLocation?.ToDataObject(),
             LastDeathDT = domainModel.LastDeathDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
             LastDeathLocation = domainModel.LastDeathLocation?.ToDataObject(),
+            BackDT = domainModel.BackDT?.ToString(TimestampFormats.Full, CultureInfo.InvariantCulture),
             BackLocation = domainModel.BackLocation?.ToDataObject(),
-            LogoutLocation = domainModel.LogoutLocation?.ToDataObject(),
             Settings = domainModel.Settings.ToDataObject()
         };
 
@@ -78,5 +98,15 @@ namespace NuciCraft.API.Service.Mapping
         /// <param name="domainModels">The domain models.</param>
         internal static IEnumerable<PlayerDataObject> ToDataObjects(this IEnumerable<Player> domainModels)
             => domainModels.Select(domainModel => domainModel.ToDataObject());
+
+        private static DateTimeOffset? ParseNullableTimestamp(string timestamp)
+        {
+            if (timestamp is null)
+            {
+                return null;
+            }
+
+            return DateTimeOffset.Parse(timestamp, CultureInfo.InvariantCulture);
+        }
     }
 }

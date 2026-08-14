@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 using Microsoft.AspNetCore.Mvc;
@@ -202,7 +203,7 @@ namespace NuciCraft.API.UnitTests.Controllers
         }
 
         [Test]
-        public void GivenPlayers_WhenGettingAllPlayers_ThenThePlayersAreReturned()
+        public void GivenPlayers_WhenGettingAllPlayers_ThenPlayerResponsesAreReturned()
         {
             IEnumerable<Player> players = [BuildPlayer()];
             serviceMock
@@ -211,8 +212,11 @@ namespace NuciCraft.API.UnitTests.Controllers
 
             OkObjectResult result = controller.GetAll() as OkObjectResult;
             GetResponse response = result.Value as GetResponse;
+            IEnumerable<GetPlayerResponse> playerResponses = response.Content as IEnumerable<GetPlayerResponse>;
+            GetPlayerResponse playerResponse = playerResponses.Single();
 
-            Assert.That(response.Content, Is.SameAs(players));
+            Assert.That(playerResponse.Username, Is.EqualTo("IlarionPintilie"));
+            Assert.That(playerResponse.DisplayName, Is.EqualTo("IlarionPintilie"));
         }
 
         [Test]

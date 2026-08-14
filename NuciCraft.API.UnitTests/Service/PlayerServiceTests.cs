@@ -19,9 +19,9 @@ namespace NuciCraft.API.UnitTests.Service
     [TestFixture]
     public sealed class PlayerServiceTests
     {
-        Mock<IFileRepository<PlayerDataObject>> repositoryMock;
-        Mock<ILogger> loggerMock;
-        PlayerService playerService;
+        private Mock<IFileRepository<PlayerDataObject>> repositoryMock;
+        private Mock<ILogger> loggerMock;
+        private PlayerService playerService;
 
         [SetUp]
         public void SetUp()
@@ -30,8 +30,6 @@ namespace NuciCraft.API.UnitTests.Service
             loggerMock = new Mock<ILogger>();
             playerService = new PlayerService(repositoryMock.Object, loggerMock.Object);
         }
-
-        // ── Register ──────────────────────────────────────────────────────────
 
         [Test]
         public void GivenAValidRequest_WhenRegistering_ThenTheEntityIsAddedToTheRepository()
@@ -48,13 +46,60 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity, Is.Not.Null);
             Assert.That(capturedEntity.Id, Does.Match(@"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"));
             Assert.That(capturedEntity.Username, Is.EqualTo("IlarionPintilie"));
+            Assert.That(capturedEntity.DisplayName, Is.EqualTo("Ilarion Pintilie"));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo("87300000-0000-0000-0000-000000000000"));
             Assert.That(capturedEntity.Password, Is.EqualTo("NucilandiaPass1"));
-            Assert.That(capturedEntity.IpAddress, Is.EqualTo("192.168.1.1"));
+            Assert.That(capturedEntity.LastIpAddress, Is.EqualTo("192.168.1.1"));
+            Assert.That(capturedEntity.WikiUrl, Is.EqualTo("https://test.nucilandia.ro"));
+            Assert.That(capturedEntity.IsBanned);
+            Assert.That(capturedEntity.BannedDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
+            Assert.That(capturedEntity.IsMuted);
+            Assert.That(capturedEntity.MutedDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
+            Assert.That(capturedEntity.LastLoginDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
+            Assert.That(capturedEntity.LastLogoutDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
+            Assert.That(capturedEntity.LastLogoutLocation, Is.Not.Null);
+            Assert.That(capturedEntity.LastLogoutLocation.World, Is.EqualTo("world_the_end"));
+            Assert.That(capturedEntity.LastLogoutLocation.X, Is.EqualTo(6.13f));
+            Assert.That(capturedEntity.LastLogoutLocation.Y, Is.EqualTo(64.0f));
+            Assert.That(capturedEntity.LastLogoutLocation.Z, Is.EqualTo(8.73f));
+            Assert.That(capturedEntity.BedLocation, Is.Not.Null);
+            Assert.That(capturedEntity.BedLocation.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.BedLocation.X, Is.EqualTo(8.73f));
+            Assert.That(capturedEntity.BedLocation.Y, Is.EqualTo(64.0f));
+            Assert.That(capturedEntity.BedLocation.Z, Is.EqualTo(6.13f));
+            Assert.That(capturedEntity.BackDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
             Assert.That(capturedEntity.Settings, Is.Not.Null);
             Assert.That(capturedEntity.Settings.Localisation, Is.EqualTo("romanian"));
             Assert.That(capturedEntity.Settings.SkinUrl, Is.Null);
-            Assert.That(capturedEntity.LogoutLocation, Is.Null);
+        }
+
+        [Test]
+        public void GivenARequestWithoutOptionalState_WhenRegistering_ThenOptionalStateUsesDefaults()
+        {
+            RegisterPlayerRequest request = new()
+            {
+                Username = "IlarionPintilie",
+                CreatedDT = "2012-09-05T00:00:00.0000000+00:00"
+            };
+            PlayerDataObject capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.Add(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
+
+            playerService.Register(request);
+
+            Assert.That(capturedEntity.DisplayName, Is.Null);
+            Assert.That(capturedEntity.WikiUrl, Is.Null);
+            Assert.That(capturedEntity.IsBanned, Is.False);
+            Assert.That(capturedEntity.BannedDT, Is.Null);
+            Assert.That(capturedEntity.IsMuted, Is.False);
+            Assert.That(capturedEntity.MutedDT, Is.Null);
+            Assert.That(capturedEntity.LastLoginDT, Is.Null);
+            Assert.That(capturedEntity.LastLogoutDT, Is.Null);
+            Assert.That(capturedEntity.LastLogoutLocation, Is.Null);
+            Assert.That(capturedEntity.BedLocation, Is.Null);
+            Assert.That(capturedEntity.BackDT, Is.Null);
         }
 
         [Test]
@@ -175,8 +220,6 @@ namespace NuciCraft.API.UnitTests.Service
                 Throws.TypeOf<ArgumentNullException>());
         }
 
-        // ── Get ────────────────────────────────────────────────────────────────
-
         [Test]
         public void GivenAValidUsername_WhenGettingAPlayer_ThenThePlayerIsReturned()
         {
@@ -191,17 +234,40 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(player, Is.Not.Null);
             Assert.That(player.Identifier, Is.EqualTo(entity.Id));
             Assert.That(player.Username, Is.EqualTo(entity.Username));
+            Assert.That(player.DisplayName, Is.EqualTo(entity.DisplayName));
             Assert.That(player.OfflineUUID, Is.EqualTo(entity.OfflineUUID));
             Assert.That(player.OnlineUUID, Is.EqualTo(entity.OnlineUUID));
             Assert.That(player.Password, Is.EqualTo(entity.Password));
             Assert.That(player.CreatedDT, Is.EqualTo(DateTimeOffset.Parse(entity.CreatedDT)));
             Assert.That(player.UpdatedDT, Is.Null);
-            Assert.That(player.IpAddress, Is.EqualTo(entity.IpAddress));
+            Assert.That(player.LastIpAddress, Is.EqualTo(entity.LastIpAddress));
             Assert.That(player.DiscordId, Is.EqualTo(entity.DiscordId));
             Assert.That(player.EmailAddress, Is.EqualTo(entity.EmailAddress));
+            Assert.That(player.WikiUrl, Is.EqualTo(entity.WikiUrl));
+            Assert.That(player.IsBanned, Is.EqualTo(entity.IsBanned));
+            Assert.That(player.BannedDT, Is.EqualTo(DateTimeOffset.Parse(entity.BannedDT)));
+            Assert.That(player.IsMuted, Is.EqualTo(entity.IsMuted));
+            Assert.That(player.MutedDT, Is.EqualTo(DateTimeOffset.Parse(entity.MutedDT)));
+            Assert.That(player.LastLoginDT, Is.EqualTo(DateTimeOffset.Parse(entity.LastLoginDT)));
+            Assert.That(player.LastLogoutDT, Is.EqualTo(DateTimeOffset.Parse(entity.LastLogoutDT)));
+            Assert.That(player.LastLogoutLocation, Is.Not.Null);
+            Assert.That(player.LastLogoutLocation.World, Is.EqualTo(entity.LastLogoutLocation.World));
+            Assert.That(player.LastLogoutLocation.X, Is.EqualTo(entity.LastLogoutLocation.X));
+            Assert.That(player.LastLogoutLocation.Y, Is.EqualTo(entity.LastLogoutLocation.Y));
+            Assert.That(player.LastLogoutLocation.Z, Is.EqualTo(entity.LastLogoutLocation.Z));
+            Assert.That(player.LastLogoutLocation.Pitch, Is.EqualTo(entity.LastLogoutLocation.Pitch));
+            Assert.That(player.LastLogoutLocation.Yaw, Is.EqualTo(entity.LastLogoutLocation.Yaw));
             Assert.That(player.LastSleptDT, Is.EqualTo(DateTimeOffset.Parse(entity.LastSleptDT)));
+            Assert.That(player.BedLocation, Is.Not.Null);
+            Assert.That(player.BedLocation.World, Is.EqualTo(entity.BedLocation.World));
+            Assert.That(player.BedLocation.X, Is.EqualTo(entity.BedLocation.X));
+            Assert.That(player.BedLocation.Y, Is.EqualTo(entity.BedLocation.Y));
+            Assert.That(player.BedLocation.Z, Is.EqualTo(entity.BedLocation.Z));
+            Assert.That(player.BedLocation.Pitch, Is.EqualTo(entity.BedLocation.Pitch));
+            Assert.That(player.BedLocation.Yaw, Is.EqualTo(entity.BedLocation.Yaw));
             Assert.That(player.LastDeathDT, Is.Null);
             Assert.That(player.LastDeathLocation, Is.Null);
+            Assert.That(player.BackDT, Is.EqualTo(DateTimeOffset.Parse(entity.BackDT)));
             Assert.That(player.BackLocation, Is.Not.Null);
             Assert.That(player.BackLocation.World, Is.EqualTo(entity.BackLocation.World));
             Assert.That(player.BackLocation.X, Is.EqualTo(entity.BackLocation.X));
@@ -209,13 +275,6 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(player.BackLocation.Z, Is.EqualTo(entity.BackLocation.Z));
             Assert.That(player.BackLocation.Pitch, Is.EqualTo(entity.BackLocation.Pitch));
             Assert.That(player.BackLocation.Yaw, Is.EqualTo(entity.BackLocation.Yaw));
-            Assert.That(player.LogoutLocation, Is.Not.Null);
-            Assert.That(player.LogoutLocation.World, Is.EqualTo(entity.LogoutLocation.World));
-            Assert.That(player.LogoutLocation.X, Is.EqualTo(entity.LogoutLocation.X));
-            Assert.That(player.LogoutLocation.Y, Is.EqualTo(entity.LogoutLocation.Y));
-            Assert.That(player.LogoutLocation.Z, Is.EqualTo(entity.LogoutLocation.Z));
-            Assert.That(player.LogoutLocation.Pitch, Is.EqualTo(entity.LogoutLocation.Pitch));
-            Assert.That(player.LogoutLocation.Yaw, Is.EqualTo(entity.LogoutLocation.Yaw));
             Assert.That(player.Settings, Is.Not.Null);
             Assert.That(player.Settings.AutomaticSaplingReplantingIsEnabled, Is.EqualTo(entity.Settings.AutomaticSaplingReplantingIsEnabled));
             Assert.That(player.Settings.PrivateMessagesAreEnabled, Is.EqualTo(entity.Settings.PrivateMessagesAreEnabled));
@@ -374,8 +433,6 @@ namespace NuciCraft.API.UnitTests.Service
                 Throws.TypeOf<InvalidOperationException>());
         }
 
-        // ── Update ─────────────────────────────────────────────────────────────
-
         [Test]
         public void GivenARequestWithAllFields_WhenUpdatingAPlayer_ThenAllFieldsAreApplied()
         {
@@ -393,15 +450,25 @@ namespace NuciCraft.API.UnitTests.Service
             PatchPlayerRequest request = new()
             {
                 Identifier = "IlarionPintilie",
+                DisplayName = "Ilarion Pintilie",
                 Password = "NewPass",
-                IpAddress = "10.0.0.1",
+                LastIpAddress = "10.0.0.1",
                 DiscordId = "999",
                 EmailAddress = "new@nucilandia.ro",
+                WikiUrl = "https://dummy-url.ro",
+                IsBanned = false,
+                BannedDT = "2026-08-13T00:00:00.0000000+00:00",
+                IsMuted = true,
+                MutedDT = "2026-08-13T00:00:00.0000000+00:00",
+                LastLoginDT = "2026-08-13T00:00:00.0000000+00:00",
+                LastLogoutDT = "2026-08-13T00:00:00.0000000+00:00",
+                LastLogoutLocation = new() { World = "world_the_end", X = -10.0f, Y = 80.0f, Z = 41.0f, Pitch = 50.0f, Yaw = 60.0f },
                 LastSleptDT = "2026-01-01T00:00:00.0000000+00:00",
+                BedLocation = new() { World = "world", X = 6.13f, Y = 64.0f, Z = 8.73f, Pitch = 3.14f, Yaw = 42.0f },
                 LastDeathDT = "2026-06-01T00:00:00.0000000+00:00",
                 LastDeathLocation = new() { World = "world_nether", X = 1.0f, Y = 2.0f, Z = 3.0f, Pitch = 4.0f, Yaw = 5.0f },
+                BackDT = "2026-08-13T00:00:00.0000000+00:00",
                 BackLocation = new() { World = "world", X = 6.0f, Y = 7.0f, Z = 8.0f, Pitch = 9.0f, Yaw = 10.0f },
-                LogoutLocation = new() { World = "world_the_end", X = -10.0f, Y = 80.0f, Z = 41.0f, Pitch = 50.0f, Yaw = 60.0f },
                 Settings = new()
                 {
                     AutomaticHotbarRefillingIsEnabled = true,
@@ -419,12 +486,34 @@ namespace NuciCraft.API.UnitTests.Service
             playerService.Update(request);
 
             Assert.That(capturedEntity.Username, Is.EqualTo(original.Username));
+            Assert.That(capturedEntity.DisplayName, Is.EqualTo("Ilarion Pintilie"));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo(original.OnlineUUID));
             Assert.That(capturedEntity.Password, Is.EqualTo("NewPass"));
-            Assert.That(capturedEntity.IpAddress, Is.EqualTo("10.0.0.1"));
+            Assert.That(capturedEntity.LastIpAddress, Is.EqualTo("10.0.0.1"));
             Assert.That(capturedEntity.DiscordId, Is.EqualTo("999"));
             Assert.That(capturedEntity.EmailAddress, Is.EqualTo("new@nucilandia.ro"));
+            Assert.That(capturedEntity.WikiUrl, Is.EqualTo("https://dummy-url.ro"));
+            Assert.That(capturedEntity.IsBanned, Is.False);
+            Assert.That(capturedEntity.BannedDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
+            Assert.That(capturedEntity.IsMuted);
+            Assert.That(capturedEntity.MutedDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
+            Assert.That(capturedEntity.LastLoginDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
+            Assert.That(capturedEntity.LastLogoutDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
+            Assert.That(capturedEntity.LastLogoutLocation, Is.Not.Null);
+            Assert.That(capturedEntity.LastLogoutLocation.World, Is.EqualTo("world_the_end"));
+            Assert.That(capturedEntity.LastLogoutLocation.X, Is.EqualTo(-10.0f));
+            Assert.That(capturedEntity.LastLogoutLocation.Y, Is.EqualTo(80.0f));
+            Assert.That(capturedEntity.LastLogoutLocation.Z, Is.EqualTo(41.0f));
+            Assert.That(capturedEntity.LastLogoutLocation.Pitch, Is.EqualTo(50.0f));
+            Assert.That(capturedEntity.LastLogoutLocation.Yaw, Is.EqualTo(60.0f));
             Assert.That(capturedEntity.LastSleptDT, Is.EqualTo("2026-01-01T00:00:00.0000000+00:00"));
+            Assert.That(capturedEntity.BedLocation, Is.Not.Null);
+            Assert.That(capturedEntity.BedLocation.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.BedLocation.X, Is.EqualTo(6.13f));
+            Assert.That(capturedEntity.BedLocation.Y, Is.EqualTo(64.0f));
+            Assert.That(capturedEntity.BedLocation.Z, Is.EqualTo(8.73f));
+            Assert.That(capturedEntity.BedLocation.Pitch, Is.EqualTo(3.14f));
+            Assert.That(capturedEntity.BedLocation.Yaw, Is.EqualTo(42.0f));
             Assert.That(capturedEntity.LastDeathDT, Is.EqualTo("2026-06-01T00:00:00.0000000+00:00"));
             Assert.That(capturedEntity.LastDeathLocation.World, Is.EqualTo("world_nether"));
             Assert.That(capturedEntity.LastDeathLocation.X, Is.EqualTo(1.0f));
@@ -432,6 +521,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastDeathLocation.Z, Is.EqualTo(3.0f));
             Assert.That(capturedEntity.LastDeathLocation.Pitch, Is.EqualTo(4.0f));
             Assert.That(capturedEntity.LastDeathLocation.Yaw, Is.EqualTo(5.0f));
+            Assert.That(capturedEntity.BackDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
             Assert.That(capturedEntity.BackLocation, Is.Not.Null);
             Assert.That(capturedEntity.BackLocation.World, Is.EqualTo("world"));
             Assert.That(capturedEntity.BackLocation.X, Is.EqualTo(6.0f));
@@ -439,13 +529,6 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.BackLocation.Z, Is.EqualTo(8.0f));
             Assert.That(capturedEntity.BackLocation.Pitch, Is.EqualTo(9.0f));
             Assert.That(capturedEntity.BackLocation.Yaw, Is.EqualTo(10.0f));
-            Assert.That(capturedEntity.LogoutLocation, Is.Not.Null);
-            Assert.That(capturedEntity.LogoutLocation.World, Is.EqualTo("world_the_end"));
-            Assert.That(capturedEntity.LogoutLocation.X, Is.EqualTo(-10.0f));
-            Assert.That(capturedEntity.LogoutLocation.Y, Is.EqualTo(80.0f));
-            Assert.That(capturedEntity.LogoutLocation.Z, Is.EqualTo(41.0f));
-            Assert.That(capturedEntity.LogoutLocation.Pitch, Is.EqualTo(50.0f));
-            Assert.That(capturedEntity.LogoutLocation.Yaw, Is.EqualTo(60.0f));
             Assert.That(capturedEntity.Settings, Is.Not.Null);
             Assert.That(capturedEntity.Settings.Localisation, Is.EqualTo("romanian"));
             Assert.That(capturedEntity.Settings.SkinUrl, Is.EqualTo("new-skin.nucilandia.ro"));
@@ -479,12 +562,13 @@ namespace NuciCraft.API.UnitTests.Service
             });
 
             Assert.That(capturedEntity.Username, Is.EqualTo(original.Username));
+            Assert.That(capturedEntity.DisplayName, Is.EqualTo(original.DisplayName));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo(original.OnlineUUID));
             Assert.That(capturedEntity.Password, Is.EqualTo("NucilandiaPass2"));
         }
 
         [Test]
-        public void GivenARequestWithNullFields_WhenUpdatingAPlayer_ThenExistingValuesArePreserved()
+        public void GivenARequestWithoutOptionalFields_WhenUpdatingAPlayer_ThenExistingOptionalValuesArePreserved()
         {
             PlayerDataObject original = BuildPlayerDataObject();
             PlayerDataObject capturedEntity = null;
@@ -500,16 +584,26 @@ namespace NuciCraft.API.UnitTests.Service
             playerService.Update(new PatchPlayerRequest { Identifier = "IlarionPintilie" });
 
             Assert.That(capturedEntity.Username, Is.EqualTo(original.Username));
+            Assert.That(capturedEntity.DisplayName, Is.EqualTo(original.DisplayName));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo(original.OnlineUUID));
             Assert.That(capturedEntity.Password, Is.EqualTo(original.Password));
-            Assert.That(capturedEntity.IpAddress, Is.EqualTo(original.IpAddress));
+            Assert.That(capturedEntity.LastIpAddress, Is.EqualTo(original.LastIpAddress));
             Assert.That(capturedEntity.DiscordId, Is.EqualTo(original.DiscordId));
             Assert.That(capturedEntity.EmailAddress, Is.EqualTo(original.EmailAddress));
+            Assert.That(capturedEntity.WikiUrl, Is.EqualTo(original.WikiUrl));
+            Assert.That(capturedEntity.IsBanned, Is.False);
+            Assert.That(capturedEntity.BannedDT, Is.EqualTo(original.BannedDT));
+            Assert.That(capturedEntity.IsMuted, Is.False);
+            Assert.That(capturedEntity.MutedDT, Is.EqualTo(original.MutedDT));
+            Assert.That(capturedEntity.LastLoginDT, Is.EqualTo(original.LastLoginDT));
+            Assert.That(capturedEntity.LastLogoutDT, Is.EqualTo(original.LastLogoutDT));
+            Assert.That(capturedEntity.LastLogoutLocation, Is.EqualTo(original.LastLogoutLocation));
             Assert.That(capturedEntity.LastSleptDT, Is.EqualTo(original.LastSleptDT));
+            Assert.That(capturedEntity.BedLocation, Is.EqualTo(original.BedLocation));
             Assert.That(capturedEntity.LastDeathDT, Is.EqualTo(original.LastDeathDT));
             Assert.That(capturedEntity.LastDeathLocation, Is.EqualTo(original.LastDeathLocation));
+            Assert.That(capturedEntity.BackDT, Is.EqualTo(original.BackDT));
             Assert.That(capturedEntity.BackLocation, Is.EqualTo(original.BackLocation));
-            Assert.That(capturedEntity.LogoutLocation, Is.EqualTo(original.LogoutLocation));
             Assert.That(capturedEntity.Settings.SkinUrl, Is.EqualTo(original.Settings.SkinUrl));
             Assert.That(capturedEntity.Settings, Is.EqualTo(original.Settings));
         }
@@ -758,11 +852,11 @@ namespace NuciCraft.API.UnitTests.Service
             playerService.Update(new PatchPlayerRequest
             {
                 OfflineUUID = "61300000-0000-3000-8000-000000000000",
-                IpAddress = "10.8.0.42"
+                LastIpAddress = "10.8.0.42"
             });
 
             Assert.That(capturedEntity, Is.Not.Null);
-            Assert.That(capturedEntity.IpAddress, Is.EqualTo("10.8.0.42"));
+            Assert.That(capturedEntity.LastIpAddress, Is.EqualTo("10.8.0.42"));
         }
 
         [Test]
@@ -832,10 +926,21 @@ namespace NuciCraft.API.UnitTests.Service
         private static RegisterPlayerRequest BuildRegisterPlayerRequest() => new()
         {
             Username = "IlarionPintilie",
+            DisplayName = "Ilarion Pintilie",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             CreatedDT = "2012-09-05T00:00:00.0000000+00:00",
             Password = "NucilandiaPass1",
-            IpAddress = "192.168.1.1",
+            LastIpAddress = "192.168.1.1",
+            WikiUrl = "https://test.nucilandia.ro",
+            IsBanned = true,
+            BannedDT = "2026-08-13T00:00:00.0000000+00:00",
+            IsMuted = true,
+            MutedDT = "2026-08-13T00:00:00.0000000+00:00",
+            LastLoginDT = "2026-08-13T00:00:00.0000000+00:00",
+            LastLogoutDT = "2026-08-13T00:00:00.0000000+00:00",
+            LastLogoutLocation = new() { World = "world_the_end", X = 6.13f, Y = 64.0f, Z = 8.73f, Pitch = 3.14f, Yaw = 42.0f },
+            BedLocation = new() { World = "world", X = 8.73f, Y = 64.0f, Z = 6.13f, Pitch = 42.0f, Yaw = 3.14f },
+            BackDT = "2026-08-13T00:00:00.0000000+00:00",
         };
 
         private static RegisterPlayerRequest BuildRegisterPlayerRequest(string username)
@@ -850,19 +955,29 @@ namespace NuciCraft.API.UnitTests.Service
         {
             Id = "IlarionPintilie",
             Username = "IlarionPintilie",
+            DisplayName = "Ilarion",
             OfflineUUID = "61300000-0000-3000-8000-000000000000",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             Password = "NucilandiaPass1",
             CreatedDT = "2012-09-05T00:00:00.0000000+00:00",
             UpdatedDT = null,
-            IpAddress = "192.168.1.1",
+            LastIpAddress = "192.168.1.1",
             DiscordId = null,
             EmailAddress = "ilarion.pintilie@nucilandia.ro",
+            WikiUrl = "https://test.nucilandia.ro",
+            IsBanned = true,
+            BannedDT = "2026-08-13T00:00:00.0000000+00:00",
+            IsMuted = false,
+            MutedDT = "2026-08-13T00:00:00.0000000+00:00",
+            LastLoginDT = "2026-08-13T00:00:00.0000000+00:00",
+            LastLogoutDT = "2026-08-13T00:00:00.0000000+00:00",
+            LastLogoutLocation = new() { World = "world", X = -13.0f, Y = 75.0f, Z = 22.5f, Pitch = 15.0f, Yaw = 40.0f },
             LastSleptDT = "2012-09-05T00:00:00.0000000+00:00",
+            BedLocation = new() { World = "world", X = 6.13f, Y = 64.0f, Z = 8.73f, Pitch = 3.14f, Yaw = 42.0f },
             LastDeathDT = null,
             LastDeathLocation = null,
+            BackDT = "2026-08-13T00:00:00.0000000+00:00",
             BackLocation = new() { World = "world", X = 100.5f, Y = 70.0f, Z = -25.25f, Pitch = 45.0f, Yaw = 90.0f },
-            LogoutLocation = new() { World = "world", X = -13.0f, Y = 75.0f, Z = 22.5f, Pitch = 15.0f, Yaw = 40.0f },
             Settings = new()
             {
                 AutomaticSaplingReplantingIsEnabled = true,
