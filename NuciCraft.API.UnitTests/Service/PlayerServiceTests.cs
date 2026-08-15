@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.Json;
 
 using Moq;
 
@@ -20,6 +21,9 @@ namespace NuciCraft.API.UnitTests.Service
     [TestFixture]
     public sealed class PlayerServiceTests
     {
+        private static readonly JsonSerializerOptions playerSettingsJsonSerializerOptions =
+            new(JsonSerializerDefaults.Web);
+
         private static string OfflineUuidVersionThreeRfc4122Pattern
             => "^[0-9a-f]{8}-[0-9a-f]{4}-3[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$";
 
@@ -75,6 +79,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Settings, Is.Not.Null);
             Assert.That(capturedEntity.Settings.Localisation, Is.EqualTo("romanian"));
             Assert.That(capturedEntity.Settings.SkinUrl, Is.Null);
+            Assert.That(capturedEntity.Settings.TeleportationRequestsAreEnabled);
         }
 
         [Test]
@@ -350,6 +355,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(player.Settings.KeepInventoryIsEnabled, Is.EqualTo(entity.Settings.KeepInventoryIsEnabled));
             Assert.That(player.Settings.KeepExperienceIsEnabled, Is.EqualTo(entity.Settings.KeepExperienceIsEnabled));
             Assert.That(player.Settings.AutomaticToolSelectionIsEnabled, Is.EqualTo(entity.Settings.AutomaticToolSelectionIsEnabled));
+            Assert.That(player.Settings.TeleportationRequestsAreEnabled, Is.EqualTo(entity.Settings.TeleportationRequestsAreEnabled));
             Assert.That(player.Settings.Localisation, Is.EqualTo(Localisation.English));
             Assert.That(player.Settings.SkinUrl, Is.EqualTo(entity.Settings.SkinUrl));
         }
@@ -546,7 +552,8 @@ namespace NuciCraft.API.UnitTests.Service
                     PrivateMessagesAreEnabled = true,
                     PrivateMessagesInterceptionIsEnabled = false,
                     Localisation = "romanian",
-                    SkinUrl = "new-skin.nucilandia.ro"
+                    SkinUrl = "new-skin.nucilandia.ro",
+                    TeleportationRequestsAreEnabled = false
                 }
             };
 
@@ -606,6 +613,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Settings.KeepInventoryIsEnabled, Is.EqualTo(false));
             Assert.That(capturedEntity.Settings.PrivateMessagesAreEnabled, Is.EqualTo(true));
             Assert.That(capturedEntity.Settings.PrivateMessagesInterceptionIsEnabled, Is.EqualTo(false));
+            Assert.That(capturedEntity.Settings.TeleportationRequestsAreEnabled, Is.EqualTo(false));
         }
 
         [Test]
@@ -733,12 +741,7 @@ namespace NuciCraft.API.UnitTests.Service
                 Settings = new()
                 {
                     KeepInventoryIsEnabled = false,
-                    PrivateMessagesAreEnabled = true,
-                    AutomaticHotbarRefillingIsEnabled = null,
-                    AutomaticSaplingReplantingIsEnabled = null,
-                    AutomaticToolSelectionIsEnabled = null,
-                    KeepExperienceIsEnabled = null,
-                    PrivateMessagesInterceptionIsEnabled = null
+                    PrivateMessagesAreEnabled = true
                 }
             });
 
@@ -750,6 +753,74 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Settings.KeepInventoryIsEnabled, Is.EqualTo(false));
             Assert.That(capturedEntity.Settings.KeepExperienceIsEnabled, Is.EqualTo(false));
             Assert.That(capturedEntity.Settings.AutomaticToolSelectionIsEnabled, Is.EqualTo(true));
+            Assert.That(capturedEntity.Settings.TeleportationRequestsAreEnabled, Is.EqualTo(false));
+        }
+
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        public void GivenATeleportationRequestsPreference_WhenUpdatingAPlayer_ThenTheRequestedValueIsApplied(
+            bool existingValue,
+            bool requestedValue)
+        {
+            PlayerDataObject original = BuildPlayerDataObject();
+            original.Settings.TeleportationRequestsAreEnabled = existingValue;
+            PlayerDataObject capturedEntity = null;
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([original]);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
+
+            playerService.Update(new PatchPlayerRequest
+            {
+                Identifier = "IlarionPintilie",
+                Settings = new()
+                {
+                    TeleportationRequestsAreEnabled = requestedValue
+                }
+            });
+
+            Assert.That(
+                capturedEntity.Settings.TeleportationRequestsAreEnabled,
+                Is.EqualTo(requestedValue));
+        }
+
+        [TestCase("{}", false, false)]
+        [TestCase("{\"teleportationRequestsAreEnabled\":false}", true, false)]
+        [TestCase("{\"teleportationRequestsAreEnabled\":true}", false, true)]
+        public void GivenAJsonTeleportationPreference_WhenUpdatingAPlayer_ThenOnlyAProvidedValueIsApplied(
+            string settingsJson,
+            bool existingValue,
+            bool expectedValue)
+        {
+            PlayerDataObject original = BuildPlayerDataObject();
+            original.Settings.TeleportationRequestsAreEnabled = existingValue;
+            PlayerDataObject capturedEntity = null;
+            PatchPlayerSettingsRequest settings = JsonSerializer
+                .Deserialize<PatchPlayerSettingsRequest>(
+                    settingsJson,
+                    playerSettingsJsonSerializerOptions);
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([original]);
+
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<PlayerDataObject>()))
+                .Callback<PlayerDataObject>(entity => capturedEntity = entity);
+
+            playerService.Update(new PatchPlayerRequest
+            {
+                Identifier = "IlarionPintilie",
+                Settings = settings
+            });
+
+            Assert.That(
+                capturedEntity.Settings.TeleportationRequestsAreEnabled,
+                Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -772,12 +843,14 @@ namespace NuciCraft.API.UnitTests.Service
                 Identifier = "IlarionPintilie",
                 Settings = new()
                 {
-                    SkinUrl = "test.nucilandia.ro"
+                    SkinUrl = "test.nucilandia.ro",
+                    TeleportationRequestsAreEnabled = false
                 }
             });
 
             Assert.That(capturedEntity.Settings, Is.Not.Null);
             Assert.That(capturedEntity.Settings.SkinUrl, Is.EqualTo("test.nucilandia.ro"));
+            Assert.That(capturedEntity.Settings.TeleportationRequestsAreEnabled, Is.EqualTo(false));
         }
 
         [Test]
@@ -1055,7 +1128,8 @@ namespace NuciCraft.API.UnitTests.Service
                 KeepExperienceIsEnabled = false,
                 AutomaticToolSelectionIsEnabled = true,
                 Localisation = "english",
-                SkinUrl = "test.nucilandia.ro"
+                SkinUrl = "test.nucilandia.ro",
+                TeleportationRequestsAreEnabled = false
             }
         };
 

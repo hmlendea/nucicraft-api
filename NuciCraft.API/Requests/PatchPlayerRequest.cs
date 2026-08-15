@@ -81,6 +81,6 @@ namespace NuciCraft.API.Requests
         public CoordinatesDataObject BackLocation { get; set; }
 
         [HmacOrder(24)]
-        public PlayerSettingsDataObject Settings { get; set; }
+        public PatchPlayerSettingsRequest Settings { get; set; }
     }
 }

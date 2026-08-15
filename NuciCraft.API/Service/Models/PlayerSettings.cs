@@ -12,12 +12,14 @@ namespace NuciCraft.API.Service.Models
 
         public bool KeepInventoryIsEnabled { get; set; } = false;
 
+        public Localisation Localisation { get; set; } = Localisation.Romanian;
+
         public bool PrivateMessagesAreEnabled { get; set; } = true;
 
         public bool PrivateMessagesInterceptionIsEnabled { get; set; } = false;
 
-        public Localisation Localisation { get; set; } = Localisation.Romanian;
-
         public string SkinUrl { get; set; }
+
+        public bool TeleportationRequestsAreEnabled { get; set; } = true;
     }
 }

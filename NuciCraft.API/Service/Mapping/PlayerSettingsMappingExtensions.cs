@@ -3,7 +3,7 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Service.Mapping
 {
-    static class PlayerSettingsMappingExtensions
+    internal static class PlayerSettingsMappingExtensions
     {
         internal static PlayerSettings ToServiceModel(this PlayerSettingsDataObject dataObject)
         {
@@ -14,40 +14,14 @@ namespace NuciCraft.API.Service.Mapping
 
             PlayerSettings settings = new();
 
-            if (dataObject.AutomaticHotbarRefillingIsEnabled is not null)
-            {
-                settings.AutomaticHotbarRefillingIsEnabled = dataObject.AutomaticHotbarRefillingIsEnabled.Value;
-            }
-
-            if (dataObject.AutomaticSaplingReplantingIsEnabled is not null)
-            {
-                settings.AutomaticSaplingReplantingIsEnabled = dataObject.AutomaticSaplingReplantingIsEnabled.Value;
-            }
-
-            if (dataObject.AutomaticToolSelectionIsEnabled is not null)
-            {
-                settings.AutomaticToolSelectionIsEnabled = dataObject.AutomaticToolSelectionIsEnabled.Value;
-            }
-
-            if (dataObject.KeepExperienceIsEnabled is not null)
-            {
-                settings.KeepExperienceIsEnabled = dataObject.KeepExperienceIsEnabled.Value;
-            }
-
-            if (dataObject.KeepInventoryIsEnabled is not null)
-            {
-                settings.KeepInventoryIsEnabled = dataObject.KeepInventoryIsEnabled.Value;
-            }
-
-            if (dataObject.PrivateMessagesAreEnabled is not null)
-            {
-                settings.PrivateMessagesAreEnabled = dataObject.PrivateMessagesAreEnabled.Value;
-            }
-
-            if (dataObject.PrivateMessagesInterceptionIsEnabled is not null)
-            {
-                settings.PrivateMessagesInterceptionIsEnabled = dataObject.PrivateMessagesInterceptionIsEnabled.Value;
-            }
+            settings.AutomaticHotbarRefillingIsEnabled = dataObject.AutomaticHotbarRefillingIsEnabled;
+            settings.AutomaticSaplingReplantingIsEnabled = dataObject.AutomaticSaplingReplantingIsEnabled;
+            settings.AutomaticToolSelectionIsEnabled = dataObject.AutomaticToolSelectionIsEnabled;
+            settings.KeepExperienceIsEnabled = dataObject.KeepExperienceIsEnabled;
+            settings.KeepInventoryIsEnabled = dataObject.KeepInventoryIsEnabled;
+            settings.PrivateMessagesAreEnabled = dataObject.PrivateMessagesAreEnabled;
+            settings.PrivateMessagesInterceptionIsEnabled = dataObject.PrivateMessagesInterceptionIsEnabled;
+            settings.TeleportationRequestsAreEnabled = dataObject.TeleportationRequestsAreEnabled;
 
             settings.Localisation = Localisation.FromString(dataObject.Localisation);
             settings.SkinUrl = dataObject.SkinUrl;
@@ -72,7 +46,8 @@ namespace NuciCraft.API.Service.Mapping
                 PrivateMessagesAreEnabled = serviceModel.PrivateMessagesAreEnabled,
                 PrivateMessagesInterceptionIsEnabled = serviceModel.PrivateMessagesInterceptionIsEnabled,
                 Localisation = ToDataObject(serviceModel.Localisation),
-                SkinUrl = serviceModel.SkinUrl
+                SkinUrl = serviceModel.SkinUrl,
+                TeleportationRequestsAreEnabled = serviceModel.TeleportationRequestsAreEnabled
             };
         }
 

@@ -204,6 +204,62 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 Is.Null);
 
         [Test]
+        public void GivenDefaultPlayerSettingsData_WhenMappingToAServiceModel_ThenTeleportationRequestsAreEnabled()
+        {
+            PlayerSettingsDataObject dataObject = new();
+
+            PlayerSettings serviceModel = MappingMethodInvoker
+                .Invoke<PlayerSettingsDataObject, PlayerSettings>(
+                    PlayerSettingsMappingTypeName,
+                    ToServiceModelMethodName,
+                    dataObject);
+
+            Assert.That(serviceModel.TeleportationRequestsAreEnabled);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void GivenPlayerSettingsDataWithATeleportationPreference_WhenMappingToAServiceModel_ThenTheValueIsRetained(
+            bool teleportationRequestsAreEnabled)
+        {
+            PlayerSettingsDataObject dataObject = new()
+            {
+                TeleportationRequestsAreEnabled = teleportationRequestsAreEnabled
+            };
+
+            PlayerSettings serviceModel = MappingMethodInvoker
+                .Invoke<PlayerSettingsDataObject, PlayerSettings>(
+                    PlayerSettingsMappingTypeName,
+                    ToServiceModelMethodName,
+                    dataObject);
+
+            Assert.That(
+                serviceModel.TeleportationRequestsAreEnabled,
+                Is.EqualTo(teleportationRequestsAreEnabled));
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void GivenPlayerSettingsWithATeleportationPreference_WhenMappingToADataObject_ThenTheValueIsRetained(
+            bool teleportationRequestsAreEnabled)
+        {
+            PlayerSettings serviceModel = new()
+            {
+                TeleportationRequestsAreEnabled = teleportationRequestsAreEnabled
+            };
+
+            PlayerSettingsDataObject dataObject = MappingMethodInvoker
+                .Invoke<PlayerSettings, PlayerSettingsDataObject>(
+                    PlayerSettingsMappingTypeName,
+                    ToDataObjectMethodName,
+                    serviceModel);
+
+            Assert.That(
+                dataObject.TeleportationRequestsAreEnabled,
+                Is.EqualTo(teleportationRequestsAreEnabled));
+        }
+
+        [Test]
         public void GivenPlayerSettingsWithoutLocalisation_WhenMappingToADataObject_ThenLocalisationRemainsNull()
         {
             PlayerSettings serviceModel = new()

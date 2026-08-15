@@ -19,6 +19,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(playerSettings.KeepInventoryIsEnabled, Is.False);
             Assert.That(playerSettings.PrivateMessagesAreEnabled);
             Assert.That(playerSettings.PrivateMessagesInterceptionIsEnabled, Is.False);
+            Assert.That(playerSettings.TeleportationRequestsAreEnabled);
         }
 
         [Test]
@@ -32,7 +33,8 @@ namespace NuciCraft.API.UnitTests.Service
                 AutomaticHotbarRefillingIsEnabled = true,
                 KeepInventoryIsEnabled = true,
                 KeepExperienceIsEnabled = true,
-                AutomaticToolSelectionIsEnabled = true
+                AutomaticToolSelectionIsEnabled = true,
+                TeleportationRequestsAreEnabled = false
             };
 
             Assert.That(playerSettings.AutomaticSaplingReplantingIsEnabled);
@@ -42,6 +44,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(playerSettings.KeepInventoryIsEnabled);
             Assert.That(playerSettings.KeepExperienceIsEnabled);
             Assert.That(playerSettings.AutomaticToolSelectionIsEnabled);
+            Assert.That(playerSettings.TeleportationRequestsAreEnabled, Is.False);
         }
     }
 }

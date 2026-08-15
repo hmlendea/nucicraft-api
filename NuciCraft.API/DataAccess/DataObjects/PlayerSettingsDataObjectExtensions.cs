@@ -1,53 +1,55 @@
+using NuciCraft.API.Requests;
+
 namespace NuciCraft.API.DataAccess.DataObjects
 {
     internal static class PlayerSettingsDataObjectExtensions
     {
         internal static PlayerSettingsDataObject MergeWith(
             this PlayerSettingsDataObject existingSettings,
-            PlayerSettingsDataObject incomingSettings)
+            PatchPlayerSettingsRequest incomingSettings)
         {
             if (existingSettings is null)
             {
                 existingSettings = new();
             }
 
-            if (incomingSettings.AutomaticHotbarRefillingIsEnabled is not null)
+            if (incomingSettings.AutomaticHotbarRefillingWasProvided)
             {
                 existingSettings.AutomaticHotbarRefillingIsEnabled =
-                    incomingSettings.AutomaticHotbarRefillingIsEnabled.Value;
+                    incomingSettings.AutomaticHotbarRefillingIsEnabled;
             }
 
-            if (incomingSettings.AutomaticSaplingReplantingIsEnabled is not null)
+            if (incomingSettings.AutomaticSaplingReplantingWasProvided)
             {
                 existingSettings.AutomaticSaplingReplantingIsEnabled =
-                    incomingSettings.AutomaticSaplingReplantingIsEnabled.Value;
+                    incomingSettings.AutomaticSaplingReplantingIsEnabled;
             }
 
-            if (incomingSettings.AutomaticToolSelectionIsEnabled is not null)
+            if (incomingSettings.AutomaticToolSelectionWasProvided)
             {
                 existingSettings.AutomaticToolSelectionIsEnabled =
-                    incomingSettings.AutomaticToolSelectionIsEnabled.Value;
+                    incomingSettings.AutomaticToolSelectionIsEnabled;
             }
 
-            if (incomingSettings.KeepExperienceIsEnabled is not null)
+            if (incomingSettings.KeepExperienceWasProvided)
             {
-                existingSettings.KeepExperienceIsEnabled = incomingSettings.KeepExperienceIsEnabled.Value;
+                existingSettings.KeepExperienceIsEnabled = incomingSettings.KeepExperienceIsEnabled;
             }
 
-            if (incomingSettings.KeepInventoryIsEnabled is not null)
+            if (incomingSettings.KeepInventoryWasProvided)
             {
-                existingSettings.KeepInventoryIsEnabled = incomingSettings.KeepInventoryIsEnabled.Value;
+                existingSettings.KeepInventoryIsEnabled = incomingSettings.KeepInventoryIsEnabled;
             }
 
-            if (incomingSettings.PrivateMessagesAreEnabled is not null)
+            if (incomingSettings.PrivateMessagesWereProvided)
             {
-                existingSettings.PrivateMessagesAreEnabled = incomingSettings.PrivateMessagesAreEnabled.Value;
+                existingSettings.PrivateMessagesAreEnabled = incomingSettings.PrivateMessagesAreEnabled;
             }
 
-            if (incomingSettings.PrivateMessagesInterceptionIsEnabled is not null)
+            if (incomingSettings.PrivateMessagesInterceptionWasProvided)
             {
                 existingSettings.PrivateMessagesInterceptionIsEnabled =
-                    incomingSettings.PrivateMessagesInterceptionIsEnabled.Value;
+                    incomingSettings.PrivateMessagesInterceptionIsEnabled;
             }
 
             if (incomingSettings.Localisation is not null)
@@ -58,6 +60,12 @@ namespace NuciCraft.API.DataAccess.DataObjects
             if (incomingSettings.SkinUrl is not null)
             {
                 existingSettings.SkinUrl = incomingSettings.SkinUrl;
+            }
+
+            if (incomingSettings.TeleportationRequestsWereProvided)
+            {
+                existingSettings.TeleportationRequestsAreEnabled =
+                    incomingSettings.TeleportationRequestsAreEnabled;
             }
 
             return existingSettings;
