@@ -109,14 +109,14 @@ curl "http://localhost:5000/Players"
 
 ```bash
 curl -X PATCH "http://localhost:5000/Players/by-username/PlayerName" \
-	-H "Content-Type: application/json" \
-	-d '{
-		"emailAddress": "player@example.com",
-		"discordId": "1234567890",
-		"settings": {
-			"teleportationRequestsAreEnabled": false
-		}
-	}'
+  -H "Content-Type: application/json" \
+  -d '{
+    "emailAddress": "player@example.com",
+    "discordId": "1234567890",
+    "settings": {
+      "teleportationRequestsAreEnabled": false
+    }
+  }'
 ```
 
 `teleportationRequestsAreEnabled` defaults to `true` for newly registered players. Omitting it from a settings patch preserves the persisted value.

@@ -4,7 +4,6 @@ using System.Linq;
 
 using NUnit.Framework;
 
-
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Service.Models;
 
