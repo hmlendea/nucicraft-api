@@ -62,6 +62,9 @@ namespace NuciCraft.API.UnitTests.Responses
             Assert.That(response.Settings, Is.Not.Null);
             Assert.That(response.Settings.Localisation, Is.EqualTo(Localisation.Romanian));
             Assert.That(response.Settings.SkinUrl, Is.EqualTo(player.Settings.SkinUrl));
+            Assert.That(
+                response.Settings.TeleportationRequestsAreEnabled,
+                Is.EqualTo(player.Settings.TeleportationRequestsAreEnabled));
         }
 
         [Test]
@@ -201,7 +204,12 @@ namespace NuciCraft.API.UnitTests.Responses
             LastDeathLocation = null,
             BackDT = DateTimeOffset.Parse("2026-01-01T00:00:00.0000000+00:00"),
             BackLocation = new() { World = "world", X = 13.0f, Y = 64.0f, Z = -21.5f, Pitch = 30.0f, Yaw = 150.0f },
-            Settings = new() { Localisation = Localisation.Romanian, SkinUrl = "test.nucilandia.ro" }
+            Settings = new()
+            {
+                Localisation = Localisation.Romanian,
+                SkinUrl = "test.nucilandia.ro",
+                TeleportationRequestsAreEnabled = false
+            }
         };
     }
 }

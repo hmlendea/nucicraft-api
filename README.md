@@ -45,6 +45,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 ## ✨ Capabilities
 
 - Registers, retrieves, and updates players via protected API endpoints
+- Persists independently patchable player preferences, including teleportation-request reception
 - Stores and retrieves RTP locations with distance constraints and biome/world filtering
 - Generates random mob names via Universal Name Generator integration
 - Stores, retrieves, and updates country metadata
@@ -111,9 +112,14 @@ curl -X PATCH "http://localhost:5000/Players/by-username/PlayerName" \
 	-H "Content-Type: application/json" \
 	-d '{
 		"emailAddress": "player@example.com",
-		"discordId": "1234567890"
+		"discordId": "1234567890",
+		"settings": {
+			"teleportationRequestsAreEnabled": false
+		}
 	}'
 ```
+
+`teleportationRequestsAreEnabled` defaults to `true` for newly registered players. Omitting it from a settings patch preserves the persisted value.
 
 ### Add an RTP Location
 
