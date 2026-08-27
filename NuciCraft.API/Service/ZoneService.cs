@@ -18,6 +18,7 @@ namespace NuciCraft.API.Service
 {
     public sealed class ZoneService(
         IFileRepository<ZoneDataObject> repository,
+        IFileRepository<WorldDataObject> worldRepository,
         ILogger logger) : IZoneService
     {
         private static float BoundsPitch => 0f;
@@ -30,6 +31,7 @@ namespace NuciCraft.API.Service
         {
             ArgumentNullException.ThrowIfNull(request);
 
+            ValidateWorldForAdd(request);
             ValidateBoundsForAdd(request.Bounds);
 
             ZoneBoundsDataObject normalisedBounds = GetNormalisedBounds(request.Bounds);
@@ -62,6 +64,7 @@ namespace NuciCraft.API.Service
                     County = request.County,
                     Region = request.Region,
                     Country = request.Country,
+                    World = request.World,
                     CreationDate = GetCreationDateForAddRequest(request),
                     Owners = request.Owners,
                     Creators = GetCreatorsForAddRequest(request),
@@ -181,6 +184,7 @@ namespace NuciCraft.API.Service
             try
             {
                 ValidatePatchSelector(request);
+                ValidateWorldForPatch(request);
 
                 ZoneDataObject zoneDataObject = repository.Get(request.Identifier);
 
@@ -268,6 +272,11 @@ namespace NuciCraft.API.Service
                 zoneDataObject.CreationDate = request.CreationDate;
             }
 
+            if (request.World is not null)
+            {
+                zoneDataObject.World = request.World;
+            }
+
             if (request.Owners is not null)
             {
                 zoneDataObject.Owners = request.Owners;
@@ -329,6 +338,48 @@ namespace NuciCraft.API.Service
             }
 
             return null;
+        }
+
+        private static void ValidateWorldIdentifier(string worldIdentifier)
+        {
+            if (string.IsNullOrWhiteSpace(worldIdentifier))
+            {
+                throw new ArgumentException("The zone world identifier must be provided.");
+            }
+        }
+
+        private void ValidateWorldForAdd(AddZoneRequest request)
+        {
+            ValidateWorldIdentifier(request.World);
+            ValidateWorldExists(request.World);
+        }
+
+        private void ValidateWorldForPatch(PatchZoneRequest request)
+        {
+            if (request.World is null)
+            {
+                return;
+            }
+
+            ValidateWorldIdentifier(request.World);
+            ValidateWorldExists(request.World);
+        }
+
+        private void ValidateWorldExists(string worldIdentifier)
+        {
+            try
+            {
+                WorldDataObject worldDataObject = worldRepository.Get(worldIdentifier);
+
+                if (worldDataObject is null)
+                {
+                    throw new ArgumentException($"The zone world '{worldIdentifier}' is not valid.");
+                }
+            }
+            catch (KeyNotFoundException exception)
+            {
+                throw new ArgumentException($"The zone world '{worldIdentifier}' is not valid.", exception);
+            }
         }
 
         private static string GetCreationDateForAddRequest(AddZoneRequest request)

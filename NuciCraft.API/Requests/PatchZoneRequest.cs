@@ -34,33 +34,36 @@ namespace NuciCraft.API.Requests
         public string Country { get; set; }
 
         [HmacOrder(8)]
-        public string CreationDate { get; set; }
+        public string World { get; set; }
 
         [HmacOrder(9)]
-        public IEnumerable<string> Owners { get; set; }
+        public string CreationDate { get; set; }
 
         [HmacOrder(10)]
-        public IEnumerable<string> Creators { get; set; }
+        public IEnumerable<string> Owners { get; set; }
 
         [HmacOrder(11)]
-        public IEnumerable<string> Leaders { get; set; }
+        public IEnumerable<string> Creators { get; set; }
 
         [HmacOrder(12)]
-        public CoordinatesDataObject TeleportationPoint { get; set; }
+        public IEnumerable<string> Leaders { get; set; }
 
         [HmacOrder(13)]
-        public LocalisedStringDataObject LeaderTitle { get; set; }
+        public CoordinatesDataObject TeleportationPoint { get; set; }
 
         [HmacOrder(14)]
-        public int? Population { get; set; }
+        public LocalisedStringDataObject LeaderTitle { get; set; }
 
         [HmacOrder(15)]
-        public string MapLink { get; set; }
+        public int? Population { get; set; }
 
         [HmacOrder(16)]
-        public string WikiUrl { get; set; }
+        public string MapLink { get; set; }
 
         [HmacOrder(17)]
+        public string WikiUrl { get; set; }
+
+        [HmacOrder(18)]
         public ZoneBoundsDataObject Bounds { get; set; }
     }
 }

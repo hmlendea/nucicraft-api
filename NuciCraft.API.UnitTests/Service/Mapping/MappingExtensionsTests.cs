@@ -645,6 +645,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Identifier = "solara",
             Name = BuildLocalisedString(),
             Nickname = BuildLocalisedString(),
+            World = "world",
             TeleportationPoint = BuildCoordinates(),
             Bounds = BuildZoneBounds(),
             LeaderTitle = BuildLocalisedString()
@@ -667,6 +668,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Id = "solara",
             Name = BuildLocalisedStringDataObject(),
             Nickname = BuildLocalisedStringDataObject(),
+            World = "world",
             TeleportationPoint = BuildCoordinatesDataObject(),
             Bounds = BuildZoneBoundsDataObject(),
             LeaderTitle = BuildLocalisedStringDataObject()
