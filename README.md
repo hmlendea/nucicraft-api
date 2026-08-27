@@ -5,7 +5,7 @@
 
 # NuciCraft API
 
-NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft server operations, including player registration and updates, RTP location management, country and zone management, and mob name generation.
+NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft server operations, including player registration and updates, RTP location management, world, country, and zone management, and mob name generation.
 
 ## 📑 Table of Contents
 
@@ -22,6 +22,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
   - [Get a Random RTP Location](#get-a-random-rtp-location)
   - [Get a Random Mob Name](#get-a-random-mob-name)
 	- [Manage Countries](#manage-countries)
+	- [Manage Worlds](#manage-worlds)
   - [Manage Zones](#manage-zones)
 - [Known Limitations](#known-limitations)
 - [Installation](#installation)
@@ -48,6 +49,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 - Persists independently patchable player preferences, including teleportation-request reception
 - Stores and retrieves RTP locations with distance constraints and biome/world filtering
 - Generates random mob names via Universal Name Generator integration
+- Stores, retrieves, and updates world metadata
 - Stores, retrieves, and updates country metadata
 - Stores, retrieves, and updates zone metadata
 - Validates zone bounds so both corners share the identical world and are necessary on zone creation
@@ -180,6 +182,35 @@ curl -X PATCH "http://localhost:5000/Countries/nucilandia" \
 	}'
 ```
 
+### Manage Worlds
+
+```bash
+curl -X POST "http://localhost:5000/Worlds" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"id": "main",
+		"name": {
+			"english": "Main World",
+			"romanian": "Lumea Principala"
+		}
+	}'
+```
+
+```bash
+curl "http://localhost:5000/Worlds/main"
+curl "http://localhost:5000/Worlds"
+```
+
+```bash
+curl -X PATCH "http://localhost:5000/Worlds/main" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"name": {
+			"romanian": "Lumea Centrala"
+		}
+	}'
+```
+
 ### Manage Zones
 
 When creating a zone, `bounds` is necessary and must contain both opposite corners of the zone volume. Both corners must use the identical `world` value. On patch requests, `bounds` remains optional, and a partial bounds update preserves the untouched corner before validation.
@@ -259,6 +290,7 @@ All settings are loaded from the configuration file. The subsequent keys are rec
 | `dataStoreSettings` | `countriesStorePath` | Path to the countries JSON store. |
 | `dataStoreSettings` | `playersStorePath` | Path to the players JSON store. |
 | `dataStoreSettings` | `rtpLocationsStorePath` | Path to the RTP locations JSON store. |
+| `dataStoreSettings` | `worldsStorePath` | Path to the worlds JSON store. |
 | `dataStoreSettings` | `zonesStorePath` | Path to the zones JSON store. |
 | `rtpLocationSettings` | `minimumLocationDistance` | Minimum distance permitted between any two RTP locations. |
 | `rtpLocationSettings` | `minimumBiomeLocationDistance` | Minimum distance permitted between RTP locations in the identical biome. |
@@ -333,7 +365,7 @@ The key directories inside `NuciCraft.API/` are:
 |-----------|---------|
 | `Configuration` | Strongly typed settings models bound from `appsettings.json`. |
 | `Controllers` | REST endpoint definitions and HTTP request handling. |
-| `Data` | JSON data stores for countries, players, RTP locations, and zones. |
+| `Data` | JSON data stores for countries, worlds, players, RTP locations, and zones. |
 | `DataAccess` | Data objects and repository mappings for persistence. |
 | `Logging` | Operation and log metadata keys used for diagnostics. |
 | `Requests` | API request DTOs and validation attributes. |

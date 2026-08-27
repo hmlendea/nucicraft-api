@@ -1,6 +1,6 @@
 # NuciCraft API Architecture
 
-This document records the verified current architecture of the NuciCraft API process, including its HTTP boundary, application services, persistence, external name-generation integration, and operational constraints. It is intended for contributors and operators evaluating the impact of a modification; it does not define a target architecture or duplicate endpoint usage guidance. Last verified: 13 August 2026.
+This document records the verified current architecture of the NuciCraft API process, including its HTTP boundary, application services, persistence, external name-generation integration, and operational constraints. It is intended for contributors and operators evaluating the impact of a modification; it does not define a target architecture or duplicate endpoint usage guidance. Last verified: 27 August 2026.
 
 ## 📑 Table of Contents
 
@@ -43,7 +43,7 @@ This document records the verified current architecture of the NuciCraft API pro
 
 ## 🎯 Purpose
 
-NuciCraft API provides authenticated HTTP operations for NuciCraft player registration, country and zone metadata, random-teleport locations, and mob-name generation. This document defines the process boundary, runtime ownership, dependency direction, persisted contracts, and material constraints that contributors must preserve. Recording these boundaries permits modifications to be assessed without requiring every contributor to reconstruct host composition and data flow from individual classes.
+NuciCraft API provides authenticated HTTP operations for NuciCraft player registration, world, country, and zone metadata, random-teleport locations, and mob-name generation. This document defines the process boundary, runtime ownership, dependency direction, persisted contracts, and material constraints that contributors must preserve. Recording these boundaries permits modifications to be assessed without requiring every contributor to reconstruct host composition and data flow from individual classes.
 
 ## 🌐 System Context
 
@@ -58,7 +58,7 @@ flowchart LR
                 Host["ASP.NET Core host"]
     end
 
-        Host -->|"Read and write JSON"| Stores[("Four configured data stores")]
+        Host -->|"Read and write JSON"| Stores[("Five configured data stores")]
         Host -->|"Structured records"| Logs[("Configured log file")]
         Host -->|"Bearer-authenticated GET /Names"| NameGenerator["Universal Name Generator API"]
 ```
@@ -129,7 +129,7 @@ sequenceDiagram
 The principal runtime sequence is:
 1. [Program.cs](./NuciCraft.API/Program.cs) creates the default ASP.NET Core host and delegates composition to [Startup.cs](./NuciCraft.API/Startup.cs).
 2. `ConfigureServices` adds controllers, binds strongly typed settings, registers scanner protection, and registers the repositories, clients, services, utilities, and logger.
-3. `Configure` prepares all four JSON stores before accepting requests: missing parent directories and files are created, then each repository is resolved and materialised through `GetAll().ToList()`.
+3. `Configure` prepares all five JSON stores before accepting requests: missing parent directories and files are created, then each repository is resolved and materialised through `GetAll().ToList()`.
 4. The middleware pipeline executes exception handling, scanner protection, request logging, the Development-only exception page, HTTPS redirection, default files, static files, routing, authorisation, and controller endpoints in that order.
 5. A controller constructs or receives a request DTO and delegates through `ProcessRequest` with a service operation and API-key authorisation descriptor.
 6. The service logs the operation, executes domain logic, and accesses either an `IFileRepository<T>` or `INuciApiClient`.
@@ -145,6 +145,7 @@ Store preparation precedes middleware construction and is not itself middleware.
 | `Program` and `Startup` | Construct the host, register the request pipeline, and prepare stores. | ASP.NET Core, configuration, DI container, `DataStoreSettings`. | One composition root per process. |
 | Controllers | Own routes, assemble request DTOs, select service operations, and delegate authorisation and response processing. | `NuciApiController`, service interfaces, `SecuritySettings`. | Framework-created request handlers. |
 | `PlayerService` | Register, retrieve, list, and patch players through identifier, username, offline UUID, or online UUID selectors. | Player repository and logger. | Singleton. |
+| `WorldService` | Add, retrieve, list, and patch world metadata, including merged localised values. | World repository and logger. | Singleton. |
 | `CountryService` | Add, retrieve, list, and patch country metadata, including merged localised values. | Country repository, logger. | Singleton. |
 | `ZoneService` | Add, retrieve, list, and patch zones while enforcing bounds and localised merge rules. | Zone repository, logger. | Singleton. |
 | `RtpLocationService` | Enforce proximity rules, persist RTP locations, and select random filtered locations. | RTP repository, `RtpLocationSettings`, logger. | Singleton. |
@@ -210,7 +211,7 @@ Paths:
 - [NuciCraft.API/Data](./NuciCraft.API/Data/)
 
 Responsibilities:
-- Define JSON-serialisable records and retain player, country, zone, and RTP location state.
+- Define JSON-serialisable records and retain player, world, country, zone, and RTP location state.
 - Persist service mutations when `SaveChanges` is invoked.
 
 Boundary rules:
@@ -237,6 +238,7 @@ flowchart LR
 | Data or Store | Owner | Representation and Storage | Lifecycle or Consistency |
 |---------------|-------|----------------------------|--------------------------|
 | `players.json` | `PlayerService` | `PlayerDataObject` records at `Data/players.json` by default. | Created during registration and patched synchronously; selectors include identifier, username, offline UUID, and online UUID. |
+| `worlds.json` | `WorldService` | `WorldDataObject` records at `Data/worlds.json` by default. | Added and patched synchronously; provided localised properties merge with persisted values. |
 | `countries.json` | `CountryService` | `CountryDataObject` records at `Data/countries.json` by default. | Added and patched synchronously; provided localised properties merge with persisted values. |
 | `zones.json` | `ZoneService` | `ZoneDataObject` records at `Data/zones.json` by default. | Added and patched synchronously; bounds are validated and canonicalised on writes and reads. |
 | `rtp_locations.json` | `RtpLocationService` | `RtpLocationEntity` records at `Data/rtp_locations.json` by default. | Append-oriented additions after proximity validation; reads select a random optional world/biome match. |
@@ -361,7 +363,7 @@ The default ASP.NET Core host supplies file, environment, and command-line confi
 
 | Configuration Area | Source | Responsibility | Override or Secret Policy |
 |--------------------|--------|----------------|---------------------------|
-| `dataStoreSettings` | `appsettings.json` and default host providers. | Select four JSON store paths. | May be overridden per deployment; paths must resolve to protected writable storage. |
+| `dataStoreSettings` | `appsettings.json` and default host providers. | Select five JSON store paths. | May be overridden per deployment; paths must resolve to protected writable storage. |
 | `rtpLocationSettings` | `appsettings.json` and default host providers. | Select general and same-biome proximity limits. | Non-secret operational values may be overridden per environment. |
 | `securitySettings` | Deployment placeholder and default host providers. | Supply inbound API-key authorisation material. | Genuine values must originate from a protected secret source. |
 | `universalNameGeneratorSettings` | Deployment placeholders and default host providers. | Supply the external base URL and bearer token. | The base URL is environmental; the API key must originate from a protected secret source. |
@@ -369,7 +371,7 @@ The default ASP.NET Core host supplies file, environment, and command-line confi
 
 ### Concurrency and Resource Use
 
-The five application services, four repositories, outbound client, settings, and text utilities are singleton registrations. They can be reached by concurrent requests and must not acquire unprotected request-specific mutable state. The logger is registered as scoped but consumed by singleton services, so code must not presume that those service-held logger references provide per-request identity.
+The six application services, five repositories, outbound client, settings, and text utilities are singleton registrations. They can be reached by concurrent requests and must not acquire unprotected request-specific mutable state. The logger is registered as scoped but consumed by singleton services, so code must not presume that those service-held logger references provide per-request identity.
 
 Repository writes and the outbound mob-name wait are synchronous from the service contract's perspective. No application-level locking or cross-instance coordination is present. RTP addition performs linear scans, and each process has independent singleton repository instances; these constraints favour one process and modest data volumes.
 
@@ -419,7 +421,7 @@ The deployment unit is one .NET 10 ASP.NET Core process containing every control
 | Concern | Current Design | Architectural Consequence |
 |---------|----------------|---------------------------|
 | Process topology | One modular-monolith process. | Domains share availability, memory, configuration, and deployment cadence. |
-| Persistent state | Four independently configured JSON files. | The operator must provide writable durable paths, coherent backups, and restricted access. |
+| Persistent state | Five independently configured JSON files. | The operator must provide writable durable paths, coherent backups, and restricted access. |
 | Startup | Creates missing directories and files, then queries every repository before serving requests. | Invalid paths, permissions, or unreadable data can prevent process startup. |
 | Scaling | No distributed locking, invalidation, or cross-instance coordination is configured. | The supported topology is one process; multiple writers can produce stale reads or overwritten state. |
 | External connectivity | Mob-name requests call the Universal Name Generator synchronously from the service contract. | Remote latency and failure affect the initiating request; no local fallback exists. |
