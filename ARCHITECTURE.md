@@ -320,6 +320,8 @@ sequenceDiagram
 
 Zone creation requires both opposite corners. Both corners must contain a non-vacant world and must refer to the identical world using ordinal comparison.
 
+Zone creation also requires a non-vacant zone `World` identifier that resolves to an existing world record.
+
 Bounds are canonicalised on creation, update, and retrieval:
 - `FirstCorner` receives minimum X, maximum Y, and minimum Z.
 - `SecondCorner` receives maximum X, minimum Y, and maximum Z.

@@ -18,6 +18,8 @@ namespace NuciCraft.API.Service.Models
 
         public string Country { get; set; }
 
+        public string World { get; set; }
+
         public string CreationDate { get; set; }
 
         public IEnumerable<string> Owners { get; set; }

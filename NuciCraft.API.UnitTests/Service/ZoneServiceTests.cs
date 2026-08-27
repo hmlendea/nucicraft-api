@@ -27,6 +27,7 @@ namespace NuciCraft.API.UnitTests.Service
         private static string ValidateBoundsMethodName => "ValidateBounds";
 
         private Mock<IFileRepository<ZoneDataObject>> repositoryMock;
+        private Mock<IFileRepository<WorldDataObject>> worldRepositoryMock;
         private Mock<ILogger> loggerMock;
         private ZoneService zoneService;
 
@@ -34,8 +35,16 @@ namespace NuciCraft.API.UnitTests.Service
         public void SetUp()
         {
             repositoryMock = new Mock<IFileRepository<ZoneDataObject>>();
+            worldRepositoryMock = new Mock<IFileRepository<WorldDataObject>>();
             loggerMock = new Mock<ILogger>();
-            zoneService = new ZoneService(repositoryMock.Object, loggerMock.Object);
+            zoneService = new ZoneService(
+                repositoryMock.Object,
+                worldRepositoryMock.Object,
+                loggerMock.Object);
+
+            worldRepositoryMock
+                .Setup(repository => repository.Get(It.IsAny<string>()))
+                .Returns<string>(worldIdentifier => new WorldDataObject { Id = worldIdentifier });
         }
 
         [Test]
@@ -50,6 +59,7 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 Name = new() { English = "Solara Portal Hub" },
                 Nickname = new() { English = "Portal Hub" },
                 Level = "district",
@@ -105,6 +115,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.County, Is.EqualTo("Solara"));
             Assert.That(capturedEntity.Region, Is.EqualTo("Nucilandia"));
             Assert.That(capturedEntity.Country, Is.EqualTo("Roman Republic"));
+            Assert.That(capturedEntity.World, Is.EqualTo("world"));
             Assert.That(capturedEntity.CreationDate, Is.EqualTo("2026-08-10"));
             Assert.That(capturedEntity.Owners, Is.EqualTo(["Hori873"]));
             Assert.That(capturedEntity.Creators, Is.EqualTo(["Hori873"]));
@@ -146,6 +157,7 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 Owners = ["Hori873"],
                 Creators = null,
                 Bounds = BuildZoneBoundsDataObject()
@@ -168,6 +180,7 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 Owners = ["Hori873", "DummyUser"],
                 Creators = null,
                 Bounds = BuildZoneBoundsDataObject()
@@ -190,6 +203,7 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 Owners = ["Hori873"],
                 Creators = ["DummyUser"],
                 Bounds = BuildZoneBoundsDataObject()
@@ -214,6 +228,7 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 CreationDate = null,
                 Bounds = BuildZoneBoundsDataObject()
             };
@@ -253,6 +268,7 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 CreationDate = "  ",
                 Bounds = BuildZoneBoundsDataObject()
             };
@@ -284,6 +300,7 @@ namespace NuciCraft.API.UnitTests.Service
             zoneService.Add(new AddZoneRequest
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 Bounds = BuildZoneBoundsDataObject()
             });
 
@@ -301,6 +318,7 @@ namespace NuciCraft.API.UnitTests.Service
                 () => zoneService.Add(new AddZoneRequest
                 {
                     Identifier = "solara_portal_hub",
+                World = "world",
                     Bounds = BuildZoneBoundsDataObject()
                 }),
                 Throws.TypeOf<InvalidOperationException>());
@@ -319,7 +337,42 @@ namespace NuciCraft.API.UnitTests.Service
         {
             AddZoneRequest request = new()
             {
-                Identifier = "solara_portal_hub"
+                Identifier = "solara_portal_hub",
+                World = "world"
+            };
+
+            Assert.That(
+                () => zoneService.Add(request),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenRequestWithoutWorld_WhenAddingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                World = null,
+                Bounds = BuildZoneBoundsDataObject()
+            };
+
+            Assert.That(
+                () => zoneService.Add(request),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenRequestWithUnknownWorld_WhenAddingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            worldRepositoryMock
+                .Setup(repository => repository.Get("unknown-world"))
+                .Throws<KeyNotFoundException>();
+
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                World = "unknown-world",
+                Bounds = BuildZoneBoundsDataObject()
             };
 
             Assert.That(
@@ -333,6 +386,7 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 Bounds = new()
                 {
                     FirstCorner = new()
@@ -363,6 +417,7 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 Bounds = new()
                 {
                     SecondCorner = new()
@@ -383,6 +438,7 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 Bounds = new()
                 {
                     FirstCorner = new()
@@ -407,6 +463,7 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 Bounds = BuildZoneBoundsDataObject()
             };
             request.Bounds.FirstCorner.World = world;
@@ -426,6 +483,7 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 Bounds = BuildZoneBoundsDataObject()
             };
             request.Bounds.SecondCorner.World = world;
@@ -447,6 +505,7 @@ namespace NuciCraft.API.UnitTests.Service
             zoneService.Add(new AddZoneRequest
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 Bounds = new ZoneBoundsDataObject
                 {
                     FirstCorner = new CoordinatesDataObject
@@ -494,6 +553,7 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 Bounds = new()
                 {
                     FirstCorner = corner,
@@ -522,6 +582,7 @@ namespace NuciCraft.API.UnitTests.Service
             AddZoneRequest request = new()
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 Bounds = new()
                 {
                     FirstCorner = new()
@@ -563,6 +624,7 @@ namespace NuciCraft.API.UnitTests.Service
             zoneService.Add(new AddZoneRequest
             {
                 Identifier = "solara_portal_hub",
+                World = "world",
                 Bounds = new ZoneBoundsDataObject
                 {
                     FirstCorner = new CoordinatesDataObject
@@ -786,6 +848,7 @@ namespace NuciCraft.API.UnitTests.Service
                 County = "Solara",
                 Region = "Murasaki",
                 Country = "Nucilandia",
+                World = "world_nether",
                 CreationDate = "2026-08-09",
                 Owners = ["IlarionPintilie"],
                 Creators = ["IlarionPintilie"],
@@ -830,6 +893,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.County, Is.EqualTo("Solara"));
             Assert.That(capturedEntity.Region, Is.EqualTo("Murasaki"));
             Assert.That(capturedEntity.Country, Is.EqualTo("Nucilandia"));
+            Assert.That(capturedEntity.World, Is.EqualTo("world_nether"));
             Assert.That(capturedEntity.CreationDate, Is.EqualTo("2026-08-09"));
             Assert.That(capturedEntity.Owners, Is.EqualTo(["IlarionPintilie"]));
             Assert.That(capturedEntity.Creators, Is.EqualTo(["IlarionPintilie"]));
@@ -1041,6 +1105,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.County, Is.EqualTo(original.County));
             Assert.That(capturedEntity.Region, Is.EqualTo(original.Region));
             Assert.That(capturedEntity.Country, Is.EqualTo(original.Country));
+            Assert.That(capturedEntity.World, Is.EqualTo(original.World));
             Assert.That(capturedEntity.CreationDate, Is.EqualTo(original.CreationDate));
             Assert.That(capturedEntity.Owners, Is.EqualTo(original.Owners));
             Assert.That(capturedEntity.Creators, Is.EqualTo(original.Creators));
@@ -1122,6 +1187,22 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(
                 () => zoneService.Update(new PatchZoneRequest { Identifier = "flusseland_mall_shop_9" }),
                 Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void GivenARequestWithUnknownWorld_WhenUpdatingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            worldRepositoryMock
+                .Setup(repository => repository.Get("unknown-world"))
+                .Throws<KeyNotFoundException>();
+
+            Assert.That(
+                () => zoneService.Update(new PatchZoneRequest
+                {
+                    Identifier = "flusseland_mall_shop_9",
+                    World = "unknown-world"
+                }),
+                Throws.TypeOf<ArgumentException>());
         }
 
         [Test]
@@ -1227,6 +1308,7 @@ namespace NuciCraft.API.UnitTests.Service
             County = "Flusseland",
             Region = "Solara",
             Country = "Roman Republic",
+            World = "world",
             CreationDate = "2024-08-14",
             Owners = ["Blitzkrieg94", "DummyUser"],
             Creators = ["Blitzkrieg94"],
