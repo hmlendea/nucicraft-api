@@ -65,10 +65,12 @@ namespace NuciCraft.API.UnitTests
             Assert.That(serviceProvider.GetRequiredService<IFileRepository<PlayerDataObject>>(), Is.Not.Null);
             Assert.That(serviceProvider.GetRequiredService<IFileRepository<RtpLocationEntity>>(), Is.Not.Null);
             Assert.That(serviceProvider.GetRequiredService<IFileRepository<CountryDataObject>>(), Is.Not.Null);
+            Assert.That(serviceProvider.GetRequiredService<IFileRepository<WorldDataObject>>(), Is.Not.Null);
             Assert.That(serviceProvider.GetRequiredService<IFileRepository<ZoneDataObject>>(), Is.Not.Null);
             Assert.That(serviceProvider.GetRequiredService<INuciApiClient>(), Is.Not.Null);
             Assert.That(serviceProvider.GetRequiredService<IMobService>(), Is.Not.Null);
             Assert.That(serviceProvider.GetRequiredService<ICountryService>(), Is.Not.Null);
+            Assert.That(serviceProvider.GetRequiredService<IWorldService>(), Is.Not.Null);
             Assert.That(serviceProvider.GetRequiredService<IPlayerService>(), Is.Not.Null);
             Assert.That(serviceProvider.GetRequiredService<IRtpLocationService>(), Is.Not.Null);
             Assert.That(serviceProvider.GetRequiredService<IZoneService>(), Is.Not.Null);
