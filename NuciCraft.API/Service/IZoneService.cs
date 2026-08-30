@@ -10,6 +10,8 @@ namespace NuciCraft.API.Service
     {
         void Add(AddZoneRequest request);
 
+        void Delete(string zoneIdentifier);
+
         Zone GetZone(string zoneIdentifier);
 
         IEnumerable<Zone> GetAllZones();

@@ -51,7 +51,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 - Generates random mob names via Universal Name Generator integration
 - Stores, retrieves, and updates world metadata
 - Stores, retrieves, and updates country metadata
-- Stores, retrieves, and updates zone metadata
+- Stores, retrieves, updates, and deletes zone metadata
 - Validates zone bounds so both corners share the identical world and are necessary on zone creation
 - Assigns a default zone creation date when one is not provided by the caller
 
@@ -265,6 +265,10 @@ curl -X PATCH "http://localhost:5000/Zones/spawn-city" \
 			}
 		}
 	}'
+```
+
+```bash
+curl -X DELETE "http://localhost:5000/Zones/spawn-city"
 ```
 
 ## ⚠️ Known Limitations

@@ -25,6 +25,18 @@ namespace NuciCraft.API.Controllers
                 () => service.Add(request),
                 authorisation);
 
+        [HttpDelete]
+        [Route("{zoneIdentifier}")]
+        public ActionResult Delete(
+            string zoneIdentifier)
+            => ProcessRequest(
+                new GetZoneRequest()
+                {
+                    Identifier = zoneIdentifier
+                },
+                () => service.Delete(zoneIdentifier),
+                authorisation);
+
         [HttpGet]
         [Route("{zoneIdentifier}")]
         public ActionResult Get(

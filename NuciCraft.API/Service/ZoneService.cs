@@ -98,6 +98,40 @@ namespace NuciCraft.API.Service
             }
         }
 
+        public void Delete(string zoneIdentifier)
+        {
+            IEnumerable<LogInfo> logInfos =
+            [
+                new(MyLogInfoKey.Identifier, zoneIdentifier)
+            ];
+
+            logger.Info(
+                MyOperation.DeleteZone,
+                OperationStatus.Started,
+                logInfos);
+
+            try
+            {
+                repository.Remove(zoneIdentifier);
+                repository.SaveChanges();
+
+                logger.Info(
+                    MyOperation.DeleteZone,
+                    OperationStatus.Success,
+                    logInfos);
+            }
+            catch (Exception exception)
+            {
+                logger.Error(
+                    MyOperation.DeleteZone,
+                    OperationStatus.Failure,
+                    exception,
+                    logInfos);
+
+                throw;
+            }
+        }
+
         public Zone GetZone(string zoneIdentifier)
         {
             IEnumerable<LogInfo> logInfos =

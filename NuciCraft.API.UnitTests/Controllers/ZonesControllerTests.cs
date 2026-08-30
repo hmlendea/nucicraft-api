@@ -44,6 +44,19 @@ namespace NuciCraft.API.UnitTests.Controllers
         }
 
         [Test]
+        public void GivenTheDeleteAction_WhenInspectingItsRoute_ThenItUsesTheIdentifierSegment()
+        {
+            MethodInfo actionMethod = typeof(ZonesController)
+                .GetMethod(nameof(ZonesController.Delete));
+            RouteAttribute routeAttribute = actionMethod
+                .GetCustomAttribute<RouteAttribute>();
+
+            Assert.That(routeAttribute, Is.Not.Null);
+            Assert.That(routeAttribute.Template, Is.EqualTo("{zoneIdentifier}"));
+            Assert.That(actionMethod.GetCustomAttribute<HttpDeleteAttribute>(), Is.Not.Null);
+        }
+
+        [Test]
         public void GivenAnAddRequest_WhenAddingAZone_ThenTheServiceReceivesTheRequest()
         {
             AddZoneRequest request = new()
@@ -55,6 +68,15 @@ namespace NuciCraft.API.UnitTests.Controllers
 
             Assert.That(result, Is.Not.Null);
             serviceMock.Verify(service => service.Add(request), Times.Once);
+        }
+
+        [Test]
+        public void GivenAZoneIdentifier_WhenDeletingAZone_ThenTheServiceReceivesTheIdentifier()
+        {
+            OkObjectResult result = controller.Delete("solara") as OkObjectResult;
+
+            Assert.That(result, Is.Not.Null);
+            serviceMock.Verify(service => service.Delete("solara"), Times.Once);
         }
 
         [Test]

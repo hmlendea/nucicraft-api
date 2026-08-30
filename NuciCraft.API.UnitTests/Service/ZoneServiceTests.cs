@@ -655,6 +655,30 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenAZoneIdentifier_WhenDeletingAZone_ThenTheZoneIsRemovedAndChangesAreSaved()
+        {
+            zoneService.Delete("flusseland_mall_shop_9");
+
+            repositoryMock.Verify(
+                repository => repository.Remove("flusseland_mall_shop_9"),
+                Times.Once);
+            repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
+        }
+
+        [Test]
+        public void GivenARepositoryException_WhenDeletingAZone_ThenTheExceptionIsRethrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.Remove("flusseland_mall_shop_9"))
+                .Throws<InvalidOperationException>();
+
+            Assert.That(
+                () => zoneService.Delete("flusseland_mall_shop_9"),
+                Throws.TypeOf<InvalidOperationException>());
+            repositoryMock.Verify(repository => repository.SaveChanges(), Times.Never);
+        }
+
+        [Test]
         public void GivenAZoneWithBounds_WhenGettingAZone_ThenBoundsAreReturned()
         {
             repositoryMock
