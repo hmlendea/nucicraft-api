@@ -147,7 +147,7 @@ Store preparation precedes middleware construction and is not itself middleware.
 | `PlayerService` | Register, retrieve, list, and patch players through identifier, username, offline UUID, or online UUID selectors. | Player repository and logger. | Singleton. |
 | `WorldService` | Add, retrieve, list, and patch world metadata, including merged localised values. | World repository and logger. | Singleton. |
 | `CountryService` | Add, retrieve, list, and patch country metadata, including merged localised values. | Country repository, logger. | Singleton. |
-| `ZoneService` | Add, retrieve, list, and patch zones while enforcing bounds and localised merge rules. | Zone repository, logger. | Singleton. |
+| `ZoneService` | Add, retrieve, list, patch, and delete zones while enforcing bounds and localised merge rules. | Zone repository, logger. | Singleton. |
 | `RtpLocationService` | Enforce proximity rules, persist RTP locations, and select random filtered locations. | RTP repository, `RtpLocationSettings`, logger. | Singleton. |
 | `MobService` | Map supported mobs to schemas and obtain one name from the external generator. | `INuciApiClient`, `UniversalNameGeneratorSettings`, logger. | Singleton. |
 | `JsonRepository<T>` | Provide file-backed `IFileRepository<T>` operations for one data-object type. | NuciDAL, configured store path. | One singleton per store. |
@@ -240,7 +240,7 @@ flowchart LR
 | `players.json` | `PlayerService` | `PlayerDataObject` records at `Data/players.json` by default. | Created during registration and patched synchronously; selectors include identifier, username, offline UUID, and online UUID. |
 | `worlds.json` | `WorldService` | `WorldDataObject` records at `Data/worlds.json` by default. | Added and patched synchronously; provided localised properties merge with persisted values. |
 | `countries.json` | `CountryService` | `CountryDataObject` records at `Data/countries.json` by default. | Added and patched synchronously; provided localised properties merge with persisted values. |
-| `zones.json` | `ZoneService` | `ZoneDataObject` records at `Data/zones.json` by default. | Added and patched synchronously; bounds are validated and canonicalised on writes and reads. |
+| `zones.json` | `ZoneService` | `ZoneDataObject` records at `Data/zones.json` by default. | Added, patched, and deleted synchronously; bounds are validated and canonicalised on writes and reads. |
 | `rtp_locations.json` | `RtpLocationService` | `RtpLocationEntity` records at `Data/rtp_locations.json` by default. | Append-oriented additions after proximity validation; reads select a random optional world/biome match. |
 | Operational logs | NuciLog | Structured records with optional file output at the configured log path. | Services emit started, success, and failure records; retention and access control belong to the operator. |
 
