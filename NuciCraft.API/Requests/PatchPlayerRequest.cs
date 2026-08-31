@@ -82,5 +82,11 @@ namespace NuciCraft.API.Requests
 
         [HmacOrder(24)]
         public PatchPlayerSettingsRequest Settings { get; set; }
+
+        [HmacOrder(25)]
+        public CoordinatesDataObject LastSleptLocation { get; set; }
+
+        [HmacOrder(26)]
+        public string Gender { get; set; }
     }
 }

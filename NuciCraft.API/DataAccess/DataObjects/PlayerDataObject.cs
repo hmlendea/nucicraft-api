@@ -6,6 +6,8 @@ namespace NuciCraft.API.DataAccess.DataObjects
 
         public string DisplayName { get; set; }
 
+        public string Gender { get; set; }
+
         public string OfflineUUID { get; set; }
 
         public string OnlineUUID { get; set; }
@@ -35,6 +37,8 @@ namespace NuciCraft.API.DataAccess.DataObjects
         public CoordinatesDataObject LastLogoutLocation { get; set; }
 
         public string LastSleptDT { get; set; }
+
+        public CoordinatesDataObject LastSleptLocation { get; set; }
 
         public CoordinatesDataObject BedLocation { get; set; }
 

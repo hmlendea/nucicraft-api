@@ -69,13 +69,22 @@ curl -X POST "http://localhost:5000/Players" \
 	-d '{
 		"username": "PlayerName",
 		"displayName": "Player Name",
+		"gender": "female",
 		"onlineUUID": "6f6f5f2d-6f7e-4f6c-8e1d-03a9b8d939f0",
 		"createdDT": "2026-04-01T12:00:00+00:00",
 		"password": "example-password",
 		"lastIpAddress": "127.0.0.1",
-		"skinUrl": "https://example.com/skin.png"
+		"skinUrl": "https://example.com/skin.png",
+		"lastSleptLocation": {
+			"world": "world",
+			"x": 64,
+			"y": 72,
+			"z": 128
+		}
 	}'
 ```
+
+`gender` accepts `male`, `female`, or `other`. Omitted or empty values default to `other`.
 
 ### Get a Player by ID
 
@@ -115,6 +124,13 @@ curl -X PATCH "http://localhost:5000/Players/by-username/PlayerName" \
   -d '{
     "emailAddress": "player@example.com",
     "discordId": "1234567890",
+	"gender": "male",
+	"lastSleptLocation": {
+	  "world": "world",
+	  "x": 64,
+	  "y": 72,
+	  "z": 128
+	},
     "settings": {
       "teleportationRequestsAreEnabled": false
     }

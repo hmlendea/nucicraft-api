@@ -55,6 +55,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Id, Does.Match(@"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"));
             Assert.That(capturedEntity.Username, Is.EqualTo("IlarionPintilie"));
             Assert.That(capturedEntity.DisplayName, Is.EqualTo("Ilarion Pintilie"));
+            Assert.That(capturedEntity.Gender, Is.EqualTo("female"));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo("87300000-0000-0000-0000-000000000000"));
             Assert.That(capturedEntity.Password, Is.EqualTo("NucilandiaPass1"));
             Assert.That(capturedEntity.LastIpAddress, Is.EqualTo("192.168.1.1"));
@@ -70,6 +71,11 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastLogoutLocation.X, Is.EqualTo(6.13f));
             Assert.That(capturedEntity.LastLogoutLocation.Y, Is.EqualTo(64.0f));
             Assert.That(capturedEntity.LastLogoutLocation.Z, Is.EqualTo(8.73f));
+            Assert.That(capturedEntity.LastSleptLocation, Is.Not.Null);
+            Assert.That(capturedEntity.LastSleptLocation.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.LastSleptLocation.X, Is.EqualTo(5.0f));
+            Assert.That(capturedEntity.LastSleptLocation.Y, Is.EqualTo(70.0f));
+            Assert.That(capturedEntity.LastSleptLocation.Z, Is.EqualTo(-3.0f));
             Assert.That(capturedEntity.BedLocation, Is.Not.Null);
             Assert.That(capturedEntity.BedLocation.World, Is.EqualTo("world"));
             Assert.That(capturedEntity.BedLocation.X, Is.EqualTo(8.73f));
@@ -99,6 +105,7 @@ namespace NuciCraft.API.UnitTests.Service
             playerService.Register(request);
 
             Assert.That(capturedEntity.DisplayName, Is.Null);
+            Assert.That(capturedEntity.Gender, Is.EqualTo("other"));
             Assert.That(capturedEntity.WikiUrl, Is.Null);
             Assert.That(capturedEntity.IsBanned, Is.False);
             Assert.That(capturedEntity.BannedDT, Is.Null);
@@ -107,6 +114,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastLoginDT, Is.Null);
             Assert.That(capturedEntity.LastLogoutDT, Is.Null);
             Assert.That(capturedEntity.LastLogoutLocation, Is.Null);
+            Assert.That(capturedEntity.LastSleptLocation, Is.Null);
             Assert.That(capturedEntity.BedLocation, Is.Null);
             Assert.That(capturedEntity.BackDT, Is.Null);
         }
@@ -524,6 +532,7 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "IlarionPintilie",
                 DisplayName = "Ilarion Pintilie",
+                Gender = "male",
                 Password = "NewPass",
                 LastIpAddress = "10.0.0.1",
                 DiscordId = "999",
@@ -537,6 +546,7 @@ namespace NuciCraft.API.UnitTests.Service
                 LastLogoutDT = "2026-08-13T00:00:00.0000000+00:00",
                 LastLogoutLocation = new() { World = "world_the_end", X = -10.0f, Y = 80.0f, Z = 41.0f, Pitch = 50.0f, Yaw = 60.0f },
                 LastSleptDT = "2026-01-01T00:00:00.0000000+00:00",
+                LastSleptLocation = new() { World = "world", X = 6.0f, Y = 70.0f, Z = 8.0f, Pitch = 3.0f, Yaw = 4.0f },
                 BedLocation = new() { World = "world", X = 6.13f, Y = 64.0f, Z = 8.73f, Pitch = 3.14f, Yaw = 42.0f },
                 LastDeathDT = "2026-06-01T00:00:00.0000000+00:00",
                 LastDeathLocation = new() { World = "world_nether", X = 1.0f, Y = 2.0f, Z = 3.0f, Pitch = 4.0f, Yaw = 5.0f },
@@ -561,6 +571,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             Assert.That(capturedEntity.Username, Is.EqualTo(original.Username));
             Assert.That(capturedEntity.DisplayName, Is.EqualTo("Ilarion Pintilie"));
+            Assert.That(capturedEntity.Gender, Is.EqualTo("male"));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo(original.OnlineUUID));
             Assert.That(capturedEntity.Password, Is.EqualTo("NewPass"));
             Assert.That(capturedEntity.LastIpAddress, Is.EqualTo("10.0.0.1"));
@@ -581,6 +592,10 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastLogoutLocation.Pitch, Is.EqualTo(50.0f));
             Assert.That(capturedEntity.LastLogoutLocation.Yaw, Is.EqualTo(60.0f));
             Assert.That(capturedEntity.LastSleptDT, Is.EqualTo("2026-01-01T00:00:00.0000000+00:00"));
+            Assert.That(capturedEntity.LastSleptLocation.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.LastSleptLocation.X, Is.EqualTo(6.0f));
+            Assert.That(capturedEntity.LastSleptLocation.Y, Is.EqualTo(70.0f));
+            Assert.That(capturedEntity.LastSleptLocation.Z, Is.EqualTo(8.0f));
             Assert.That(capturedEntity.BedLocation, Is.Not.Null);
             Assert.That(capturedEntity.BedLocation.World, Is.EqualTo("world"));
             Assert.That(capturedEntity.BedLocation.X, Is.EqualTo(6.13f));
@@ -638,6 +653,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             Assert.That(capturedEntity.Username, Is.EqualTo(original.Username));
             Assert.That(capturedEntity.DisplayName, Is.EqualTo(original.DisplayName));
+            Assert.That(capturedEntity.Gender, Is.EqualTo(original.Gender));
             Assert.That(capturedEntity.OnlineUUID, Is.EqualTo(original.OnlineUUID));
             Assert.That(capturedEntity.Password, Is.EqualTo("NucilandiaPass2"));
         }
@@ -674,6 +690,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.LastLogoutDT, Is.EqualTo(original.LastLogoutDT));
             Assert.That(capturedEntity.LastLogoutLocation, Is.EqualTo(original.LastLogoutLocation));
             Assert.That(capturedEntity.LastSleptDT, Is.EqualTo(original.LastSleptDT));
+            Assert.That(capturedEntity.LastSleptLocation, Is.EqualTo(original.LastSleptLocation));
             Assert.That(capturedEntity.BedLocation, Is.EqualTo(original.BedLocation));
             Assert.That(capturedEntity.LastDeathDT, Is.EqualTo(original.LastDeathDT));
             Assert.That(capturedEntity.LastDeathLocation, Is.EqualTo(original.LastDeathLocation));
@@ -1067,6 +1084,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             Username = "IlarionPintilie",
             DisplayName = "Ilarion Pintilie",
+            Gender = "female",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             CreatedDT = "2012-09-05T00:00:00.0000000+00:00",
             Password = "NucilandiaPass1",
@@ -1079,6 +1097,7 @@ namespace NuciCraft.API.UnitTests.Service
             LastLoginDT = "2026-08-13T00:00:00.0000000+00:00",
             LastLogoutDT = "2026-08-13T00:00:00.0000000+00:00",
             LastLogoutLocation = new() { World = "world_the_end", X = 6.13f, Y = 64.0f, Z = 8.73f, Pitch = 3.14f, Yaw = 42.0f },
+            LastSleptLocation = new() { World = "world", X = 5.0f, Y = 70.0f, Z = -3.0f, Pitch = 0.0f, Yaw = 90.0f },
             BedLocation = new() { World = "world", X = 8.73f, Y = 64.0f, Z = 6.13f, Pitch = 42.0f, Yaw = 3.14f },
             BackDT = "2026-08-13T00:00:00.0000000+00:00",
         };
@@ -1096,6 +1115,7 @@ namespace NuciCraft.API.UnitTests.Service
             Id = "IlarionPintilie",
             Username = "IlarionPintilie",
             DisplayName = "Ilarion",
+            Gender = "female",
             OfflineUUID = "61300000-0000-3000-8000-000000000000",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             Password = "NucilandiaPass1",
@@ -1113,6 +1133,7 @@ namespace NuciCraft.API.UnitTests.Service
             LastLogoutDT = "2026-08-13T00:00:00.0000000+00:00",
             LastLogoutLocation = new() { World = "world", X = -13.0f, Y = 75.0f, Z = 22.5f, Pitch = 15.0f, Yaw = 40.0f },
             LastSleptDT = "2012-09-05T00:00:00.0000000+00:00",
+            LastSleptLocation = new() { World = "world", X = 5.0f, Y = 70.0f, Z = -3.0f, Pitch = 0.0f, Yaw = 90.0f },
             BedLocation = new() { World = "world", X = 6.13f, Y = 64.0f, Z = 8.73f, Pitch = 3.14f, Yaw = 42.0f },
             LastDeathDT = null,
             LastDeathLocation = null,
