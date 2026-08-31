@@ -296,6 +296,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
 
             Assert.That(domainModels, Has.Length.EqualTo(2));
             Assert.That(domainModels[0].DisplayName, Is.EqualTo("Ilarion Pintilie"));
+            Assert.That(domainModels[0].Gender, Is.EqualTo(Gender.Male));
             Assert.That(domainModels[0].WikiUrl, Is.EqualTo("https://test.nucilandia.ro"));
             Assert.That(domainModels[0].IsBanned);
             Assert.That(domainModels[0].BannedDT, Is.Not.Null);
@@ -304,15 +305,18 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Assert.That(domainModels[0].LastLoginDT, Is.Not.Null);
             Assert.That(domainModels[0].LastLogoutDT, Is.Not.Null);
             Assert.That(domainModels[0].LastLogoutLocation, Is.Not.Null);
+            Assert.That(domainModels[0].LastSleptLocation, Is.Not.Null);
             Assert.That(domainModels[0].BedLocation, Is.Not.Null);
             Assert.That(domainModels[0].BackDT, Is.Not.Null);
             Assert.That(domainModels[0].LastDeathLocation, Is.Not.Null);
             Assert.That(domainModels[1].DisplayName, Is.Null);
+            Assert.That(domainModels[1].Gender, Is.EqualTo(Gender.Other));
             Assert.That(domainModels[1].BannedDT, Is.Null);
             Assert.That(domainModels[1].MutedDT, Is.Null);
             Assert.That(domainModels[1].LastLoginDT, Is.Null);
             Assert.That(domainModels[1].LastLogoutDT, Is.Null);
             Assert.That(domainModels[1].LastLogoutLocation, Is.Null);
+            Assert.That(domainModels[1].LastSleptLocation, Is.Null);
             Assert.That(domainModels[1].BedLocation, Is.Null);
             Assert.That(domainModels[1].BackDT, Is.Null);
             Assert.That(domainModels[1].LastDeathLocation, Is.Null);
@@ -337,6 +341,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
 
             Assert.That(dataObjects, Has.Length.EqualTo(2));
             Assert.That(dataObjects[0].DisplayName, Is.EqualTo("Ilarion Pintilie"));
+            Assert.That(dataObjects[0].Gender, Is.EqualTo("male"));
             Assert.That(dataObjects[0].WikiUrl, Is.EqualTo("https://test.nucilandia.ro"));
             Assert.That(dataObjects[0].IsBanned);
             Assert.That(dataObjects[0].BannedDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
@@ -345,15 +350,18 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Assert.That(dataObjects[0].LastLoginDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
             Assert.That(dataObjects[0].LastLogoutDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
             Assert.That(dataObjects[0].LastLogoutLocation, Is.Not.Null);
+            Assert.That(dataObjects[0].LastSleptLocation, Is.Not.Null);
             Assert.That(dataObjects[0].BedLocation, Is.Not.Null);
             Assert.That(dataObjects[0].BackDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
             Assert.That(dataObjects[0].LastDeathLocation, Is.Not.Null);
             Assert.That(dataObjects[1].DisplayName, Is.Null);
+            Assert.That(dataObjects[1].Gender, Is.Null);
             Assert.That(dataObjects[1].BannedDT, Is.Null);
             Assert.That(dataObjects[1].MutedDT, Is.Null);
             Assert.That(dataObjects[1].LastLoginDT, Is.Null);
             Assert.That(dataObjects[1].LastLogoutDT, Is.Null);
             Assert.That(dataObjects[1].LastLogoutLocation, Is.Null);
+            Assert.That(dataObjects[1].LastSleptLocation, Is.Null);
             Assert.That(dataObjects[1].BedLocation, Is.Null);
             Assert.That(dataObjects[1].BackDT, Is.Null);
             Assert.That(dataObjects[1].LastDeathLocation, Is.Null);
@@ -541,6 +549,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Identifier = "61300000-8730-3000-8000-000000000000",
             Username = "IlarionPintilie",
             DisplayName = "Ilarion Pintilie",
+            Gender = Gender.Male,
             OfflineUUID = "61300000-0000-3000-8000-000000000000",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             Password = "NucileRullz!",
@@ -555,6 +564,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             LastLogoutDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
             LastLogoutLocation = BuildCoordinates(),
             LastSleptDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
+            LastSleptLocation = BuildCoordinates(),
             BedLocation = BuildCoordinates(),
             LastDeathDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
             LastDeathLocation = BuildCoordinates(),
@@ -580,6 +590,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             LastLogoutDT = null,
             LastLogoutLocation = null,
             LastSleptDT = null,
+            LastSleptLocation = null,
             BedLocation = null,
             LastDeathDT = null,
             LastDeathLocation = null,
@@ -593,6 +604,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Id = "61300000-8730-3000-8000-000000000000",
             Username = "IlarionPintilie",
             DisplayName = "Ilarion Pintilie",
+            Gender = "male",
             OfflineUUID = "61300000-0000-3000-8000-000000000000",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             Password = "NucileRullz!",
@@ -607,6 +619,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             LastLogoutDT = "2026-08-13T00:00:00.0000000+00:00",
             LastLogoutLocation = BuildCoordinatesDataObject(),
             LastSleptDT = "2026-08-13T00:00:00.0000000+00:00",
+            LastSleptLocation = BuildCoordinatesDataObject(),
             BedLocation = BuildCoordinatesDataObject(),
             LastDeathDT = "2026-08-13T00:00:00.0000000+00:00",
             LastDeathLocation = BuildCoordinatesDataObject(),
@@ -632,6 +645,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             LastLogoutDT = null,
             LastLogoutLocation = null,
             LastSleptDT = null,
+            LastSleptLocation = null,
             BedLocation = null,
             LastDeathDT = null,
             LastDeathLocation = null,

@@ -19,6 +19,9 @@ namespace NuciCraft.API.Responses
         [HmacOrder(3)]
         public string DisplayName { get; set; } = GetDisplayName(player);
 
+        [HmacOrder(27)]
+        public Gender Gender { get; set; } = player.Gender;
+
         [HmacOrder(4)]
         public string OfflineUUID { get; set; } = player.OfflineUUID;
 
@@ -71,21 +74,24 @@ namespace NuciCraft.API.Responses
         public DateTimeOffset? LastSleptDT { get; set; } = player.LastSleptDT;
 
         [HmacOrder(21)]
-        public Coordinates BedLocation { get; set; } = player.BedLocation;
+        public Coordinates LastSleptLocation { get; set; } = player.LastSleptLocation;
 
         [HmacOrder(22)]
-        public DateTimeOffset? LastDeathDT { get; set; } = player.LastDeathDT;
+        public Coordinates BedLocation { get; set; } = player.BedLocation;
 
         [HmacOrder(23)]
-        public Coordinates LastDeathLocation { get; set; } = player.LastDeathLocation;
+        public DateTimeOffset? LastDeathDT { get; set; } = player.LastDeathDT;
 
         [HmacOrder(24)]
-        public DateTimeOffset? BackDT { get; set; } = player.BackDT;
+        public Coordinates LastDeathLocation { get; set; } = player.LastDeathLocation;
 
         [HmacOrder(25)]
-        public Coordinates BackLocation { get; set; } = player.BackLocation;
+        public DateTimeOffset? BackDT { get; set; } = player.BackDT;
 
         [HmacOrder(26)]
+        public Coordinates BackLocation { get; set; } = player.BackLocation;
+
+        [HmacOrder(27)]
         public PlayerSettings Settings { get; set; } = player.Settings;
 
         private static string GetDisplayName(Player player)

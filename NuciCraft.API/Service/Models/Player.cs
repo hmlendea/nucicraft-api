@@ -11,6 +11,8 @@ namespace NuciCraft.API.Service.Models
 
         public string DisplayName { get; set; }
 
+        public Gender Gender { get; set; }
+
         public string OfflineUUID { get; set; }
 
         public string OnlineUUID { get; set; }
@@ -54,6 +56,8 @@ namespace NuciCraft.API.Service.Models
         public Coordinates LastLogoutLocation { get; set; }
 
         public DateTimeOffset? LastSleptDT { get; set; }
+
+        public Coordinates LastSleptLocation { get; set; }
 
         public Coordinates BedLocation { get; set; }
 

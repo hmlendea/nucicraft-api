@@ -20,6 +20,7 @@ namespace NuciCraft.API.UnitTests.Responses
             Assert.That(response.Identifier, Is.EqualTo(player.Identifier));
             Assert.That(response.Username, Is.EqualTo(player.Username));
             Assert.That(response.DisplayName, Is.EqualTo(player.DisplayName));
+            Assert.That(response.Gender, Is.EqualTo(player.Gender));
             Assert.That(response.OfflineUUID, Is.EqualTo(player.OfflineUUID));
             Assert.That(response.OnlineUUID, Is.EqualTo(player.OnlineUUID));
             Assert.That(response.Password, Is.EqualTo(player.Password));
@@ -43,6 +44,11 @@ namespace NuciCraft.API.UnitTests.Responses
             Assert.That(response.LastLogoutLocation.Pitch, Is.EqualTo(player.LastLogoutLocation.Pitch));
             Assert.That(response.LastLogoutLocation.Yaw, Is.EqualTo(player.LastLogoutLocation.Yaw));
             Assert.That(response.LastSleptDT, Is.EqualTo(player.LastSleptDT));
+            Assert.That(response.LastSleptLocation, Is.Not.Null);
+            Assert.That(response.LastSleptLocation.World, Is.EqualTo(player.LastSleptLocation.World));
+            Assert.That(response.LastSleptLocation.X, Is.EqualTo(player.LastSleptLocation.X));
+            Assert.That(response.LastSleptLocation.Y, Is.EqualTo(player.LastSleptLocation.Y));
+            Assert.That(response.LastSleptLocation.Z, Is.EqualTo(player.LastSleptLocation.Z));
             Assert.That(response.BedLocation, Is.Not.Null);
             Assert.That(response.BedLocation.World, Is.EqualTo(player.BedLocation.World));
             Assert.That(response.BedLocation.X, Is.EqualTo(player.BedLocation.X));
@@ -182,6 +188,7 @@ namespace NuciCraft.API.UnitTests.Responses
             Identifier = "61300000-8730-3000-8000-000000000000",
             Username = "IlarionPintilie",
             DisplayName = "Ilarion Pintilie",
+            Gender = Gender.Male,
             OfflineUUID = "61300000-0000-3000-8000-000000000000",
             OnlineUUID = "87300000-0000-0000-0000-000000000000",
             Password = "NucilandiaPass1",
@@ -199,6 +206,7 @@ namespace NuciCraft.API.UnitTests.Responses
             LastLogoutDT = DateTimeOffset.Parse("2026-01-01T00:00:00.0000000+00:00"),
             LastLogoutLocation = new() { World = "world_the_end", X = 8.5f, Y = 90.0f, Z = -3.25f, Pitch = 5.0f, Yaw = 240.0f },
             LastSleptDT = DateTimeOffset.Parse("2012-09-05T00:00:00.0000000+00:00"),
+            LastSleptLocation = new() { World = "world", X = 5.0f, Y = 70.0f, Z = -3.0f, Pitch = 0.0f, Yaw = 90.0f },
             BedLocation = new() { World = "world", X = 6.13f, Y = 64.0f, Z = 8.73f, Pitch = 3.14f, Yaw = 42.0f },
             LastDeathDT = null,
             LastDeathLocation = null,

@@ -58,5 +58,11 @@ namespace NuciCraft.API.Requests
 
         [HmacOrder(16)]
         public string BackDT { get; set; }
+
+        [HmacOrder(17)]
+        public CoordinatesDataObject LastSleptLocation { get; set; }
+
+        [HmacOrder(18)]
+        public string Gender { get; set; }
     }
 }

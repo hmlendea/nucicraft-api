@@ -59,6 +59,7 @@ namespace NuciCraft.API.Service
                     Identifier = Guid.NewGuid().ToString(),
                     Username = request.Username,
                     DisplayName = request.DisplayName,
+                    Gender = Gender.FromString(request.Gender),
                     OfflineUUID = GetOfflineUuid(request.Username),
                     OnlineUUID = request.OnlineUUID,
                     Password = request.Password,
@@ -72,6 +73,7 @@ namespace NuciCraft.API.Service
                     LastLoginDT = ParseOptionalTimestamp(request.LastLoginDT, nameof(request.LastLoginDT)),
                     LastLogoutDT = ParseOptionalTimestamp(request.LastLogoutDT, nameof(request.LastLogoutDT)),
                     LastLogoutLocation = request.LastLogoutLocation?.ToServiceModel(),
+                    LastSleptLocation = request.LastSleptLocation?.ToServiceModel(),
                     BedLocation = request.BedLocation?.ToServiceModel(),
                     BackDT = ParseOptionalTimestamp(request.BackDT, nameof(request.BackDT)),
                     Settings = new PlayerSettings(),
@@ -352,9 +354,19 @@ namespace NuciCraft.API.Service
                 playerDataObject.LastSleptDT = request.LastSleptDT;
             }
 
+            if (request.LastSleptLocation is not null)
+            {
+                playerDataObject.LastSleptLocation = request.LastSleptLocation;
+            }
+
             if (request.BedLocation is not null)
             {
                 playerDataObject.BedLocation = request.BedLocation;
+            }
+
+            if (request.Gender is not null)
+            {
+                playerDataObject.Gender = Gender.FromString(request.Gender);
             }
 
             if (request.LastDeathDT is not null)
