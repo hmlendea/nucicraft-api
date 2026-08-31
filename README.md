@@ -252,6 +252,10 @@ curl "http://localhost:5000/Zones"
 ```
 
 ```bash
+curl "http://localhost:5000/Zones/by-coordinates?world=world&x=64&y=72&z=128"
+```
+
+```bash
 curl -X PATCH "http://localhost:5000/Zones/spawn-city" \
 	-H "Content-Type: application/json" \
 	-d '{

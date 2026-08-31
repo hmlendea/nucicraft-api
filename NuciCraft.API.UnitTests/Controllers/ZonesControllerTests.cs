@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -8,6 +9,7 @@ using Moq;
 using NUnit.Framework;
 
 using NuciCraft.API.Controllers;
+using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Responses;
 using NuciCraft.API.Service;
@@ -108,6 +110,51 @@ namespace NuciCraft.API.UnitTests.Controllers
             GetResponse response = result.Value as GetResponse;
 
             Assert.That(response.Content, Is.SameAs(zones));
+        }
+
+        [Test]
+        public void GivenCoordinates_WhenGettingContainingZones_ThenTheirIdentifiersAreReturned()
+        {
+            IEnumerable<string> zoneIdentifiers = ["solara", "nucilandia"];
+            GetZonesContainingCoordinatesRequest request = new()
+            {
+                World = "world",
+                X = 64f,
+                Y = 72f,
+                Z = 128f
+            };
+            serviceMock
+                .Setup(service => service.GetZoneIdentifiersContainingCoordinates(It.Is<CoordinatesDataObject>(
+                    coordinates => string.Equals(coordinates.World, "world", StringComparison.Ordinal)
+                        && coordinates.X == 64f
+                        && coordinates.Y == 72f
+                        && coordinates.Z == 128f)))
+                .Returns(zoneIdentifiers);
+
+            OkObjectResult result = controller.GetContainingCoordinates(request) as OkObjectResult;
+            GetResponse response = result.Value as GetResponse;
+
+            Assert.That(response.Content, Is.SameAs(zoneIdentifiers));
+            serviceMock.Verify(
+                service => service.GetZoneIdentifiersContainingCoordinates(It.Is<CoordinatesDataObject>(
+                    coordinates => string.Equals(coordinates.World, "world", StringComparison.Ordinal)
+                        && coordinates.X == 64f
+                        && coordinates.Y == 72f
+                        && coordinates.Z == 128f)),
+                Times.Once);
+        }
+
+        [Test]
+        public void GivenTheGetContainingCoordinatesAction_WhenInspectingItsRoute_ThenItUsesTheByCoordinatesSegmentAndGetMethod()
+        {
+            MethodInfo actionMethod = typeof(ZonesController)
+                .GetMethod(nameof(ZonesController.GetContainingCoordinates));
+            RouteAttribute routeAttribute = actionMethod
+                .GetCustomAttribute<RouteAttribute>();
+
+            Assert.That(routeAttribute, Is.Not.Null);
+            Assert.That(routeAttribute.Template, Is.EqualTo("by-coordinates"));
+            Assert.That(actionMethod.GetCustomAttribute<HttpGetAttribute>(), Is.Not.Null);
         }
 
         [Test]

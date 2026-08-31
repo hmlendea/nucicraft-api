@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using NuciAPI.Controllers;
 
 using NuciCraft.API.Configuration;
+using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Responses;
 using NuciCraft.API.Service;
@@ -54,6 +55,22 @@ namespace NuciCraft.API.Controllers
             => ProcessRequest(
                 new GetZonesRequest(),
                 () => new GetResponse(service.GetAllZones()),
+                authorisation);
+
+        [HttpGet]
+        [Route("by-coordinates")]
+        public ActionResult GetContainingCoordinates(
+            [FromQuery] GetZonesContainingCoordinatesRequest request)
+            => ProcessRequest(
+                request,
+                () => new GetResponse(
+                    service.GetZoneIdentifiersContainingCoordinates(new CoordinatesDataObject
+                    {
+                        World = request.World,
+                        X = request.X.Value,
+                        Y = request.Y.Value,
+                        Z = request.Z.Value
+                    })),
                 authorisation);
 
         [HttpPatch]

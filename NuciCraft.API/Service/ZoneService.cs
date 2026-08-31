@@ -201,6 +201,50 @@ namespace NuciCraft.API.Service
             }
         }
 
+        public IEnumerable<string> GetZoneIdentifiersContainingCoordinates(CoordinatesDataObject coordinates)
+        {
+            ArgumentNullException.ThrowIfNull(coordinates);
+
+            ValidateCoordinates(coordinates);
+
+            IEnumerable<LogInfo> logInfos =
+            [
+                new(MyLogInfoKey.World, coordinates.World),
+                new(MyLogInfoKey.X, coordinates.X),
+                new(MyLogInfoKey.Y, coordinates.Y),
+                new(MyLogInfoKey.Z, coordinates.Z)
+            ];
+
+            logger.Info(
+                MyOperation.GetZonesByCoordinates,
+                OperationStatus.Started,
+                logInfos);
+
+            try
+            {
+                IEnumerable<string> zoneIdentifiers = repository.GetAll()
+                    .Where(zoneDataObject => ContainsCoordinates(zoneDataObject.Bounds, coordinates))
+                    .Select(zoneDataObject => zoneDataObject.Id);
+
+                logger.Info(
+                    MyOperation.GetZonesByCoordinates,
+                    OperationStatus.Success,
+                    logInfos.Append(new(MyLogInfoKey.Count, zoneIdentifiers.Count())));
+
+                return zoneIdentifiers;
+            }
+            catch (Exception exception)
+            {
+                logger.Error(
+                    MyOperation.GetZonesByCoordinates,
+                    OperationStatus.Failure,
+                    exception,
+                    logInfos);
+
+                throw;
+            }
+        }
+
         public void Update(PatchZoneRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);
@@ -265,6 +309,37 @@ namespace NuciCraft.API.Service
             {
                 throw new ArgumentException("Zone identifier must be provided.");
             }
+        }
+
+        private static void ValidateCoordinates(CoordinatesDataObject coordinates)
+        {
+            if (string.IsNullOrWhiteSpace(coordinates.World))
+            {
+                throw new ArgumentException("The coordinate world must be provided.");
+            }
+        }
+
+        private static bool ContainsCoordinates(
+            ZoneBoundsDataObject bounds,
+            CoordinatesDataObject coordinates)
+        {
+            ZoneBoundsDataObject normalisedBounds = GetNormalisedBounds(bounds);
+
+            if (normalisedBounds?.FirstCorner is null || normalisedBounds.SecondCorner is null)
+            {
+                return false;
+            }
+
+            return string.Equals(
+                    normalisedBounds.FirstCorner.World,
+                    coordinates.World,
+                    StringComparison.Ordinal)
+                && coordinates.X >= normalisedBounds.FirstCorner.X
+                && coordinates.X <= normalisedBounds.SecondCorner.X
+                && coordinates.Y <= normalisedBounds.FirstCorner.Y
+                && coordinates.Y >= normalisedBounds.SecondCorner.Y
+                && coordinates.Z >= normalisedBounds.FirstCorner.Z
+                && coordinates.Z <= normalisedBounds.SecondCorner.Z;
         }
 
         private static void ApplyPatchValues(

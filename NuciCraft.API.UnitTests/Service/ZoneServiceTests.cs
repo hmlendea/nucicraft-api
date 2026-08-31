@@ -785,6 +785,89 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenOverlappingZonesAndCoordinatesOnTheirBounds_WhenGettingContainingZoneIdentifiers_ThenAllMatchingIdentifiersAreReturned()
+        {
+            ZoneDataObject matchingZone = BuildZoneDataObject();
+            matchingZone.Id = "solara";
+            ZoneDataObject overlappingZone = BuildZoneDataObject();
+            overlappingZone.Id = "nucilandia";
+            overlappingZone.Bounds.FirstCorner.X = 96f;
+            ZoneDataObject differentWorldZone = BuildZoneDataObject();
+            differentWorldZone.Id = "nether";
+            differentWorldZone.Bounds.FirstCorner.World = "world_nether";
+            differentWorldZone.Bounds.SecondCorner.World = "world_nether";
+            ZoneDataObject incompleteBoundsZone = BuildZoneDataObject();
+            incompleteBoundsZone.Id = "incomplete";
+            incompleteBoundsZone.Bounds.FirstCorner = null;
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([matchingZone, overlappingZone, differentWorldZone, incompleteBoundsZone]);
+
+            string[] zoneIdentifiers = zoneService
+                .GetZoneIdentifiersContainingCoordinates(new CoordinatesDataObject
+                {
+                    World = "world",
+                    X = 96f,
+                    Y = 48f,
+                    Z = 192f
+                })
+                .ToArray();
+
+            Assert.That(zoneIdentifiers, Is.EqualTo(["solara", "nucilandia"]));
+        }
+
+        [Test]
+        public void GivenCoordinatesOutsideAllZones_WhenGettingContainingZoneIdentifiers_ThenAnEmptyCollectionIsReturned()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildZoneDataObject()]);
+
+            string[] zoneIdentifiers = zoneService
+                .GetZoneIdentifiersContainingCoordinates(new CoordinatesDataObject
+                {
+                    World = "world",
+                    X = 31f,
+                    Y = 48f,
+                    Z = 192f
+                })
+                .ToArray();
+
+            Assert.That(zoneIdentifiers, Is.Empty);
+        }
+
+        [Test]
+        public void GivenCoordinatesWithoutAWorld_WhenGettingContainingZoneIdentifiers_ThenAnArgumentExceptionIsThrown()
+        {
+            Assert.That(
+                () => zoneService.GetZoneIdentifiersContainingCoordinates(new CoordinatesDataObject()),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenNullCoordinates_WhenGettingContainingZoneIdentifiers_ThenAnArgumentNullExceptionIsThrown()
+        {
+            Assert.That(
+                () => zoneService.GetZoneIdentifiersContainingCoordinates(null),
+                Throws.TypeOf<ArgumentNullException>());
+        }
+
+        [Test]
+        public void GivenARepositoryException_WhenGettingContainingZoneIdentifiers_ThenTheExceptionIsRethrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Throws<InvalidOperationException>();
+
+            Assert.That(
+                () => zoneService.GetZoneIdentifiersContainingCoordinates(new CoordinatesDataObject
+                {
+                    World = "world"
+                }),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
         public void GivenARequestWithPartialFields_WhenUpdatingAZone_ThenOnlyProvidedFieldsAreUpdated()
         {
             ZoneDataObject original = BuildZoneDataObject();
