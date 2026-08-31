@@ -84,7 +84,7 @@ curl -X POST "http://localhost:5000/Players" \
 	}'
 ```
 
-`gender` accepts `male`, `female`, or `other`.
+`gender` accepts `male`, `female`, or `other`. Omitted or empty values default to `other`.
 
 ### Get a Player by ID
 
