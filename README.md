@@ -49,7 +49,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 - Persists independently patchable player preferences, including teleportation-request reception
 - Stores and retrieves RTP locations with distance constraints and biome/world filtering
 - Generates random mob names via Universal Name Generator integration
-- Stores, retrieves, and updates world metadata
+- Stores, retrieves, and updates world metadata, including type, web-map availability, and spawn points
 - Stores, retrieves, and updates country metadata
 - Stores, retrieves, updates, and deletes zone metadata
 - Validates zone bounds so both corners share the identical world and are necessary on zone creation
@@ -208,9 +208,19 @@ curl -X POST "http://localhost:5000/Worlds" \
 		"name": {
 			"english": "Main World",
 			"romanian": "Lumea Principala"
-		}
+		},
+		"hasWebMap": true,
+		"spawnPoint": {
+			"world": "main",
+			"x": 64,
+			"y": 72,
+			"z": 128
+		},
+		"type": "overworld"
 	}'
 ```
+
+`type` accepts `overworld`, `nether`, or `end` and defaults to `overworld`. `hasWebMap` defaults to `false`, while `spawnPoint` is optional.
 
 ```bash
 curl "http://localhost:5000/Worlds/main"
@@ -223,6 +233,13 @@ curl -X PATCH "http://localhost:5000/Worlds/main" \
 	-d '{
 		"name": {
 			"romanian": "Lumea Centrala"
+		},
+		"hasWebMap": false,
+		"spawnPoint": {
+			"world": "main",
+			"x": 96,
+			"y": 64,
+			"z": 128
 		}
 	}'
 ```

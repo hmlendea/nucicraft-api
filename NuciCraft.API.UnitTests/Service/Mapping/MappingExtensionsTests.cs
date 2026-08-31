@@ -24,6 +24,8 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
 
         private static string RtpLocationMappingTypeName => "NuciCraft.API.Service.Mapping.RtpLocationMappingExtensions";
 
+        private static string WorldMappingTypeName => "NuciCraft.API.Service.Mapping.WorldMappingExtensions";
+
         private static string ToDataObjectMethodName => "ToDataObject";
 
         private static string ToDataObjectsMethodName => "ToDataObjects";
@@ -76,6 +78,56 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Assert.That(serviceModel.Z, Is.EqualTo(8.73f));
             Assert.That(serviceModel.Pitch, Is.EqualTo(3.14f));
             Assert.That(serviceModel.Yaw, Is.EqualTo(42f));
+        }
+
+        [Test]
+        public void GivenAWorldModel_WhenMappingToADataObject_ThenAllValuesAreRetained()
+        {
+            World serviceModel = new()
+            {
+                Identifier = "world_the_end",
+                Name = BuildLocalisedString(),
+                HasWebMap = true,
+                SpawnPoint = BuildCoordinates(),
+                Type = WorldType.End
+            };
+
+            WorldDataObject dataObject = MappingMethodInvoker.Invoke<World, WorldDataObject>(
+                WorldMappingTypeName,
+                ToDataObjectMethodName,
+                serviceModel);
+
+            Assert.That(dataObject.Id, Is.EqualTo("world_the_end"));
+            Assert.That(dataObject.Name, Is.Not.Null);
+            Assert.That(dataObject.HasWebMap);
+            Assert.That(dataObject.SpawnPoint, Is.Not.Null);
+            Assert.That(dataObject.SpawnPoint.World, Is.EqualTo("world"));
+            Assert.That(dataObject.Type, Is.EqualTo("end"));
+        }
+
+        [Test]
+        public void GivenAWorldDataObject_WhenMappingToAServiceModel_ThenAllValuesAreRetained()
+        {
+            WorldDataObject dataObject = new()
+            {
+                Id = "world_nether",
+                Name = BuildLocalisedStringDataObject(),
+                HasWebMap = true,
+                SpawnPoint = BuildCoordinatesDataObject(),
+                Type = "nether"
+            };
+
+            World serviceModel = MappingMethodInvoker.Invoke<WorldDataObject, World>(
+                WorldMappingTypeName,
+                ToServiceModelMethodName,
+                dataObject);
+
+            Assert.That(serviceModel.Identifier, Is.EqualTo("world_nether"));
+            Assert.That(serviceModel.Name, Is.Not.Null);
+            Assert.That(serviceModel.HasWebMap);
+            Assert.That(serviceModel.SpawnPoint, Is.Not.Null);
+            Assert.That(serviceModel.SpawnPoint.World, Is.EqualTo("world"));
+            Assert.That(serviceModel.Type, Is.EqualTo(WorldType.Nether));
         }
 
         [Test]

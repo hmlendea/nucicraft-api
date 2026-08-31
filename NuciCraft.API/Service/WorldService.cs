@@ -39,6 +39,9 @@ namespace NuciCraft.API.Service
                 {
                     Id = request.Identifier,
                     Name = request.Name,
+                    HasWebMap = request.HasWebMap,
+                    SpawnPoint = request.SpawnPoint,
+                    Type = WorldType.FromString(request.Type).ExternalName,
                     CreatedDT = TimestampFormats.GetCurrentUtcTimestamp()
                 };
 
@@ -184,6 +187,21 @@ namespace NuciCraft.API.Service
             if (request.Name is not null)
             {
                 worldDataObject.Name = worldDataObject.Name.MergeWith(request.Name);
+            }
+
+            if (request.HasWebMap.HasValue)
+            {
+                worldDataObject.HasWebMap = request.HasWebMap.Value;
+            }
+
+            if (request.SpawnPoint is not null)
+            {
+                worldDataObject.SpawnPoint = request.SpawnPoint;
+            }
+
+            if (request.Type is not null)
+            {
+                worldDataObject.Type = WorldType.FromString(request.Type).ExternalName;
             }
         }
     }

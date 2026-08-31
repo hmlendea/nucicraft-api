@@ -16,5 +16,14 @@ namespace NuciCraft.API.Requests
 
         [HmacOrder(2)]
         public LocalisedStringDataObject Name { get; set; }
+
+        [HmacOrder(3)]
+        public bool? HasWebMap { get; set; }
+
+        [HmacOrder(4)]
+        public CoordinatesDataObject SpawnPoint { get; set; }
+
+        [HmacOrder(5)]
+        public string Type { get; set; }
     }
 }

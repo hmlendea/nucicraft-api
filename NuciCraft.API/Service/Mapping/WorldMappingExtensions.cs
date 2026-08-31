@@ -19,7 +19,10 @@ namespace NuciCraft.API.Service.Mapping
         internal static World ToServiceModel(this WorldDataObject dataObject) => new()
         {
             Identifier = dataObject.Id,
-            Name = dataObject.Name?.ToServiceModel()
+            Name = dataObject.Name?.ToServiceModel(),
+            HasWebMap = dataObject.HasWebMap,
+            SpawnPoint = dataObject.SpawnPoint?.ToServiceModel(),
+            Type = WorldType.FromString(dataObject.Type)
         };
 
         /// <summary>
@@ -30,7 +33,10 @@ namespace NuciCraft.API.Service.Mapping
         internal static WorldDataObject ToDataObject(this World serviceModel) => new()
         {
             Id = serviceModel.Identifier,
-            Name = serviceModel.Name?.ToDataObject()
+            Name = serviceModel.Name?.ToDataObject(),
+            HasWebMap = serviceModel.HasWebMap,
+            SpawnPoint = serviceModel.SpawnPoint?.ToDataObject(),
+            Type = serviceModel.Type?.ExternalName
         };
 
         /// <summary>
