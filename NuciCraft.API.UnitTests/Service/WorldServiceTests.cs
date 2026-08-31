@@ -44,7 +44,18 @@ namespace NuciCraft.API.UnitTests.Service
             AddWorldRequest request = new()
             {
                 Identifier = "main",
-                Name = new() { English = "Main World", Romanian = "Lumea Principala" }
+                Name = new() { English = "Main World", Romanian = "Lumea Principala" },
+                HasWebMap = true,
+                SpawnPoint = new()
+                {
+                    World = "world",
+                    X = 6.13f,
+                    Y = 64f,
+                    Z = 8.73f,
+                    Pitch = 3.14f,
+                    Yaw = 42f
+                },
+                Type = "nether"
             };
 
             worldService.Add(request);
@@ -52,7 +63,30 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Id, Is.EqualTo("main"));
             Assert.That(capturedEntity.Name.English, Is.EqualTo("Main World"));
             Assert.That(capturedEntity.Name.Romanian, Is.EqualTo("Lumea Principala"));
+            Assert.That(capturedEntity.HasWebMap);
+            Assert.That(capturedEntity.SpawnPoint.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.SpawnPoint.X, Is.EqualTo(6.13f));
+            Assert.That(capturedEntity.SpawnPoint.Y, Is.EqualTo(64f));
+            Assert.That(capturedEntity.SpawnPoint.Z, Is.EqualTo(8.73f));
+            Assert.That(capturedEntity.SpawnPoint.Pitch, Is.EqualTo(3.14f));
+            Assert.That(capturedEntity.SpawnPoint.Yaw, Is.EqualTo(42f));
+            Assert.That(capturedEntity.Type, Is.EqualTo("nether"));
             Assert.That(capturedEntity.CreatedDT, Is.Not.Null);
+        }
+
+        [Test]
+        public void GivenARequestWithoutOptionalProperties_WhenAddingAWorld_ThenDefaultsArePersisted()
+        {
+            WorldDataObject capturedEntity = null;
+            repositoryMock
+                .Setup(repository => repository.Add(It.IsAny<WorldDataObject>()))
+                .Callback<WorldDataObject>(entity => capturedEntity = entity);
+
+            worldService.Add(new AddWorldRequest { Identifier = "main" });
+
+            Assert.That(capturedEntity.HasWebMap, Is.False);
+            Assert.That(capturedEntity.SpawnPoint, Is.Null);
+            Assert.That(capturedEntity.Type, Is.EqualTo("overworld"));
         }
 
         [Test]
@@ -100,6 +134,28 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(world.Identifier, Is.EqualTo("main"));
             Assert.That(world.Name.English, Is.EqualTo("Main World"));
             Assert.That(world.Name.Romanian, Is.EqualTo("Lumea Principala"));
+            Assert.That(world.HasWebMap);
+            Assert.That(world.SpawnPoint.World, Is.EqualTo("world"));
+            Assert.That(world.SpawnPoint.X, Is.EqualTo(6.13f));
+            Assert.That(world.SpawnPoint.Y, Is.EqualTo(64f));
+            Assert.That(world.SpawnPoint.Z, Is.EqualTo(8.73f));
+            Assert.That(world.SpawnPoint.Pitch, Is.EqualTo(3.14f));
+            Assert.That(world.SpawnPoint.Yaw, Is.EqualTo(42f));
+            Assert.That(world.Type, Is.EqualTo(WorldType.Nether));
+        }
+
+        [Test]
+        public void GivenALegacyWorld_WhenGettingAWorld_ThenNewPropertiesUseDefaults()
+        {
+            repositoryMock
+                .Setup(repository => repository.Get("main"))
+                .Returns(new WorldDataObject { Id = "main" });
+
+            World world = worldService.GetWorld("main");
+
+            Assert.That(world.HasWebMap, Is.False);
+            Assert.That(world.SpawnPoint, Is.Null);
+            Assert.That(world.Type, Is.EqualTo(WorldType.Overworld));
         }
 
         [Test]
@@ -128,9 +184,11 @@ namespace NuciCraft.API.UnitTests.Service
                     }
                 ]);
 
-            List<World> worlds = worldService.GetAllWorlds().ToList();
+            World[] worlds = worldService.GetAllWorlds().ToArray();
 
-            Assert.That(worlds, Has.Count.EqualTo(2));
+            Assert.That(worlds, Has.Length.EqualTo(2));
+            Assert.That(worlds[0].Type, Is.EqualTo(WorldType.Nether));
+            Assert.That(worlds[1].Type, Is.EqualTo(WorldType.Overworld));
         }
 
         [Test]
@@ -169,6 +227,46 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Name.English, Is.EqualTo("Main World"));
             Assert.That(capturedEntity.Name.Romanian, Is.EqualTo("Lumea Centrala"));
             Assert.That(capturedEntity.Name.German, Is.EqualTo("Hauptwelt"));
+            Assert.That(capturedEntity.HasWebMap);
+            Assert.That(capturedEntity.SpawnPoint.World, Is.EqualTo("world"));
+            Assert.That(capturedEntity.Type, Is.EqualTo("nether"));
+        }
+
+        [Test]
+        public void GivenNewPropertyValues_WhenUpdatingAWorld_ThenAllValuesAreApplied()
+        {
+            WorldDataObject capturedEntity = null;
+            repositoryMock
+                .Setup(repository => repository.Get("main"))
+                .Returns(BuildWorldDataObject());
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<WorldDataObject>()))
+                .Callback<WorldDataObject>(entity => capturedEntity = entity);
+
+            worldService.Update(new PatchWorldRequest
+            {
+                Identifier = "main",
+                HasWebMap = false,
+                SpawnPoint = new()
+                {
+                    World = "world_the_end",
+                    X = 42f,
+                    Y = 96f,
+                    Z = 128f,
+                    Pitch = 6.13f,
+                    Yaw = 8.73f
+                },
+                Type = "end"
+            });
+
+            Assert.That(capturedEntity.HasWebMap, Is.False);
+            Assert.That(capturedEntity.SpawnPoint.World, Is.EqualTo("world_the_end"));
+            Assert.That(capturedEntity.SpawnPoint.X, Is.EqualTo(42f));
+            Assert.That(capturedEntity.SpawnPoint.Y, Is.EqualTo(96f));
+            Assert.That(capturedEntity.SpawnPoint.Z, Is.EqualTo(128f));
+            Assert.That(capturedEntity.SpawnPoint.Pitch, Is.EqualTo(6.13f));
+            Assert.That(capturedEntity.SpawnPoint.Yaw, Is.EqualTo(8.73f));
+            Assert.That(capturedEntity.Type, Is.EqualTo("end"));
         }
 
         [Test]
@@ -277,6 +375,17 @@ namespace NuciCraft.API.UnitTests.Service
         private static WorldDataObject BuildWorldDataObject() => new()
         {
             Id = "main",
+            HasWebMap = true,
+            SpawnPoint = new CoordinatesDataObject
+            {
+                World = "world",
+                X = 6.13f,
+                Y = 64f,
+                Z = 8.73f,
+                Pitch = 3.14f,
+                Yaw = 42f
+            },
+            Type = "nether",
             Name = new LocalisedStringDataObject
             {
                 English = "Main World",

@@ -1,6 +1,6 @@
 # NuciCraft API Architecture
 
-This document records the verified current architecture of the NuciCraft API process, including its HTTP boundary, application services, persistence, external name-generation integration, and operational constraints. It is intended for contributors and operators evaluating the impact of a modification; it does not define a target architecture or duplicate endpoint usage guidance. Last verified: 27 August 2026.
+This document records the verified current architecture of the NuciCraft API process, including its HTTP boundary, application services, persistence, external name-generation integration, and operational constraints. It is intended for contributors and operators evaluating the impact of a modification; it does not define a target architecture or duplicate endpoint usage guidance. Last verified: 31 August 2026.
 
 ## 📑 Table of Contents
 
@@ -145,7 +145,7 @@ Store preparation precedes middleware construction and is not itself middleware.
 | `Program` and `Startup` | Construct the host, register the request pipeline, and prepare stores. | ASP.NET Core, configuration, DI container, `DataStoreSettings`. | One composition root per process. |
 | Controllers | Own routes, assemble request DTOs, select service operations, and delegate authorisation and response processing. | `NuciApiController`, service interfaces, `SecuritySettings`. | Framework-created request handlers. |
 | `PlayerService` | Register, retrieve, list, and patch players through identifier, username, offline UUID, or online UUID selectors. | Player repository and logger. | Singleton. |
-| `WorldService` | Add, retrieve, list, and patch world metadata, including merged localised values. | World repository and logger. | Singleton. |
+| `WorldService` | Add, retrieve, list, and patch world metadata, including merged localised values, web-map availability, spawn points, and world types. | World repository and logger. | Singleton. |
 | `CountryService` | Add, retrieve, list, and patch country metadata, including merged localised values. | Country repository, logger. | Singleton. |
 | `ZoneService` | Add, retrieve, list, patch, and delete zones while enforcing bounds and localised merge rules. | Zone repository, logger. | Singleton. |
 | `RtpLocationService` | Enforce proximity rules, persist RTP locations, and select random filtered locations. | RTP repository, `RtpLocationSettings`, logger. | Singleton. |
@@ -238,7 +238,7 @@ flowchart LR
 | Data or Store | Owner | Representation and Storage | Lifecycle or Consistency |
 |---------------|-------|----------------------------|--------------------------|
 | `players.json` | `PlayerService` | `PlayerDataObject` records at `Data/players.json` by default. | Created during registration and patched synchronously; selectors include identifier, username, offline UUID, and online UUID. |
-| `worlds.json` | `WorldService` | `WorldDataObject` records at `Data/worlds.json` by default. | Added and patched synchronously; provided localised properties merge with persisted values. |
+| `worlds.json` | `WorldService` | `WorldDataObject` records at `Data/worlds.json` by default, including web-map availability, an optional spawn point, and a string world type. | Added and patched synchronously; provided localised properties merge with persisted values, omitted patch fields remain unchanged, and absent or unsupported types map to `overworld`. |
 | `countries.json` | `CountryService` | `CountryDataObject` records at `Data/countries.json` by default. | Added and patched synchronously; provided localised properties merge with persisted values. |
 | `zones.json` | `ZoneService` | `ZoneDataObject` records at `Data/zones.json` by default. | Added, patched, and deleted synchronously; bounds are validated and canonicalised on writes and reads. |
 | `rtp_locations.json` | `RtpLocationService` | `RtpLocationEntity` records at `Data/rtp_locations.json` by default. | Append-oriented additions after proximity validation; reads select a random optional world/biome match. |
