@@ -28,7 +28,7 @@ namespace NuciCraft.API.UnitTests.Service
             => Assert.That(Gender.FromString(externalName), Is.EqualTo(Gender.Other));
 
         [TestCase("unknown")]
-        public void GivenAnUnsupportedExternalName_WhenParsingGender_ThenUnsupportedIsReturned(string externalName)
-            => Assert.That(Gender.FromString(externalName), Is.EqualTo(Gender.Unsupported));
+        public void GivenAnUnknownExternalName_WhenParsingGender_ThenOtherIsReturned(string externalName)
+            => Assert.That(Gender.FromString(externalName), Is.EqualTo(Gender.Other));
     }
 }
