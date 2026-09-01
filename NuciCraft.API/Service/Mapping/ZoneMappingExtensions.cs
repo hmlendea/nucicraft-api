@@ -34,6 +34,7 @@ namespace NuciCraft.API.Service.Mapping
             Bounds = dataObject.Bounds?.ToServiceModel(),
             LeaderTitle = dataObject.LeaderTitle?.ToServiceModel(),
             Population = dataObject.Population,
+            PopulationDate = dataObject.PopulationDate,
             MapLink = dataObject.MapLink,
             WikiUrl = dataObject.WikiUrl
         };
@@ -61,6 +62,7 @@ namespace NuciCraft.API.Service.Mapping
             Bounds = serviceModel.Bounds?.ToDataObject(),
             LeaderTitle = serviceModel.LeaderTitle?.ToDataObject(),
             Population = serviceModel.Population,
+            PopulationDate = serviceModel.PopulationDate,
             MapLink = serviceModel.MapLink,
             WikiUrl = serviceModel.WikiUrl
         };

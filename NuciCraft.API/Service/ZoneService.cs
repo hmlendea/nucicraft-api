@@ -77,6 +77,7 @@ namespace NuciCraft.API.Service
                     Bounds = normalisedBounds,
                     LeaderTitle = request.LeaderTitle,
                     Population = request.Population,
+                    PopulationDate = request.PopulationDate,
                     MapLink = request.MapLink,
                     WikiUrl = request.WikiUrl,
                     CreatedDT = TimestampFormats.GetCurrentUtcTimestamp()
@@ -421,6 +422,11 @@ namespace NuciCraft.API.Service
             if (request.Population is not null)
             {
                 zoneDataObject.Population = request.Population.Value;
+            }
+
+            if (request.PopulationDate is not null)
+            {
+                zoneDataObject.PopulationDate = request.PopulationDate;
             }
 
             if (request.MapLink is not null)

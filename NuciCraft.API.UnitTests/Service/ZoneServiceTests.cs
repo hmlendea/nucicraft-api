@@ -111,6 +111,7 @@ namespace NuciCraft.API.UnitTests.Service
                 },
                 LeaderTitle = new() { English = "Mayor" },
                 Population = 128,
+                PopulationDate = "2026-08-30",
                 MapLink = "https://nucilandia.ro/map/solara_portal_hub",
                 WikiUrl = "https://nucilandia.ro/wiki/solara_portal_hub"
             };
@@ -149,6 +150,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Bounds.SecondCorner.Yaw, Is.EqualTo(0f));
             Assert.That(capturedEntity.LeaderTitle.English, Is.EqualTo("Mayor"));
             Assert.That(capturedEntity.Population, Is.EqualTo(128));
+            Assert.That(capturedEntity.PopulationDate, Is.EqualTo("2026-08-30"));
             Assert.That(capturedEntity.MapLink, Is.EqualTo("https://nucilandia.ro/map/solara_portal_hub"));
             Assert.That(capturedEntity.WikiUrl, Is.EqualTo("https://nucilandia.ro/wiki/solara_portal_hub"));
             Assert.That(capturedEntity.CreatedDT, Is.Not.Null);
@@ -1142,6 +1144,7 @@ namespace NuciCraft.API.UnitTests.Service
                 },
                 LeaderTitle = new() { English = "Mayor" },
                 Population = 2048,
+                PopulationDate = "2026-08-30",
                 MapLink = "https://dummy-url.com/map",
                 WikiUrl = "https://dummy-url.com/wiki"
             };
@@ -1171,6 +1174,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Bounds.SecondCorner.Z, Is.EqualTo(128));
             Assert.That(capturedEntity.LeaderTitle.English, Is.EqualTo("Mayor"));
             Assert.That(capturedEntity.Population, Is.EqualTo(2048));
+            Assert.That(capturedEntity.PopulationDate, Is.EqualTo("2026-08-30"));
             Assert.That(capturedEntity.MapLink, Is.EqualTo("https://dummy-url.com/map"));
             Assert.That(capturedEntity.WikiUrl, Is.EqualTo("https://dummy-url.com/wiki"));
         }
@@ -1375,6 +1379,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Bounds, Is.EqualTo(original.Bounds));
             Assert.That(capturedEntity.LeaderTitle, Is.EqualTo(original.LeaderTitle));
             Assert.That(capturedEntity.Population, Is.EqualTo(original.Population));
+            Assert.That(capturedEntity.PopulationDate, Is.EqualTo(original.PopulationDate));
             Assert.That(capturedEntity.MapLink, Is.EqualTo(original.MapLink));
             Assert.That(capturedEntity.WikiUrl, Is.EqualTo(original.WikiUrl));
         }
@@ -1622,6 +1627,7 @@ namespace NuciCraft.API.UnitTests.Service
                 German = "Eigentumer"
             },
             Population = 42,
+            PopulationDate = "2026-08-30",
             MapLink = "https://nucilandia.ro/map",
             WikiUrl = "https://nucilandia.ro/wiki"
         };
