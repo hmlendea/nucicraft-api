@@ -69,6 +69,7 @@ namespace NuciCraft.API
             CreateStoreIfMissing(dataStoreSettings.CountriesStorePath);
             CreateStoreIfMissing(dataStoreSettings.WorldsStorePath);
             CreateStoreIfMissing(dataStoreSettings.ZonesStorePath);
+            CreateStoreIfMissing(dataStoreSettings.ZoneTypesStorePath);
 
             EagerlyLoadRepositories(applicationBuilder.ApplicationServices);
         }
@@ -97,6 +98,7 @@ namespace NuciCraft.API
             EagerlyLoadRepository<CountryDataObject>(serviceProvider);
             EagerlyLoadRepository<WorldDataObject>(serviceProvider);
             EagerlyLoadRepository<ZoneDataObject>(serviceProvider);
+            EagerlyLoadRepository<ZoneTypeDataObject>(serviceProvider);
         }
 
         private static void EagerlyLoadRepository<TDataObject>(IServiceProvider serviceProvider)

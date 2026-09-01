@@ -32,6 +32,7 @@ namespace NuciCraft.API.UnitTests
         private Mock<IFileRepository<CountryDataObject>> countryRepositoryMock;
         private Mock<IFileRepository<WorldDataObject>> worldRepositoryMock;
         private Mock<IFileRepository<ZoneDataObject>> zoneRepositoryMock;
+        private Mock<IFileRepository<ZoneTypeDataObject>> zoneTypeRepositoryMock;
 
         [SetUp]
         public void SetUp()
@@ -47,11 +48,13 @@ namespace NuciCraft.API.UnitTests
             countryRepositoryMock = new Mock<IFileRepository<CountryDataObject>>();
             worldRepositoryMock = new Mock<IFileRepository<WorldDataObject>>();
             zoneRepositoryMock = new Mock<IFileRepository<ZoneDataObject>>();
+            zoneTypeRepositoryMock = new Mock<IFileRepository<ZoneTypeDataObject>>();
             playerRepositoryMock.Setup(repository => repository.GetAll()).Returns([]);
             rtpLocationRepositoryMock.Setup(repository => repository.GetAll()).Returns([]);
             countryRepositoryMock.Setup(repository => repository.GetAll()).Returns([]);
             worldRepositoryMock.Setup(repository => repository.GetAll()).Returns([]);
             zoneRepositoryMock.Setup(repository => repository.GetAll()).Returns([]);
+            zoneTypeRepositoryMock.Setup(repository => repository.GetAll()).Returns([]);
         }
 
         [TearDown]
@@ -101,11 +104,13 @@ namespace NuciCraft.API.UnitTests
             Assert.That(File.Exists(dataStoreSettings.CountriesStorePath));
             Assert.That(File.Exists(dataStoreSettings.WorldsStorePath));
             Assert.That(File.Exists(dataStoreSettings.ZonesStorePath));
+            Assert.That(File.Exists(dataStoreSettings.ZoneTypesStorePath));
             playerRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
             rtpLocationRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
             countryRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
             worldRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
             zoneRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
+            zoneTypeRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
         }
 
         private ServiceProvider BuildServiceProvider(DataStoreSettings dataStoreSettings)
@@ -120,6 +125,7 @@ namespace NuciCraft.API.UnitTests
             services.AddSingleton(countryRepositoryMock.Object);
             services.AddSingleton(worldRepositoryMock.Object);
             services.AddSingleton(zoneRepositoryMock.Object);
+            services.AddSingleton(zoneTypeRepositoryMock.Object);
 
             return services.BuildServiceProvider();
         }

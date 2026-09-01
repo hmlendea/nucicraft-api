@@ -23,6 +23,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
   - [Get a Random Mob Name](#get-a-random-mob-name)
 	- [Manage Countries](#manage-countries)
 	- [Manage Worlds](#manage-worlds)
+	- [Manage Zone Types](#manage-zone-types)
   - [Manage Zones](#manage-zones)
 - [Known Limitations](#known-limitations)
 - [Installation](#installation)
@@ -50,6 +51,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 - Stores and retrieves RTP locations with distance constraints and biome/world filtering
 - Generates random mob names via Universal Name Generator integration
 - Stores, retrieves, and updates world metadata, including type, web-map availability, and spawn points
+- Stores, retrieves, and updates localised zone type metadata
 - Stores, retrieves, and updates country metadata
 - Stores, retrieves, updates, and deletes zone metadata
 - Validates zone bounds so both corners share the identical world and are necessary on zone creation
@@ -244,6 +246,37 @@ curl -X PATCH "http://localhost:5000/Worlds/main" \
 	}'
 ```
 
+### Manage Zone Types
+
+```bash
+curl -X POST "http://localhost:5000/ZoneTypes" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"id": "city",
+		"name": {
+			"english": "City",
+			"romanian": "Oraș"
+		}
+	}'
+```
+
+```bash
+curl "http://localhost:5000/ZoneTypes/city"
+curl "http://localhost:5000/ZoneTypes"
+```
+
+```bash
+curl -X PATCH "http://localhost:5000/ZoneTypes/city" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"name": {
+			"romanian": "Oraș Mare"
+		}
+	}'
+```
+
+Zone type names are localised. Patch requests merge supplied localisations with persisted values.
+
 ### Manage Zones
 
 When creating a zone, `world` is necessary and must reference an existing world identifier from the worlds store.
@@ -336,6 +369,7 @@ All settings are loaded from the configuration file. The subsequent keys are rec
 | `dataStoreSettings` | `rtpLocationsStorePath` | Path to the RTP locations JSON store. |
 | `dataStoreSettings` | `worldsStorePath` | Path to the worlds JSON store. |
 | `dataStoreSettings` | `zonesStorePath` | Path to the zones JSON store. |
+| `dataStoreSettings` | `zoneTypesStorePath` | Path to the zone types JSON store. |
 | `rtpLocationSettings` | `minimumLocationDistance` | Minimum distance permitted between any two RTP locations. |
 | `rtpLocationSettings` | `minimumBiomeLocationDistance` | Minimum distance permitted between RTP locations in the identical biome. |
 | `securitySettings` | `apiKey` | API key used for endpoint authorisation. |

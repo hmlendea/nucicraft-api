@@ -40,6 +40,8 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
 
         private static string ZoneMappingTypeName => "NuciCraft.API.Service.Mapping.ZoneMappingExtensions";
 
+        private static string ZoneTypeMappingTypeName => "NuciCraft.API.Service.Mapping.ZoneTypeMappingExtensions";
+
         [Test]
         public void GivenCoordinatesModels_WhenMappingToDataObjects_ThenAllValuesAreRetained()
         {
@@ -128,6 +130,24 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Assert.That(serviceModel.SpawnPoint, Is.Not.Null);
             Assert.That(serviceModel.SpawnPoint.World, Is.EqualTo("world"));
             Assert.That(serviceModel.Type, Is.EqualTo(WorldType.Nether));
+        }
+
+        [Test]
+        public void GivenAZoneTypeDataObject_WhenMappingToAServiceModel_ThenAllValuesAreRetained()
+        {
+            ZoneTypeDataObject dataObject = new()
+            {
+                Id = "city",
+                Name = BuildLocalisedStringDataObject()
+            };
+
+            ZoneType serviceModel = MappingMethodInvoker.Invoke<ZoneTypeDataObject, ZoneType>(
+                ZoneTypeMappingTypeName,
+                ToServiceModelMethodName,
+                dataObject);
+
+            Assert.That(serviceModel.Identifier, Is.EqualTo("city"));
+            Assert.That(serviceModel.Name.English, Is.EqualTo("Nucilandia"));
         }
 
         [Test]
