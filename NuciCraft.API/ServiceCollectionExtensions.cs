@@ -32,10 +32,12 @@ namespace NuciCraft.API
             SecuritySettings securitySettings = new();
             RtpLocationSettings rtpLocationSettings = new();
             UniversalNameGeneratorSettings universalNameGeneratorSettings = new();
+            WebMapSettings webMapSettings = new();
 
             configuration.Bind(nameof(dataStoreSettings), dataStoreSettings);
             configuration.Bind(nameof(securitySettings), securitySettings);
             configuration.Bind(nameof(rtpLocationSettings), rtpLocationSettings);
+            configuration.Bind(nameof(webMapSettings), webMapSettings);
             configuration.Bind(
                 nameof(universalNameGeneratorSettings),
                 universalNameGeneratorSettings);
@@ -45,6 +47,7 @@ namespace NuciCraft.API
                 .AddSingleton(securitySettings)
                 .AddSingleton(rtpLocationSettings)
                 .AddSingleton(universalNameGeneratorSettings)
+                .AddSingleton(webMapSettings)
                 .AddNuciLoggerSettings(configuration);
         }
 
