@@ -19,6 +19,7 @@ namespace NuciCraft.API.Service
     public sealed class ZoneService(
         IFileRepository<ZoneDataObject> repository,
         IFileRepository<WorldDataObject> worldRepository,
+        IFileRepository<ZoneTypeDataObject> zoneTypeRepository,
         ILogger logger) : IZoneService
     {
         private static float BoundsPitch => 0f;
@@ -33,6 +34,7 @@ namespace NuciCraft.API.Service
 
             ValidateWorldForAdd(request);
             ValidateBoundsForAdd(request.Bounds);
+            ValidateTypeForAdd(request);
 
             ZoneBoundsDataObject normalisedBounds = GetNormalisedBounds(request.Bounds);
 
@@ -60,7 +62,7 @@ namespace NuciCraft.API.Service
                     Id = request.Identifier,
                     Name = request.Name,
                     Nickname = request.Nickname,
-                    Level = request.Level,
+                    Type = request.Type,
                     County = request.County,
                     Region = request.Region,
                     Country = request.Country,
@@ -263,6 +265,7 @@ namespace NuciCraft.API.Service
             {
                 ValidatePatchSelector(request);
                 ValidateWorldForPatch(request);
+                ValidateTypeForPatch(request);
 
                 ZoneDataObject zoneDataObject = repository.Get(request.Identifier);
 
@@ -356,9 +359,9 @@ namespace NuciCraft.API.Service
                 zoneDataObject.Nickname = zoneDataObject.Nickname.MergeWith(request.Nickname);
             }
 
-            if (request.Level is not null)
+            if (request.Type is not null)
             {
-                zoneDataObject.Level = request.Level;
+                zoneDataObject.Type = request.Type;
             }
 
             if (request.County is not null)
@@ -488,6 +491,48 @@ namespace NuciCraft.API.Service
             catch (KeyNotFoundException exception)
             {
                 throw new ArgumentException($"The zone world '{worldIdentifier}' is not valid.", exception);
+            }
+        }
+
+        private void ValidateTypeForAdd(AddZoneRequest request)
+        {
+            ValidateTypeIdentifier(request.Type);
+            ValidateTypeExists(request.Type);
+        }
+
+        private void ValidateTypeForPatch(PatchZoneRequest request)
+        {
+            if (request.Type is null)
+            {
+                return;
+            }
+
+            ValidateTypeIdentifier(request.Type);
+            ValidateTypeExists(request.Type);
+        }
+
+        private static void ValidateTypeIdentifier(string zoneTypeIdentifier)
+        {
+            if (string.IsNullOrWhiteSpace(zoneTypeIdentifier))
+            {
+                throw new ArgumentException("The zone type identifier must be provided.");
+            }
+        }
+
+        private void ValidateTypeExists(string zoneTypeIdentifier)
+        {
+            try
+            {
+                ZoneTypeDataObject zoneTypeDataObject = zoneTypeRepository.Get(zoneTypeIdentifier);
+
+                if (zoneTypeDataObject is null)
+                {
+                    throw new ArgumentException($"The zone type '{zoneTypeIdentifier}' is not valid.");
+                }
+            }
+            catch (KeyNotFoundException exception)
+            {
+                throw new ArgumentException($"The zone type '{zoneTypeIdentifier}' is not valid.", exception);
             }
         }
 

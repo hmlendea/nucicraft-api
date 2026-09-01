@@ -23,6 +23,8 @@ namespace NuciCraft.API.UnitTests
 
         private static string ZonesStoreFileName => "zones.json";
 
+        private static string ZoneTypesStoreFileName => "zone_types.json";
+
         internal static IConfiguration Build(string storeDirectory)
         {
             DataStoreSettings dataStoreSettings = BuildDataStoreSettings(storeDirectory);
@@ -33,6 +35,7 @@ namespace NuciCraft.API.UnitTests
                 new("dataStoreSettings:playersStorePath", dataStoreSettings.PlayersStorePath),
                 new("dataStoreSettings:rtpLocationsStorePath", dataStoreSettings.RtpLocationsStorePath),
                 new("dataStoreSettings:zonesStorePath", dataStoreSettings.ZonesStorePath),
+                new("dataStoreSettings:zoneTypesStorePath", dataStoreSettings.ZoneTypesStorePath),
                 new("rtpLocationSettings:minimumLocationDistance", "613"),
                 new("rtpLocationSettings:minimumBiomeLocationDistance", "873"),
                 new("securitySettings:apiKey", ApiKey),
@@ -63,6 +66,8 @@ namespace NuciCraft.API.UnitTests
                 dataStoreSettings.RtpLocationsStorePath,
                 "--dataStoreSettings:zonesStorePath",
                 dataStoreSettings.ZonesStorePath,
+                "--dataStoreSettings:zoneTypesStorePath",
+                dataStoreSettings.ZoneTypesStorePath,
                 "--universalNameGeneratorSettings:baseUrl",
                 "https://dummy-url.com",
                 "--universalNameGeneratorSettings:apiKey",
@@ -80,7 +85,8 @@ namespace NuciCraft.API.UnitTests
             WorldsStorePath = Path.Combine(storeDirectory, WorldsStoreFileName),
             PlayersStorePath = Path.Combine(storeDirectory, PlayersStoreFileName),
             RtpLocationsStorePath = Path.Combine(storeDirectory, RtpLocationsStoreFileName),
-            ZonesStorePath = Path.Combine(storeDirectory, ZonesStoreFileName)
+            ZonesStorePath = Path.Combine(storeDirectory, ZonesStoreFileName),
+            ZoneTypesStorePath = Path.Combine(storeDirectory, ZoneTypesStoreFileName)
         };
     }
 }

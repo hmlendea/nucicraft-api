@@ -54,6 +54,7 @@ namespace NuciCraft.API
             .AddJsonRepository<CountryDataObject>(() => dataStoreSettings.CountriesStorePath)
             .AddJsonRepository<WorldDataObject>(() => dataStoreSettings.WorldsStorePath)
             .AddJsonRepository<ZoneDataObject>(() => dataStoreSettings.ZonesStorePath)
+            .AddJsonRepository<ZoneTypeDataObject>(() => dataStoreSettings.ZoneTypesStorePath)
             .AddSingleton<INuciApiClient>(serviceProvider =>
                 new NuciApiClient(
                     serviceProvider
@@ -62,6 +63,7 @@ namespace NuciCraft.API
             .AddSingleton<IMobService, MobService>()
             .AddSingleton<ICountryService, CountryService>()
             .AddSingleton<IWorldService, WorldService>()
+            .AddSingleton<IZoneTypeService, ZoneTypeService>()
             .AddSingleton<IPlayerService, PlayerService>()
             .AddSingleton<IRtpLocationService, RtpLocationService>()
             .AddSingleton<IZoneService, ZoneService>()

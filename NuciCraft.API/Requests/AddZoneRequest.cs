@@ -23,8 +23,9 @@ namespace NuciCraft.API.Requests
         [HmacOrder(3)]
         public LocalisedStringDataObject Nickname { get; set; }
 
+        [Required]
         [HmacOrder(4)]
-        public string Level { get; set; }
+        public string Type { get; set; }
 
         [HmacOrder(5)]
         public string County { get; set; }

@@ -28,6 +28,7 @@ namespace NuciCraft.API.UnitTests.Service
 
         private Mock<IFileRepository<ZoneDataObject>> repositoryMock;
         private Mock<IFileRepository<WorldDataObject>> worldRepositoryMock;
+        private Mock<IFileRepository<ZoneTypeDataObject>> zoneTypeRepositoryMock;
         private Mock<ILogger> loggerMock;
         private ZoneService zoneService;
 
@@ -36,15 +37,21 @@ namespace NuciCraft.API.UnitTests.Service
         {
             repositoryMock = new Mock<IFileRepository<ZoneDataObject>>();
             worldRepositoryMock = new Mock<IFileRepository<WorldDataObject>>();
+            zoneTypeRepositoryMock = new Mock<IFileRepository<ZoneTypeDataObject>>();
             loggerMock = new Mock<ILogger>();
             zoneService = new ZoneService(
                 repositoryMock.Object,
                 worldRepositoryMock.Object,
+                zoneTypeRepositoryMock.Object,
                 loggerMock.Object);
 
             worldRepositoryMock
                 .Setup(repository => repository.Get(It.IsAny<string>()))
                 .Returns<string>(worldIdentifier => new WorldDataObject { Id = worldIdentifier });
+
+            zoneTypeRepositoryMock
+                .Setup(repository => repository.Get(It.IsAny<string>()))
+                .Returns<string>(zoneTypeIdentifier => new ZoneTypeDataObject { Id = zoneTypeIdentifier });
         }
 
         [Test]
@@ -62,7 +69,7 @@ namespace NuciCraft.API.UnitTests.Service
                 World = "world",
                 Name = new() { English = "Solara Portal Hub" },
                 Nickname = new() { English = "Portal Hub" },
-                Level = "district",
+                Type = "district",
                 County = "Solara",
                 Region = "Nucilandia",
                 Country = "Roman Republic",
@@ -111,7 +118,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Id, Is.EqualTo("solara_portal_hub"));
             Assert.That(capturedEntity.Name.English, Is.EqualTo("Solara Portal Hub"));
             Assert.That(capturedEntity.Nickname.English, Is.EqualTo("Portal Hub"));
-            Assert.That(capturedEntity.Level, Is.EqualTo("district"));
+            Assert.That(capturedEntity.Type, Is.EqualTo("district"));
             Assert.That(capturedEntity.County, Is.EqualTo("Solara"));
             Assert.That(capturedEntity.Region, Is.EqualTo("Nucilandia"));
             Assert.That(capturedEntity.Country, Is.EqualTo("Roman Republic"));
@@ -158,6 +165,7 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "solara_portal_hub",
                 World = "world",
+                Type = "unknown",
                 Owners = ["Hori873"],
                 Creators = null,
                 Bounds = BuildZoneBoundsDataObject()
@@ -181,6 +189,7 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "solara_portal_hub",
                 World = "world",
+                Type = "unknown",
                 Owners = ["Hori873", "DummyUser"],
                 Creators = null,
                 Bounds = BuildZoneBoundsDataObject()
@@ -204,6 +213,7 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "solara_portal_hub",
                 World = "world",
+                Type = "unknown",
                 Owners = ["Hori873"],
                 Creators = ["DummyUser"],
                 Bounds = BuildZoneBoundsDataObject()
@@ -229,6 +239,7 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "solara_portal_hub",
                 World = "world",
+                Type = "unknown",
                 CreationDate = null,
                 Bounds = BuildZoneBoundsDataObject()
             };
@@ -269,6 +280,7 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "solara_portal_hub",
                 World = "world",
+                Type = "unknown",
                 CreationDate = "  ",
                 Bounds = BuildZoneBoundsDataObject()
             };
@@ -301,6 +313,7 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "solara_portal_hub",
                 World = "world",
+                Type = "unknown",
                 Bounds = BuildZoneBoundsDataObject()
             });
 
@@ -318,7 +331,8 @@ namespace NuciCraft.API.UnitTests.Service
                 () => zoneService.Add(new AddZoneRequest
                 {
                     Identifier = "solara_portal_hub",
-                World = "world",
+                    World = "world",
+                    Type = "unknown",
                     Bounds = BuildZoneBoundsDataObject()
                 }),
                 Throws.TypeOf<InvalidOperationException>());
@@ -353,6 +367,41 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "solara_portal_hub",
                 World = null,
+                Bounds = BuildZoneBoundsDataObject()
+            };
+
+            Assert.That(
+                () => zoneService.Add(request),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenARequestWithoutAZoneType_WhenAddingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                World = "world",
+                Bounds = BuildZoneBoundsDataObject()
+            };
+
+            Assert.That(
+                () => zoneService.Add(request),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void GivenARequestWithAnUnknownZoneType_WhenAddingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            zoneTypeRepositoryMock
+                .Setup(repository => repository.Get("unknown-zone-type"))
+                .Throws<KeyNotFoundException>();
+
+            AddZoneRequest request = new()
+            {
+                Identifier = "solara_portal_hub",
+                World = "world",
+                Type = "unknown-zone-type",
                 Bounds = BuildZoneBoundsDataObject()
             };
 
@@ -506,6 +555,7 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "solara_portal_hub",
                 World = "world",
+                Type = "unknown",
                 Bounds = new ZoneBoundsDataObject
                 {
                     FirstCorner = new CoordinatesDataObject
@@ -554,6 +604,7 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "solara_portal_hub",
                 World = "world",
+                Type = "unknown",
                 Bounds = new()
                 {
                     FirstCorner = corner,
@@ -583,6 +634,7 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "solara_portal_hub",
                 World = "world",
+                Type = "unknown",
                 Bounds = new()
                 {
                     FirstCorner = new()
@@ -625,6 +677,7 @@ namespace NuciCraft.API.UnitTests.Service
             {
                 Identifier = "solara_portal_hub",
                 World = "world",
+                Type = "unknown",
                 Bounds = new ZoneBoundsDataObject
                 {
                     FirstCorner = new CoordinatesDataObject
@@ -926,7 +979,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.Bounds.FirstCorner.X, Is.EqualTo(512));
             Assert.That(capturedEntity.Bounds.SecondCorner.World, Is.EqualTo("world_nether"));
             Assert.That(capturedEntity.Bounds.SecondCorner.Z, Is.EqualTo(896));
-            Assert.That(capturedEntity.Level, Is.EqualTo(original.Level));
+            Assert.That(capturedEntity.Type, Is.EqualTo(original.Type));
             Assert.That(capturedEntity.Country, Is.EqualTo(original.Country));
             Assert.That(capturedEntity.Population, Is.EqualTo(original.Population));
             Assert.That(capturedEntity.MapLink, Is.EqualTo(original.MapLink));
@@ -951,7 +1004,7 @@ namespace NuciCraft.API.UnitTests.Service
                 Identifier = "flusseland_mall_shop_9",
                 Name = new() { English = "Flusseland Shop 9" },
                 Nickname = new() { English = "Shop Nine" },
-                Level = "district",
+                Type = "district",
                 County = "Solara",
                 Region = "Murasaki",
                 Country = "Nucilandia",
@@ -996,7 +1049,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             Assert.That(capturedEntity.Name.English, Is.EqualTo("Flusseland Shop 9"));
             Assert.That(capturedEntity.Nickname.English, Is.EqualTo("Shop Nine"));
-            Assert.That(capturedEntity.Level, Is.EqualTo("district"));
+            Assert.That(capturedEntity.Type, Is.EqualTo("district"));
             Assert.That(capturedEntity.County, Is.EqualTo("Solara"));
             Assert.That(capturedEntity.Region, Is.EqualTo("Murasaki"));
             Assert.That(capturedEntity.Country, Is.EqualTo("Nucilandia"));
@@ -1208,7 +1261,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             Assert.That(capturedEntity.Name, Is.EqualTo(original.Name));
             Assert.That(capturedEntity.Nickname, Is.EqualTo(original.Nickname));
-            Assert.That(capturedEntity.Level, Is.EqualTo(original.Level));
+            Assert.That(capturedEntity.Type, Is.EqualTo(original.Type));
             Assert.That(capturedEntity.County, Is.EqualTo(original.County));
             Assert.That(capturedEntity.Region, Is.EqualTo(original.Region));
             Assert.That(capturedEntity.Country, Is.EqualTo(original.Country));
@@ -1313,6 +1366,22 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenARequestWithAnUnknownZoneType_WhenUpdatingAZone_ThenAnArgumentExceptionIsThrown()
+        {
+            zoneTypeRepositoryMock
+                .Setup(repository => repository.Get("unknown-zone-type"))
+                .Throws<KeyNotFoundException>();
+
+            Assert.That(
+                () => zoneService.Update(new PatchZoneRequest
+                {
+                    Identifier = "flusseland_mall_shop_9",
+                    Type = "unknown-zone-type"
+                }),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
         public void GivenAnIdentifierSelector_WhenPatchingAZone_ThenTheZoneIsUpdated()
         {
             ZoneDataObject capturedEntity = null;
@@ -1411,7 +1480,7 @@ namespace NuciCraft.API.UnitTests.Service
                 English = "Shop 9",
                 German = "Laden 9"
             },
-            Level = "building",
+            Type = "building",
             County = "Flusseland",
             Region = "Solara",
             Country = "Roman Republic",

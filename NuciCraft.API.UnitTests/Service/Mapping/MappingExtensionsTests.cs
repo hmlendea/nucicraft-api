@@ -40,6 +40,8 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
 
         private static string ZoneMappingTypeName => "NuciCraft.API.Service.Mapping.ZoneMappingExtensions";
 
+        private static string ZoneTypeMappingTypeName => "NuciCraft.API.Service.Mapping.ZoneTypeMappingExtensions";
+
         [Test]
         public void GivenCoordinatesModels_WhenMappingToDataObjects_ThenAllValuesAreRetained()
         {
@@ -128,6 +130,24 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Assert.That(serviceModel.SpawnPoint, Is.Not.Null);
             Assert.That(serviceModel.SpawnPoint.World, Is.EqualTo("world"));
             Assert.That(serviceModel.Type, Is.EqualTo(WorldType.Nether));
+        }
+
+        [Test]
+        public void GivenAZoneTypeDataObject_WhenMappingToAServiceModel_ThenAllValuesAreRetained()
+        {
+            ZoneTypeDataObject dataObject = new()
+            {
+                Id = "city",
+                Name = BuildLocalisedStringDataObject()
+            };
+
+            ZoneType serviceModel = MappingMethodInvoker.Invoke<ZoneTypeDataObject, ZoneType>(
+                ZoneTypeMappingTypeName,
+                ToServiceModelMethodName,
+                dataObject);
+
+            Assert.That(serviceModel.Identifier, Is.EqualTo("city"));
+            Assert.That(serviceModel.Name.English, Is.EqualTo("Nucilandia"));
         }
 
         [Test]
@@ -520,6 +540,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
 
             Assert.That(serviceModels[0].Name, Is.Not.Null);
             Assert.That(serviceModels[0].Bounds, Is.Not.Null);
+            Assert.That(serviceModels[0].Type, Is.EqualTo("unknown"));
             Assert.That(serviceModels[1].Name, Is.Null);
             Assert.That(serviceModels[1].Bounds, Is.Null);
         }
@@ -542,6 +563,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
 
             Assert.That(dataObjects[0].Name, Is.Not.Null);
             Assert.That(dataObjects[0].Bounds, Is.Not.Null);
+            Assert.That(dataObjects[0].Type, Is.EqualTo("unknown"));
             Assert.That(dataObjects[1].Name, Is.Null);
             Assert.That(dataObjects[1].Bounds, Is.Null);
         }
@@ -711,6 +733,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Identifier = "solara",
             Name = BuildLocalisedString(),
             Nickname = BuildLocalisedString(),
+            Type = "unknown",
             World = "world",
             TeleportationPoint = BuildCoordinates(),
             Bounds = BuildZoneBounds(),
@@ -734,6 +757,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Id = "solara",
             Name = BuildLocalisedStringDataObject(),
             Nickname = BuildLocalisedStringDataObject(),
+            Type = "unknown",
             World = "world",
             TeleportationPoint = BuildCoordinatesDataObject(),
             Bounds = BuildZoneBoundsDataObject(),

@@ -11,5 +11,7 @@ namespace NuciCraft.API.Configuration
         public string WorldsStorePath { get; set; }
 
         public string ZonesStorePath { get; set; }
+
+        public string ZoneTypesStorePath { get; set; }
     }
 }
