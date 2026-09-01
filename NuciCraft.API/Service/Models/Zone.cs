@@ -36,6 +36,8 @@ namespace NuciCraft.API.Service.Models
 
         public int Population { get; set; }
 
+        public string PopulationDate { get; set; }
+
         public string MapLink { get; set; } // TODO: Fetch dynamically
 
         public string WikiUrl { get; set; } // TODO: Fetch dynamically

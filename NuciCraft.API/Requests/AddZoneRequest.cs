@@ -62,13 +62,16 @@ namespace NuciCraft.API.Requests
         public int Population { get; set; }
 
         [HmacOrder(16)]
-        public string MapLink { get; set; }
+        public string PopulationDate { get; set; }
 
         [HmacOrder(17)]
+        public string MapLink { get; set; }
+
+        [HmacOrder(18)]
         public string WikiUrl { get; set; }
 
         [Required]
-        [HmacOrder(18)]
+        [HmacOrder(19)]
         public ZoneBoundsDataObject Bounds { get; set; }
     }
 }

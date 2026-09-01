@@ -541,6 +541,8 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Assert.That(serviceModels[0].Name, Is.Not.Null);
             Assert.That(serviceModels[0].Bounds, Is.Not.Null);
             Assert.That(serviceModels[0].Type, Is.EqualTo("unknown"));
+            Assert.That(serviceModels[0].Population, Is.EqualTo(42));
+            Assert.That(serviceModels[0].PopulationDate, Is.EqualTo("2026-08-30"));
             Assert.That(serviceModels[1].Name, Is.Null);
             Assert.That(serviceModels[1].Bounds, Is.Null);
         }
@@ -564,6 +566,8 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Assert.That(dataObjects[0].Name, Is.Not.Null);
             Assert.That(dataObjects[0].Bounds, Is.Not.Null);
             Assert.That(dataObjects[0].Type, Is.EqualTo("unknown"));
+            Assert.That(dataObjects[0].Population, Is.EqualTo(42));
+            Assert.That(dataObjects[0].PopulationDate, Is.EqualTo("2026-08-30"));
             Assert.That(dataObjects[1].Name, Is.Null);
             Assert.That(dataObjects[1].Bounds, Is.Null);
         }
@@ -737,7 +741,9 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             World = "world",
             TeleportationPoint = BuildCoordinates(),
             Bounds = BuildZoneBounds(),
-            LeaderTitle = BuildLocalisedString()
+            LeaderTitle = BuildLocalisedString(),
+            Population = 42,
+            PopulationDate = "2026-08-30"
         };
 
         private static ZoneBounds BuildZoneBounds() => new()
@@ -761,7 +767,9 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             World = "world",
             TeleportationPoint = BuildCoordinatesDataObject(),
             Bounds = BuildZoneBoundsDataObject(),
-            LeaderTitle = BuildLocalisedStringDataObject()
+            LeaderTitle = BuildLocalisedStringDataObject(),
+            Population = 42,
+            PopulationDate = "2026-08-30"
         };
     }
 }
