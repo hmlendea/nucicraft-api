@@ -12,6 +12,7 @@ using NuciDAL.Repositories;
 
 using NuciLog.Core;
 
+using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service;
@@ -43,6 +44,7 @@ namespace NuciCraft.API.UnitTests.Service
                 repositoryMock.Object,
                 worldRepositoryMock.Object,
                 zoneTypeRepositoryMock.Object,
+                new WebMapSettings { BaseUrl = "https://mc.nucilandia.ro/nucicraft/webmap/" },
                 loggerMock.Object);
 
             worldRepositoryMock
@@ -799,6 +801,80 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenAZoneWithoutAMapLinkInAWorldWithAWebMap_WhenGettingAZone_ThenAWebMapLinkIsGeneratedWithoutPersistence()
+        {
+            ZoneDataObject zoneDataObject = BuildZoneDataObject();
+            zoneDataObject.MapLink = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+                .Returns(zoneDataObject);
+            worldRepositoryMock
+                .Setup(repository => repository.Get("world"))
+                .Returns(new WorldDataObject
+                {
+                    Id = "world",
+                    HasWebMap = true
+                });
+
+            Zone zone = zoneService.GetZone("flusseland_mall_shop_9");
+
+            Assert.That(
+                zone.MapLink,
+                Is.EqualTo("https://mc.nucilandia.ro/nucicraft/webmap/?worldname=world&x=42&z=128"));
+            Assert.That(zoneDataObject.MapLink, Is.Null);
+            repositoryMock.Verify(repository => repository.Update(It.IsAny<ZoneDataObject>()), Times.Never);
+            repositoryMock.Verify(repository => repository.SaveChanges(), Times.Never);
+        }
+
+        [Test]
+        public void GivenAZoneWithAMapLink_WhenGettingAZone_ThenTheExistingMapLinkIsPreserved()
+        {
+            ZoneDataObject zoneDataObject = BuildZoneDataObject();
+
+            repositoryMock
+                .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+                .Returns(zoneDataObject);
+
+            Zone zone = zoneService.GetZone("flusseland_mall_shop_9");
+
+            Assert.That(zone.MapLink, Is.EqualTo("https://nucilandia.ro/map"));
+            worldRepositoryMock.Verify(repository => repository.Get(It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        public void GivenAZoneWithoutATeleportationPoint_WhenGettingAZone_ThenNoMapLinkIsGenerated()
+        {
+            ZoneDataObject zoneDataObject = BuildZoneDataObject();
+            zoneDataObject.MapLink = null;
+            zoneDataObject.TeleportationPoint = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+                .Returns(zoneDataObject);
+
+            Zone zone = zoneService.GetZone("flusseland_mall_shop_9");
+
+            Assert.That(zone.MapLink, Is.Null);
+            worldRepositoryMock.Verify(repository => repository.Get(It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        public void GivenAZoneInAWorldWithoutAWebMap_WhenGettingAZone_ThenNoMapLinkIsGenerated()
+        {
+            ZoneDataObject zoneDataObject = BuildZoneDataObject();
+            zoneDataObject.MapLink = null;
+
+            repositoryMock
+                .Setup(repository => repository.Get("flusseland_mall_shop_9"))
+                .Returns(zoneDataObject);
+
+            Zone zone = zoneService.GetZone("flusseland_mall_shop_9");
+
+            Assert.That(zone.MapLink, Is.Null);
+        }
+
+        [Test]
         public void GivenARepositoryException_WhenGettingAZone_ThenTheExceptionIsRethrown()
         {
             repositoryMock
@@ -823,6 +899,31 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(zones[0].Bounds, Is.Not.Null);
             Assert.That(zones[0].Bounds.FirstCorner.World, Is.EqualTo("world"));
             Assert.That(zones[0].Bounds.SecondCorner.World, Is.EqualTo("world"));
+        }
+
+        [Test]
+        public void GivenAZoneWithoutAMapLinkInAWorldWithAWebMap_WhenGettingAllZones_ThenAWebMapLinkIsGenerated()
+        {
+            ZoneDataObject zoneDataObject = BuildZoneDataObject();
+            zoneDataObject.MapLink = null;
+
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([zoneDataObject]);
+            worldRepositoryMock
+                .Setup(repository => repository.Get("world"))
+                .Returns(new WorldDataObject
+                {
+                    Id = "world",
+                    HasWebMap = true
+                });
+
+            Zone[] zones = zoneService.GetAllZones().ToArray();
+
+            Assert.That(zones[0].MapLink, Is.EqualTo("https://mc.nucilandia.ro/nucicraft/webmap/?worldname=world&x=42&z=128"));
+            Assert.That(zoneDataObject.MapLink, Is.Null);
+            repositoryMock.Verify(repository => repository.Update(It.IsAny<ZoneDataObject>()), Times.Never);
+            repositoryMock.Verify(repository => repository.SaveChanges(), Times.Never);
         }
 
         [Test]

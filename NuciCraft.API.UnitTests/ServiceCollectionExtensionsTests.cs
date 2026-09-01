@@ -47,6 +47,9 @@ namespace NuciCraft.API.UnitTests
             Assert.That(
                 serviceProvider.GetRequiredService<UniversalNameGeneratorSettings>().BaseUrl,
                 Is.EqualTo("https://dummy-url.com"));
+            Assert.That(
+                serviceProvider.GetRequiredService<WebMapSettings>().BaseUrl,
+                Is.EqualTo("https://mc.nucilandia.ro/nucicraft/webmap/"));
         }
 
         [Test]

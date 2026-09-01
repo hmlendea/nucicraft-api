@@ -21,6 +21,8 @@ namespace NuciCraft.API.UnitTests
 
         private static string WorldsStoreFileName => "worlds.json";
 
+        private static string WebMapBaseUrl => "https://mc.nucilandia.ro/nucicraft/webmap/";
+
         private static string ZonesStoreFileName => "zones.json";
 
         private static string ZoneTypesStoreFileName => "zone_types.json";
@@ -38,6 +40,7 @@ namespace NuciCraft.API.UnitTests
                 new("dataStoreSettings:zoneTypesStorePath", dataStoreSettings.ZoneTypesStorePath),
                 new("rtpLocationSettings:minimumLocationDistance", "613"),
                 new("rtpLocationSettings:minimumBiomeLocationDistance", "873"),
+                new("webMapSettings:baseUrl", WebMapBaseUrl),
                 new("securitySettings:apiKey", ApiKey),
                 new("universalNameGeneratorSettings:baseUrl", "https://dummy-url.com"),
                 new("universalNameGeneratorSettings:apiKey", ApiKey),
@@ -68,6 +71,8 @@ namespace NuciCraft.API.UnitTests
                 dataStoreSettings.ZonesStorePath,
                 "--dataStoreSettings:zoneTypesStorePath",
                 dataStoreSettings.ZoneTypesStorePath,
+                "--webMapSettings:baseUrl",
+                WebMapBaseUrl,
                 "--universalNameGeneratorSettings:baseUrl",
                 "https://dummy-url.com",
                 "--universalNameGeneratorSettings:apiKey",

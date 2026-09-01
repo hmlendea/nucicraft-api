@@ -7,6 +7,7 @@ using NuciDAL.Repositories;
 
 using NuciLog.Core;
 
+using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
@@ -20,6 +21,7 @@ namespace NuciCraft.API.Service
         IFileRepository<ZoneDataObject> repository,
         IFileRepository<WorldDataObject> worldRepository,
         IFileRepository<ZoneTypeDataObject> zoneTypeRepository,
+        WebMapSettings webMapSettings,
         ILogger logger) : IZoneService
     {
         private static float BoundsPitch => 0f;
@@ -152,7 +154,7 @@ namespace NuciCraft.API.Service
 
                 zoneDataObject.Bounds = GetNormalisedBounds(zoneDataObject.Bounds);
 
-                Zone zone = zoneDataObject.ToServiceModel();
+                Zone zone = EnrichZone(zoneDataObject.ToServiceModel());
 
                 logger.Info(
                     MyOperation.GetZone,
@@ -183,7 +185,9 @@ namespace NuciCraft.API.Service
             {
                 IEnumerable<ZoneDataObject> zoneDataObjects = repository.GetAll()
                     .Select(zoneDataObject => GetNormalisedZoneDataObject(zoneDataObject));
-                IEnumerable<Zone> zones = zoneDataObjects.ToServiceModels();
+                IEnumerable<Zone> zones = zoneDataObjects
+                    .ToServiceModels()
+                    .Select(EnrichZone);
 
                 logger.Info(
                     MyOperation.GetAllZones,
@@ -428,6 +432,34 @@ namespace NuciCraft.API.Service
             {
                 zoneDataObject.WikiUrl = request.WikiUrl;
             }
+        }
+
+        private Zone EnrichZone(Zone zone)
+        {
+            if (!string.IsNullOrWhiteSpace(zone.MapLink)
+                || zone.TeleportationPoint is null
+                || string.IsNullOrWhiteSpace(zone.World))
+            {
+                return zone;
+            }
+
+            WorldDataObject worldDataObject = worldRepository.Get(zone.World);
+
+            if (!worldDataObject.HasWebMap)
+            {
+                return zone;
+            }
+
+            zone.MapLink = string.Concat(
+                webMapSettings.BaseUrl,
+                "?worldname=",
+                Uri.EscapeDataString(zone.TeleportationPoint.World),
+                "&x=",
+                zone.TeleportationPoint.X.ToString(CultureInfo.InvariantCulture),
+                "&z=",
+                zone.TeleportationPoint.Z.ToString(CultureInfo.InvariantCulture));
+
+            return zone;
         }
 
         private static IEnumerable<string> GetCreatorsForAddRequest(AddZoneRequest request)
