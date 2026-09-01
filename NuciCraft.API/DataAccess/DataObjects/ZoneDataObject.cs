@@ -8,7 +8,7 @@ namespace NuciCraft.API.DataAccess.DataObjects
 
         public LocalisedStringDataObject Nickname { get; set; }
 
-        public string Level { get; set; }
+        public string Type { get; set; }
 
         public string County { get; set; }
 

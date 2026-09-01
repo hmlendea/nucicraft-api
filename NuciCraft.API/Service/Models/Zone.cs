@@ -10,7 +10,7 @@ namespace NuciCraft.API.Service.Models
 
         public LocalisedString Nickname { get; set; }
 
-        public string Level { get; set; }
+        public string Type { get; set; }
 
         public string County { get; set; }
 

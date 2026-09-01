@@ -281,6 +281,8 @@ Zone type names are localised. Patch requests merge supplied localisations with 
 
 When creating a zone, `world` is necessary and must reference an existing world identifier from the worlds store.
 
+When creating a zone, `type` is necessary and must reference an existing zone type identifier from the zone types store. On patch requests, a supplied `type` must also reference an existing zone type.
+
 When creating a zone, `bounds` is necessary and must contain both opposite corners of the zone volume. Both corners must use the identical `world` value. On patch requests, `bounds` remains optional, and a partial bounds update preserves the untouched corner before validation.
 
 When creating a zone, `creationDate` is optional. If omitted or whitespace, the service sets it automatically to the current Romania date with an uncertainty suffix in the format `yyyy-MM-dd (?)`.
@@ -291,6 +293,7 @@ curl -X POST "http://localhost:5000/Zones" \
 	-d '{
 		"id": "spawn-city",
 		"world": "main",
+		"type": "city",
 		"name": {
 			"en": "Spawn City"
 		},

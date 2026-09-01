@@ -22,7 +22,7 @@ namespace NuciCraft.API.Requests
         public LocalisedStringDataObject Nickname { get; set; }
 
         [HmacOrder(4)]
-        public string Level { get; set; }
+        public string Type { get; set; }
 
         [HmacOrder(5)]
         public string County { get; set; }

@@ -148,7 +148,7 @@ Store preparation precedes middleware construction and is not itself middleware.
 | `WorldService` | Add, retrieve, list, and patch world metadata, including merged localised values, web-map availability, spawn points, and world types. | World repository and logger. | Singleton. |
 | `ZoneTypeService` | Add, retrieve, list, and patch localised zone-type metadata. | Zone type repository and logger. | Singleton. |
 | `CountryService` | Add, retrieve, list, and patch country metadata, including merged localised values. | Country repository, logger. | Singleton. |
-| `ZoneService` | Add, retrieve, list, patch, and delete zones while enforcing bounds and localised merge rules. | Zone repository, logger. | Singleton. |
+| `ZoneService` | Add, retrieve, list, patch, and delete zones while enforcing bounds, zone-type references, and localised merge rules. | Zone, world, and zone-type repositories plus logger. | Singleton. |
 | `RtpLocationService` | Enforce proximity rules, persist RTP locations, and select random filtered locations. | RTP repository, `RtpLocationSettings`, logger. | Singleton. |
 | `MobService` | Map supported mobs to schemas and obtain one name from the external generator. | `INuciApiClient`, `UniversalNameGeneratorSettings`, logger. | Singleton. |
 | `JsonRepository<T>` | Provide file-backed `IFileRepository<T>` operations for one data-object type. | NuciDAL, configured store path. | One singleton per store. |
@@ -241,7 +241,7 @@ flowchart LR
 | `players.json` | `PlayerService` | `PlayerDataObject` records at `Data/players.json` by default. | Created during registration and patched synchronously; selectors include identifier, username, offline UUID, and online UUID. |
 | `worlds.json` | `WorldService` | `WorldDataObject` records at `Data/worlds.json` by default, including web-map availability, an optional spawn point, and a string world type. | Added and patched synchronously; provided localised properties merge with persisted values, omitted patch fields remain unchanged, and absent or unsupported types map to `overworld`. |
 | `countries.json` | `CountryService` | `CountryDataObject` records at `Data/countries.json` by default. | Added and patched synchronously; provided localised properties merge with persisted values. |
-| `zones.json` | `ZoneService` | `ZoneDataObject` records at `Data/zones.json` by default. | Added, patched, and deleted synchronously; bounds are validated and canonicalised on writes and reads. |
+| `zones.json` | `ZoneService` | `ZoneDataObject` records at `Data/zones.json` by default, including a zone-type identifier. | Added, patched, and deleted synchronously; zone types are validated against `zone_types.json`, while bounds are validated and canonicalised on writes and reads. |
 | `zone_types.json` | `ZoneTypeService` | `ZoneTypeDataObject` records at `Data/zone_types.json` by default. | Added and patched synchronously; provided localised name properties merge with persisted values. |
 | `rtp_locations.json` | `RtpLocationService` | `RtpLocationEntity` records at `Data/rtp_locations.json` by default. | Append-oriented additions after proximity validation; reads select a random optional world/biome match. |
 | Operational logs | NuciLog | Structured records with optional file output at the configured log path. | Services emit started, success, and failure records; retention and access control belong to the operator. |
@@ -323,6 +323,8 @@ sequenceDiagram
 Zone creation requires both opposite corners. Both corners must contain a non-vacant world and must refer to the identical world using ordinal comparison.
 
 Zone creation also requires a non-vacant zone `World` identifier that resolves to an existing world record.
+
+Zone creation requires a non-vacant `Type` identifier that resolves to an existing zone type record. A supplied type patch value is validated by the identical rule.
 
 Bounds are canonicalised on creation, update, and retrieval:
 - `FirstCorner` receives minimum X, maximum Y, and minimum Z.
