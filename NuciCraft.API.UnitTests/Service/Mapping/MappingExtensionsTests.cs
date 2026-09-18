@@ -372,11 +372,11 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Assert.That(domainModels[0].WikiUrl, Is.EqualTo("https://test.nucilandia.ro"));
             Assert.That(domainModels[0].IsBanned);
             Assert.That(domainModels[0].BannedDT, Is.Not.Null);
-            Assert.That(domainModels[0].BanReason, Is.EqualTo("Repeated rule violations"));
+            Assert.That(domainModels[0].BannedReason, Is.EqualTo("Repeated rule violations"));
             Assert.That(domainModels[0].BannedBy, Is.EqualTo("DummyUser"));
             Assert.That(domainModels[0].IsMuted);
             Assert.That(domainModels[0].MutedDT, Is.Not.Null);
-            Assert.That(domainModels[0].MuteReason, Is.EqualTo("Excessive chat messages"));
+            Assert.That(domainModels[0].MutedReason, Is.EqualTo("Excessive chat messages"));
             Assert.That(domainModels[0].MutedBy, Is.EqualTo("zezima"));
             Assert.That(domainModels[0].LastLoginDT, Is.Not.Null);
             Assert.That(domainModels[0].LastLogoutDT, Is.Not.Null);
@@ -388,10 +388,10 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Assert.That(domainModels[1].DisplayName, Is.Null);
             Assert.That(domainModels[1].Gender, Is.EqualTo(Gender.Other));
             Assert.That(domainModels[1].BannedDT, Is.Null);
-            Assert.That(domainModels[1].BanReason, Is.Null);
+            Assert.That(domainModels[1].BannedReason, Is.Null);
             Assert.That(domainModels[1].BannedBy, Is.Null);
             Assert.That(domainModels[1].MutedDT, Is.Null);
-            Assert.That(domainModels[1].MuteReason, Is.Null);
+            Assert.That(domainModels[1].MutedReason, Is.Null);
             Assert.That(domainModels[1].MutedBy, Is.Null);
             Assert.That(domainModels[1].LastLoginDT, Is.Null);
             Assert.That(domainModels[1].LastLogoutDT, Is.Null);
@@ -425,11 +425,11 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Assert.That(dataObjects[0].WikiUrl, Is.EqualTo("https://test.nucilandia.ro"));
             Assert.That(dataObjects[0].IsBanned);
             Assert.That(dataObjects[0].BannedDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
-            Assert.That(dataObjects[0].BanReason, Is.EqualTo("Repeated rule violations"));
+            Assert.That(dataObjects[0].BannedReason, Is.EqualTo("Repeated rule violations"));
             Assert.That(dataObjects[0].BannedBy, Is.EqualTo("DummyUser"));
             Assert.That(dataObjects[0].IsMuted);
             Assert.That(dataObjects[0].MutedDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
-            Assert.That(dataObjects[0].MuteReason, Is.EqualTo("Excessive chat messages"));
+            Assert.That(dataObjects[0].MutedReason, Is.EqualTo("Excessive chat messages"));
             Assert.That(dataObjects[0].MutedBy, Is.EqualTo("zezima"));
             Assert.That(dataObjects[0].LastLoginDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
             Assert.That(dataObjects[0].LastLogoutDT, Is.EqualTo("2026-08-13T00:00:00.0000000+00:00"));
@@ -441,10 +441,10 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             Assert.That(dataObjects[1].DisplayName, Is.Null);
             Assert.That(dataObjects[1].Gender, Is.Null);
             Assert.That(dataObjects[1].BannedDT, Is.Null);
-            Assert.That(dataObjects[1].BanReason, Is.Null);
+            Assert.That(dataObjects[1].BannedReason, Is.Null);
             Assert.That(dataObjects[1].BannedBy, Is.Null);
             Assert.That(dataObjects[1].MutedDT, Is.Null);
-            Assert.That(dataObjects[1].MuteReason, Is.Null);
+            Assert.That(dataObjects[1].MutedReason, Is.Null);
             Assert.That(dataObjects[1].MutedBy, Is.Null);
             Assert.That(dataObjects[1].LastLoginDT, Is.Null);
             Assert.That(dataObjects[1].LastLogoutDT, Is.Null);
@@ -652,11 +652,11 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             WikiUrl = "https://test.nucilandia.ro",
             IsBanned = true,
             BannedDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
-            BanReason = "Repeated rule violations",
+            BannedReason = "Repeated rule violations",
             BannedBy = "DummyUser",
             IsMuted = true,
             MutedDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
-            MuteReason = "Excessive chat messages",
+            MutedReason = "Excessive chat messages",
             MutedBy = "zezima",
             LastLoginDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
             LastLogoutDT = new DateTimeOffset(2026, 8, 13, 0, 0, 0, TimeSpan.Zero),
@@ -683,10 +683,10 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             CreatedDT = new DateTimeOffset(2012, 9, 5, 0, 0, 0, TimeSpan.Zero),
             UpdatedDT = null,
             BannedDT = null,
-            BanReason = null,
+            BannedReason = null,
             BannedBy = null,
             MutedDT = null,
-            MuteReason = null,
+            MutedReason = null,
             MutedBy = null,
             LastLoginDT = null,
             LastLogoutDT = null,
@@ -715,11 +715,11 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             WikiUrl = "https://test.nucilandia.ro",
             IsBanned = true,
             BannedDT = "2026-08-13T00:00:00.0000000+00:00",
-            BanReason = "Repeated rule violations",
+            BannedReason = "Repeated rule violations",
             BannedBy = "DummyUser",
             IsMuted = true,
             MutedDT = "2026-08-13T00:00:00.0000000+00:00",
-            MuteReason = "Excessive chat messages",
+            MutedReason = "Excessive chat messages",
             MutedBy = "zezima",
             LastLoginDT = "2026-08-13T00:00:00.0000000+00:00",
             LastLogoutDT = "2026-08-13T00:00:00.0000000+00:00",
@@ -746,10 +746,10 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
             CreatedDT = "2012-09-05T00:00:00.0000000+00:00",
             UpdatedDT = null,
             BannedDT = null,
-            BanReason = null,
+            BannedReason = null,
             BannedBy = null,
             MutedDT = null,
-            MuteReason = null,
+            MutedReason = null,
             MutedBy = null,
             LastLoginDT = null,
             LastLogoutDT = null,

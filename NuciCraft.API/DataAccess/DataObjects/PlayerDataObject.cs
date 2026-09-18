@@ -26,7 +26,7 @@ namespace NuciCraft.API.DataAccess.DataObjects
 
         public string BannedDT { get; set; }
 
-        public string BanReason { get; set; }
+        public string BannedReason { get; set; }
 
         public string BannedBy { get; set; }
 
@@ -34,7 +34,7 @@ namespace NuciCraft.API.DataAccess.DataObjects
 
         public string MutedDT { get; set; }
 
-        public string MuteReason { get; set; }
+        public string MutedReason { get; set; }
 
         public string MutedBy { get; set; }
 

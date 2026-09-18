@@ -56,7 +56,7 @@ namespace NuciCraft.API.Responses
         public DateTimeOffset? BannedDT { get; set; } = player.BannedDT;
 
         [HmacOrder(28)]
-        public string BanReason { get; set; } = player.BanReason;
+        public string BannedReason { get; set; } = player.BannedReason;
 
         [HmacOrder(29)]
         public string BannedBy { get; set; } = player.BannedBy;
@@ -68,7 +68,7 @@ namespace NuciCraft.API.Responses
         public DateTimeOffset? MutedDT { get; set; } = player.MutedDT;
 
         [HmacOrder(30)]
-        public string MuteReason { get; set; } = player.MuteReason;
+        public string MutedReason { get; set; } = player.MutedReason;
 
         [HmacOrder(31)]
         public string MutedBy { get; set; } = player.MutedBy;

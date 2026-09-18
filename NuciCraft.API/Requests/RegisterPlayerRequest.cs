@@ -39,7 +39,7 @@ namespace NuciCraft.API.Requests
         public string BannedDT { get; set; }
 
         [HmacOrder(19)]
-        public string BanReason { get; set; }
+        public string BannedReason { get; set; }
 
         [HmacOrder(20)]
         public string BannedBy { get; set; }
@@ -51,7 +51,7 @@ namespace NuciCraft.API.Requests
         public string MutedDT { get; set; }
 
         [HmacOrder(21)]
-        public string MuteReason { get; set; }
+        public string MutedReason { get; set; }
 
         [HmacOrder(22)]
         public string MutedBy { get; set; }
