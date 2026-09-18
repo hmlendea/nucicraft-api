@@ -32,8 +32,12 @@ namespace NuciCraft.API.UnitTests.Responses
             Assert.That(response.WikiUrl, Is.EqualTo(player.WikiUrl));
             Assert.That(response.IsBanned, Is.EqualTo(player.IsBanned));
             Assert.That(response.BannedDT, Is.EqualTo(player.BannedDT));
+            Assert.That(response.BanReason, Is.EqualTo(player.BanReason));
+            Assert.That(response.BannedBy, Is.EqualTo(player.BannedBy));
             Assert.That(response.IsMuted, Is.EqualTo(player.IsMuted));
             Assert.That(response.MutedDT, Is.EqualTo(player.MutedDT));
+            Assert.That(response.MuteReason, Is.EqualTo(player.MuteReason));
+            Assert.That(response.MutedBy, Is.EqualTo(player.MutedBy));
             Assert.That(response.LastLoginDT, Is.EqualTo(player.LastLoginDT));
             Assert.That(response.LastLogoutDT, Is.EqualTo(player.LastLogoutDT));
             Assert.That(response.LastLogoutLocation, Is.Not.Null);
@@ -200,8 +204,12 @@ namespace NuciCraft.API.UnitTests.Responses
             WikiUrl = "https://test.nucilandia.ro",
             IsBanned = true,
             BannedDT = DateTimeOffset.Parse("2026-01-01T00:00:00.0000000+00:00"),
+            BanReason = "Repeated rule violations",
+            BannedBy = "DummyUser",
             IsMuted = true,
             MutedDT = DateTimeOffset.Parse("2026-01-01T00:00:00.0000000+00:00"),
+            MuteReason = "Excessive chat messages",
+            MutedBy = "zezima",
             LastLoginDT = DateTimeOffset.Parse("2026-01-01T00:00:00.0000000+00:00"),
             LastLogoutDT = DateTimeOffset.Parse("2026-01-01T00:00:00.0000000+00:00"),
             LastLogoutLocation = new() { World = "world_the_end", X = 8.5f, Y = 90.0f, Z = -3.25f, Pitch = 5.0f, Yaw = 240.0f },

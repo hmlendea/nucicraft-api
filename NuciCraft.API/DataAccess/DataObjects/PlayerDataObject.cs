@@ -26,9 +26,17 @@ namespace NuciCraft.API.DataAccess.DataObjects
 
         public string BannedDT { get; set; }
 
+        public string BanReason { get; set; }
+
+        public string BannedBy { get; set; }
+
         public bool IsMuted { get; set; }
 
         public string MutedDT { get; set; }
+
+        public string MuteReason { get; set; }
+
+        public string MutedBy { get; set; }
 
         public string LastLoginDT { get; set; }
 

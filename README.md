@@ -126,18 +126,28 @@ curl -X PATCH "http://localhost:5000/Players/by-username/PlayerName" \
   -d '{
     "emailAddress": "player@example.com",
     "discordId": "1234567890",
-	"gender": "male",
-	"lastSleptLocation": {
-	  "world": "world",
-	  "x": 64,
-	  "y": 72,
-	  "z": 128
-	},
+		"gender": "male",
+		"isBanned": true,
+		"bannedDT": "2026-09-18T16:53:36.0000649+03:00",
+		"banReason": "Repeated rule violations",
+		"bannedBy": "ModeratorName",
+		"isMuted": true,
+		"mutedDT": "2026-09-18T16:53:36.0000649+03:00",
+		"muteReason": "Excessive chat messages",
+		"mutedBy": "ModeratorName",
+		"lastSleptLocation": {
+			"world": "world",
+			"x": 64,
+			"y": 72,
+			"z": 128
+		},
     "settings": {
       "teleportationRequestsAreEnabled": false
     }
   }'
 ```
+
+Registration and patch requests accept `banReason`, `bannedBy`, `muteReason`, and `mutedBy`. Player responses include the identical fields.
 
 `teleportationRequestsAreEnabled` defaults to `true` for newly registered players. Omitting it from a settings patch preserves the persisted value.
 

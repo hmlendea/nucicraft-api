@@ -68,8 +68,12 @@ namespace NuciCraft.API.Service
                     WikiUrl = request.WikiUrl,
                     IsBanned = request.IsBanned,
                     BannedDT = ParseOptionalTimestamp(request.BannedDT, nameof(request.BannedDT)),
+                    BanReason = request.BanReason,
+                    BannedBy = request.BannedBy,
                     IsMuted = request.IsMuted,
                     MutedDT = ParseOptionalTimestamp(request.MutedDT, nameof(request.MutedDT)),
+                    MuteReason = request.MuteReason,
+                    MutedBy = request.MutedBy,
                     LastLoginDT = ParseOptionalTimestamp(request.LastLoginDT, nameof(request.LastLoginDT)),
                     LastLogoutDT = ParseOptionalTimestamp(request.LastLogoutDT, nameof(request.LastLogoutDT)),
                     LastLogoutLocation = request.LastLogoutLocation?.ToServiceModel(),
@@ -327,11 +331,31 @@ namespace NuciCraft.API.Service
                 playerDataObject.BannedDT = request.BannedDT;
             }
 
+            if (request.BanReason is not null)
+            {
+                playerDataObject.BanReason = request.BanReason;
+            }
+
+            if (request.BannedBy is not null)
+            {
+                playerDataObject.BannedBy = request.BannedBy;
+            }
+
             playerDataObject.IsMuted = request.IsMuted;
 
             if (request.MutedDT is not null)
             {
                 playerDataObject.MutedDT = request.MutedDT;
+            }
+
+            if (request.MuteReason is not null)
+            {
+                playerDataObject.MuteReason = request.MuteReason;
+            }
+
+            if (request.MutedBy is not null)
+            {
+                playerDataObject.MutedBy = request.MutedBy;
             }
 
             if (request.LastLoginDT is not null)
