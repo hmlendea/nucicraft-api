@@ -59,15 +59,12 @@ namespace NuciCraft.API.UnitTests.Service
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
                         "Names"))
-                .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
-                {
-                    Names = ["Ilarion"]
-                });
+                .ReturnsAsync(BuildGenerateNamesApiResponse(["Ilarion"]));
 
             string generatedName = mobService.GetRandomMobName(BuildGetMobNameRequest());
 
@@ -82,7 +79,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -97,10 +94,7 @@ namespace NuciCraft.API.UnitTests.Service
                         capturedRequest = request;
                         capturedAuthorisationInfo = authorisationInfo;
                     })
-                .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
-                {
-                    Names = ["Ilarion"]
-                });
+                .ReturnsAsync(BuildGenerateNamesApiResponse(["Ilarion"]));
 
             mobService.GetRandomMobName(BuildGetMobNameRequest());
 
@@ -122,7 +116,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -133,10 +127,7 @@ namespace NuciCraft.API.UnitTests.Service
                         request,
                         authorisationInfo,
                         endpoint) => capturedRequest = request)
-                .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
-                {
-                    Names = ["Smaug"]
-                });
+                .ReturnsAsync(BuildGenerateNamesApiResponse(["Smaug"]));
 
             mobService.GetRandomMobName(
                 BuildGetMobNameRequest(MobType.EnderDragon));
@@ -153,7 +144,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -164,10 +155,7 @@ namespace NuciCraft.API.UnitTests.Service
                         request,
                         authorisationInfo,
                         endpoint) => capturedRequest = request)
-                .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
-                {
-                    Names = ["Ilarion"]
-                });
+                .ReturnsAsync(BuildGenerateNamesApiResponse(["Ilarion"]));
 
             mobService.GetRandomMobName(
                 BuildGetMobNameRequest(MobType.Cow));
@@ -184,7 +172,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -195,10 +183,7 @@ namespace NuciCraft.API.UnitTests.Service
                         request,
                         authorisationInfo,
                         endpoint) => capturedRequest = request)
-                .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
-                {
-                    Names = ["Ilarion"]
-                });
+                .ReturnsAsync(BuildGenerateNamesApiResponse(["Ilarion"]));
 
             mobService.GetRandomMobName(
                 BuildGetMobNameRequest(MobType.Pig));
@@ -219,7 +204,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -230,10 +215,7 @@ namespace NuciCraft.API.UnitTests.Service
                         request,
                         authorisationInfo,
                         endpoint) => capturedRequest = request)
-                .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
-                {
-                    Names = ["Radu"]
-                });
+                .ReturnsAsync(BuildGenerateNamesApiResponse(["Radu"]));
 
             mobService.GetRandomMobName(new GetMobNameRequest
             {
@@ -254,7 +236,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -265,10 +247,7 @@ namespace NuciCraft.API.UnitTests.Service
                         request,
                         authorisationInfo,
                         endpoint) => capturedRequest = request)
-                .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
-                {
-                    Names = ["Mary"]
-                });
+                .ReturnsAsync(BuildGenerateNamesApiResponse(["Mary"]));
 
             mobService.GetRandomMobName(
                 BuildGetMobNameRequest(MobType.Villager));
@@ -310,7 +289,7 @@ namespace NuciCraft.API.UnitTests.Service
                 Throws.TypeOf<NotImplementedException>());
 
             universalNameGeneratorClientMock.Verify(
-                client => client.SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                client => client.SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
                     HttpMethod.Get,
                     It.IsAny<GenerateNamesRequest>(),
                     It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -323,15 +302,12 @@ namespace NuciCraft.API.UnitTests.Service
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
                         "Names"))
-                .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
-                {
-                    Names = []
-                });
+                .ReturnsAsync(BuildGenerateNamesApiResponse([]));
 
             Assert.That(
                 () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
@@ -343,15 +319,12 @@ namespace NuciCraft.API.UnitTests.Service
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
                         "Names"))
-                .ReturnsAsync((NuciApiResponse)new GenerateNamesResponse
-                {
-                    Names = null
-                });
+                .ReturnsAsync(BuildGenerateNamesApiResponse(null));
 
             Assert.That(
                 () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
@@ -363,12 +336,12 @@ namespace NuciCraft.API.UnitTests.Service
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
                         "Names"))
-                .ReturnsAsync((NuciApiResponse)new GetResponse("Nucile rullz"));
+                .ReturnsAsync((NuciApiResponse)new NuciApiSuccessResponse());
 
             Assert.That(
                 () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
@@ -380,7 +353,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -397,7 +370,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -472,6 +445,13 @@ namespace NuciCraft.API.UnitTests.Service
                     "romanian-persons-female",
                 ]));
         }
+
+        private static NuciApiResponse BuildGenerateNamesApiResponse(
+            IEnumerable<string> names)
+            => new NuciApiContentResponse<GenerateNamesResponse>(new()
+            {
+                Names = names
+            });
 
         private static GetMobNameRequest BuildGetMobNameRequest()
             => BuildGetMobNameRequest(MobType.WanderingTrader);

@@ -1,6 +1,10 @@
 using System;
+using System.Linq;
+using System.Text.Json;
 
 using NUnit.Framework;
+
+using NuciAPI.Responses;
 
 using NuciCraft.API.Responses;
 using NuciCraft.API.Service.Models;
@@ -10,6 +14,9 @@ namespace NuciCraft.API.UnitTests.Responses
     [TestFixture]
     public sealed class GetPlayerResponseTests
     {
+        private static readonly JsonSerializerOptions jsonSerializerOptions =
+            new(JsonSerializerDefaults.Web);
+
         [Test]
         public void GivenAPlayer_WhenBuildingTheResponse_ThenAllFieldsAreMapped()
         {
@@ -185,6 +192,58 @@ namespace NuciCraft.API.UnitTests.Responses
             GetPlayerResponse response = new(player);
 
             Assert.That(response.UpdatedDT, Is.Null);
+        }
+
+        [Test]
+        public void GivenAGetPlayerResponse_WhenSerialising_ThenTheCurrentRootContractIsPreserved()
+        {
+            NuciApiContentResponse<GetPlayerResponse> response = new(
+                new GetPlayerResponse(BuildPlayer()));
+            using JsonDocument responseDocument = JsonSerializer.SerializeToDocument(
+                response,
+                jsonSerializerOptions);
+            JsonElement contentElement = responseDocument.RootElement.GetProperty("content");
+
+            Assert.That(
+                responseDocument.RootElement.EnumerateObject().Select(property => property.Name),
+                Is.EquivalentTo(["code", "content", "hmac", "message", "success"]));
+            Assert.That(
+                contentElement.EnumerateObject().Select(property => property.Name),
+                Is.EquivalentTo(
+                [
+                    "backDT",
+                    "backLocation",
+                    "bannedBy",
+                    "bannedDT",
+                    "bannedReason",
+                    "bedLocation",
+                    "createdDT",
+                    "discordId",
+                    "displayName",
+                    "emailAddress",
+                    "gender",
+                    "identifier",
+                    "isBanned",
+                    "isMuted",
+                    "lastDeathDT",
+                    "lastDeathLocation",
+                    "lastIpAddress",
+                    "lastLoginDT",
+                    "lastLogoutDT",
+                    "lastLogoutLocation",
+                    "lastSleptDT",
+                    "lastSleptLocation",
+                    "mutedBy",
+                    "mutedDT",
+                    "mutedReason",
+                    "offlineUUID",
+                    "onlineUUID",
+                    "password",
+                    "settings",
+                    "updatedDT",
+                    "username",
+                    "wikiUrl"
+                ]));
         }
 
         private static Player BuildPlayer() => new()

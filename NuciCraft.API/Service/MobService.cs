@@ -63,7 +63,9 @@ namespace NuciCraft.API.Service
                 NuciApiRequestAuthorisationInfo requestAuthorisationInfo =
                     BuildRequestAuthorisationInfo();
                 NuciApiResponse apiResponse = universalNameGeneratorClient
-                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
+                    .SendRequestAsync<
+                        GenerateNamesRequest,
+                        NuciApiContentResponse<GenerateNamesResponse>>(
                         HttpMethod.Get,
                         generateNamesRequest,
                         requestAuthorisationInfo,
@@ -116,7 +118,8 @@ namespace NuciCraft.API.Service
                     $"The Universal Name Generator API request has failed with the '{apiResponse.Code}' code: {apiResponse.Message}");
             }
 
-            GenerateNamesResponse generateNamesResponse = apiResponse as GenerateNamesResponse;
+            NuciApiContentResponse<GenerateNamesResponse> generateNamesResponse =
+                apiResponse as NuciApiContentResponse<GenerateNamesResponse>;
 
             if (generateNamesResponse is null)
             {
@@ -126,9 +129,9 @@ namespace NuciCraft.API.Service
 
             string generatedName = null;
 
-            if (generateNamesResponse.Names is not null)
+            if (generateNamesResponse.Content.Names is not null)
             {
-                generatedName = generateNamesResponse.Names.FirstOrDefault();
+                generatedName = generateNamesResponse.Content.Names.FirstOrDefault();
             }
 
             if (string.IsNullOrWhiteSpace(generatedName))

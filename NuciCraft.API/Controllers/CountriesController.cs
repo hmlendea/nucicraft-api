@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 using NuciAPI.Controllers;
+using NuciAPI.Responses;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
@@ -34,14 +35,20 @@ namespace NuciCraft.API.Controllers
                 {
                     Identifier = countryIdentifier
                 },
-                () => new GetResponse(service.Get(countryIdentifier)),
+                () => new NuciApiContentResponse<GetCountryResponse>(new()
+                {
+                    Country = service.Get(countryIdentifier)
+                }),
                 authorisation);
 
         [HttpGet]
         public ActionResult GetAll()
             => ProcessRequest(
                 new GetCountriesRequest(),
-                () => new GetResponse(service.GetAll()),
+                () => new NuciApiContentResponse<GetCountriesResponse>(new()
+                {
+                    Countries = service.GetAll()
+                }),
                 authorisation);
 
         [HttpPatch]

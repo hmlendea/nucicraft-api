@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 using NuciAPI.Controllers;
+using NuciAPI.Responses;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
@@ -30,7 +31,10 @@ namespace NuciCraft.API.Controllers
             [FromQuery] GetRtpLocationRequest request)
             => ProcessRequest(
                 request,
-                () => new GetResponse(service.GetRtpLocation(request)),
+                () => new NuciApiContentResponse<GetRtpLocationResponse>(new()
+                {
+                    RtpLocation = service.GetRtpLocation(request)
+                }),
                 authorisation);
     }
 }

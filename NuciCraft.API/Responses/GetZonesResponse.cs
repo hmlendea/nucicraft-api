@@ -9,7 +9,7 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Responses
 {
-    public sealed class GetZonesResponse : NuciApiSuccessResponse
+    public sealed class GetZonesResponse : NuciApiResponseContent
     {
         [HmacOrder(1)]
         public IEnumerable<Zone> Zones { get; set; }

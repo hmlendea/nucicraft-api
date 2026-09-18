@@ -7,6 +7,8 @@ using Moq;
 
 using NUnit.Framework;
 
+using NuciAPI.Responses;
+
 using NuciCraft.API.Controllers;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Responses;
@@ -49,9 +51,11 @@ namespace NuciCraft.API.UnitTests.Controllers
             serviceMock.Setup(service => service.GetZoneType("city")).Returns(zoneType);
 
             OkObjectResult result = controller.Get("city") as OkObjectResult;
-            GetResponse response = result.Value as GetResponse;
+            NuciApiContentResponse<GetZoneTypeResponse> response =
+                result.Value as NuciApiContentResponse<GetZoneTypeResponse>;
+            GetZoneTypeResponse content = response.Content;
 
-            Assert.That(response.Content, Is.SameAs(zoneType));
+            Assert.That(content.ZoneType, Is.SameAs(zoneType));
         }
 
         [Test]
@@ -61,9 +65,11 @@ namespace NuciCraft.API.UnitTests.Controllers
             serviceMock.Setup(service => service.GetAllZoneTypes()).Returns(zoneTypes);
 
             OkObjectResult result = controller.GetAll() as OkObjectResult;
-            GetResponse response = result.Value as GetResponse;
+            NuciApiContentResponse<GetZoneTypesResponse> response =
+                result.Value as NuciApiContentResponse<GetZoneTypesResponse>;
+            GetZoneTypesResponse content = response.Content;
 
-            Assert.That(response.Content, Is.SameAs(zoneTypes));
+            Assert.That(content.ZoneTypes, Is.SameAs(zoneTypes));
         }
 
         [Test]

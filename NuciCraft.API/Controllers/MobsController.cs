@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 using NuciAPI.Controllers;
+using NuciAPI.Responses;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
@@ -28,7 +29,10 @@ namespace NuciCraft.API.Controllers
 
             return ProcessRequest(
                 request,
-                () => new GetResponse(service.GetRandomMobName(request)),
+                () => new NuciApiContentResponse<GetMobNameResponse>(new()
+                {
+                    Name = service.GetRandomMobName(request)
+                }),
                 authorisation);
         }
     }

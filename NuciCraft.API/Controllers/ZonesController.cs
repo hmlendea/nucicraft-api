@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 using NuciAPI.Controllers;
+using NuciAPI.Responses;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
@@ -47,14 +48,20 @@ namespace NuciCraft.API.Controllers
                 {
                     Identifier = zoneIdentifier
                 },
-                () => new GetResponse(service.GetZone(zoneIdentifier)),
+                () => new NuciApiContentResponse<GetZoneResponse>(new()
+                {
+                    Zone = service.GetZone(zoneIdentifier)
+                }),
                 authorisation);
 
         [HttpGet]
         public ActionResult GetAll()
             => ProcessRequest(
                 new GetZonesRequest(),
-                () => new GetResponse(service.GetAllZones()),
+                () => new NuciApiContentResponse<GetZonesResponse>(new()
+                {
+                    Zones = service.GetAllZones()
+                }),
                 authorisation);
 
         [HttpGet]
@@ -63,14 +70,17 @@ namespace NuciCraft.API.Controllers
             [FromQuery] GetZonesContainingCoordinatesRequest request)
             => ProcessRequest(
                 request,
-                () => new GetResponse(
-                    service.GetZoneIdentifiersContainingCoordinates(new CoordinatesDataObject
-                    {
-                        World = request.World,
-                        X = request.X.Value,
-                        Y = request.Y.Value,
-                        Z = request.Z.Value
-                    })),
+                () => new NuciApiContentResponse<GetZoneIdentifiersResponse>(new()
+                {
+                    ZoneIdentifiers = service.GetZoneIdentifiersContainingCoordinates(
+                        new CoordinatesDataObject
+                        {
+                            World = request.World,
+                            X = request.X.Value,
+                            Y = request.Y.Value,
+                            Z = request.Z.Value
+                        })
+                }),
                 authorisation);
 
         [HttpPatch]

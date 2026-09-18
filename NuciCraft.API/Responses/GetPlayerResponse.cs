@@ -8,7 +8,7 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Responses
 {
-    public class GetPlayerResponse(Player player) : NuciApiSuccessResponse
+    public class GetPlayerResponse(Player player) : NuciApiResponseContent
     {
         [HmacOrder(1)]
         public string Identifier { get; set; } = player.Identifier;

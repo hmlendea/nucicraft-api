@@ -6,9 +6,9 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Responses
 {
-    public class GetWorldResponse : NuciApiResponseContent
+    public sealed class GetZoneTypeResponse : NuciApiResponseContent
     {
         [HmacOrder(1)]
-        public World World { get; set; }
+        public ZoneType ZoneType { get; set; }
     }
 }

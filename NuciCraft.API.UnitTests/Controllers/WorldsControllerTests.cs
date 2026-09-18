@@ -7,6 +7,8 @@ using Moq;
 
 using NUnit.Framework;
 
+using NuciAPI.Responses;
+
 using NuciCraft.API.Controllers;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Responses;
@@ -69,9 +71,11 @@ namespace NuciCraft.API.UnitTests.Controllers
                 .Returns(world);
 
             OkObjectResult result = controller.Get("main") as OkObjectResult;
-            GetResponse response = result.Value as GetResponse;
+            NuciApiContentResponse<GetWorldResponse> response =
+                result.Value as NuciApiContentResponse<GetWorldResponse>;
+            GetWorldResponse content = response.Content;
 
-            Assert.That(response.Content, Is.SameAs(world));
+            Assert.That(content.World, Is.SameAs(world));
         }
 
         [Test]
@@ -83,9 +87,11 @@ namespace NuciCraft.API.UnitTests.Controllers
                 .Returns(worlds);
 
             OkObjectResult result = controller.GetAll() as OkObjectResult;
-            GetResponse response = result.Value as GetResponse;
+            NuciApiContentResponse<GetWorldsResponse> response =
+                result.Value as NuciApiContentResponse<GetWorldsResponse>;
+            GetWorldsResponse content = response.Content;
 
-            Assert.That(response.Content, Is.SameAs(worlds));
+            Assert.That(content.Worlds, Is.SameAs(worlds));
         }
 
         [Test]
