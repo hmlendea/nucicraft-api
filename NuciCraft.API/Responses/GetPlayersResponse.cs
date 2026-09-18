@@ -5,26 +5,24 @@ using NuciAPI.Responses;
 
 using NuciSecurity.HMAC;
 
-using NuciCraft.API.Service.Models;
-
 namespace NuciCraft.API.Responses
 {
-    public sealed class GetWorldsResponse : NuciApiResponseContent
+    public sealed class GetPlayersResponse : NuciApiResponseContent
     {
         [HmacOrder(1)]
-        public IEnumerable<World> Worlds { get; set; }
+        public IEnumerable<GetPlayerResponse> Players { get; set; }
 
         [HmacIgnore]
         public int Count
         {
             get
             {
-                if (Worlds is null)
+                if (Players is null)
                 {
                     return 0;
                 }
 
-                return Worlds.Count();
+                return Players.Count();
             }
         }
     }

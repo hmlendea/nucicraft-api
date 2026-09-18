@@ -4,6 +4,8 @@ using System.Text.Json;
 
 using NUnit.Framework;
 
+using NuciAPI.Responses;
+
 using NuciCraft.API.Responses;
 using NuciCraft.API.Service.Models;
 
@@ -195,13 +197,18 @@ namespace NuciCraft.API.UnitTests.Responses
         [Test]
         public void GivenAGetPlayerResponse_WhenSerialising_ThenTheCurrentRootContractIsPreserved()
         {
-            GetPlayerResponse response = new(BuildPlayer());
+            NuciApiContentResponse<GetPlayerResponse> response = new(
+                new GetPlayerResponse(BuildPlayer()));
             using JsonDocument responseDocument = JsonSerializer.SerializeToDocument(
                 response,
                 jsonSerializerOptions);
+            JsonElement contentElement = responseDocument.RootElement.GetProperty("content");
 
             Assert.That(
                 responseDocument.RootElement.EnumerateObject().Select(property => property.Name),
+                Is.EquivalentTo(["code", "content", "hmac", "message", "success"]));
+            Assert.That(
+                contentElement.EnumerateObject().Select(property => property.Name),
                 Is.EquivalentTo(
                 [
                     "backDT",
@@ -210,13 +217,11 @@ namespace NuciCraft.API.UnitTests.Responses
                     "bannedDT",
                     "bannedReason",
                     "bedLocation",
-                    "code",
                     "createdDT",
                     "discordId",
                     "displayName",
                     "emailAddress",
                     "gender",
-                    "hmac",
                     "identifier",
                     "isBanned",
                     "isMuted",
@@ -228,7 +233,6 @@ namespace NuciCraft.API.UnitTests.Responses
                     "lastLogoutLocation",
                     "lastSleptDT",
                     "lastSleptLocation",
-                    "message",
                     "mutedBy",
                     "mutedDT",
                     "mutedReason",
@@ -236,7 +240,6 @@ namespace NuciCraft.API.UnitTests.Responses
                     "onlineUUID",
                     "password",
                     "settings",
-                    "success",
                     "updatedDT",
                     "username",
                     "wikiUrl"

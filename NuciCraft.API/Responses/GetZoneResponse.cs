@@ -6,7 +6,7 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Responses
 {
-    public class GetZoneResponse : NuciApiSuccessResponse
+    public class GetZoneResponse : NuciApiResponseContent
     {
         [HmacOrder(1)]
         public Zone Zone { get; set; }

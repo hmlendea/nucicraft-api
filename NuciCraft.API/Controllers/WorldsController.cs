@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 using NuciAPI.Controllers;
+using NuciAPI.Responses;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
@@ -34,14 +35,20 @@ namespace NuciCraft.API.Controllers
                 {
                     Identifier = worldIdentifier
                 },
-                () => new GetResponse(service.GetWorld(worldIdentifier)),
+                () => new NuciApiContentResponse<GetWorldResponse>(new()
+                {
+                    World = service.GetWorld(worldIdentifier)
+                }),
                 authorisation);
 
         [HttpGet]
         public ActionResult GetAll()
             => ProcessRequest(
                 new GetWorldsRequest(),
-                () => new GetResponse(service.GetAllWorlds()),
+                () => new NuciApiContentResponse<GetWorldsResponse>(new()
+                {
+                    Worlds = service.GetAllWorlds()
+                }),
                 authorisation);
 
         [HttpPatch]

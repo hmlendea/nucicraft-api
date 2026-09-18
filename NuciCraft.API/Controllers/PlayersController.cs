@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
 using NuciAPI.Controllers;
+using NuciAPI.Responses;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
@@ -63,9 +64,12 @@ namespace NuciCraft.API.Controllers
         public ActionResult GetAll()
             => ProcessRequest(
                 new GetPlayersRequest(),
-                () => new GetResponse(service
-                    .GetAll()
-                    .Select(player => new GetPlayerResponse(player))),
+                () => new NuciApiContentResponse<GetPlayersResponse>(new()
+                {
+                    Players = service
+                        .GetAll()
+                        .Select(player => new GetPlayerResponse(player))
+                }),
                 authorisation);
 
         [HttpPatch]
@@ -115,7 +119,8 @@ namespace NuciCraft.API.Controllers
         private ActionResult ProcessGetRequest(GetPlayerRequest request)
             => ProcessRequest(
                 request,
-                () => new GetPlayerResponse(service.Get(request)),
+                () => new NuciApiContentResponse<GetPlayerResponse>(
+                    new GetPlayerResponse(service.Get(request))),
                 authorisation);
 
         private ActionResult ProcessPatchRequest(PatchPlayerRequest request)

@@ -7,6 +7,8 @@ using Moq;
 
 using NUnit.Framework;
 
+using NuciAPI.Responses;
+
 using NuciCraft.API.Controllers;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Responses;
@@ -69,9 +71,11 @@ namespace NuciCraft.API.UnitTests.Controllers
                 .Returns(country);
 
             OkObjectResult result = controller.Get("nucilandia") as OkObjectResult;
-            GetResponse response = result.Value as GetResponse;
+            NuciApiContentResponse<GetCountryResponse> response =
+                result.Value as NuciApiContentResponse<GetCountryResponse>;
+            GetCountryResponse content = response.Content;
 
-            Assert.That(response.Content, Is.SameAs(country));
+            Assert.That(content.Country, Is.SameAs(country));
         }
 
         [Test]
@@ -83,9 +87,11 @@ namespace NuciCraft.API.UnitTests.Controllers
                 .Returns(countries);
 
             OkObjectResult result = controller.GetAll() as OkObjectResult;
-            GetResponse response = result.Value as GetResponse;
+            NuciApiContentResponse<GetCountriesResponse> response =
+                result.Value as NuciApiContentResponse<GetCountriesResponse>;
+            GetCountriesResponse content = response.Content;
 
-            Assert.That(response.Content, Is.SameAs(countries));
+            Assert.That(content.Countries, Is.SameAs(countries));
         }
 
         [Test]

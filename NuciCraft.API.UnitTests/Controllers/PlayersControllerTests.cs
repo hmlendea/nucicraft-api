@@ -8,6 +8,8 @@ using Moq;
 
 using NUnit.Framework;
 
+using NuciAPI.Responses;
+
 using NuciCraft.API.Controllers;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Responses;
@@ -149,7 +151,10 @@ namespace NuciCraft.API.UnitTests.Controllers
 
             OkObjectResult result = controller.Get("613") as OkObjectResult;
 
-            Assert.That(result.Value, Is.TypeOf<GetPlayerResponse>());
+            NuciApiContentResponse<GetPlayerResponse> response =
+                result.Value as NuciApiContentResponse<GetPlayerResponse>;
+
+            Assert.That(response.Content, Is.TypeOf<GetPlayerResponse>());
             serviceMock.Verify(
                 service => service.Get(It.Is<GetPlayerRequest>(request =>
                     string.Equals(request.Identifier, "613") &&
@@ -166,7 +171,10 @@ namespace NuciCraft.API.UnitTests.Controllers
 
             OkObjectResult result = controller.GetByUsername("IlarionPintilie") as OkObjectResult;
 
-            Assert.That(result.Value, Is.TypeOf<GetPlayerResponse>());
+            NuciApiContentResponse<GetPlayerResponse> response =
+                result.Value as NuciApiContentResponse<GetPlayerResponse>;
+
+            Assert.That(response.Content, Is.TypeOf<GetPlayerResponse>());
             serviceMock.Verify(
                 service => service.Get(It.Is<GetPlayerRequest>(request =>
                     string.Equals(request.Identifier, null) &&
@@ -183,7 +191,10 @@ namespace NuciCraft.API.UnitTests.Controllers
 
             OkObjectResult result = controller.GetByOfflineUuid("61300000-0000-3000-8000-000000000000") as OkObjectResult;
 
-            Assert.That(result.Value, Is.TypeOf<GetPlayerResponse>());
+            NuciApiContentResponse<GetPlayerResponse> response =
+                result.Value as NuciApiContentResponse<GetPlayerResponse>;
+
+            Assert.That(response.Content, Is.TypeOf<GetPlayerResponse>());
             serviceMock.Verify(
                 service => service.Get(It.Is<GetPlayerRequest>(request =>
                     string.Equals(request.Identifier, null) &&
@@ -202,7 +213,10 @@ namespace NuciCraft.API.UnitTests.Controllers
 
             OkObjectResult result = controller.GetByOnlineUuid("87300000-0000-0000-0000-000000000000") as OkObjectResult;
 
-            Assert.That(result.Value, Is.TypeOf<GetPlayerResponse>());
+            NuciApiContentResponse<GetPlayerResponse> response =
+                result.Value as NuciApiContentResponse<GetPlayerResponse>;
+
+            Assert.That(response.Content, Is.TypeOf<GetPlayerResponse>());
             serviceMock.Verify(
                 service => service.Get(It.Is<GetPlayerRequest>(request =>
                     string.Equals(request.Identifier, null) &&
@@ -223,8 +237,10 @@ namespace NuciCraft.API.UnitTests.Controllers
                 .Returns(players);
 
             OkObjectResult result = controller.GetAll() as OkObjectResult;
-            GetResponse response = result.Value as GetResponse;
-            IEnumerable<GetPlayerResponse> playerResponses = response.Content as IEnumerable<GetPlayerResponse>;
+            NuciApiContentResponse<GetPlayersResponse> response =
+                result.Value as NuciApiContentResponse<GetPlayersResponse>;
+            GetPlayersResponse content = response.Content;
+            IEnumerable<GetPlayerResponse> playerResponses = content.Players;
             GetPlayerResponse playerResponse = playerResponses.Single();
 
             Assert.That(playerResponse.Username, Is.EqualTo("IlarionPintilie"));
@@ -239,8 +255,10 @@ namespace NuciCraft.API.UnitTests.Controllers
                 .Returns([]);
 
             OkObjectResult result = controller.GetAll() as OkObjectResult;
-            GetResponse response = result.Value as GetResponse;
-            IEnumerable<GetPlayerResponse> playerResponses = response.Content as IEnumerable<GetPlayerResponse>;
+            NuciApiContentResponse<GetPlayersResponse> response =
+                result.Value as NuciApiContentResponse<GetPlayersResponse>;
+            GetPlayersResponse content = response.Content;
+            IEnumerable<GetPlayerResponse> playerResponses = content.Players;
 
             Assert.That(playerResponses, Is.Empty);
             serviceMock.Verify(service => service.GetAll(), Times.Once);
@@ -260,8 +278,10 @@ namespace NuciCraft.API.UnitTests.Controllers
                 .Returns([firstPlayer, secondPlayer]);
 
             OkObjectResult result = controller.GetAll() as OkObjectResult;
-            GetResponse response = result.Value as GetResponse;
-            IEnumerable<GetPlayerResponse> playerResponses = response.Content as IEnumerable<GetPlayerResponse>;
+            NuciApiContentResponse<GetPlayersResponse> response =
+                result.Value as NuciApiContentResponse<GetPlayersResponse>;
+            GetPlayersResponse content = response.Content;
+            IEnumerable<GetPlayerResponse> playerResponses = content.Players;
 
             Assert.That(
                 playerResponses.Select(playerResponse => playerResponse.Username),

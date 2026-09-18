@@ -8,6 +8,8 @@ using Moq;
 
 using NUnit.Framework;
 
+using NuciAPI.Responses;
+
 using NuciCraft.API.Controllers;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Requests;
@@ -93,9 +95,11 @@ namespace NuciCraft.API.UnitTests.Controllers
                 .Returns(zone);
 
             OkObjectResult result = controller.Get("solara") as OkObjectResult;
-            GetResponse response = result.Value as GetResponse;
+            NuciApiContentResponse<GetZoneResponse> response =
+                result.Value as NuciApiContentResponse<GetZoneResponse>;
+            GetZoneResponse content = response.Content;
 
-            Assert.That(response.Content, Is.SameAs(zone));
+            Assert.That(content.Zone, Is.SameAs(zone));
         }
 
         [Test]
@@ -107,9 +111,11 @@ namespace NuciCraft.API.UnitTests.Controllers
                 .Returns(zones);
 
             OkObjectResult result = controller.GetAll() as OkObjectResult;
-            GetResponse response = result.Value as GetResponse;
+            NuciApiContentResponse<GetZonesResponse> response =
+                result.Value as NuciApiContentResponse<GetZonesResponse>;
+            GetZonesResponse content = response.Content;
 
-            Assert.That(response.Content, Is.SameAs(zones));
+            Assert.That(content.Zones, Is.SameAs(zones));
         }
 
         [Test]
@@ -132,9 +138,11 @@ namespace NuciCraft.API.UnitTests.Controllers
                 .Returns(zoneIdentifiers);
 
             OkObjectResult result = controller.GetContainingCoordinates(request) as OkObjectResult;
-            GetResponse response = result.Value as GetResponse;
+            NuciApiContentResponse<GetZoneIdentifiersResponse> response =
+                result.Value as NuciApiContentResponse<GetZoneIdentifiersResponse>;
+            GetZoneIdentifiersResponse content = response.Content;
 
-            Assert.That(response.Content, Is.SameAs(zoneIdentifiers));
+            Assert.That(content.ZoneIdentifiers, Is.SameAs(zoneIdentifiers));
             serviceMock.Verify(
                 service => service.GetZoneIdentifiersContainingCoordinates(It.Is<CoordinatesDataObject>(
                     coordinates => string.Equals(coordinates.World, "world", StringComparison.Ordinal)

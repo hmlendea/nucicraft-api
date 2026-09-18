@@ -4,6 +4,8 @@ using Moq;
 
 using NUnit.Framework;
 
+using NuciAPI.Responses;
+
 using NuciCraft.API.Controllers;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Responses;
@@ -63,9 +65,11 @@ namespace NuciCraft.API.UnitTests.Controllers
                 .Returns(location);
 
             OkObjectResult result = controller.GetRandomRtpLocation(request) as OkObjectResult;
-            GetResponse response = result.Value as GetResponse;
+            NuciApiContentResponse<GetRtpLocationResponse> response =
+                result.Value as NuciApiContentResponse<GetRtpLocationResponse>;
+            GetRtpLocationResponse content = response.Content;
 
-            Assert.That(response.Content, Is.SameAs(location));
+            Assert.That(content.RtpLocation, Is.SameAs(location));
         }
     }
 }

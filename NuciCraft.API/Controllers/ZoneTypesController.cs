@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 using NuciAPI.Controllers;
+using NuciAPI.Responses;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
@@ -26,14 +27,20 @@ namespace NuciCraft.API.Controllers
         public ActionResult Get(string zoneTypeIdentifier)
             => ProcessRequest(
                 new GetZoneTypeRequest { Identifier = zoneTypeIdentifier },
-                () => new GetResponse(service.GetZoneType(zoneTypeIdentifier)),
+                () => new NuciApiContentResponse<GetZoneTypeResponse>(new()
+                {
+                    ZoneType = service.GetZoneType(zoneTypeIdentifier)
+                }),
                 authorisation);
 
         [HttpGet]
         public ActionResult GetAll()
             => ProcessRequest(
                 new GetZoneTypesRequest(),
-                () => new GetResponse(service.GetAllZoneTypes()),
+                () => new NuciApiContentResponse<GetZoneTypesResponse>(new()
+                {
+                    ZoneTypes = service.GetAllZoneTypes()
+                }),
                 authorisation);
 
         [HttpPatch]

@@ -6,6 +6,8 @@ using Moq;
 
 using NUnit.Framework;
 
+using NuciAPI.Responses;
+
 using NuciCraft.API.Controllers;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Responses;
@@ -51,10 +53,12 @@ namespace NuciCraft.API.UnitTests.Controllers
                 .Returns("Ilarion");
 
             OkObjectResult result = controller.GetRandomMobName("villager") as OkObjectResult;
-            GetResponse response = result.Value as GetResponse;
+            NuciApiContentResponse<GetMobNameResponse> response =
+                result.Value as NuciApiContentResponse<GetMobNameResponse>;
+            GetMobNameResponse content = response.Content;
 
             Assert.That(capturedRequest.MobType, Is.EqualTo("villager"));
-            Assert.That(response.Content, Is.EqualTo("Ilarion"));
+            Assert.That(content.Name, Is.EqualTo("Ilarion"));
         }
     }
 }

@@ -4,6 +4,8 @@ using System.Text.Json;
 
 using NUnit.Framework;
 
+using NuciAPI.Responses;
+
 using NuciCraft.API.Responses;
 using NuciCraft.API.Service.Models;
 
@@ -45,17 +47,21 @@ namespace NuciCraft.API.UnitTests.Responses
         [Test]
         public void GivenAGetZonesResponse_WhenSerialising_ThenTheCurrentRootContractIsPreserved()
         {
-            GetZonesResponse response = new()
+            NuciApiContentResponse<GetZonesResponse> response = new(new()
             {
                 Zones = [new Zone()]
-            };
+            });
             using JsonDocument responseDocument = JsonSerializer.SerializeToDocument(
                 response,
                 jsonSerializerOptions);
+            JsonElement contentElement = responseDocument.RootElement.GetProperty("content");
 
             Assert.That(
                 responseDocument.RootElement.EnumerateObject().Select(property => property.Name),
-                Is.EquivalentTo(["code", "count", "hmac", "message", "success", "zones"]));
+                Is.EquivalentTo(["code", "content", "hmac", "message", "success"]));
+            Assert.That(
+                contentElement.EnumerateObject().Select(property => property.Name),
+                Is.EquivalentTo(["count", "zones"]));
         }
     }
 }

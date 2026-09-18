@@ -9,22 +9,22 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Responses
 {
-    public sealed class GetWorldsResponse : NuciApiResponseContent
+    public sealed class GetCountriesResponse : NuciApiResponseContent
     {
         [HmacOrder(1)]
-        public IEnumerable<World> Worlds { get; set; }
+        public IEnumerable<Country> Countries { get; set; }
 
         [HmacIgnore]
         public int Count
         {
             get
             {
-                if (Worlds is null)
+                if (Countries is null)
                 {
                     return 0;
                 }
 
-                return Worlds.Count();
+                return Countries.Count();
             }
         }
     }

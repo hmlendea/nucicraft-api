@@ -3,6 +3,8 @@ using System.Text.Json;
 
 using NUnit.Framework;
 
+using NuciAPI.Responses;
+
 using NuciCraft.API.Service;
 
 namespace NuciCraft.API.UnitTests.Service
@@ -16,17 +18,21 @@ namespace NuciCraft.API.UnitTests.Service
         [Test]
         public void GivenAGenerateNamesResponse_WhenSerialising_ThenTheCurrentRootContractIsPreserved()
         {
-            GenerateNamesResponse response = new()
+            NuciApiContentResponse<GenerateNamesResponse> response = new(new()
             {
                 Names = ["Solaire"]
-            };
+            });
             using JsonDocument responseDocument = JsonSerializer.SerializeToDocument(
                 response,
                 jsonSerializerOptions);
+            JsonElement contentElement = responseDocument.RootElement.GetProperty("content");
 
             Assert.That(
                 responseDocument.RootElement.EnumerateObject().Select(property => property.Name),
-                Is.EquivalentTo(["code", "hmac", "message", "names", "success"]));
+                Is.EquivalentTo(["code", "content", "hmac", "message", "success"]));
+            Assert.That(
+                contentElement.EnumerateObject().Select(property => property.Name),
+                Is.EquivalentTo(["names"]));
         }
     }
 }
