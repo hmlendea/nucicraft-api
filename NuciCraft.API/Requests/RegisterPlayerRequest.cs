@@ -38,11 +38,23 @@ namespace NuciCraft.API.Requests
         [HmacOrder(9)]
         public string BannedDT { get; set; }
 
+        [HmacOrder(19)]
+        public string BannedReason { get; set; }
+
+        [HmacOrder(20)]
+        public string BannedBy { get; set; }
+
         [HmacOrder(10)]
         public bool IsMuted { get; set; }
 
         [HmacOrder(11)]
         public string MutedDT { get; set; }
+
+        [HmacOrder(21)]
+        public string MutedReason { get; set; }
+
+        [HmacOrder(22)]
+        public string MutedBy { get; set; }
 
         [HmacOrder(12)]
         public string LastLoginDT { get; set; }

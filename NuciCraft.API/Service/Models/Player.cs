@@ -45,9 +45,17 @@ namespace NuciCraft.API.Service.Models
 
         public DateTimeOffset? BannedDT { get; set; }
 
+        public string BannedReason { get; set; }
+
+        public string BannedBy { get; set; }
+
         public bool IsMuted { get; set; }
 
         public DateTimeOffset? MutedDT { get; set; }
+
+        public string MutedReason { get; set; }
+
+        public string MutedBy { get; set; }
 
         public DateTimeOffset? LastLoginDT { get; set; }
 
