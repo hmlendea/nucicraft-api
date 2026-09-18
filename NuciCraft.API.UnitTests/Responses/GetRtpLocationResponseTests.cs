@@ -11,18 +11,18 @@ using NuciCraft.API.Service.Models;
 namespace NuciCraft.API.UnitTests.Responses
 {
     [TestFixture]
-    public sealed class GetZoneResponseTests
+    public sealed class GetRtpLocationResponseTests
     {
         private static readonly JsonSerializerOptions jsonSerializerOptions =
             new(JsonSerializerDefaults.Web);
 
         [Test]
-        public void GivenAGetZoneResponse_WhenSerialising_ThenTheZonePropertiesAreContentProperties()
+        public void GivenAGetRtpLocationResponse_WhenSerialising_ThenTheLocationPropertiesAreContentProperties()
         {
-            NuciApiContentResponse<GetZoneResponse> response = new(new GetZoneResponse(new()
+            NuciApiContentResponse<GetRtpLocationResponse> response = new(new GetRtpLocationResponse(new()
             {
-                Identifier = "solara",
-                Type = "city"
+                Id = "solara",
+                Biome = "Forest"
             }));
             using JsonDocument responseDocument = JsonSerializer.SerializeToDocument(
                 response,
@@ -34,13 +34,13 @@ namespace NuciCraft.API.UnitTests.Responses
                 Is.EquivalentTo(["code", "content", "hmac", "message", "success"]));
             Assert.That(
                 contentElement.EnumerateObject().Select(property => property.Name),
-                Does.Contain("type"));
+                Does.Contain("biome"));
             Assert.That(
-                contentElement.TryGetProperty("zone", out JsonElement _),
+                contentElement.TryGetProperty("rtpLocation", out JsonElement _),
                 Is.False);
             Assert.That(
-                contentElement.GetProperty("type").GetString(),
-                Is.EqualTo("city"));
+                contentElement.GetProperty("biome").GetString(),
+                Is.EqualTo("Forest"));
         }
     }
 }

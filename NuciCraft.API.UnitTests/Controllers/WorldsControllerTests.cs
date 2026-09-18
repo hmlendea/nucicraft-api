@@ -75,7 +75,7 @@ namespace NuciCraft.API.UnitTests.Controllers
                 result.Value as NuciApiContentResponse<GetWorldResponse>;
             GetWorldResponse content = response.Content;
 
-            Assert.That(content.World, Is.SameAs(world));
+            Assert.That(content.Identifier, Is.EqualTo(world.Identifier));
         }
 
         [Test]

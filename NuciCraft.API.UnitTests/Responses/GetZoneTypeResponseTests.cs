@@ -11,18 +11,17 @@ using NuciCraft.API.Service.Models;
 namespace NuciCraft.API.UnitTests.Responses
 {
     [TestFixture]
-    public sealed class GetZoneResponseTests
+    public sealed class GetZoneTypeResponseTests
     {
         private static readonly JsonSerializerOptions jsonSerializerOptions =
             new(JsonSerializerDefaults.Web);
 
         [Test]
-        public void GivenAGetZoneResponse_WhenSerialising_ThenTheZonePropertiesAreContentProperties()
+        public void GivenAGetZoneTypeResponse_WhenSerialising_ThenTheZoneTypePropertiesAreContentProperties()
         {
-            NuciApiContentResponse<GetZoneResponse> response = new(new GetZoneResponse(new()
+            NuciApiContentResponse<GetZoneTypeResponse> response = new(new GetZoneTypeResponse(new()
             {
-                Identifier = "solara",
-                Type = "city"
+                Identifier = "city"
             }));
             using JsonDocument responseDocument = JsonSerializer.SerializeToDocument(
                 response,
@@ -34,12 +33,12 @@ namespace NuciCraft.API.UnitTests.Responses
                 Is.EquivalentTo(["code", "content", "hmac", "message", "success"]));
             Assert.That(
                 contentElement.EnumerateObject().Select(property => property.Name),
-                Does.Contain("type"));
+                Does.Contain("identifier"));
             Assert.That(
-                contentElement.TryGetProperty("zone", out JsonElement _),
+                contentElement.TryGetProperty("zoneType", out JsonElement _),
                 Is.False);
             Assert.That(
-                contentElement.GetProperty("type").GetString(),
+                contentElement.GetProperty("identifier").GetString(),
                 Is.EqualTo("city"));
         }
     }

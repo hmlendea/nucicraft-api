@@ -35,10 +35,8 @@ namespace NuciCraft.API.Controllers
                 {
                     Identifier = worldIdentifier
                 },
-                () => new NuciApiContentResponse<GetWorldResponse>(new()
-                {
-                    World = service.GetWorld(worldIdentifier)
-                }),
+                () => new NuciApiContentResponse<GetWorldResponse>(
+                    new GetWorldResponse(service.GetWorld(worldIdentifier))),
                 authorisation);
 
         [HttpGet]

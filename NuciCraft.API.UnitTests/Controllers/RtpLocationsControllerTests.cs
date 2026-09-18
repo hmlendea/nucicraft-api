@@ -69,7 +69,7 @@ namespace NuciCraft.API.UnitTests.Controllers
                 result.Value as NuciApiContentResponse<GetRtpLocationResponse>;
             GetRtpLocationResponse content = response.Content;
 
-            Assert.That(content.RtpLocation, Is.SameAs(location));
+            Assert.That(content.Id, Is.EqualTo(location.Id));
         }
     }
 }

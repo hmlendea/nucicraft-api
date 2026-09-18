@@ -17,12 +17,13 @@ namespace NuciCraft.API.UnitTests.Responses
             new(JsonSerializerDefaults.Web);
 
         [Test]
-        public void GivenAGetWorldResponse_WhenSerialising_ThenTheCurrentRootContractIsPreserved()
+        public void GivenAGetWorldResponse_WhenSerialising_ThenTheWorldPropertiesAreContentProperties()
         {
-            NuciApiContentResponse<GetWorldResponse> response = new(new()
+            NuciApiContentResponse<GetWorldResponse> response = new(new GetWorldResponse(new()
             {
-                World = new World()
-            });
+                Identifier = "world",
+                HasWebMap = true
+            }));
             using JsonDocument responseDocument = JsonSerializer.SerializeToDocument(
                 response,
                 jsonSerializerOptions);
@@ -33,7 +34,12 @@ namespace NuciCraft.API.UnitTests.Responses
                 Is.EquivalentTo(["code", "content", "hmac", "message", "success"]));
             Assert.That(
                 contentElement.EnumerateObject().Select(property => property.Name),
-                Is.EquivalentTo(["world"]));
+                Does.Contain("hasWebMap"));
+            Assert.That(
+                contentElement.TryGetProperty("world", out JsonElement _),
+                Is.False);
+            Assert.That(
+                contentElement.GetProperty("hasWebMap").GetBoolean());
         }
     }
 }

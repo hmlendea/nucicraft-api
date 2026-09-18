@@ -31,10 +31,8 @@ namespace NuciCraft.API.Controllers
             [FromQuery] GetRtpLocationRequest request)
             => ProcessRequest(
                 request,
-                () => new NuciApiContentResponse<GetRtpLocationResponse>(new()
-                {
-                    RtpLocation = service.GetRtpLocation(request)
-                }),
+                () => new NuciApiContentResponse<GetRtpLocationResponse>(
+                    new GetRtpLocationResponse(service.GetRtpLocation(request))),
                 authorisation);
     }
 }

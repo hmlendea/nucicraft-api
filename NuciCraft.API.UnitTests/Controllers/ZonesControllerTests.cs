@@ -99,7 +99,7 @@ namespace NuciCraft.API.UnitTests.Controllers
                 result.Value as NuciApiContentResponse<GetZoneResponse>;
             GetZoneResponse content = response.Content;
 
-            Assert.That(content.Zone, Is.SameAs(zone));
+            Assert.That(content.Identifier, Is.EqualTo(zone.Identifier));
         }
 
         [Test]

@@ -11,18 +11,18 @@ using NuciCraft.API.Service.Models;
 namespace NuciCraft.API.UnitTests.Responses
 {
     [TestFixture]
-    public sealed class GetZoneResponseTests
+    public sealed class GetCountryResponseTests
     {
         private static readonly JsonSerializerOptions jsonSerializerOptions =
             new(JsonSerializerDefaults.Web);
 
         [Test]
-        public void GivenAGetZoneResponse_WhenSerialising_ThenTheZonePropertiesAreContentProperties()
+        public void GivenAGetCountryResponse_WhenSerialising_ThenTheCountryPropertiesAreContentProperties()
         {
-            NuciApiContentResponse<GetZoneResponse> response = new(new GetZoneResponse(new()
+            NuciApiContentResponse<GetCountryResponse> response = new(new GetCountryResponse(new()
             {
-                Identifier = "solara",
-                Type = "city"
+                Identifier = "nucilandia",
+                Leader = "Testy McTestface"
             }));
             using JsonDocument responseDocument = JsonSerializer.SerializeToDocument(
                 response,
@@ -34,13 +34,13 @@ namespace NuciCraft.API.UnitTests.Responses
                 Is.EquivalentTo(["code", "content", "hmac", "message", "success"]));
             Assert.That(
                 contentElement.EnumerateObject().Select(property => property.Name),
-                Does.Contain("type"));
+                Does.Contain("leader"));
             Assert.That(
-                contentElement.TryGetProperty("zone", out JsonElement _),
+                contentElement.TryGetProperty("country", out JsonElement _),
                 Is.False);
             Assert.That(
-                contentElement.GetProperty("type").GetString(),
-                Is.EqualTo("city"));
+                contentElement.GetProperty("leader").GetString(),
+                Is.EqualTo("Testy McTestface"));
         }
     }
 }

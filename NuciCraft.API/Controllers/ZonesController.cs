@@ -48,10 +48,8 @@ namespace NuciCraft.API.Controllers
                 {
                     Identifier = zoneIdentifier
                 },
-                () => new NuciApiContentResponse<GetZoneResponse>(new()
-                {
-                    Zone = service.GetZone(zoneIdentifier)
-                }),
+                () => new NuciApiContentResponse<GetZoneResponse>(
+                    new GetZoneResponse(service.GetZone(zoneIdentifier))),
                 authorisation);
 
         [HttpGet]

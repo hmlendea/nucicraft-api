@@ -55,7 +55,7 @@ namespace NuciCraft.API.UnitTests.Controllers
                 result.Value as NuciApiContentResponse<GetZoneTypeResponse>;
             GetZoneTypeResponse content = response.Content;
 
-            Assert.That(content.ZoneType, Is.SameAs(zoneType));
+            Assert.That(content.Identifier, Is.EqualTo(zoneType.Identifier));
         }
 
         [Test]

@@ -6,9 +6,12 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Responses
 {
-    public sealed class GetZoneTypeResponse : NuciApiResponseContent
+    public sealed class GetZoneTypeResponse(ZoneType zoneType) : NuciApiResponseContent
     {
         [HmacOrder(1)]
-        public ZoneType ZoneType { get; set; }
+        public string Identifier { get; set; } = zoneType.Identifier;
+
+        [HmacOrder(2)]
+        public LocalisedString Name { get; set; } = zoneType.Name;
     }
 }

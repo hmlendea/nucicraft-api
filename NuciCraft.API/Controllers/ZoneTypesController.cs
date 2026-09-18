@@ -27,10 +27,8 @@ namespace NuciCraft.API.Controllers
         public ActionResult Get(string zoneTypeIdentifier)
             => ProcessRequest(
                 new GetZoneTypeRequest { Identifier = zoneTypeIdentifier },
-                () => new NuciApiContentResponse<GetZoneTypeResponse>(new()
-                {
-                    ZoneType = service.GetZoneType(zoneTypeIdentifier)
-                }),
+                () => new NuciApiContentResponse<GetZoneTypeResponse>(
+                    new GetZoneTypeResponse(service.GetZoneType(zoneTypeIdentifier))),
                 authorisation);
 
         [HttpGet]
