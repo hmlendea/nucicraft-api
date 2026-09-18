@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Text.Json;
 
 using NUnit.Framework;
 
@@ -10,6 +12,9 @@ namespace NuciCraft.API.UnitTests.Responses
     [TestFixture]
     public sealed class GetPlayerResponseTests
     {
+        private static readonly JsonSerializerOptions jsonSerializerOptions =
+            new(JsonSerializerDefaults.Web);
+
         [Test]
         public void GivenAPlayer_WhenBuildingTheResponse_ThenAllFieldsAreMapped()
         {
@@ -185,6 +190,57 @@ namespace NuciCraft.API.UnitTests.Responses
             GetPlayerResponse response = new(player);
 
             Assert.That(response.UpdatedDT, Is.Null);
+        }
+
+        [Test]
+        public void GivenAGetPlayerResponse_WhenSerialising_ThenTheCurrentRootContractIsPreserved()
+        {
+            GetPlayerResponse response = new(BuildPlayer());
+            using JsonDocument responseDocument = JsonSerializer.SerializeToDocument(
+                response,
+                jsonSerializerOptions);
+
+            Assert.That(
+                responseDocument.RootElement.EnumerateObject().Select(property => property.Name),
+                Is.EquivalentTo(
+                [
+                    "backDT",
+                    "backLocation",
+                    "bannedBy",
+                    "bannedDT",
+                    "bannedReason",
+                    "bedLocation",
+                    "code",
+                    "createdDT",
+                    "discordId",
+                    "displayName",
+                    "emailAddress",
+                    "gender",
+                    "hmac",
+                    "identifier",
+                    "isBanned",
+                    "isMuted",
+                    "lastDeathDT",
+                    "lastDeathLocation",
+                    "lastIpAddress",
+                    "lastLoginDT",
+                    "lastLogoutDT",
+                    "lastLogoutLocation",
+                    "lastSleptDT",
+                    "lastSleptLocation",
+                    "message",
+                    "mutedBy",
+                    "mutedDT",
+                    "mutedReason",
+                    "offlineUUID",
+                    "onlineUUID",
+                    "password",
+                    "settings",
+                    "success",
+                    "updatedDT",
+                    "username",
+                    "wikiUrl"
+                ]));
         }
 
         private static Player BuildPlayer() => new()

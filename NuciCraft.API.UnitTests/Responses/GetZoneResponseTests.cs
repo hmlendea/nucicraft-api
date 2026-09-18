@@ -4,36 +4,30 @@ using System.Text.Json;
 using NUnit.Framework;
 
 using NuciCraft.API.Responses;
+using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.UnitTests.Responses
 {
     [TestFixture]
-    public sealed class GetResponseTests
+    public sealed class GetZoneResponseTests
     {
         private static readonly JsonSerializerOptions jsonSerializerOptions =
             new(JsonSerializerDefaults.Web);
 
         [Test]
-        public void GivenContent_WhenBuildingAResponse_ThenTheContentIsRetained()
+        public void GivenAGetZoneResponse_WhenSerialising_ThenTheCurrentRootContractIsPreserved()
         {
-            object content = "Nucile rullz";
-
-            GetResponse response = new(content);
-
-            Assert.That(response.Content, Is.SameAs(content));
-        }
-
-        [Test]
-        public void GivenAGetResponse_WhenSerialising_ThenTheCurrentRootContractIsPreserved()
-        {
-            GetResponse response = new("Nucile rullz");
+            GetZoneResponse response = new()
+            {
+                Zone = new Zone()
+            };
             using JsonDocument responseDocument = JsonSerializer.SerializeToDocument(
                 response,
                 jsonSerializerOptions);
 
             Assert.That(
                 responseDocument.RootElement.EnumerateObject().Select(property => property.Name),
-                Is.EquivalentTo(["code", "content", "hmac", "message", "success"]));
+                Is.EquivalentTo(["code", "hmac", "message", "success", "zone"]));
         }
     }
 }
