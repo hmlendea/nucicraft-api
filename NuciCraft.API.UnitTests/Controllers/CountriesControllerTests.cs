@@ -75,7 +75,7 @@ namespace NuciCraft.API.UnitTests.Controllers
                 result.Value as NuciApiContentResponse<GetCountryResponse>;
             GetCountryResponse content = response.Content;
 
-            Assert.That(content.Country, Is.SameAs(country));
+            Assert.That(content.Identifier, Is.EqualTo(country.Identifier));
         }
 
         [Test]

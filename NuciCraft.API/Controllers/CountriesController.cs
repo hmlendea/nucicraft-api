@@ -35,10 +35,8 @@ namespace NuciCraft.API.Controllers
                 {
                     Identifier = countryIdentifier
                 },
-                () => new NuciApiContentResponse<GetCountryResponse>(new()
-                {
-                    Country = service.Get(countryIdentifier)
-                }),
+                () => new NuciApiContentResponse<GetCountryResponse>(
+                    new GetCountryResponse(service.Get(countryIdentifier))),
                 authorisation);
 
         [HttpGet]
