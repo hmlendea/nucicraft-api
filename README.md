@@ -445,8 +445,9 @@ This script downloads and executes an external release helper from `https://raw.
 
 The solution contains the subsequent projects:
 
-- `NuciCraft.API`: ASP.NET Core API host, controllers, services, configuration, and data access
-- `NuciCraft.API.UnitTests`: NUnit-based unit tests for controllers, services, responses, and mappings
+- [NuciCraft.API](NuciCraft.API): ASP.NET Core API host, controllers, services, configuration, and data access
+- [NuciCraft.API.IntegrationTests](NuciCraft.API.IntegrationTests): NUnit-based in-process HTTP integration tests with isolated temporary JSON stores and a stubbed name-generator client
+- [NuciCraft.API.UnitTests](NuciCraft.API.UnitTests): NUnit-based unit tests for controllers, services, responses, and mappings
 
 The key directories inside `NuciCraft.API/` are:
 
