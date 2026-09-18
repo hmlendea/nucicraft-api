@@ -52,6 +52,46 @@ namespace NuciCraft.API.IntegrationTests
             Assert.That(deleteResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         }
 
+        [Test]
+        public async Task GivenZoneCoordinatesOutsideTheBounds_WhenFilteringZones_ThenNoZoneIsReturned()
+        {
+            await CreateWorldAndZoneType();
+            await client.PostAsync(
+                "/zones",
+                "{\"id\":\"cornova\",\"type\":\"city\",\"world\":\"overworld\",\"bounds\":{\"firstCorner\":{\"world\":\"overworld\",\"x\":0,\"y\":0,\"z\":0},\"secondCorner\":{\"world\":\"overworld\",\"x\":32,\"y\":128,\"z\":32}}}".CreateJsonContent());
+
+            HttpResponseMessage response = await client.GetAsync(
+                "/zones/by-coordinates?world=overworld&x=64&y=64&z=64");
+            string responseBody = await response.Content.ReadAsStringAsync();
+
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(responseBody, Does.Contain("\"zoneIdentifiers\":[]"));
+        }
+
+        [Test]
+        public async Task GivenInvalidZoneDependenciesAndBounds_WhenCreatingAZone_ThenTheApiReturnsTheRelevantError()
+        {
+            HttpResponseMessage missingWorldResponse = await client.PostAsync(
+                "/zones",
+                "{\"id\":\"cornova\",\"type\":\"city\",\"world\":\"absent\",\"bounds\":{\"firstCorner\":{\"world\":\"absent\",\"x\":0,\"y\":0,\"z\":0},\"secondCorner\":{\"world\":\"absent\",\"x\":32,\"y\":128,\"z\":32}}}".CreateJsonContent());
+            await client.PostAsync(
+                "/worlds",
+                "{\"id\":\"overworld\"}".CreateJsonContent());
+            HttpResponseMessage missingTypeResponse = await client.PostAsync(
+                "/zones",
+                "{\"id\":\"cornova\",\"type\":\"absent\",\"world\":\"overworld\",\"bounds\":{\"firstCorner\":{\"world\":\"overworld\",\"x\":0,\"y\":0,\"z\":0},\"secondCorner\":{\"world\":\"overworld\",\"x\":32,\"y\":128,\"z\":32}}}".CreateJsonContent());
+            await client.PostAsync(
+                "/zonetypes",
+                "{\"id\":\"city\"}".CreateJsonContent());
+            HttpResponseMessage mixedBoundsResponse = await client.PostAsync(
+                "/zones",
+                "{\"id\":\"cornova\",\"type\":\"city\",\"world\":\"overworld\",\"bounds\":{\"firstCorner\":{\"world\":\"overworld\",\"x\":0,\"y\":0,\"z\":0},\"secondCorner\":{\"world\":\"nether\",\"x\":32,\"y\":128,\"z\":32}}}".CreateJsonContent());
+
+            Assert.That(missingWorldResponse.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+            Assert.That(missingTypeResponse.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+            Assert.That(mixedBoundsResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        }
+
         private async Task CreateWorldAndZoneType()
         {
             await client.PostAsync(

@@ -50,5 +50,13 @@ namespace NuciCraft.API.IntegrationTests
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(responseBody, Does.Contain("Ilarion"));
         }
+
+        [Test]
+        public async Task GivenAnUnsupportedMobType_WhenGeneratingARandomName_ThenTheApiReturnsNotImplemented()
+        {
+            HttpResponseMessage response = await client.GetAsync("/mobs/unknown/random-name");
+
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotImplemented));
+        }
     }
 }

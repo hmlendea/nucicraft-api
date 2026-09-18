@@ -24,10 +24,31 @@ namespace NuciCraft.API.IntegrationTests
 
         private static string StoreDirectoryName => "nucicraft-api-integration-tests";
 
-        private readonly string storeDirectory = Path.Combine(
-            Path.GetTempPath(),
-            StoreDirectoryName,
-            Guid.NewGuid().ToString("N"));
+        private readonly bool deletesStoreDirectory;
+        private readonly string storeDirectory;
+
+        public ApiTestHost()
+            : this(
+                Path.Combine(
+                    Path.GetTempPath(),
+                    StoreDirectoryName,
+                    Guid.NewGuid().ToString("N")),
+                true)
+        {
+        }
+
+        public ApiTestHost(string storeDirectory)
+            : this(storeDirectory, false)
+        {
+        }
+
+        private ApiTestHost(
+            string storeDirectory,
+            bool deletesStoreDirectory)
+        {
+            this.storeDirectory = storeDirectory;
+            this.deletesStoreDirectory = deletesStoreDirectory;
+        }
 
         public HttpClient CreateAuthorisedClient()
         {
@@ -88,7 +109,7 @@ namespace NuciCraft.API.IntegrationTests
         {
             base.Dispose(disposing);
 
-            if (disposing && Directory.Exists(storeDirectory))
+            if (disposing && deletesStoreDirectory && Directory.Exists(storeDirectory))
             {
                 Directory.Delete(storeDirectory, true);
             }
