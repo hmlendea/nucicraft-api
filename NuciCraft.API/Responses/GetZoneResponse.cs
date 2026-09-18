@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 using NuciAPI.Responses;
 
@@ -11,6 +12,7 @@ namespace NuciCraft.API.Responses
     public sealed class GetZoneResponse(Zone zone) : NuciApiResponseContent
     {
         [HmacOrder(1)]
+        [JsonPropertyName("id")]
         public string Identifier { get; set; } = zone.Identifier;
 
         [HmacOrder(2)]

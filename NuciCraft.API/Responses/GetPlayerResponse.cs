@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 using NuciAPI.Responses;
 
@@ -11,6 +12,7 @@ namespace NuciCraft.API.Responses
     public class GetPlayerResponse(Player player) : NuciApiResponseContent
     {
         [HmacOrder(1)]
+        [JsonPropertyName("id")]
         public string Identifier { get; set; } = player.Identifier;
 
         [HmacOrder(2)]

@@ -222,7 +222,7 @@ namespace NuciCraft.API.UnitTests.Responses
                     "displayName",
                     "emailAddress",
                     "gender",
-                    "identifier",
+                    "id",
                     "isBanned",
                     "isMuted",
                     "lastDeathDT",

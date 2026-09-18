@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using NuciAPI.Responses;
 
 using NuciSecurity.HMAC;
@@ -9,6 +11,7 @@ namespace NuciCraft.API.Responses
     public sealed class GetCountryResponse(Country country) : NuciApiResponseContent
     {
         [HmacOrder(1)]
+        [JsonPropertyName("id")]
         public string Identifier { get; set; } = country.Identifier;
 
         [HmacOrder(2)]

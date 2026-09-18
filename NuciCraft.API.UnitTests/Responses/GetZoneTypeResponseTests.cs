@@ -33,12 +33,15 @@ namespace NuciCraft.API.UnitTests.Responses
                 Is.EquivalentTo(["code", "content", "hmac", "message", "success"]));
             Assert.That(
                 contentElement.EnumerateObject().Select(property => property.Name),
-                Does.Contain("identifier"));
+                Does.Contain("id"));
+            Assert.That(
+                contentElement.EnumerateObject().Select(property => property.Name),
+                Does.Not.Contain("identifier"));
             Assert.That(
                 contentElement.TryGetProperty("zoneType", out JsonElement _),
                 Is.False);
             Assert.That(
-                contentElement.GetProperty("identifier").GetString(),
+                contentElement.GetProperty("id").GetString(),
                 Is.EqualTo("city"));
         }
     }
