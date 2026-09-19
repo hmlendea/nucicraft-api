@@ -258,14 +258,18 @@ curl -X PATCH "http://localhost:5000/Worlds/main" \
 
 ```bash
 curl -X POST "http://localhost:5000/ZoneTypes" \
-	-H "Content-Type: application/json" \
-	-d '{
-		"id": "city",
-		"name": {
-			"english": "City",
-			"romanian": "Oraș"
-		}
-	}'
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "city",
+    "categories": [
+      "settlement",
+      "civilian"
+    ],
+    "name": {
+      "english": "City",
+      "romanian": "Oraș"
+    }
+  }'
 ```
 
 ```bash
@@ -275,15 +279,19 @@ curl "http://localhost:5000/ZoneTypes"
 
 ```bash
 curl -X PATCH "http://localhost:5000/ZoneTypes/city" \
-	-H "Content-Type: application/json" \
-	-d '{
-		"name": {
-			"romanian": "Oraș Mare"
-		}
-	}'
+  -H "Content-Type: application/json" \
+  -d '{
+    "categories": [
+      "capital",
+      "fortified"
+    ],
+    "name": {
+      "romanian": "Oraș Mare"
+    }
+  }'
 ```
 
-Zone type names are localised. Patch requests merge supplied localisations with persisted values.
+Zone types include string categories and localised names. Patch requests replace supplied categories and merge supplied localisations with persisted values.
 
 ### Manage Zones
 

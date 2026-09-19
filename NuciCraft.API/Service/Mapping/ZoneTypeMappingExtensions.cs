@@ -10,6 +10,7 @@ namespace NuciCraft.API.Service.Mapping
     {
         internal static ZoneType ToServiceModel(this ZoneTypeDataObject dataObject) => new()
         {
+            Categories = dataObject.Categories,
             Identifier = dataObject.Id,
             Name = dataObject.Name?.ToServiceModel()
         };

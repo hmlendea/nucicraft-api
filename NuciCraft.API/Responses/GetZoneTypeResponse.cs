@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 using NuciAPI.Responses;
@@ -15,6 +16,9 @@ namespace NuciCraft.API.Responses
         public string Identifier { get; set; } = zoneType.Identifier;
 
         [HmacOrder(2)]
+        public IEnumerable<string> Categories { get; set; } = zoneType.Categories;
+
+        [HmacOrder(3)]
         public LocalisedString Name { get; set; } = zoneType.Name;
     }
 }
