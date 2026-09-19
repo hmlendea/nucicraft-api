@@ -106,6 +106,12 @@ namespace NuciCraft.API.IntegrationTests
                     }));
                 services.RemoveAll<INuciApiClient>();
                 services.AddSingleton(nameGeneratorClientMock.Object);
+                Mock<IServerStatusService> serverStatusServiceMock = new();
+                serverStatusServiceMock
+                    .Setup(service => service.GetOnlinePlayersCount())
+                    .Returns(42);
+                services.RemoveAll<IServerStatusService>();
+                services.AddSingleton(serverStatusServiceMock.Object);
             });
         }
 

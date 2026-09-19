@@ -67,6 +67,7 @@ namespace NuciCraft.API
                         .GetRequiredService<UniversalNameGeneratorSettings>()
                         .BaseUrl))
             .AddSingleton<IMobService, MobService>()
+            .AddSingleton<IServerStatusService, ServerStatusService>()
             .AddSingleton<ICountryService, CountryService>()
             .AddSingleton<IWorldService, WorldService>()
             .AddSingleton<IZoneTypeService, ZoneTypeService>()

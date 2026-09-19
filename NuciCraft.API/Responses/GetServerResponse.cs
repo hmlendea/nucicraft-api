@@ -17,5 +17,8 @@ namespace NuciCraft.API.Responses
 
         [HmacOrder(4)]
         public int BedrockEditionPort { get; set; }
+
+        [HmacOrder(5)]
+        public int OnlinePlayersCount { get; set; }
     }
 }
