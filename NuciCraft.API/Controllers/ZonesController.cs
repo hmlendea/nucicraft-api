@@ -63,6 +63,21 @@ namespace NuciCraft.API.Controllers
                 authorisation);
 
         [HttpGet]
+        [Route("by-category/{category}")]
+        public ActionResult GetByCategory(
+            string category)
+            => ProcessRequest(
+                new GetZonesByCategoryRequest
+                {
+                    Category = category
+                },
+                () => new NuciApiContentResponse<GetZonesResponse>(new()
+                {
+                    Zones = service.GetZonesByCategory(category)
+                }),
+                authorisation);
+
+        [HttpGet]
         [Route("by-coordinates")]
         public ActionResult GetContainingCoordinates(
             [FromQuery] GetZonesContainingCoordinatesRequest request)

@@ -119,6 +119,36 @@ namespace NuciCraft.API.UnitTests.Controllers
         }
 
         [Test]
+        public void GivenACategory_WhenGettingZonesByCategory_ThenTheZonesAreReturned()
+        {
+            IEnumerable<Zone> zones = [new() { Identifier = "solara" }];
+            serviceMock
+                .Setup(service => service.GetZonesByCategory("settlement"))
+                .Returns(zones);
+
+            OkObjectResult result = controller.GetByCategory("settlement") as OkObjectResult;
+            NuciApiContentResponse<GetZonesResponse> response =
+                result.Value as NuciApiContentResponse<GetZonesResponse>;
+            GetZonesResponse content = response.Content;
+
+            Assert.That(content.Zones, Is.SameAs(zones));
+            serviceMock.Verify(service => service.GetZonesByCategory("settlement"), Times.Once);
+        }
+
+        [Test]
+        public void GivenTheGetByCategoryAction_WhenInspectingItsRoute_ThenItUsesTheByCategorySegmentAndGetMethod()
+        {
+            MethodInfo actionMethod = typeof(ZonesController)
+                .GetMethod(nameof(ZonesController.GetByCategory));
+            RouteAttribute routeAttribute = actionMethod
+                .GetCustomAttribute<RouteAttribute>();
+
+            Assert.That(routeAttribute, Is.Not.Null);
+            Assert.That(routeAttribute.Template, Is.EqualTo("by-category/{category}"));
+            Assert.That(actionMethod.GetCustomAttribute<HttpGetAttribute>(), Is.Not.Null);
+        }
+
+        [Test]
         public void GivenCoordinates_WhenGettingContainingZones_ThenTheirIdentifiersAreReturned()
         {
             IEnumerable<string> zoneIdentifiers = ["solara", "nucilandia"];

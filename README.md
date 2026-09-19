@@ -334,7 +334,10 @@ curl -X POST "http://localhost:5000/Zones" \
 ```bash
 curl "http://localhost:5000/Zones/spawn-city"
 curl "http://localhost:5000/Zones"
+curl "http://localhost:5000/Zones/by-category/settlement"
 ```
+
+The category route returns zones whose zone type contains the supplied category.
 
 ```bash
 curl "http://localhost:5000/Zones/by-coordinates?world=world&x=64&y=72&z=128"
