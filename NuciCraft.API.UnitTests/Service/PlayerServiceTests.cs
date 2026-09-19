@@ -702,7 +702,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(capturedEntity.DiscordId, Is.EqualTo(original.DiscordId));
             Assert.That(capturedEntity.EmailAddress, Is.EqualTo(original.EmailAddress));
             Assert.That(capturedEntity.WikiUrl, Is.EqualTo(original.WikiUrl));
-            Assert.That(capturedEntity.IsBanned, Is.False);
+            Assert.That(capturedEntity.IsBanned);
             Assert.That(capturedEntity.BannedDT, Is.EqualTo(original.BannedDT));
             Assert.That(capturedEntity.BannedReason, Is.EqualTo(original.BannedReason));
             Assert.That(capturedEntity.BannedBy, Is.EqualTo(original.BannedBy));
