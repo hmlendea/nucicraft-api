@@ -941,6 +941,115 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenZonesAndZoneTypes_WhenGettingZonesByCategory_ThenZonesWithMatchingZoneTypeCategoryAreReturned()
+        {
+            ZoneDataObject matchingZone = BuildZoneDataObject();
+            matchingZone.Id = "solara";
+            matchingZone.Type = "city";
+            ZoneDataObject nonMatchingZone = BuildZoneDataObject();
+            nonMatchingZone.Id = "nucilandia";
+            nonMatchingZone.Type = "building";
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([matchingZone, nonMatchingZone]);
+            zoneTypeRepositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([
+                    new() { Id = "city", Categories = ["settlement", "civilian"] },
+                    new() { Id = "building", Categories = ["structure"] },
+                    new() { Id = "marker" }
+                ]);
+
+            Zone[] zones = zoneService.GetZonesByCategory("settlement").ToArray();
+
+            Assert.That(zones, Has.Length.EqualTo(1));
+            Assert.That(zones[0].Identifier, Is.EqualTo("solara"));
+        }
+
+        [Test]
+        public void GivenAZoneWithoutAMapLinkInAWorldWithAWebMap_WhenGettingZonesByCategory_ThenAWebMapLinkIsGenerated()
+        {
+            ZoneDataObject zoneDataObject = BuildZoneDataObject();
+            zoneDataObject.MapLink = null;
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([zoneDataObject]);
+            zoneTypeRepositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([new() { Id = "building", Categories = ["structure"] }]);
+            worldRepositoryMock
+                .Setup(repository => repository.Get("world"))
+                .Returns(new WorldDataObject
+                {
+                    Id = "world",
+                    HasWebMap = true
+                });
+
+            Zone[] zones = zoneService.GetZonesByCategory("structure").ToArray();
+
+            Assert.That(
+                zones[0].MapLink,
+                Is.EqualTo("https://mc.nucilandia.ro/nucicraft/webmap/?worldname=world&x=42&z=128"));
+            Assert.That(zoneDataObject.MapLink, Is.Null);
+            repositoryMock.Verify(repository => repository.Update(It.IsAny<ZoneDataObject>()), Times.Never);
+            repositoryMock.Verify(repository => repository.SaveChanges(), Times.Never);
+        }
+
+        [Test]
+        public void GivenACategoryWithoutMatchingZoneTypes_WhenGettingZonesByCategory_ThenAnEmptyCollectionIsReturned()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildZoneDataObject()]);
+            zoneTypeRepositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([new() { Id = "building", Categories = ["structure"] }]);
+
+            Zone[] zones = zoneService.GetZonesByCategory("settlement").ToArray();
+
+            Assert.That(zones, Is.Empty);
+        }
+
+        [Test]
+        public void GivenACategoryWithDifferentCasing_WhenGettingZonesByCategory_ThenAnEmptyCollectionIsReturned()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildZoneDataObject()]);
+            zoneTypeRepositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([new() { Id = "building", Categories = ["structure"] }]);
+
+            Zone[] zones = zoneService.GetZonesByCategory("Structure").ToArray();
+
+            Assert.That(zones, Is.Empty);
+        }
+
+        [Test]
+        public void GivenAWhitespaceCategory_WhenGettingZonesByCategory_ThenAnArgumentExceptionIsThrown()
+            => Assert.That(
+                () => zoneService.GetZonesByCategory(" "),
+                Throws.TypeOf<ArgumentException>());
+
+        [Test]
+        public void GivenANullCategory_WhenGettingZonesByCategory_ThenAnArgumentExceptionIsThrown()
+            => Assert.That(
+                () => zoneService.GetZonesByCategory(null),
+                Throws.TypeOf<ArgumentException>());
+
+        [Test]
+        public void GivenAZoneTypeRepositoryException_WhenGettingZonesByCategory_ThenTheExceptionIsRethrown()
+        {
+            zoneTypeRepositoryMock
+                .Setup(repository => repository.GetAll())
+                .Throws<InvalidOperationException>();
+
+            Assert.That(
+                () => zoneService.GetZonesByCategory("settlement"),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
         public void GivenOverlappingZonesAndCoordinatesOnTheirBounds_WhenGettingContainingZoneIdentifiers_ThenAllMatchingIdentifiersAreReturned()
         {
             ZoneDataObject matchingZone = BuildZoneDataObject();

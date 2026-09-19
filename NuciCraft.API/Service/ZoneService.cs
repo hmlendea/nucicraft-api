@@ -208,6 +208,57 @@ namespace NuciCraft.API.Service
             }
         }
 
+        public IEnumerable<Zone> GetZonesByCategory(string category)
+        {
+            ValidateCategory(category);
+
+            IEnumerable<LogInfo> logInfos =
+            [
+                new(MyLogInfoKey.Category, category)
+            ];
+
+            logger.Info(
+                MyOperation.GetZonesByCategory,
+                OperationStatus.Started,
+                logInfos);
+
+            try
+            {
+                string[] zoneTypeIdentifiers = zoneTypeRepository.GetAll()
+                    .Where(zoneTypeDataObject => zoneTypeDataObject.Categories is not null)
+                    .Where(zoneTypeDataObject => zoneTypeDataObject.Categories.Contains(
+                        category,
+                        StringComparer.Ordinal))
+                    .Select(zoneTypeDataObject => zoneTypeDataObject.Id)
+                    .ToArray();
+                IEnumerable<ZoneDataObject> zoneDataObjects = repository.GetAll()
+                    .Where(zoneDataObject => zoneTypeIdentifiers.Contains(
+                        zoneDataObject.Type,
+                        StringComparer.Ordinal))
+                    .Select(zoneDataObject => GetNormalisedZoneDataObject(zoneDataObject));
+                IEnumerable<Zone> zones = zoneDataObjects
+                    .ToServiceModels()
+                    .Select(EnrichZone);
+
+                logger.Info(
+                    MyOperation.GetZonesByCategory,
+                    OperationStatus.Success,
+                    logInfos.Append(new(MyLogInfoKey.Count, zones.Count())));
+
+                return zones;
+            }
+            catch (Exception exception)
+            {
+                logger.Error(
+                    MyOperation.GetZonesByCategory,
+                    OperationStatus.Failure,
+                    exception,
+                    logInfos);
+
+                throw;
+            }
+        }
+
         public IEnumerable<string> GetZoneIdentifiersContainingCoordinates(CoordinatesDataObject coordinates)
         {
             ArgumentNullException.ThrowIfNull(coordinates);
@@ -324,6 +375,14 @@ namespace NuciCraft.API.Service
             if (string.IsNullOrWhiteSpace(coordinates.World))
             {
                 throw new ArgumentException("The coordinate world must be provided.");
+            }
+        }
+
+        private static void ValidateCategory(string category)
+        {
+            if (string.IsNullOrWhiteSpace(category))
+            {
+                throw new ArgumentException("The zone category must be provided.");
             }
         }
 

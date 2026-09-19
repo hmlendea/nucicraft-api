@@ -137,6 +137,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
         {
             ZoneTypeDataObject dataObject = new()
             {
+                Categories = ["settlement", "civilian"],
                 Id = "city",
                 Name = BuildLocalisedStringDataObject()
             };
@@ -147,6 +148,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 dataObject);
 
             Assert.That(serviceModel.Identifier, Is.EqualTo("city"));
+            Assert.That(serviceModel.Categories, Is.EqualTo(new[] { "settlement", "civilian" }));
             Assert.That(serviceModel.Name.English, Is.EqualTo("Nucilandia"));
         }
 

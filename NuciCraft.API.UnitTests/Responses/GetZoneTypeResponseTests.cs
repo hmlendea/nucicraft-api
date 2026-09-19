@@ -21,6 +21,7 @@ namespace NuciCraft.API.UnitTests.Responses
         {
             NuciApiContentResponse<GetZoneTypeResponse> response = new(new GetZoneTypeResponse(new()
             {
+                Categories = ["settlement", "civilian"],
                 Identifier = "city"
             }));
             using JsonDocument responseDocument = JsonSerializer.SerializeToDocument(
@@ -36,6 +37,9 @@ namespace NuciCraft.API.UnitTests.Responses
                 Does.Contain("id"));
             Assert.That(
                 contentElement.EnumerateObject().Select(property => property.Name),
+                Does.Contain("categories"));
+            Assert.That(
+                contentElement.EnumerateObject().Select(property => property.Name),
                 Does.Not.Contain("identifier"));
             Assert.That(
                 contentElement.TryGetProperty("zoneType", out JsonElement _),
@@ -43,6 +47,9 @@ namespace NuciCraft.API.UnitTests.Responses
             Assert.That(
                 contentElement.GetProperty("id").GetString(),
                 Is.EqualTo("city"));
+            Assert.That(
+                contentElement.GetProperty("categories").EnumerateArray().Select(category => category.GetString()),
+                Is.EqualTo(new[] { "settlement", "civilian" }));
         }
     }
 }

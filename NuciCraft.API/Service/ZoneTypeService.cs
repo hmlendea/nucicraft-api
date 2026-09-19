@@ -34,6 +34,7 @@ namespace NuciCraft.API.Service
             {
                 ZoneTypeDataObject zoneTypeDataObject = new()
                 {
+                    Categories = request.Categories,
                     Id = request.Identifier,
                     Name = request.Name,
                     CreatedDT = TimestampFormats.GetCurrentUtcTimestamp()
@@ -115,6 +116,11 @@ namespace NuciCraft.API.Service
             try
             {
                 ZoneTypeDataObject zoneTypeDataObject = repository.Get(request.Identifier);
+
+                if (request.Categories is not null)
+                {
+                    zoneTypeDataObject.Categories = request.Categories;
+                }
 
                 if (request.Name is not null)
                 {

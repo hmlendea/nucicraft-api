@@ -17,6 +17,7 @@ namespace NuciCraft.API.Logging
         public static Operation GetAllWorlds => new MyOperation(nameof(GetAllWorlds));
         public static Operation GetAllZones => new MyOperation(nameof(GetAllZones));
         public static Operation GetAllZoneTypes => new MyOperation(nameof(GetAllZoneTypes));
+        public static Operation GetZonesByCategory => new MyOperation(nameof(GetZonesByCategory));
         public static Operation GetZonesByCoordinates => new MyOperation(nameof(GetZonesByCoordinates));
         public static Operation GetCountry => new MyOperation(nameof(GetCountry));
         public static Operation GetPlayer => new MyOperation(nameof(GetPlayer));

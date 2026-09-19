@@ -42,10 +42,12 @@ namespace NuciCraft.API.UnitTests.Service
 
             zoneTypeService.Add(new AddZoneTypeRequest
             {
+                Categories = ["settlement", "civilian"],
                 Identifier = "city",
                 Name = new() { English = "City", Romanian = "Oras" }
             });
 
+            Assert.That(capturedDataObject.Categories, Is.EqualTo(new[] { "settlement", "civilian" }));
             Assert.That(capturedDataObject.Id, Is.EqualTo("city"));
             Assert.That(capturedDataObject.Name.English, Is.EqualTo("City"));
             Assert.That(capturedDataObject.Name.Romanian, Is.EqualTo("Oras"));
@@ -69,6 +71,7 @@ namespace NuciCraft.API.UnitTests.Service
             ZoneType zoneType = zoneTypeService.GetZoneType("city");
 
             Assert.That(zoneType.Identifier, Is.EqualTo("city"));
+            Assert.That(zoneType.Categories, Is.EqualTo(new[] { "settlement", "civilian" }));
             Assert.That(zoneType.Name.English, Is.EqualTo("City"));
             Assert.That(zoneType.Name.Romanian, Is.EqualTo("Oras"));
         }
@@ -84,6 +87,28 @@ namespace NuciCraft.API.UnitTests.Service
 
             Assert.That(zoneTypes, Has.Length.EqualTo(2));
             Assert.That(zoneTypes[1].Identifier, Is.EqualTo("castle"));
+        }
+
+        [Test]
+        public void GivenCategories_WhenUpdatingAZoneType_ThenTheCategoriesAreUpdated()
+        {
+            ZoneTypeDataObject capturedDataObject = null;
+            repositoryMock
+                .Setup(repository => repository.Get("city"))
+                .Returns(BuildZoneTypeDataObject());
+            repositoryMock
+                .Setup(repository => repository.Update(It.IsAny<ZoneTypeDataObject>()))
+                .Callback<ZoneTypeDataObject>(dataObject => capturedDataObject = dataObject);
+
+            zoneTypeService.Update(new PatchZoneTypeRequest
+            {
+                Categories = ["capital", "fortified"],
+                Identifier = "city"
+            });
+
+            Assert.That(capturedDataObject.Categories, Is.EqualTo(new[] { "capital", "fortified" }));
+            Assert.That(capturedDataObject.UpdatedDT, Is.Not.Null);
+            repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
         }
 
         [Test]
@@ -137,6 +162,7 @@ namespace NuciCraft.API.UnitTests.Service
 
         private static ZoneTypeDataObject BuildZoneTypeDataObject() => new()
         {
+            Categories = ["settlement", "civilian"],
             Id = "city",
             Name = new()
             {

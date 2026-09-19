@@ -148,7 +148,7 @@ Store preparation precedes middleware construction and is not itself middleware.
 | `WorldService` | Add, retrieve, list, and patch world metadata, including merged localised values, web-map availability, spawn points, and world types. | World repository and logger. | Singleton. |
 | `ZoneTypeService` | Add, retrieve, list, and patch localised zone-type metadata. | Zone type repository and logger. | Singleton. |
 | `CountryService` | Add, retrieve, list, and patch country metadata, including merged localised values. | Country repository, logger. | Singleton. |
-| `ZoneService` | Add, retrieve, list, patch, and delete zones while enforcing bounds, zone-type references, and localised merge rules. | Zone, world, and zone-type repositories plus logger. | Singleton. |
+| `ZoneService` | Add, retrieve, list, category-filter, patch, and delete zones while enforcing bounds, zone-type references, and localised merge rules. | Zone, world, and zone-type repositories plus logger. | Singleton. |
 | `RtpLocationService` | Enforce proximity rules, persist RTP locations, and select random filtered locations. | RTP repository, `RtpLocationSettings`, logger. | Singleton. |
 | `MobService` | Map supported mobs to schemas and obtain one name from the external generator. | `INuciApiClient`, `UniversalNameGeneratorSettings`, logger. | Singleton. |
 | `JsonRepository<T>` | Provide file-backed `IFileRepository<T>` operations for one data-object type. | NuciDAL, configured store path. | One singleton per store. |

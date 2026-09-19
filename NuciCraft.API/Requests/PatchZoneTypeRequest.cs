@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 using NuciAPI.Requests;
@@ -15,6 +16,9 @@ namespace NuciCraft.API.Requests
         public string Identifier { get; set; }
 
         [HmacOrder(2)]
+        public IEnumerable<string> Categories { get; set; }
+
+        [HmacOrder(3)]
         public LocalisedStringDataObject Name { get; set; }
     }
 }
