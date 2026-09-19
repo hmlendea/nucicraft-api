@@ -68,6 +68,7 @@ namespace NuciCraft.API.IntegrationTests
                 Dictionary<string, string?> configurationValues = new()
                 {
                     ["dataStoreSettings:countriesStorePath"] = GetStorePath("countries.json"),
+                    ["dataStoreSettings:homesStorePath"] = GetStorePath("homes.json"),
                     ["dataStoreSettings:playersStorePath"] = GetStorePath("players.json"),
                     ["dataStoreSettings:rtpLocationsStorePath"] = GetStorePath("rtp_locations.json"),
                     ["dataStoreSettings:worldsStorePath"] = GetStorePath("worlds.json"),

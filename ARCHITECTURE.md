@@ -21,6 +21,7 @@ This document records the verified current architecture of the NuciCraft API pro
     - [File-Backed Domain Request](#file-backed-domain-request)
     - [Mob Name Generation](#mob-name-generation)
 - [Domain Invariants](#domain-invariants)
+    - [Player Homes](#player-homes)
     - [Zone Bounds](#zone-bounds)
     - [RTP Location Proximity](#rtp-location-proximity)
 - [Cross-Cutting Concerns](#cross-cutting-concerns)
@@ -58,7 +59,7 @@ flowchart LR
                 Host["ASP.NET Core host"]
     end
 
-        Host -->|"Read and write JSON"| Stores[("Six configured data stores")]
+        Host -->|"Read and write JSON"| Stores[("Seven configured data stores")]
         Host -->|"Structured records"| Logs[("Configured log file")]
         Host -->|"Bearer-authenticated GET /Names"| NameGenerator["Universal Name Generator API"]
         Host -->|"TCP server-list status"| JavaServer["Configured Minecraft Java server"]
@@ -131,7 +132,7 @@ sequenceDiagram
 The principal runtime sequence is:
 1. [Program.cs](./NuciCraft.API/Program.cs) creates the default ASP.NET Core host and delegates composition to [Startup.cs](./NuciCraft.API/Startup.cs).
 2. `ConfigureServices` adds controllers, binds strongly typed settings, registers scanner protection, and registers the repositories, clients, services, utilities, and logger.
-3. `Configure` prepares all six JSON stores before accepting requests: missing parent directories and files are created, then each repository is resolved and materialised through `GetAll().ToList()`.
+3. `Configure` prepares all seven JSON stores prior to accepting requests: missing parent directories and files are created, then each repository is resolved and materialised via `GetAll().ToList()`.
 4. The middleware pipeline executes exception handling, scanner protection, request logging, the Development-only exception page, HTTPS redirection, default files, static files, routing, authorisation, and controller endpoints in that order.
 5. A controller constructs or receives a request DTO and delegates through `ProcessRequest` with a service operation and API-key authorisation descriptor.
 6. The service logs the operation, executes domain logic, and accesses either an `IFileRepository<T>` or `INuciApiClient`.
@@ -151,6 +152,7 @@ Store preparation precedes middleware construction and is not itself middleware.
 | `ServersController` | Return configured server details and the live Java online player count at `GET /Server`. | `NuciApiController`, `IServerStatusService`, `ServerSettings`, `SecuritySettings`. | Framework-created request handler. |
 | `ServerStatusService` | Query the online player count reported by the Java server. | `ServerSettings`, MineStat, outbound TCP access. | Singleton; each query creates independent status state and is synchronous. |
 | `PlayerService` | Register, retrieve, list, and patch players through identifier, username, offline UUID, or online UUID selectors. | Player repository and logger. | Singleton. |
+| `HomeService` | Create, retrieve, filter, and patch homes; resolve POST usernames and enforce per-player name uniqueness. | Home repository, `IPlayerService`, logger. | Singleton with an instance lock surrounding Home reads and mutations. |
 | `WorldService` | Add, retrieve, list, and patch world metadata, including merged localised values, web-map availability, spawn points, and world types. | World repository and logger. | Singleton. |
 | `ZoneTypeService` | Add, retrieve, list, and patch localised zone-type metadata. | Zone type repository and logger. | Singleton. |
 | `CountryService` | Add, retrieve, list, and patch country metadata, including merged localised values. | Country repository, logger. | Singleton. |
@@ -219,7 +221,7 @@ Paths:
 - [NuciCraft.API/Data](./NuciCraft.API/Data/)
 
 Responsibilities:
-- Define JSON-serialisable records and retain player, world, country, zone, and RTP location state.
+- Define JSON-serialisable records and retain player, home, world, country, zone, and RTP location state.
 - Persist service mutations when `SaveChanges` is invoked.
 
 Boundary rules:
@@ -245,6 +247,7 @@ flowchart LR
 
 | Data or Store | Owner | Representation and Storage | Lifecycle or Consistency |
 |---------------|-------|----------------------------|--------------------------|
+| Home records | `HomeService` | `HomeDataObject` records in the JSON file selected by `dataStoreSettings.homesStorePath`. | Random GUID and creation timestamp generated on creation; patches preserve them and generate an update timestamp. Player references contain identifiers. |
 | `players.json` | `PlayerService` | `PlayerDataObject` records at `Data/players.json` by default. | Created during registration and patched synchronously; selectors include identifier, username, offline UUID, and online UUID. |
 | `worlds.json` | `WorldService` | `WorldDataObject` records at `Data/worlds.json` by default, including web-map availability, an optional spawn point, and a string world type. | Added and patched synchronously; provided localised properties merge with persisted values, omitted patch fields remain unchanged, and absent or unsupported types map to `overworld`. |
 | `countries.json` | `CountryService` | `CountryDataObject` records at `Data/countries.json` by default. | Added and patched synchronously; provided localised properties merge with persisted values. |
@@ -326,6 +329,14 @@ sequenceDiagram
 
 ## ⚙️ Domain Invariants
 
+### Player Homes
+
+[HomeService](./NuciCraft.API/Service/HomeService.cs) resolves POST usernames via `IPlayerService`, stores only the resulting player identifier, and generates the home GUID and UTC creation timestamp. PATCH player values and GET player selectors use identifiers. The request contracts do not accept creation or update timestamps; the service preserves creation metadata and generates update timestamps on successful patches.
+
+Every home requires a non-whitespace name in at least one locale. Any shared translation between two homes of one player constitutes a duplicate, using ordinal case-insensitive comparison after trimming surrounding whitespace. The identical comparison determines query-string name lookup. Different players may possess identically named homes. Creation, renaming, and ownership changes all enforce this invariant.
+
+Patches merge names into a detached copy of the persisted record, validate the candidate, and only then update and save. Failed duplicate checks cannot mutate stored translations or ownership. All Home operations execute under the singleton service's instance lock, including uniqueness checks and saves; this protects concurrent requests within one process, not multiple API instances. Returned collections are materialised while the lock is held.
+
 ### Zone Bounds
 
 Zone creation requires both opposite corners. Both corners must contain a non-vacant world and must refer to the identical world using ordinal comparison.
@@ -359,6 +370,8 @@ Request and response contracts use `HmacOrder` attributes where canonical proper
 
 Committed secret fields contain deployment placeholders. Production deployments must inject genuine values through protected configuration sources. API keys, player credentials, personal identifiers, IP addresses, and location data are sensitive at transport, persistence, logging, and backup boundaries.
 
+Homes expose player identifiers and saved coordinates only to API-key-authorised clients. The `player` selector is a data filter, not an authenticated player identity; the API key retains its existing service-wide access. Home service logs record operations without embedding names, player identifiers, or coordinates.
+
 ### Error Handling
 
 Application services record failure context and rethrow exceptions. Nuci API exception middleware owns the outer translation into an HTTP error contract. Domain validation can raise argument exceptions, missing records propagate repository failures, unsupported mob types raise `NotImplementedException`, and external response failures become `InvalidOperationException`.
@@ -377,7 +390,7 @@ The default ASP.NET Core host supplies file, environment, and command-line confi
 
 | Configuration Area | Source | Responsibility | Override or Secret Policy |
 |--------------------|--------|----------------|---------------------------|
-| `dataStoreSettings` | `appsettings.json` and default host providers. | Select six JSON store paths. | May be overridden per deployment; paths must resolve to protected writable storage. |
+| `dataStoreSettings` | [appsettings.json](./NuciCraft.API/appsettings.json) and default host providers. | Select seven JSON store paths, including `homesStorePath`. | May be overridden per deployment; paths must resolve to protected writable storage. |
 | `serverSettings` | [appsettings.json](./NuciCraft.API/appsettings.json) and default host providers. | Advertise server identity and ports; select the hostname and Java port queried for the live player count. | Bound once at startup; changes require an API restart and do not alter Minecraft listeners. The count itself is not configurable. |
 | `rtpLocationSettings` | `appsettings.json` and default host providers. | Select general and same-biome proximity limits. | Non-secret operational values may be overridden per environment. |
 | `securitySettings` | Deployment placeholder and default host providers. | Supply inbound API-key authorisation material. | Genuine values must originate from a protected secret source. |
@@ -386,9 +399,9 @@ The default ASP.NET Core host supplies file, environment, and command-line confi
 
 ### Concurrency and Resource Use
 
-The six application services, five repositories, outbound client, settings, and text utilities are singleton registrations. They can be reached by concurrent requests and must not acquire unprotected request-specific mutable state. The logger is registered as scoped but consumed by singleton services, so code must not presume that those service-held logger references provide per-request identity.
+Application services, the seven repositories, outbound client, settings, and text utilities are singleton registrations. They can be reached by concurrent requests and must not acquire unprotected request-specific mutable state. The logger is registered as scoped but consumed by singleton services, so code must not presume that those service-held logger references provide per-request identity.
 
-Repository writes and the outbound mob-name wait are synchronous from the service contract's perspective. No application-level locking or cross-instance coordination is present. RTP addition performs linear scans, and each process has independent singleton repository instances; these constraints favour one process and modest data volumes.
+Repository writes and the outbound mob-name wait are synchronous from the service contract's perspective. Home operations use an instance lock, while the remaining repository services provide no application-level locking. No cross-instance coordination is present. Home name checks and RTP addition perform linear scans, and each process has independent singleton repository instances; these constraints favour one process and modest data volumes.
 
 ## 🧭 Dependency Direction and Rules
 
@@ -433,12 +446,12 @@ The principal dependency rules are:
 
 ## 🚀 Deployment and Operations
 
-The deployment unit is one .NET 10 ASP.NET Core process containing every controller, service, repository, and integration adapter. It requires protected configuration, writable durable storage for four JSON stores, optional writable log storage, and outbound network access to the Universal Name Generator. The repository defines no database, message broker, distributed cache, container manifest, OpenAPI interface, or health endpoint.
+The deployment unit is one .NET 10 ASP.NET Core process containing every controller, service, repository, and integration adapter. It requires protected configuration, writable durable storage for seven JSON stores, optional writable log storage, and outbound network access to the Universal Name Generator. The repository defines no database, message broker, distributed cache, container manifest, OpenAPI interface, or health endpoint.
 
 | Concern | Current Design | Architectural Consequence |
 |---------|----------------|---------------------------|
 | Process topology | One modular-monolith process. | Domains share availability, memory, configuration, and deployment cadence. |
-| Persistent state | Five independently configured JSON files. | The operator must provide writable durable paths, coherent backups, and restricted access. |
+| Persistent state | Seven independently configured JSON files. | The operator must provide writable durable paths, coherent duplicates, and restricted access. |
 | Startup | Creates missing directories and files, then queries every repository before serving requests. | Invalid paths, permissions, or unreadable data can prevent process startup. |
 | Scaling | No distributed locking, invalidation, or cross-instance coordination is configured. | The supported topology is one process; multiple writers can produce stale reads or overwritten state. |
 | External connectivity | Mob-name requests call the Universal Name Generator; server-information requests query the Minecraft Java port over TCP. Both service contracts are synchronous. | Remote latency affects the initiating request. Unavailable Java status returns zero players; name generation has no local fallback. |
@@ -459,7 +472,7 @@ The deployment unit is one .NET 10 ASP.NET Core process containing every control
 
 The [NuciCraft.API.UnitTests](./NuciCraft.API.UnitTests/) project mirrors production areas and uses NUnit, Moq, and the Microsoft .NET test SDK. Root fixtures verify host and service registration, controller fixtures verify routes, request construction, authorisation, and delegation, service fixtures isolate repositories and logging, and mapping fixtures invoke internal extension methods through `MappingMethodInvoker`.
 
-The suite verifies domain success and failure paths, store preparation, response contracts, and logging enumerations. It does not provide a separate end-to-end or integration-test project. Real concurrent file access, complete external middleware semantics, deployment configuration, and live Universal Name Generator availability therefore remain integration verification gaps.
+The suite verifies domain success and failure paths, store preparation, response contracts, and logging enumerations. [NuciCraft.API.IntegrationTests](./NuciCraft.API.IntegrationTests/) verifies HTTP routes and restart persistence using isolated temporary stores. Home coverage includes generated metadata, username resolution, every GET selector, localisation merging, duplicate rejection, ownership changes, authorisation, and persistence across restarts. Unit tests also exercise concurrent duplicate creation. Multi-process file access, deployment configuration, and live Universal Name Generator availability remain verification gaps.
 
 Execute the principal automated verification with:
 
