@@ -324,7 +324,10 @@ namespace NuciCraft.API.Service
                 playerDataObject.WikiUrl = request.WikiUrl;
             }
 
-            playerDataObject.IsBanned = request.IsBanned;
+            if (request.IsBanned is not null)
+            {
+                playerDataObject.IsBanned = request.IsBanned.Value;
+            }
 
             if (request.BannedDT is not null)
             {
@@ -341,7 +344,10 @@ namespace NuciCraft.API.Service
                 playerDataObject.BannedBy = request.BannedBy;
             }
 
-            playerDataObject.IsMuted = request.IsMuted;
+            if (request.IsMuted is not null)
+            {
+                playerDataObject.IsMuted = request.IsMuted.Value;
+            }
 
             if (request.MutedDT is not null)
             {

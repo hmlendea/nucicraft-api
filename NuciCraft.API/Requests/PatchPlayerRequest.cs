@@ -42,7 +42,7 @@ namespace NuciCraft.API.Requests
         public string WikiUrl { get; set; }
 
         [HmacOrder(11)]
-        public bool IsBanned { get; set; }
+        public bool? IsBanned { get; set; }
 
         [HmacOrder(12)]
         public string BannedDT { get; set; }
@@ -54,7 +54,7 @@ namespace NuciCraft.API.Requests
         public string BannedBy { get; set; }
 
         [HmacOrder(13)]
-        public bool IsMuted { get; set; }
+        public bool? IsMuted { get; set; }
 
         [HmacOrder(14)]
         public string MutedDT { get; set; }
