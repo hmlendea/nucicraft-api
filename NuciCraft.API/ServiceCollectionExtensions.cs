@@ -30,12 +30,14 @@ namespace NuciCraft.API
         {
             dataStoreSettings = new DataStoreSettings();
             SecuritySettings securitySettings = new();
+            ServerSettings serverSettings = new();
             RtpLocationSettings rtpLocationSettings = new();
             UniversalNameGeneratorSettings universalNameGeneratorSettings = new();
             WebMapSettings webMapSettings = new();
 
             configuration.Bind(nameof(dataStoreSettings), dataStoreSettings);
             configuration.Bind(nameof(securitySettings), securitySettings);
+            configuration.Bind(nameof(serverSettings), serverSettings);
             configuration.Bind(nameof(rtpLocationSettings), rtpLocationSettings);
             configuration.Bind(nameof(webMapSettings), webMapSettings);
             configuration.Bind(
@@ -45,6 +47,7 @@ namespace NuciCraft.API
             return services
                 .AddSingleton(dataStoreSettings)
                 .AddSingleton(securitySettings)
+                .AddSingleton(serverSettings)
                 .AddSingleton(rtpLocationSettings)
                 .AddSingleton(universalNameGeneratorSettings)
                 .AddSingleton(webMapSettings)

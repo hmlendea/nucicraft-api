@@ -138,12 +138,15 @@ The principal runtime sequence is:
 
 Store preparation precedes middleware construction and is not itself middleware. Invalid paths, insufficient permissions, or unreadable store data can therefore prevent startup.
 
+`GET /Server` uses the identical authorisation and response processing but constructs its response directly from injected `ServerSettings`. It performs no service, repository, or external API calls and does not probe Minecraft availability.
+
 ## 🧩 Components
 
 | Component | Responsibility | Principal Dependencies | Lifetime or Ownership |
 |-----------|----------------|------------------------|-----------------------|
 | `Program` and `Startup` | Construct the host, register the request pipeline, and prepare stores. | ASP.NET Core, configuration, DI container, `DataStoreSettings`. | One composition root per process. |
 | Controllers | Own routes, assemble request DTOs, select service operations, and delegate authorisation and response processing. | `NuciApiController`, service interfaces, `SecuritySettings`. | Framework-created request handlers. |
+| `ServersController` | Return configured server identity and connection details at `GET /Server`. | `NuciApiController`, `ServerSettings`, `SecuritySettings`. | Framework-created request handler consuming singleton settings. |
 | `PlayerService` | Register, retrieve, list, and patch players through identifier, username, offline UUID, or online UUID selectors. | Player repository and logger. | Singleton. |
 | `WorldService` | Add, retrieve, list, and patch world metadata, including merged localised values, web-map availability, spawn points, and world types. | World repository and logger. | Singleton. |
 | `ZoneTypeService` | Add, retrieve, list, and patch localised zone-type metadata. | Zone type repository and logger. | Singleton. |
@@ -186,6 +189,7 @@ Responsibilities:
 
 Boundary rules:
 - Controllers depend upon service interfaces and must not access repositories directly.
+- Configuration-only server metadata is read directly from `ServerSettings` and returned as a dedicated response contract.
 - Persistence data objects must not become public request or response contracts.
 
 ### Application Services
@@ -252,7 +256,7 @@ At startup, missing parent directories and store files are created, absent files
 
 | Interface or Integration | Direction | Contract | Owner | Failure Semantics |
 |--------------------------|-----------|----------|-------|-------------------|
-| NuciCraft HTTP API | Inbound | ASP.NET Core attribute routes rooted at `[controller]`, JSON request/response contracts, and API-key authorisation passed to `ProcessRequest`. | Controllers and request/response DTOs. | Validation and authorisation failures remain within the Nuci controller boundary; uncaught service failures reach exception middleware. |
+| NuciCraft HTTP API | Inbound | ASP.NET Core attribute routes rooted at `[controller]`, plus the explicit `/Server` route, JSON request/response contracts, and API-key authorisation passed to `ProcessRequest`. | Controllers and request/response DTOs. | Validation and authorisation failures remain within the Nuci controller boundary; uncaught service failures reach exception middleware. |
 | JSON stores | Bidirectional | `IFileRepository<T>` operations over one configured file per data-object type. | `Startup`, application services, and NuciDAL adapters. | Invalid paths or initial reads can prevent startup; operation failures are logged and rethrown. |
 | Universal Name Generator API | Outbound | Typed GET request to `Names` with one schema, count of one, and bearer authorisation. | `MobService` through `INuciApiClient`. | Unsuccessful, unexpected, or vacant responses become `InvalidOperationException`; no local retry or fallback is configured. |
 | ASP.NET Core configuration | Inbound | Strongly typed sections bound by `ServiceCollectionExtensions`. | Composition root and settings classes. | Invalid store settings surface during startup; mob settings are checked when name generation is requested. |
@@ -370,6 +374,7 @@ The default ASP.NET Core host supplies file, environment, and command-line confi
 | Configuration Area | Source | Responsibility | Override or Secret Policy |
 |--------------------|--------|----------------|---------------------------|
 | `dataStoreSettings` | `appsettings.json` and default host providers. | Select six JSON store paths. | May be overridden per deployment; paths must resolve to protected writable storage. |
+| `serverSettings` | [appsettings.json](./NuciCraft.API/appsettings.json) and default host providers. | Advertise the server name, hostname, Java edition port, and Bedrock edition port. | Non-secret metadata bound once at startup; changes require an API restart and do not alter Minecraft listeners. |
 | `rtpLocationSettings` | `appsettings.json` and default host providers. | Select general and same-biome proximity limits. | Non-secret operational values may be overridden per environment. |
 | `securitySettings` | Deployment placeholder and default host providers. | Supply inbound API-key authorisation material. | Genuine values must originate from a protected secret source. |
 | `universalNameGeneratorSettings` | Deployment placeholders and default host providers. | Supply the external base URL and bearer token. | The base URL is environmental; the API key must originate from a protected secret source. |
@@ -404,6 +409,7 @@ flowchart LR
 The principal dependency rules are:
 - Concrete adapter construction and lifetime selection belong in `ServiceCollectionExtensions` and `Startup`.
 - Controllers may depend upon service interfaces and transport contracts, but must not depend upon repositories or persistence data objects.
+- The server-information controller may read its dedicated configuration settings directly without introducing a service or persistence dependency.
 - Services own domain logic and may depend upon repository, client, logger, utility, and settings abstractions.
 - Persistence data objects and service models may be translated only at the service or mapping boundary; neither representation may replace public HTTP contracts implicitly.
 - Cross-cutting request policies belong in middleware or shared Nuci abstractions rather than duplicated controller logic.

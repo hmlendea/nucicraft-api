@@ -11,6 +11,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 
 - [Capabilities](#capabilities)
 - [Usage](#usage)
+  - [Get Server Information](#get-server-information)
   - [Register a Player](#register-a-player)
 	- [Get a Player by ID](#get-a-player-by-id)
 	- [Get a Player by Username](#get-a-player-by-username)
@@ -47,6 +48,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 ## ✨ Capabilities
 
 - Registers, retrieves, and updates players via protected API endpoints
+- Retrieves the configured server name, hostname, and Java and Bedrock edition ports
 - Persists independently patchable player preferences, including teleportation-request reception
 - Stores and retrieves RTP locations with distance constraints and biome/world filtering
 - Generates random mob names via Universal Name Generator integration
@@ -62,6 +64,15 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 All endpoints are rooted at your configured host, for example `http://localhost:5000`.
 
 Requests are protected by API-key authorisation configured through `securitySettings.apiKey`.
+
+### Get Server Information
+
+```bash
+curl "http://localhost:5000/Server" \
+	-H "Authorization: Bearer ${NUCICRAFT_API_KEY}"
+```
+
+The response contains `name`, `hostname`, `javaEditionPort`, and `bedrockEditionPort` within the standard `content` envelope. These values describe the Minecraft server, not the API listener. This endpoint returns configuration only; it does not query Minecraft availability or player counts.
 
 ### Register a Player
 
@@ -382,7 +393,7 @@ dotnet restore NuciCraft.API.slnx
 
 ## ⚙️ Configuration
 
-All settings are loaded from the configuration file. The subsequent keys are recognised:
+Settings are loaded from [appsettings.json](./NuciCraft.API/appsettings.json), with overrides from the standard ASP.NET Core environment-variable and command-line configuration providers. The subsequent keys are recognised:
 
 | Section | Key | Description |
 |---------|-----|-------------|
@@ -392,6 +403,10 @@ All settings are loaded from the configuration file. The subsequent keys are rec
 | `dataStoreSettings` | `worldsStorePath` | Path to the worlds JSON store. |
 | `dataStoreSettings` | `zonesStorePath` | Path to the zones JSON store. |
 | `dataStoreSettings` | `zoneTypesStorePath` | Path to the zone types JSON store. |
+| `serverSettings` | `name` | Advertised server name. Defaults to `NuciCraft`. |
+| `serverSettings` | `hostname` | Advertised Minecraft hostname. Defaults to `localhost`; configure the address clients use. |
+| `serverSettings` | `javaEditionPort` | Advertised Java edition port. Defaults to `25565`. |
+| `serverSettings` | `bedrockEditionPort` | Advertised Bedrock edition port. Defaults to `19132`. |
 | `rtpLocationSettings` | `minimumLocationDistance` | Minimum distance permitted between any two RTP locations. |
 | `rtpLocationSettings` | `minimumBiomeLocationDistance` | Minimum distance permitted between RTP locations in the identical biome. |
 | `securitySettings` | `apiKey` | API key used for endpoint authorisation. |
@@ -399,6 +414,8 @@ All settings are loaded from the configuration file. The subsequent keys are rec
 | `universalNameGeneratorSettings` | `apiKey` | Universal Name Generator API key. |
 | `nuciLoggerSettings` | `logFilePath` | Path for file-based logs. |
 | `nuciLoggerSettings` | `isFileOutputEnabled` | Enables or disables file log output. |
+
+Environment-variable overrides for server information are `serverSettings__name`, `serverSettings__hostname`, `serverSettings__javaEditionPort`, and `serverSettings__bedrockEditionPort`. Settings are bound at startup, so restart the API after modifying them. These values do not configure Minecraft listeners or activate Bedrock support.
 
 ## 🛠️ Development
 
