@@ -35,7 +35,7 @@ To report a vulnerability:
 
 The subsequent report categories are in scope for this repository:
 - Authentication and authorisation bypass in API endpoints
-- Data exposure, tampering, or injection affecting player, RTP location, zone, or event data
+- Data exposure, tampering, or injection affecting player, home (including saved coordinates), RTP location, zone, or event data
 
 The subsequent categories are out of scope unless explicitly stated to the contrary:
 - Vulnerabilities in third-party services or dependencies outside this repository's codebase

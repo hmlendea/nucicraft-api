@@ -7,6 +7,10 @@ namespace NuciCraft.API.Logging
         private MyOperation(string name) : base(name) { }
 
         public static Operation AddCountry => new MyOperation(nameof(AddCountry));
+        public static Operation AddHome => new MyOperation(nameof(AddHome));
+        public static Operation GetHome => new MyOperation(nameof(GetHome));
+        public static Operation GetAllHomes => new MyOperation(nameof(GetAllHomes));
+        public static Operation UpdateHome => new MyOperation(nameof(UpdateHome));
         public static Operation AddRtpLocation => new MyOperation(nameof(AddRtpLocation));
         public static Operation AddWorld => new MyOperation(nameof(AddWorld));
         public static Operation AddZone => new MyOperation(nameof(AddZone));
