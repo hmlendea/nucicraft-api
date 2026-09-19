@@ -73,6 +73,7 @@ namespace NuciCraft.API.UnitTests
             Assert.That(serviceProvider.GetRequiredService<IFileRepository<ZoneTypeDataObject>>(), Is.Not.Null);
             Assert.That(serviceProvider.GetRequiredService<INuciApiClient>(), Is.Not.Null);
             Assert.That(serviceProvider.GetRequiredService<IMobService>(), Is.Not.Null);
+            Assert.That(serviceProvider.GetRequiredService<IServerStatusService>(), Is.TypeOf<ServerStatusService>());
             Assert.That(serviceProvider.GetRequiredService<ICountryService>(), Is.Not.Null);
             Assert.That(serviceProvider.GetRequiredService<IWorldService>(), Is.Not.Null);
             Assert.That(serviceProvider.GetRequiredService<IZoneTypeService>(), Is.Not.Null);

@@ -61,6 +61,7 @@ flowchart LR
         Host -->|"Read and write JSON"| Stores[("Six configured data stores")]
         Host -->|"Structured records"| Logs[("Configured log file")]
         Host -->|"Bearer-authenticated GET /Names"| NameGenerator["Universal Name Generator API"]
+        Host -->|"TCP server-list status"| JavaServer["Configured Minecraft Java server"]
 ```
 
 The principal external boundaries are:
@@ -68,6 +69,7 @@ The principal external boundaries are:
 - **Deployment environment:** Supplies settings and secret values through the standard ASP.NET Core configuration boundary without committing genuine credentials.
 - **Filesystem:** Stores application-owned JSON records and optional file logs; the operator owns path permissions, durability, backup, and access control.
 - **Universal Name Generator API:** Accepts an outbound bearer-authenticated name request and owns remote availability and response production.
+- **Minecraft Java server:** Supplies the reported online player count over TCP at the configured hostname and Java port.
 
 ## 🏗️ Architectural Style
 
@@ -138,12 +140,16 @@ The principal runtime sequence is:
 
 Store preparation precedes middleware construction and is not itself middleware. Invalid paths, insufficient permissions, or unreadable store data can therefore prevent startup.
 
+`GET /Server` constructs identity and connection details from injected `ServerSettings` and obtains `OnlinePlayersCount` from `IServerStatusService` after authorisation. `ServerStatusService` uses MineStat's Java legacy server-list protocol with a five-second connection and socket timeout. Each request queries the configured Java hostname and port without caching or a Bedrock fallback. Unavailable status and connection or socket failures return zero while preserving a successful server-information response. Invalid configuration, player-count parsing errors, and negative counts still fail the request.
+
 ## 🧩 Components
 
 | Component | Responsibility | Principal Dependencies | Lifetime or Ownership |
 |-----------|----------------|------------------------|-----------------------|
 | `Program` and `Startup` | Construct the host, register the request pipeline, and prepare stores. | ASP.NET Core, configuration, DI container, `DataStoreSettings`. | One composition root per process. |
 | Controllers | Own routes, assemble request DTOs, select service operations, and delegate authorisation and response processing. | `NuciApiController`, service interfaces, `SecuritySettings`. | Framework-created request handlers. |
+| `ServersController` | Return configured server details and the live Java online player count at `GET /Server`. | `NuciApiController`, `IServerStatusService`, `ServerSettings`, `SecuritySettings`. | Framework-created request handler. |
+| `ServerStatusService` | Query the online player count reported by the Java server. | `ServerSettings`, MineStat, outbound TCP access. | Singleton; each query creates independent status state and is synchronous. |
 | `PlayerService` | Register, retrieve, list, and patch players through identifier, username, offline UUID, or online UUID selectors. | Player repository and logger. | Singleton. |
 | `WorldService` | Add, retrieve, list, and patch world metadata, including merged localised values, web-map availability, spawn points, and world types. | World repository and logger. | Singleton. |
 | `ZoneTypeService` | Add, retrieve, list, and patch localised zone-type metadata. | Zone type repository and logger. | Singleton. |
@@ -186,6 +192,7 @@ Responsibilities:
 
 Boundary rules:
 - Controllers depend upon service interfaces and must not access repositories directly.
+- Configured server metadata is read directly from `ServerSettings`; live player counts are obtained via `IServerStatusService` and included in the response contract.
 - Persistence data objects must not become public request or response contracts.
 
 ### Application Services
@@ -252,9 +259,10 @@ At startup, missing parent directories and store files are created, absent files
 
 | Interface or Integration | Direction | Contract | Owner | Failure Semantics |
 |--------------------------|-----------|----------|-------|-------------------|
-| NuciCraft HTTP API | Inbound | ASP.NET Core attribute routes rooted at `[controller]`, JSON request/response contracts, and API-key authorisation passed to `ProcessRequest`. | Controllers and request/response DTOs. | Validation and authorisation failures remain within the Nuci controller boundary; uncaught service failures reach exception middleware. |
+| NuciCraft HTTP API | Inbound | ASP.NET Core attribute routes rooted at `[controller]`, plus the explicit `/Server` route, JSON request/response contracts, and API-key authorisation passed to `ProcessRequest`. | Controllers and request/response DTOs. | Validation and authorisation failures remain within the Nuci controller boundary; uncaught service failures reach exception middleware. |
 | JSON stores | Bidirectional | `IFileRepository<T>` operations over one configured file per data-object type. | `Startup`, application services, and NuciDAL adapters. | Invalid paths or initial reads can prevent startup; operation failures are logged and rethrown. |
 | Universal Name Generator API | Outbound | Typed GET request to `Names` with one schema, count of one, and bearer authorisation. | `MobService` through `INuciApiClient`. | Unsuccessful, unexpected, or vacant responses become `InvalidOperationException`; no local retry or fallback is configured. |
+| Minecraft Java server | Outbound | Java legacy server-list status query over TCP using the configured hostname and Java port. | `ServerStatusService` via MineStat. | Unavailable status and connection or socket failures return zero. Configuration and player-count parsing errors propagate to the existing exception middleware. |
 | ASP.NET Core configuration | Inbound | Strongly typed sections bound by `ServiceCollectionExtensions`. | Composition root and settings classes. | Invalid store settings surface during startup; mob settings are checked when name generation is requested. |
 
 ## 🔀 Key Flows
@@ -370,6 +378,7 @@ The default ASP.NET Core host supplies file, environment, and command-line confi
 | Configuration Area | Source | Responsibility | Override or Secret Policy |
 |--------------------|--------|----------------|---------------------------|
 | `dataStoreSettings` | `appsettings.json` and default host providers. | Select six JSON store paths. | May be overridden per deployment; paths must resolve to protected writable storage. |
+| `serverSettings` | [appsettings.json](./NuciCraft.API/appsettings.json) and default host providers. | Advertise server identity and ports; select the hostname and Java port queried for the live player count. | Bound once at startup; changes require an API restart and do not alter Minecraft listeners. The count itself is not configurable. |
 | `rtpLocationSettings` | `appsettings.json` and default host providers. | Select general and same-biome proximity limits. | Non-secret operational values may be overridden per environment. |
 | `securitySettings` | Deployment placeholder and default host providers. | Supply inbound API-key authorisation material. | Genuine values must originate from a protected secret source. |
 | `universalNameGeneratorSettings` | Deployment placeholders and default host providers. | Supply the external base URL and bearer token. | The base URL is environmental; the API key must originate from a protected secret source. |
@@ -404,6 +413,7 @@ flowchart LR
 The principal dependency rules are:
 - Concrete adapter construction and lifetime selection belong in `ServiceCollectionExtensions` and `Startup`.
 - Controllers may depend upon service interfaces and transport contracts, but must not depend upon repositories or persistence data objects.
+- The server-information controller reads static metadata from its dedicated configuration and uses `IServerStatusService` for the live player count; it does not access persistence.
 - Services own domain logic and may depend upon repository, client, logger, utility, and settings abstractions.
 - Persistence data objects and service models may be translated only at the service or mapping boundary; neither representation may replace public HTTP contracts implicitly.
 - Cross-cutting request policies belong in middleware or shared Nuci abstractions rather than duplicated controller logic.
@@ -413,6 +423,7 @@ The principal dependency rules are:
 
 | Dependency | Responsibility | Integration Boundary | Architectural Consequence |
 |------------|----------------|----------------------|---------------------------|
+| MineStat | Encode Java status requests and parse server responses. | `ServerStatusService`. | The count depends on server-list status availability and the value reported by the server or proxy. |
 | .NET 10 and ASP.NET Core | Host process, dependency injection, configuration, middleware, routing, controller activation, and JSON transport. | `Program`, `Startup`, controllers, and project manifest. | The deployment requires a compatible .NET 10 runtime and follows ASP.NET Core lifecycle semantics. |
 | NuciAPI package family | Base request/response contracts, controller processing, outbound API client, scanner protection, request logging, and exception handling. | HTTP boundary, middleware pipeline, and `MobService`. | Authorisation and error-contract details partly reside outside this repository and vary with package upgrades. |
 | NuciDAL | `IFileRepository<T>` and `JsonRepository<T>` persistence. | Service repository dependencies and DI registrations. | Persistence semantics and file serialisation are coupled to the selected NuciDAL version. |
@@ -430,7 +441,7 @@ The deployment unit is one .NET 10 ASP.NET Core process containing every control
 | Persistent state | Five independently configured JSON files. | The operator must provide writable durable paths, coherent backups, and restricted access. |
 | Startup | Creates missing directories and files, then queries every repository before serving requests. | Invalid paths, permissions, or unreadable data can prevent process startup. |
 | Scaling | No distributed locking, invalidation, or cross-instance coordination is configured. | The supported topology is one process; multiple writers can produce stale reads or overwritten state. |
-| External connectivity | Mob-name requests call the Universal Name Generator synchronously from the service contract. | Remote latency and failure affect the initiating request; no local fallback exists. |
+| External connectivity | Mob-name requests call the Universal Name Generator; server-information requests query the Minecraft Java port over TCP. Both service contracts are synchronous. | Remote latency affects the initiating request. Unavailable Java status returns zero players; name generation has no local fallback. |
 | Diagnostics | Request and operation logs, with optional file output. | Operators must monitor process and log outputs without a repository-defined health or metrics endpoint. |
 | Release | [release.sh](./release.sh) downloads and executes an external .NET 10 release helper. | Release execution requires network access and prior inspection of externally supplied script content. |
 
