@@ -13,6 +13,7 @@ using NuciDAL.Repositories;
 using NuciLog.Core;
 
 using NuciCraft.API.DataAccess.DataObjects;
+using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service;
 using NuciCraft.API.Service.Models;
@@ -24,6 +25,7 @@ namespace NuciCraft.API.UnitTests.Service
     {
         private Mock<IFileRepository<HomeDataObject>> repositoryMock;
         private Mock<IPlayerService> playerServiceMock;
+        private Mock<ILogger> loggerMock;
         private HomeService service;
         private List<HomeDataObject> homes;
 
@@ -43,7 +45,8 @@ namespace NuciCraft.API.UnitTests.Service
             playerServiceMock = new Mock<IPlayerService>();
             playerServiceMock.Setup(playerService => playerService.Get(It.IsAny<GetPlayerRequest>()))
                 .Returns(new Player { Identifier = "player-id" });
-            service = new HomeService(repositoryMock.Object, playerServiceMock.Object, Mock.Of<ILogger>());
+            loggerMock = new Mock<ILogger>();
+            service = new HomeService(repositoryMock.Object, playerServiceMock.Object, loggerMock.Object);
         }
 
         [Test]
@@ -330,6 +333,26 @@ namespace NuciCraft.API.UnitTests.Service
             }), Throws.TypeOf<KeyNotFoundException>());
             Assert.That(service.Get(home.Identifier).Player, Is.EqualTo("player-id"));
             repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
+        }
+
+        [Test]
+        public void GivenAnUnknownPlayer_WhenCreatingAHome_ThenTheAttemptedUsernameIsLogged()
+        {
+            playerServiceMock.Setup(playerService => playerService.Get(It.IsAny<GetPlayerRequest>()))
+                .Throws(new KeyNotFoundException());
+
+            Assert.That(
+                () => service.Add(BuildRequest("Astora")),
+                Throws.TypeOf<KeyNotFoundException>());
+            loggerMock.Verify(logger => logger.Error(
+                It.Is<Operation>(operation => string.Equals(operation.Name, MyOperation.AddHome.Name)),
+                It.Is<OperationStatus>(operationStatus =>
+                    string.Equals(operationStatus.Name, OperationStatus.Failure.Name)),
+                It.IsAny<KeyNotFoundException>(),
+                It.Is<IEnumerable<LogInfo>>(logInfos => logInfos.Any(logInfo =>
+                    string.Equals(logInfo.Key.Name, MyLogInfoKey.Username.Name) &&
+                    string.Equals(logInfo.Value, "DummyUser")))),
+                Times.Once);
         }
 
         [Test]

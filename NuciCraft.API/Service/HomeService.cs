@@ -23,29 +23,40 @@ namespace NuciCraft.API.Service
     {
         private readonly object persistenceLock = new();
 
-        public Home Add(AddHomeRequest request) => Execute(MyOperation.AddHome, () =>
+        public Home Add(AddHomeRequest request)
         {
-            ArgumentNullException.ThrowIfNull(request);
-            ArgumentException.ThrowIfNullOrWhiteSpace(request.Player);
-            ValidateLocation(request.Location);
+            IEnumerable<LogInfo> logInfos =
+            [
+                new(MyLogInfoKey.Username, request?.Player)
+            ];
 
-            Player player = playerService.Get(new GetPlayerRequest { Username = request.Player });
-            Home home = new()
-            {
-                Identifier = Guid.NewGuid().ToString(),
-                CreatedDT = DateTimeOffset.UtcNow,
-                Name = request.Name,
-                Player = player.Identifier,
-                Location = request.Location
-            };
-            ArgumentNullException.ThrowIfNull(home.Name);
-            HomeDataObject dataObject = home.ToDataObject();
-            ValidateUniqueName(dataObject);
-            repository.Add(dataObject);
-            repository.SaveChanges();
+            return Execute(
+                MyOperation.AddHome,
+                logInfos,
+                () =>
+                {
+                    ArgumentNullException.ThrowIfNull(request);
+                    ArgumentException.ThrowIfNullOrWhiteSpace(request.Player);
+                    ValidateLocation(request.Location);
 
-            return dataObject.ToServiceModel();
-        });
+                    Player player = playerService.Get(new GetPlayerRequest { Username = request.Player });
+                    Home home = new()
+                    {
+                        Identifier = Guid.NewGuid().ToString(),
+                        CreatedDT = DateTimeOffset.UtcNow,
+                        Name = request.Name,
+                        Player = player.Identifier,
+                        Location = request.Location
+                    };
+                    ArgumentNullException.ThrowIfNull(home.Name);
+                    HomeDataObject dataObject = home.ToDataObject();
+                    ValidateUniqueName(dataObject);
+                    repository.Add(dataObject);
+                    repository.SaveChanges();
+
+                    return dataObject.ToServiceModel();
+                });
+        }
 
         public Home Get(string homeIdentifier) => Execute(MyOperation.GetHome, () =>
         {
@@ -168,21 +179,27 @@ namespace NuciCraft.API.Service
         }
 
         private TResult Execute<TResult>(Operation operation, Func<TResult> action)
+            => Execute(operation, [], action);
+
+        private TResult Execute<TResult>(
+            Operation operation,
+            IEnumerable<LogInfo> logInfos,
+            Func<TResult> action)
         {
             lock (persistenceLock)
             {
-                logger.Info(operation, OperationStatus.Started);
+                logger.Info(operation, OperationStatus.Started, logInfos);
 
                 try
                 {
                     TResult result = action();
-                    logger.Info(operation, OperationStatus.Success);
+                    logger.Info(operation, OperationStatus.Success, logInfos);
 
                     return result;
                 }
                 catch (Exception exception)
                 {
-                    logger.Error(operation, OperationStatus.Failure, exception);
+                    logger.Error(operation, OperationStatus.Failure, exception, logInfos);
 
                     throw;
                 }
