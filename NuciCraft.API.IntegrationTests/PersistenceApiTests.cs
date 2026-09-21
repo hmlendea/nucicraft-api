@@ -21,6 +21,7 @@ namespace NuciCraft.API.IntegrationTests
             string storeDirectory = Path.Combine(Path.GetTempPath(), StoreDirectoryName, Guid.NewGuid().ToString("N"));
             string homeIdentifier;
             string homeJson;
+            string playerIdentifier;
 
             try
             {
@@ -29,9 +30,24 @@ namespace NuciCraft.API.IntegrationTests
                 {
                     using HttpResponseMessage playerResponse = await firstClient.PostAsync(
                         "/players", """{"username":"DummyUser"}""".CreateJsonContent());
+                    Assert.That(playerResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+                    using HttpResponseMessage getPlayerResponse = await firstClient.GetAsync(
+                        "/players/by-username/DummyUser");
+                    Assert.That(getPlayerResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+                    using JsonDocument player = JsonDocument.Parse(
+                        await getPlayerResponse.Content.ReadAsStringAsync());
+                    playerIdentifier = player.RootElement
+                        .GetProperty("content")
+                        .GetProperty("id")
+                        .GetString()!;
                     using HttpResponseMessage createResponse = await firstClient.PostAsync(
                         "/homes",
-                        """{"player":"DummyUser","name":{"english":"Astora"},"location":{"world":"world","x":42,"y":64,"z":613}}""".CreateJsonContent());
+                        JsonSerializer.Serialize(new
+                        {
+                            Player = playerIdentifier,
+                            Name = new { English = "Astora" },
+                            Location = new { World = "world", X = 42, Y = 64, Z = 613 }
+                        }).CreateJsonContent());
                     Assert.That(createResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
                     using JsonDocument created = JsonDocument.Parse(await createResponse.Content.ReadAsStringAsync());
                     homeIdentifier = created.RootElement.GetProperty("content").GetProperty("id").GetString()!;
@@ -51,7 +67,12 @@ namespace NuciCraft.API.IntegrationTests
                 Assert.That(retrieved.RootElement.GetProperty("content").GetRawText(), Is.EqualTo(homeJson));
                 using HttpResponseMessage duplicateResponse = await secondClient.PostAsync(
                     "/homes",
-                    """{"player":"DummyUser","name":{"default":"anor londo"},"location":{"world":"world"}}""".CreateJsonContent());
+                    JsonSerializer.Serialize(new
+                    {
+                        Player = playerIdentifier,
+                        Name = new { Default = "anor londo" },
+                        Location = new { World = "world" }
+                    }).CreateJsonContent());
 
                 Assert.That(duplicateResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
             }

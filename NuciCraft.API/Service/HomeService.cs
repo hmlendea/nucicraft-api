@@ -27,7 +27,7 @@ namespace NuciCraft.API.Service
         {
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.Username, request?.Player)
+                new(MyLogInfoKey.PlayerID, request?.Player)
             ];
 
             return Execute(
@@ -39,7 +39,7 @@ namespace NuciCraft.API.Service
                     ArgumentException.ThrowIfNullOrWhiteSpace(request.Player);
                     ValidateLocation(request.Location);
 
-                    Player player = playerService.Get(new GetPlayerRequest { Username = request.Player });
+                    Player player = playerService.Get(new GetPlayerRequest { Identifier = request.Player });
                     Home home = new()
                     {
                         Identifier = Guid.NewGuid().ToString(),

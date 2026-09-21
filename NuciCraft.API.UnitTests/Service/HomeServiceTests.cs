@@ -50,7 +50,7 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenAUsername_WhenAddingAHome_ThenTheIdentifierAndTimestampAreGenerated()
+        public void GivenAPlayerIdentifier_WhenAddingAHome_ThenTheIdentifierAndTimestampAreGenerated()
         {
             DateTimeOffset earliestCreation = DateTimeOffset.UtcNow;
             Home home = service.Add(BuildRequest("Astora"));
@@ -60,7 +60,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(home.UpdatedDT, Is.Null);
             Assert.That(home.Player, Is.EqualTo("player-id"));
             playerServiceMock.Verify(playerService => playerService.Get(It.Is<GetPlayerRequest>(request =>
-                string.Equals(request.Username, "DummyUser") && request.Identifier == null)), Times.Once);
+                string.Equals(request.Identifier, "player-id") && request.Username == null)), Times.Once);
             repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
         }
 
@@ -336,7 +336,7 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenAnUnknownPlayer_WhenCreatingAHome_ThenTheAttemptedUsernameIsLogged()
+        public void GivenAnUnknownPlayer_WhenCreatingAHome_ThenTheAttemptedPlayerIdentifierIsLogged()
         {
             playerServiceMock.Setup(playerService => playerService.Get(It.IsAny<GetPlayerRequest>()))
                 .Throws(new KeyNotFoundException());
@@ -350,8 +350,8 @@ namespace NuciCraft.API.UnitTests.Service
                     string.Equals(operationStatus.Name, OperationStatus.Failure.Name)),
                 It.IsAny<KeyNotFoundException>(),
                 It.Is<IEnumerable<LogInfo>>(logInfos => logInfos.Any(logInfo =>
-                    string.Equals(logInfo.Key.Name, MyLogInfoKey.Username.Name) &&
-                    string.Equals(logInfo.Value, "DummyUser")))),
+                    string.Equals(logInfo.Key.Name, MyLogInfoKey.PlayerID.Name) &&
+                    string.Equals(logInfo.Value, "player-id")))),
                 Times.Once);
         }
 
@@ -380,7 +380,7 @@ namespace NuciCraft.API.UnitTests.Service
 
         private static AddHomeRequest BuildRequest(string name) => new()
         {
-            Player = "DummyUser",
+            Player = "player-id",
             Name = new LocalisedString { English = name },
             Location = new Coordinates { World = "world", X = 42, Y = 64, Z = 613 }
         };

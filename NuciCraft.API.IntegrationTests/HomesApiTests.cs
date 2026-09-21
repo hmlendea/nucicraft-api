@@ -34,7 +34,7 @@ namespace NuciCraft.API.IntegrationTests
         public async Task GivenARegisteredPlayer_WhenCreatingAndRetrievingAHome_ThenAllSelectorsReturnIt()
         {
             string playerIdentifier = await RegisterPlayerAsync("DummyUser");
-            JsonElement created = await AddHomeAsync("DummyUser", "Astora");
+            JsonElement created = await AddHomeAsync(playerIdentifier, "Astora");
             string homeIdentifier = created.GetProperty("id").GetString()!;
 
             Assert.That(Guid.Parse(homeIdentifier), Is.Not.EqualTo(Guid.Empty));
@@ -64,8 +64,8 @@ namespace NuciCraft.API.IntegrationTests
         [Test]
         public async Task GivenAnExistingHome_WhenPatchingIt_ThenGeneratedFieldsAreProtected()
         {
-            await RegisterPlayerAsync("DummyUser");
-            JsonElement created = await AddHomeAsync("DummyUser", "Astora");
+            string playerIdentifier = await RegisterPlayerAsync("DummyUser");
+            JsonElement created = await AddHomeAsync(playerIdentifier, "Astora");
             string homeIdentifier = created.GetProperty("id").GetString()!;
             using HttpResponseMessage response = await client.PatchAsync(
                 $"/homes/{homeIdentifier}",
@@ -88,11 +88,11 @@ namespace NuciCraft.API.IntegrationTests
         {
             string firstPlayer = await RegisterPlayerAsync("DummyUser");
             string secondPlayer = await RegisterPlayerAsync("Angetenar");
-            JsonElement firstHome = await AddHomeAsync("DummyUser", "Astora");
-            await AddHomeAsync("DummyUser", "Anor Londo");
-            JsonElement secondHome = await AddHomeAsync("Angetenar", "Astora");
+            JsonElement firstHome = await AddHomeAsync(firstPlayer, "Astora");
+            await AddHomeAsync(firstPlayer, "Anor Londo");
+            JsonElement secondHome = await AddHomeAsync(secondPlayer, "Astora");
             using HttpResponseMessage duplicateResponse = await client.PostAsync(
-                "/homes", BuildHomeJson("DummyUser", " ASTORA ").CreateJsonContent());
+                "/homes", BuildHomeJson(firstPlayer, " ASTORA ").CreateJsonContent());
 
             Assert.That(duplicateResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
             using HttpResponseMessage firstListResponse = await client.GetAsync($"/homes/by-player/{firstPlayer}");
@@ -108,11 +108,11 @@ namespace NuciCraft.API.IntegrationTests
         [Test]
         public async Task GivenConflictingHomes_WhenRenamingOrTransferringOne_ThenTheOriginalRemainsIntact()
         {
-            await RegisterPlayerAsync("DummyUser");
+            string firstPlayer = await RegisterPlayerAsync("DummyUser");
             string secondPlayer = await RegisterPlayerAsync("Angetenar");
-            await AddHomeAsync("DummyUser", "Astora");
-            JsonElement home = await AddHomeAsync("DummyUser", "Anor Londo");
-            await AddHomeAsync("Angetenar", "Anor Londo");
+            await AddHomeAsync(firstPlayer, "Astora");
+            JsonElement home = await AddHomeAsync(firstPlayer, "Anor Londo");
+            await AddHomeAsync(secondPlayer, "Anor Londo");
             string homeIdentifier = home.GetProperty("id").GetString()!;
             using HttpResponseMessage renameResponse = await client.PatchAsync(
                 $"/homes/{homeIdentifier}",
@@ -134,7 +134,7 @@ namespace NuciCraft.API.IntegrationTests
         {
             string originalPlayer = await RegisterPlayerAsync("DummyUser");
             string destinationPlayer = await RegisterPlayerAsync("Angetenar");
-            JsonElement home = await AddHomeAsync("DummyUser", "Astora");
+            JsonElement home = await AddHomeAsync(originalPlayer, "Astora");
             string identifier = home.GetProperty("id").GetString()!;
             using HttpResponseMessage patchResponse = await client.PatchAsync(
                 $"/homes/{identifier}",
@@ -156,14 +156,19 @@ namespace NuciCraft.API.IntegrationTests
         [Test]
         public async Task GivenClientSuppliedMetadata_WhenCreatingAHome_ThenTheApiGeneratesItsOwnValues()
         {
-            await RegisterPlayerAsync("DummyUser");
+            string playerIdentifier = await RegisterPlayerAsync("DummyUser");
             DateTimeOffset earliestCreation = DateTimeOffset.UtcNow;
             using HttpResponseMessage response = await client.PostAsync(
                 "/homes",
-                """
-                {"id":"forged-id","createdDT":"2000-01-01T00:00:00Z","updatedDT":"2000-01-01T00:00:00Z",
-                 "player":"DummyUser","name":{"default":"Astora"},"location":{"world":"world","x":42,"y":64,"z":613}}
-                """.CreateJsonContent());
+                JsonSerializer.Serialize(new
+                {
+                    Id = "forged-id",
+                    CreatedDT = "2000-01-01T00:00:00Z",
+                    UpdatedDT = "2000-01-01T00:00:00Z",
+                    Player = playerIdentifier,
+                    Name = new { Default = "Astora" },
+                    Location = new { World = "world", X = 42, Y = 64, Z = 613 }
+                }).CreateJsonContent());
             JsonElement home = await ReadContentAsync(response);
 
             Assert.That(Guid.Parse(home.GetProperty("id").GetString()!), Is.Not.EqualTo(Guid.Empty));
@@ -182,8 +187,9 @@ namespace NuciCraft.API.IntegrationTests
         [TestCase("{")]
         public async Task GivenAnInvalidCreationRequest_WhenCreatingAHome_ThenBadRequestIsReturned(string body)
         {
-            await RegisterPlayerAsync("DummyUser");
-            using HttpResponseMessage response = await client.PostAsync("/homes", body.CreateJsonContent());
+            string playerIdentifier = await RegisterPlayerAsync("DummyUser");
+            string requestBody = body.Replace("DummyUser", playerIdentifier, StringComparison.Ordinal);
+            using HttpResponseMessage response = await client.PostAsync("/homes", requestBody.CreateJsonContent());
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
         }
@@ -221,20 +227,20 @@ namespace NuciCraft.API.IntegrationTests
         }
 
         [Test]
-        public async Task GivenAnUnregisteredUsername_WhenCreatingAHome_ThenNotFoundIsReturned()
+        public async Task GivenAnUnknownPlayerIdentifier_WhenCreatingAHome_ThenNotFoundIsReturned()
         {
             using HttpResponseMessage response = await client.PostAsync(
-                "/homes", BuildHomeJson("DummyUser", "Astora").CreateJsonContent());
+            "/homes", BuildHomeJson("missing-player-id", "Astora").CreateJsonContent());
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
         }
 
         [Test]
-        public async Task GivenAPlayerIdentifierInsteadOfAUsername_WhenCreatingAHome_ThenItIsNotResolvedAsAUsername()
+        public async Task GivenAUsernameInsteadOfAPlayerIdentifier_WhenCreatingAHome_ThenNotFoundIsReturned()
         {
-            string playerIdentifier = await RegisterPlayerAsync("DummyUser");
+            await RegisterPlayerAsync("DummyUser");
             using HttpResponseMessage response = await client.PostAsync(
-                "/homes", BuildHomeJson(playerIdentifier, "Astora").CreateJsonContent());
+                "/homes", BuildHomeJson("DummyUser", "Astora").CreateJsonContent());
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
         }
@@ -258,7 +264,7 @@ namespace NuciCraft.API.IntegrationTests
             }
 
             using HttpResponseMessage createResponse = await client.PostAsync(
-                "/homes", BuildHomeJson("DummyUser", "Astora").CreateJsonContent());
+                "/homes", BuildHomeJson("player-id", "Astora").CreateJsonContent());
             using HttpResponseMessage patchResponse = await client.PatchAsync(
                 "/homes/home-id", "{}".CreateJsonContent());
 
@@ -278,11 +284,11 @@ namespace NuciCraft.API.IntegrationTests
             return player.GetProperty("id").GetString()!;
         }
 
-        private async Task<JsonElement> AddHomeAsync(string username, string name)
+        private async Task<JsonElement> AddHomeAsync(string playerIdentifier, string name)
         {
             using HttpResponseMessage response = await client.PostAsync(
                 "/homes",
-                BuildHomeJson(username, name).CreateJsonContent());
+            BuildHomeJson(playerIdentifier, name).CreateJsonContent());
 
             return await ReadContentAsync(response);
         }
@@ -296,9 +302,9 @@ namespace NuciCraft.API.IntegrationTests
             return document.RootElement.GetProperty("content").Clone();
         }
 
-        private static string BuildHomeJson(string username, string name) => JsonSerializer.Serialize(new
+        private static string BuildHomeJson(string playerIdentifier, string name) => JsonSerializer.Serialize(new
         {
-            Player = username,
+            Player = playerIdentifier,
             Name = new { English = name },
             Location = new { World = "world", X = 42, Y = 64, Z = 613 }
         });
