@@ -1,9 +1,11 @@
+using System.Collections.Generic;
+
 using NuciCraft.API.Requests;
 
 namespace NuciCraft.API.Service
 {
     public interface IMobService
     {
-        string GetRandomMobName(GetMobNameRequest request);
+        IEnumerable<string> GetRandomMobName(GetMobNameRequest request);
     }
 }

@@ -264,7 +264,7 @@ At startup, missing parent directories and store files are created, absent files
 |--------------------------|-----------|----------|-------|-------------------|
 | NuciCraft HTTP API | Inbound | ASP.NET Core attribute routes rooted at `[controller]`, plus the explicit `/Server` route, JSON request/response contracts, and API-key authorisation passed to `ProcessRequest`. | Controllers and request/response DTOs. | Validation and authorisation failures remain within the Nuci controller boundary; uncaught service failures reach exception middleware. |
 | JSON stores | Bidirectional | `IFileRepository<T>` operations over one configured file per data-object type. | `Startup`, application services, and NuciDAL adapters. | Invalid paths or initial reads can prevent startup; operation failures are logged and rethrown. |
-| Universal Name Generator API | Outbound | Typed GET request to `Names` with one schema, count of one, and bearer authorisation. | `MobService` through `INuciApiClient`. | Unsuccessful, unexpected, or vacant responses become `InvalidOperationException`; no local retry or fallback is configured. |
+| Universal Name Generator API | Outbound | Typed GET request to `Names` with one schema, the requested count, and bearer authorisation. | `MobService` through `INuciApiClient`. | Unsuccessful, unexpected, or vacant responses become `InvalidOperationException`; no local retry or fallback is configured. |
 | Minecraft Java server | Outbound | Java legacy server-list status query over TCP using the configured hostname and Java port. | `ServerStatusService` via MineStat. | Unavailable status and connection or socket failures return zero. Configuration and player-count parsing errors propagate to the existing exception middleware. |
 | ASP.NET Core configuration | Inbound | Strongly typed sections bound by `ServiceCollectionExtensions`. | Composition root and settings classes. | Invalid store settings surface during startup; mob settings are checked when name generation is requested. |
 
@@ -314,18 +314,18 @@ sequenceDiagram
     participant ApiClient as INuciApiClient
     participant Generator as Universal Name Generator
 
-    Client->>Controller: Request random name for mob type
-    Controller->>Service: GetRandomMobName
+    Client->>Controller: Request random names for mob type and optional count
+    Controller->>Service: GetRandomMobName with defaulted count
     Service->>Service: Validate settings and select schema
-    Service->>ApiClient: GET Names with request and bearer information
+    Service->>ApiClient: GET Names with schema, count, and bearer information
     ApiClient->>Generator: Authenticated request
     Generator-->>ApiClient: Nuci API response
     ApiClient-->>Service: Typed or error response
-    Service->>Service: Validate success, response type, and first name
-    Service-->>Client: Generated name through response boundary
+    Service->>Service: Validate success, response type, and names
+    Service-->>Client: Generated names through response boundary
 ```
 
-`MobService` maps supported mob types to hard-coded schemas, creates a `GenerateNamesRequest`, and supplies `UniversalNameGeneratorSettings.ApiKey` as `NuciApiRequestAuthorisationInfo.BearerToken`. It synchronously waits for the asynchronous client with `GetAwaiter().GetResult()`. Unsupported mobs and invalid external responses terminate the request through the standard logged exception path.
+`MobsController` defaults an omitted count to one and accepts values from 1 through 100000. `MobService` maps supported mob types to hard-coded schemas, creates a `GenerateNamesRequest`, and supplies `UniversalNameGeneratorSettings.ApiKey` as `NuciApiRequestAuthorisationInfo.BearerToken`. It synchronously waits for the asynchronous client with `GetAwaiter().GetResult()`. Unsupported mobs and invalid external responses terminate the request through the standard logged exception path.
 
 ## ⚙️ Domain Invariants
 

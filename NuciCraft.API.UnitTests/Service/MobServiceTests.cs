@@ -55,8 +55,9 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenASupportedMobType_WhenGettingARandomMobName_ThenTheGeneratedNameIsReturned()
+        public void GivenASupportedMobType_WhenGettingRandomMobNames_ThenTheGeneratedNamesAreReturned()
         {
+            IEnumerable<string> expectedNames = ["Ilarion"];
             universalNameGeneratorClientMock
                 .Setup(client => client
                     .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
@@ -64,11 +65,12 @@ namespace NuciCraft.API.UnitTests.Service
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
                         "Names"))
-                .ReturnsAsync(BuildGenerateNamesApiResponse(["Ilarion"]));
+                .ReturnsAsync(BuildGenerateNamesApiResponse(expectedNames));
 
-            string generatedName = mobService.GetRandomMobName(BuildGetMobNameRequest());
+            IEnumerable<string> generatedNames = mobService.GetRandomMobName(
+                BuildGetMobNameRequest());
 
-            Assert.That(generatedName, Is.EqualTo("Ilarion"));
+            Assert.That(generatedNames, Is.EqualTo(expectedNames));
         }
 
         [Test]
@@ -76,6 +78,8 @@ namespace NuciCraft.API.UnitTests.Service
         {
             GenerateNamesRequest capturedRequest = null;
             NuciApiRequestAuthorisationInfo capturedAuthorisationInfo = null;
+            GetMobNameRequest request = BuildGetMobNameRequest();
+            request.Count = 4;
 
             universalNameGeneratorClientMock
                 .Setup(client => client
@@ -96,7 +100,7 @@ namespace NuciCraft.API.UnitTests.Service
                     })
                 .ReturnsAsync(BuildGenerateNamesApiResponse(["Ilarion"]));
 
-            mobService.GetRandomMobName(BuildGetMobNameRequest());
+            mobService.GetRandomMobName(request);
 
             Assert.That(capturedRequest, Is.Not.Null);
             Assert.That(capturedAuthorisationInfo, Is.Not.Null);
@@ -106,7 +110,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(
                 capturedRequest.Schema,
                 Is.EqualTo("romanian-persons-male"));
-            Assert.That(capturedRequest.Count, Is.EqualTo(1));
+            Assert.That(capturedRequest.Count, Is.EqualTo(4));
         }
 
         [Test]
