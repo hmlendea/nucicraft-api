@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 
 using NuciAPI.Client;
-using NuciAPI.Responses;
 
 using NuciCraft.API.Service;
 
@@ -97,7 +96,7 @@ namespace NuciCraft.API.IntegrationTests
                 nameGeneratorClientMock
                     .Setup(client => client.SendRequestAsync<
                         GenerateNamesRequest,
-                        NuciApiContentResponse<GenerateNamesResponse>>(
+                        GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -107,10 +106,10 @@ namespace NuciCraft.API.IntegrationTests
                         GenerateNamesRequest request,
                         NuciApiRequestAuthorisationInfo authorisationInfo,
                         string endpoint) =>
-                            new NuciApiContentResponse<GenerateNamesResponse>(new()
+                            new GenerateNamesResponse
                             {
                                 Names = Enumerable.Repeat("Ilarion", request.Count)
-                            }));
+                            });
                 services.RemoveAll<INuciApiClient>();
                 services.AddSingleton(nameGeneratorClientMock.Object);
                 Mock<IServerStatusService> serverStatusServiceMock = new();
