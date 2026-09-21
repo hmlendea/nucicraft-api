@@ -58,6 +58,24 @@ namespace NuciCraft.API.Service
                 });
         }
 
+        public void Delete(string homeIdentifier)
+        {
+            IEnumerable<LogInfo> logInfos =
+            [
+                new(MyLogInfoKey.Identifier, homeIdentifier)
+            ];
+
+            Execute(
+                MyOperation.DeleteHome,
+                logInfos,
+                () =>
+                {
+                    ArgumentException.ThrowIfNullOrWhiteSpace(homeIdentifier);
+                    repository.Remove(homeIdentifier);
+                    repository.SaveChanges();
+                });
+        }
+
         public Home Get(string homeIdentifier) => Execute(MyOperation.GetHome, () =>
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(homeIdentifier);
@@ -180,6 +198,20 @@ namespace NuciCraft.API.Service
 
         private TResult Execute<TResult>(Operation operation, Func<TResult> action)
             => Execute(operation, [], action);
+
+        private void Execute(
+            Operation operation,
+            IEnumerable<LogInfo> logInfos,
+            Action action)
+            => Execute(
+                operation,
+                logInfos,
+                () =>
+                {
+                    action();
+
+                    return true;
+                });
 
         private TResult Execute<TResult>(
             Operation operation,

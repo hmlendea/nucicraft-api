@@ -9,6 +9,8 @@ namespace NuciCraft.API.Service
     {
         Home Add(AddHomeRequest request);
 
+        void Delete(string homeIdentifier);
+
         Home Get(string homeIdentifier);
 
         Home Get(string playerIdentifier, string name);

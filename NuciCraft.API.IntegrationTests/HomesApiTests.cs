@@ -84,6 +84,24 @@ namespace NuciCraft.API.IntegrationTests
         }
 
         [Test]
+        public async Task GivenAnExistingHome_WhenDeletingIt_ThenItIsNoLongerAvailable()
+        {
+            string playerIdentifier = await RegisterPlayerAsync("DummyUser");
+            JsonElement home = await AddHomeAsync(playerIdentifier, "Astora");
+            string homeIdentifier = home.GetProperty("id").GetString()!;
+
+            using HttpResponseMessage deleteResponse = await client.DeleteAsync($"/homes/{homeIdentifier}");
+            using HttpResponseMessage getResponse = await client.GetAsync($"/homes/{homeIdentifier}");
+            using HttpResponseMessage listResponse = await client.GetAsync(
+                $"/homes/by-player/{playerIdentifier}");
+            JsonElement remainingHomes = await ReadContentAsync(listResponse);
+
+            Assert.That(deleteResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(getResponse.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+            Assert.That(remainingHomes.GetProperty("count").GetInt32(), Is.Zero);
+        }
+
+        [Test]
         public async Task GivenTwoPlayers_WhenCreatingHomes_ThenNamesAreUniqueOnlyWithinEachPlayer()
         {
             string firstPlayer = await RegisterPlayerAsync("DummyUser");
@@ -214,6 +232,14 @@ namespace NuciCraft.API.IntegrationTests
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
         }
 
+        [Test]
+        public async Task GivenAnAbsentHome_WhenDeletingIt_ThenNotFoundIsReturned()
+        {
+            using HttpResponseMessage response = await client.DeleteAsync("/homes/missing-home-id");
+
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+        }
+
         [TestCase("/homes")]
         [TestCase("/homes/by-player/missing-player-id")]
         [TestCase("/homes?player=missing-player-id")]
@@ -267,9 +293,11 @@ namespace NuciCraft.API.IntegrationTests
                 "/homes", BuildHomeJson("player-id", "Astora").CreateJsonContent());
             using HttpResponseMessage patchResponse = await client.PatchAsync(
                 "/homes/home-id", "{}".CreateJsonContent());
+            using HttpResponseMessage deleteResponse = await client.DeleteAsync("/homes/home-id");
 
             Assert.That(createResponse.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
             Assert.That(patchResponse.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+            Assert.That(deleteResponse.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         }
 
         private async Task<string> RegisterPlayerAsync(string username)
