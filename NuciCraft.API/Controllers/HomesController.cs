@@ -25,6 +25,12 @@ namespace NuciCraft.API.Controllers
             () => new NuciApiContentResponse<GetHomeResponse>(new(service.Add(request))),
             authorisation);
 
+        [HttpDelete("{homeIdentifier}")]
+        public ActionResult Delete(string homeIdentifier) => ProcessRequest(
+            new GetHomeRequest { Identifier = homeIdentifier },
+            () => service.Delete(homeIdentifier),
+            authorisation);
+
         [HttpGet("{homeIdentifier}")]
         public ActionResult Get(string homeIdentifier) => ProcessRequest(
             new GetHomeRequest { Identifier = homeIdentifier },

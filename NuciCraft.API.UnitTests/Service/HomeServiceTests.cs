@@ -42,6 +42,9 @@ namespace NuciCraft.API.UnitTests.Service
             repositoryMock.Setup(repository => repository.Update(It.IsAny<HomeDataObject>()))
                 .Callback<HomeDataObject>(home =>
                     homes[homes.FindIndex(stored => string.Equals(stored.Id, home.Id))] = home);
+            repositoryMock.Setup(repository => repository.Remove(It.IsAny<string>()))
+                .Callback<string>(identifier =>
+                    homes.RemoveAll(home => string.Equals(home.Id, identifier)));
             playerServiceMock = new Mock<IPlayerService>();
             playerServiceMock.Setup(playerService => playerService.Get(It.IsAny<GetPlayerRequest>()))
                 .Returns(new Player { Identifier = "player-id" });
@@ -87,6 +90,31 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(homes, Has.Count.EqualTo(2));
             Assert.That(first.Identifier, Is.Not.EqualTo(second.Identifier));
             Assert.That(first.Player, Is.Not.EqualTo(second.Player));
+        }
+
+        [Test]
+        public void GivenAnExistingHome_WhenDeletingIt_ThenTheHomeIsRemovedAndChangesAreSaved()
+        {
+            Home home = service.Add(BuildRequest("Astora"));
+
+            service.Delete(home.Identifier);
+
+            Assert.That(homes, Is.Empty);
+            repositoryMock.Verify(repository => repository.Remove(home.Identifier), Times.Once);
+            repositoryMock.Verify(repository => repository.SaveChanges(), Times.Exactly(2));
+        }
+
+        [Test]
+        public void GivenARepositoryException_WhenDeletingAHome_ThenTheExceptionIsRethrown()
+        {
+            repositoryMock
+                .Setup(repository => repository.Remove("missing-home-id"))
+                .Throws<KeyNotFoundException>();
+
+            Assert.That(
+                () => service.Delete("missing-home-id"),
+                Throws.TypeOf<KeyNotFoundException>());
+            repositoryMock.Verify(repository => repository.SaveChanges(), Times.Never);
         }
 
         [Test]
@@ -259,6 +287,7 @@ namespace NuciCraft.API.UnitTests.Service
         [TestCase(" ")]
         public void GivenAnInvalidSelector_WhenRetrievingOrUpdatingHomes_ThenItIsRejected(string selector)
         {
+            Assert.That(() => service.Delete(selector), Throws.InstanceOf<ArgumentException>());
             Assert.That(() => service.Get(selector), Throws.InstanceOf<ArgumentException>());
             Assert.That(() => service.GetAllByPlayer(selector), Throws.InstanceOf<ArgumentException>());
             Assert.That(() => service.Get(selector, "Astora"), Throws.InstanceOf<ArgumentException>());

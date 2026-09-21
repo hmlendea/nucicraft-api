@@ -8,6 +8,7 @@ namespace NuciCraft.API.Logging
 
         public static Operation AddCountry => new MyOperation(nameof(AddCountry));
         public static Operation AddHome => new MyOperation(nameof(AddHome));
+        public static Operation DeleteHome => new MyOperation(nameof(DeleteHome));
         public static Operation GetHome => new MyOperation(nameof(GetHome));
         public static Operation GetAllHomes => new MyOperation(nameof(GetAllHomes));
         public static Operation UpdateHome => new MyOperation(nameof(UpdateHome));
