@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 
 using Microsoft.AspNetCore.Hosting;
@@ -101,10 +102,15 @@ namespace NuciCraft.API.IntegrationTests
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
                         "Names"))
-                    .ReturnsAsync(new NuciApiContentResponse<GenerateNamesResponse>(new()
-                    {
-                        Names = ["Ilarion"]
-                    }));
+                    .ReturnsAsync((
+                        HttpMethod method,
+                        GenerateNamesRequest request,
+                        NuciApiRequestAuthorisationInfo authorisationInfo,
+                        string endpoint) =>
+                            new NuciApiContentResponse<GenerateNamesResponse>(new()
+                            {
+                                Names = Enumerable.Repeat("Ilarion", request.Count)
+                            }));
                 services.RemoveAll<INuciApiClient>();
                 services.AddSingleton(nameGeneratorClientMock.Object);
                 Mock<IServerStatusService> serverStatusServiceMock = new();

@@ -22,7 +22,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
   - [Manage Homes](#manage-homes)
   - [Add an RTP Location](#add-an-rtp-location)
   - [Get a Random RTP Location](#get-a-random-rtp-location)
-  - [Get a Random Mob Name](#get-a-random-mob-name)
+	- [Get Random Mob Names](#get-random-mob-names)
 	- [Manage Countries](#manage-countries)
 	- [Manage Worlds](#manage-worlds)
 	- [Manage Zone Types](#manage-zone-types)
@@ -228,10 +228,12 @@ curl -X POST "http://localhost:5000/RtpLocations" \
 curl "http://localhost:5000/RtpLocations/random?username=PlayerName&world=world&biome=plains"
 ```
 
-### Get a Random Mob Name
+### Get Random Mob Names
+
+The optional `count` query parameter defaults to `1`.
 
 ```bash
-curl "http://localhost:5000/Mobs/wandering_trader/random-name"
+curl "http://localhost:5000/Mobs/wandering_trader/random-name?count=4"
 ```
 
 ### Manage Countries

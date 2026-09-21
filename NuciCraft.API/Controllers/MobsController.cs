@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 using Microsoft.AspNetCore.Mvc;
 
 using NuciAPI.Controllers;
@@ -20,18 +22,25 @@ namespace NuciCraft.API.Controllers
             NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
 
         [HttpGet("{mobType}/random-name")]
-        public ActionResult GetRandomMobName([FromRoute] string mobType)
+        public ActionResult GetRandomMobName(
+            [FromRoute] string mobType,
+            [FromQuery, Range(1, 100000)] int? count)
         {
             GetMobNameRequest request = new()
             {
                 MobType = mobType
             };
 
+            if (count.HasValue)
+            {
+                request.Count = count.Value;
+            }
+
             return ProcessRequest(
                 request,
                 () => new NuciApiContentResponse<GetMobNameResponse>(new()
                 {
-                    Name = service.GetRandomMobName(request)
+                    Names = service.GetRandomMobName(request)
                 }),
                 authorisation);
         }

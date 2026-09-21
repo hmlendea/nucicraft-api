@@ -19,8 +19,6 @@ namespace NuciCraft.API.Service
         UniversalNameGeneratorSettings settings,
         ILogger logger) : IMobService
     {
-        private static int GeneratedNameCount => 1;
-
         private static string NamesEndpoint => "Names";
 
         private static string RomanianMaleFullNamesSchema => "romanian-persons-male";
@@ -37,7 +35,7 @@ namespace NuciCraft.API.Service
 
         private static int VillageSchemaVariantsCount => 2;
 
-        public string GetRandomMobName(GetMobNameRequest request)
+        public IEnumerable<string> GetRandomMobName(GetMobNameRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);
             ArgumentException.ThrowIfNullOrWhiteSpace(request.MobType);
@@ -47,7 +45,7 @@ namespace NuciCraft.API.Service
             IEnumerable<LogInfo> logInfos =
             [
                 new(MyLogInfoKey.MobType, request.MobType),
-                new(MyLogInfoKey.Count, GeneratedNameCount)
+                new(MyLogInfoKey.Count, request.Count)
             ];
 
             logger.Info(
@@ -59,7 +57,8 @@ namespace NuciCraft.API.Service
             {
                 MobType mobType = GetMobType(request.MobType);
                 GenerateNamesRequest generateNamesRequest = BuildGenerateNamesRequest(
-                    mobType);
+                    mobType,
+                    request.Count);
                 NuciApiRequestAuthorisationInfo requestAuthorisationInfo =
                     BuildRequestAuthorisationInfo();
                 NuciApiResponse apiResponse = universalNameGeneratorClient
@@ -72,7 +71,7 @@ namespace NuciCraft.API.Service
                         NamesEndpoint)
                     .GetAwaiter()
                     .GetResult();
-                string generatedName = ExtractGeneratedName(
+                IEnumerable<string> generatedNames = ExtractGeneratedNames(
                     apiResponse,
                     mobType);
 
@@ -81,7 +80,7 @@ namespace NuciCraft.API.Service
                     OperationStatus.Success,
                     logInfos);
 
-                return generatedName;
+                return generatedNames;
             }
             catch (Exception exception)
             {
@@ -95,10 +94,12 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private GenerateNamesRequest BuildGenerateNamesRequest(MobType mobType) => new()
+        private GenerateNamesRequest BuildGenerateNamesRequest(
+            MobType mobType,
+            int count) => new()
         {
             Schema = GetSchemaForMobType(mobType),
-            Count = GeneratedNameCount
+            Count = count
         };
 
         private NuciApiRequestAuthorisationInfo BuildRequestAuthorisationInfo() => new()
@@ -106,7 +107,7 @@ namespace NuciCraft.API.Service
             BearerToken = settings.ApiKey
         };
 
-        private static string ExtractGeneratedName(
+        private static IEnumerable<string> ExtractGeneratedNames(
             NuciApiResponse apiResponse,
             MobType mobType)
         {
@@ -127,20 +128,17 @@ namespace NuciCraft.API.Service
                     $"The Universal Name Generator API returned an unexpected response type: '{apiResponse.GetType().Name}'.");
             }
 
-            string generatedName = null;
+            string[] generatedNames = generateNamesResponse.Content.Names?.ToArray();
 
-            if (generateNamesResponse.Content.Names is not null)
-            {
-                generatedName = generateNamesResponse.Content.Names.FirstOrDefault();
-            }
-
-            if (string.IsNullOrWhiteSpace(generatedName))
+            if (generatedNames is null ||
+                generatedNames.Length == 0 ||
+                generatedNames.Any(string.IsNullOrWhiteSpace))
             {
                 throw new InvalidOperationException(
                     $"The Universal Name Generator API returned no names for the '{mobType}' mob type.");
             }
 
-            return generatedName;
+            return generatedNames;
         }
 
         private static MobType GetMobType(string mobTypeName)
