@@ -13,6 +13,7 @@ using NuciDAL.Repositories;
 using NuciLog.Core;
 
 using NuciCraft.API.DataAccess.DataObjects;
+using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service;
 using NuciCraft.API.Service.Models;
@@ -24,6 +25,7 @@ namespace NuciCraft.API.UnitTests.Service
     {
         private Mock<IFileRepository<HomeDataObject>> repositoryMock;
         private Mock<IPlayerService> playerServiceMock;
+        private Mock<ILogger> loggerMock;
         private HomeService service;
         private List<HomeDataObject> homes;
 
@@ -43,11 +45,12 @@ namespace NuciCraft.API.UnitTests.Service
             playerServiceMock = new Mock<IPlayerService>();
             playerServiceMock.Setup(playerService => playerService.Get(It.IsAny<GetPlayerRequest>()))
                 .Returns(new Player { Identifier = "player-id" });
-            service = new HomeService(repositoryMock.Object, playerServiceMock.Object, Mock.Of<ILogger>());
+            loggerMock = new Mock<ILogger>();
+            service = new HomeService(repositoryMock.Object, playerServiceMock.Object, loggerMock.Object);
         }
 
         [Test]
-        public void GivenAUsername_WhenAddingAHome_ThenTheIdentifierAndTimestampAreGenerated()
+        public void GivenAPlayerIdentifier_WhenAddingAHome_ThenTheIdentifierAndTimestampAreGenerated()
         {
             DateTimeOffset earliestCreation = DateTimeOffset.UtcNow;
             Home home = service.Add(BuildRequest("Astora"));
@@ -57,7 +60,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(home.UpdatedDT, Is.Null);
             Assert.That(home.Player, Is.EqualTo("player-id"));
             playerServiceMock.Verify(playerService => playerService.Get(It.Is<GetPlayerRequest>(request =>
-                string.Equals(request.Username, "DummyUser") && request.Identifier == null)), Times.Once);
+                string.Equals(request.Identifier, "player-id") && request.Username == null)), Times.Once);
             repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
         }
 
@@ -333,6 +336,26 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenAnUnknownPlayer_WhenCreatingAHome_ThenTheAttemptedPlayerIdentifierIsLogged()
+        {
+            playerServiceMock.Setup(playerService => playerService.Get(It.IsAny<GetPlayerRequest>()))
+                .Throws(new KeyNotFoundException());
+
+            Assert.That(
+                () => service.Add(BuildRequest("Astora")),
+                Throws.TypeOf<KeyNotFoundException>());
+            loggerMock.Verify(logger => logger.Error(
+                It.Is<Operation>(operation => string.Equals(operation.Name, MyOperation.AddHome.Name)),
+                It.Is<OperationStatus>(operationStatus =>
+                    string.Equals(operationStatus.Name, OperationStatus.Failure.Name)),
+                It.IsAny<KeyNotFoundException>(),
+                It.Is<IEnumerable<LogInfo>>(logInfos => logInfos.Any(logInfo =>
+                    string.Equals(logInfo.Key.Name, MyLogInfoKey.PlayerID.Name) &&
+                    string.Equals(logInfo.Value, "player-id")))),
+                Times.Once);
+        }
+
+        [Test]
         public async Task GivenConcurrentDuplicateRequests_WhenAddingHomes_ThenOnlyOneIsPersisted()
         {
             IEnumerable<Task<bool>> requests = Enumerable.Range(0, 16).Select(_ => Task.Run(() =>
@@ -357,7 +380,7 @@ namespace NuciCraft.API.UnitTests.Service
 
         private static AddHomeRequest BuildRequest(string name) => new()
         {
-            Player = "DummyUser",
+            Player = "player-id",
             Name = new LocalisedString { English = name },
             Location = new Coordinates { World = "world", X = 42, Y = 64, Z = 613 }
         };

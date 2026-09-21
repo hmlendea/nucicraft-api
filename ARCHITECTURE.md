@@ -152,7 +152,7 @@ Store preparation precedes middleware construction and is not itself middleware.
 | `ServersController` | Return configured server details and the live Java online player count at `GET /Server`. | `NuciApiController`, `IServerStatusService`, `ServerSettings`, `SecuritySettings`. | Framework-created request handler. |
 | `ServerStatusService` | Query the online player count reported by the Java server. | `ServerSettings`, MineStat, outbound TCP access. | Singleton; each query creates independent status state and is synchronous. |
 | `PlayerService` | Register, retrieve, list, and patch players through identifier, username, offline UUID, or online UUID selectors. | Player repository and logger. | Singleton. |
-| `HomeService` | Create, retrieve, filter, and patch homes; resolve POST usernames and enforce per-player name uniqueness. | Home repository, `IPlayerService`, logger. | Singleton with an instance lock surrounding Home reads and mutations. |
+| `HomeService` | Create, retrieve, filter, and patch homes; validate player identifiers and enforce per-player name uniqueness. | Home repository, `IPlayerService`, logger. | Singleton with an instance lock surrounding Home reads and mutations. |
 | `WorldService` | Add, retrieve, list, and patch world metadata, including merged localised values, web-map availability, spawn points, and world types. | World repository and logger. | Singleton. |
 | `ZoneTypeService` | Add, retrieve, list, and patch localised zone-type metadata. | Zone type repository and logger. | Singleton. |
 | `CountryService` | Add, retrieve, list, and patch country metadata, including merged localised values. | Country repository, logger. | Singleton. |
@@ -331,7 +331,7 @@ sequenceDiagram
 
 ### Player Homes
 
-[HomeService](./NuciCraft.API/Service/HomeService.cs) resolves POST usernames via `IPlayerService`, stores only the resulting player identifier, and generates the home GUID and UTC creation timestamp. PATCH player values and GET player selectors use identifiers. The request contracts do not accept creation or update timestamps; the service preserves creation metadata and generates update timestamps on successful patches.
+[HomeService](./NuciCraft.API/Service/HomeService.cs) validates POST and PATCH player identifiers via `IPlayerService`, stores the validated identifier, and generates the home GUID and UTC creation timestamp. GET player selectors also use identifiers. The request contracts do not accept creation or update timestamps; the service preserves creation metadata and generates update timestamps on successful patches.
 
 Every home requires a non-whitespace name in at least one locale. Any shared translation between two homes of one player constitutes a duplicate, using ordinal case-insensitive comparison after trimming surrounding whitespace. The identical comparison determines query-string name lookup. Different players may possess identically named homes. Creation, renaming, and ownership changes all enforce this invariant.
 
@@ -472,7 +472,7 @@ The deployment unit is one .NET 10 ASP.NET Core process containing every control
 
 The [NuciCraft.API.UnitTests](./NuciCraft.API.UnitTests/) project mirrors production areas and uses NUnit, Moq, and the Microsoft .NET test SDK. Root fixtures verify host and service registration, controller fixtures verify routes, request construction, authorisation, and delegation, service fixtures isolate repositories and logging, and mapping fixtures invoke internal extension methods through `MappingMethodInvoker`.
 
-The suite verifies domain success and failure paths, store preparation, response contracts, and logging enumerations. [NuciCraft.API.IntegrationTests](./NuciCraft.API.IntegrationTests/) verifies HTTP routes and restart persistence using isolated temporary stores. Home coverage includes generated metadata, username resolution, every GET selector, localisation merging, duplicate rejection, ownership changes, authorisation, and persistence across restarts. Unit tests also exercise concurrent duplicate creation. Multi-process file access, deployment configuration, and live Universal Name Generator availability remain verification gaps.
+The suite verifies domain success and failure paths, store preparation, response contracts, and logging enumerations. [NuciCraft.API.IntegrationTests](./NuciCraft.API.IntegrationTests/) verifies HTTP routes and restart persistence using isolated temporary stores. Home coverage includes player-identifier validation, generated metadata, every GET selector, localisation merging, duplicate rejection, ownership changes, authorisation, and persistence across restarts. Unit tests also exercise concurrent duplicate creation. Multi-process file access, deployment configuration, and live Universal Name Generator availability remain verification gaps.
 
 Execute the principal automated verification with:
 
