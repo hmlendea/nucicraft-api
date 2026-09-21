@@ -60,7 +60,7 @@ namespace NuciCraft.API.UnitTests.Service
             IEnumerable<string> expectedNames = ["Ilarion"];
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -83,7 +83,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -120,7 +120,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -148,7 +148,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -176,7 +176,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -208,7 +208,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -240,7 +240,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -293,7 +293,7 @@ namespace NuciCraft.API.UnitTests.Service
                 Throws.TypeOf<NotImplementedException>());
 
             universalNameGeneratorClientMock.Verify(
-                client => client.SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
+                client => client.SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                     HttpMethod.Get,
                     It.IsAny<GenerateNamesRequest>(),
                     It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -306,7 +306,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -323,7 +323,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -340,7 +340,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -357,7 +357,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -374,7 +374,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
-                    .SendRequestAsync<GenerateNamesRequest, NuciApiContentResponse<GenerateNamesResponse>>(
+                    .SendRequestAsync<GenerateNamesRequest, GenerateNamesResponse>(
                         HttpMethod.Get,
                         It.IsAny<GenerateNamesRequest>(),
                         It.IsAny<NuciApiRequestAuthorisationInfo>(),
@@ -450,12 +450,12 @@ namespace NuciCraft.API.UnitTests.Service
                 ]));
         }
 
-        private static NuciApiResponse BuildGenerateNamesApiResponse(
+        private static GenerateNamesResponse BuildGenerateNamesApiResponse(
             IEnumerable<string> names)
-            => new NuciApiContentResponse<GenerateNamesResponse>(new()
+            => new()
             {
                 Names = names
-            });
+            };
 
         private static GetMobNameRequest BuildGetMobNameRequest()
             => BuildGetMobNameRequest(MobType.WanderingTrader);

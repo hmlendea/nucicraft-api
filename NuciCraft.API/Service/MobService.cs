@@ -64,7 +64,7 @@ namespace NuciCraft.API.Service
                 NuciApiResponse apiResponse = universalNameGeneratorClient
                     .SendRequestAsync<
                         GenerateNamesRequest,
-                        NuciApiContentResponse<GenerateNamesResponse>>(
+                        GenerateNamesResponse>(
                         HttpMethod.Get,
                         generateNamesRequest,
                         requestAuthorisationInfo,
@@ -119,8 +119,8 @@ namespace NuciCraft.API.Service
                     $"The Universal Name Generator API request has failed with the '{apiResponse.Code}' code: {apiResponse.Message}");
             }
 
-            NuciApiContentResponse<GenerateNamesResponse> generateNamesResponse =
-                apiResponse as NuciApiContentResponse<GenerateNamesResponse>;
+            GenerateNamesResponse generateNamesResponse =
+                apiResponse as GenerateNamesResponse;
 
             if (generateNamesResponse is null)
             {
@@ -128,7 +128,7 @@ namespace NuciCraft.API.Service
                     $"The Universal Name Generator API returned an unexpected response type: '{apiResponse.GetType().Name}'.");
             }
 
-            string[] generatedNames = generateNamesResponse.Content.Names?.ToArray();
+            string[] generatedNames = generateNamesResponse.Names?.ToArray();
 
             if (generatedNames is null ||
                 generatedNames.Length == 0 ||
