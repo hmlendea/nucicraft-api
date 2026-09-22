@@ -335,6 +335,7 @@ curl -X POST "http://localhost:5000/ZoneTypes" \
 ```bash
 curl "http://localhost:5000/ZoneTypes/city"
 curl "http://localhost:5000/ZoneTypes"
+curl "http://localhost:5000/ZoneTypes?category=settlement"
 ```
 
 ```bash
@@ -351,7 +352,7 @@ curl -X PATCH "http://localhost:5000/ZoneTypes/city" \
   }'
 ```
 
-Zone types include string categories and localised names. Patch requests replace supplied categories and merge supplied localisations with persisted values.
+Zone types include string categories and localised names. The optional `category` query parameter filters the collection case-insensitively and returns zone types containing that category. Patch requests replace supplied categories and merge supplied localisations with persisted values.
 
 ### Manage Zones
 

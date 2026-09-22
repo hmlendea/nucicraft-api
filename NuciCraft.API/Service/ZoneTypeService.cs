@@ -79,12 +79,17 @@ namespace NuciCraft.API.Service
         }
 
         public IEnumerable<ZoneType> GetAllZoneTypes()
+            => GetAllZoneTypes(null);
+
+        public IEnumerable<ZoneType> GetAllZoneTypes(string category)
         {
             logger.Info(MyOperation.GetAllZoneTypes, OperationStatus.Started);
 
             try
             {
-                IEnumerable<ZoneType> zoneTypes = repository.GetAll().ToServiceModels();
+                IEnumerable<ZoneType> zoneTypes = repository.GetAll()
+                    .ToServiceModels()
+                    .Where(zoneType => IsInCategory(zoneType, category));
 
                 logger.Info(
                     MyOperation.GetAllZoneTypes,
@@ -99,6 +104,17 @@ namespace NuciCraft.API.Service
 
                 throw;
             }
+        }
+
+        private static bool IsInCategory(ZoneType zoneType, string category)
+        {
+            if (string.IsNullOrWhiteSpace(category))
+            {
+                return true;
+            }
+
+            return zoneType.Categories is not null &&
+                zoneType.Categories.Contains(category, StringComparer.OrdinalIgnoreCase);
         }
 
         public void Update(PatchZoneTypeRequest request)

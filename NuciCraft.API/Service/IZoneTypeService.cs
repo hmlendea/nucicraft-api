@@ -13,6 +13,8 @@ namespace NuciCraft.API.Service
 
         IEnumerable<ZoneType> GetAllZoneTypes();
 
+        IEnumerable<ZoneType> GetAllZoneTypes(string category);
+
         void Update(PatchZoneTypeRequest request);
     }
 }

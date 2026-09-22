@@ -90,6 +90,38 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenAZoneTypeCategory_WhenGettingAllZoneTypes_ThenOnlyMatchingZoneTypesAreReturned()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns(
+                [
+                    BuildZoneTypeDataObject(),
+                    new()
+                    {
+                        Categories = ["fortification"],
+                        Id = "castle"
+                    }
+                ]);
+
+            ZoneType[] zoneTypes = zoneTypeService.GetAllZoneTypes("CIVILIAN").ToArray();
+
+            Assert.That(zoneTypes.Select(zoneType => zoneType.Identifier), Is.EqualTo(["city"]));
+        }
+
+        [Test]
+        public void GivenAnUnknownZoneTypeCategory_WhenGettingAllZoneTypes_ThenNoZoneTypesAreReturned()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildZoneTypeDataObject()]);
+
+            ZoneType[] zoneTypes = zoneTypeService.GetAllZoneTypes("unknown").ToArray();
+
+            Assert.That(zoneTypes, Is.Empty);
+        }
+
+        [Test]
         public void GivenCategories_WhenUpdatingAZoneType_ThenTheCategoriesAreUpdated()
         {
             ZoneTypeDataObject capturedDataObject = null;

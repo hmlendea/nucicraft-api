@@ -62,14 +62,26 @@ namespace NuciCraft.API.UnitTests.Controllers
         public void GivenZoneTypes_WhenGettingAllZoneTypes_ThenTheZoneTypesAreReturned()
         {
             IEnumerable<ZoneType> zoneTypes = [new() { Identifier = "city" }];
-            serviceMock.Setup(service => service.GetAllZoneTypes()).Returns(zoneTypes);
+            serviceMock.Setup(service => service.GetAllZoneTypes(null)).Returns(zoneTypes);
 
-            OkObjectResult result = controller.GetAll() as OkObjectResult;
+            OkObjectResult result = controller.GetAll(null) as OkObjectResult;
             NuciApiContentResponse<GetZoneTypesResponse> response =
                 result.Value as NuciApiContentResponse<GetZoneTypesResponse>;
             GetZoneTypesResponse content = response.Content;
 
             Assert.That(content.ZoneTypes, Is.SameAs(zoneTypes));
+        }
+
+        [Test]
+        public void GivenACategory_WhenGettingAllZoneTypes_ThenTheCategoryIsSentToTheService()
+        {
+            IEnumerable<ZoneType> zoneTypes = [new() { Identifier = "city" }];
+            serviceMock.Setup(service => service.GetAllZoneTypes("settlement")).Returns(zoneTypes);
+
+            OkObjectResult result = controller.GetAll("settlement") as OkObjectResult;
+
+            Assert.That(result, Is.Not.Null);
+            serviceMock.Verify(service => service.GetAllZoneTypes("settlement"), Times.Once);
         }
 
         [Test]
