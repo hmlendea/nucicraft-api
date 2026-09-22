@@ -32,12 +32,12 @@ namespace NuciCraft.API.Controllers
                 authorisation);
 
         [HttpGet]
-        public ActionResult GetAll()
+        public ActionResult GetAll([FromQuery] string category)
             => ProcessRequest(
                 new GetZoneTypesRequest(),
                 () => new NuciApiContentResponse<GetZoneTypesResponse>(new()
                 {
-                    ZoneTypes = service.GetAllZoneTypes()
+                    ZoneTypes = service.GetAllZoneTypes(category)
                 }),
                 authorisation);
 
