@@ -17,6 +17,8 @@ namespace NuciCraft.API.Service
 
         IEnumerable<Zone> GetAllZones();
 
+        IEnumerable<Zone> GetAllZones(string type);
+
         IEnumerable<Zone> GetZonesByCategory(string category);
 
         IEnumerable<string> GetZoneIdentifiersContainingCoordinates(CoordinatesDataObject coordinates);

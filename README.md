@@ -360,6 +360,8 @@ When creating a zone, `world` is necessary and must reference an existing world 
 
 When creating a zone, `type` is necessary and must reference an existing zone type identifier from the zone types store. On patch requests, a supplied `type` must also reference an existing zone type.
 
+The optional `type` query parameter on `GET /Zones` filters the collection by zone type identifier, case-insensitively. For example, `GET /Zones?type=city` returns only zones whose type is `city`.
+
 When creating a zone, `bounds` is necessary and must contain both opposite corners of the zone volume. Both corners must use the identical `world` value. On patch requests, `bounds` remains optional, and a partial bounds update preserves the untouched corner before validation.
 
 When creating a zone, `creationDate` is optional. If omitted or whitespace, the service sets it automatically to the current Romania date with an uncertainty suffix in the format `yyyy-MM-dd (?)`.
