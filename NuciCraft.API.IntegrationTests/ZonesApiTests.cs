@@ -37,6 +37,7 @@ namespace NuciCraft.API.IntegrationTests
                 "{\"id\":\"cornova\",\"type\":\"city\",\"world\":\"overworld\",\"bounds\":{\"firstCorner\":{\"world\":\"overworld\",\"x\":0,\"y\":0,\"z\":0},\"secondCorner\":{\"world\":\"overworld\",\"x\":32,\"y\":128,\"z\":32}}}".CreateJsonContent());
             HttpResponseMessage getResponse = await client.GetAsync("/zones/cornova");
             HttpResponseMessage listResponse = await client.GetAsync("/zones");
+            HttpResponseMessage typeResponse = await client.GetAsync("/zones?type=CiTy");
             HttpResponseMessage categoryResponse = await client.GetAsync("/zones/by-category/settlement");
             string categoryResponseBody = await categoryResponse.Content.ReadAsStringAsync();
             HttpResponseMessage coordinatesResponse = await client.GetAsync(
@@ -49,7 +50,9 @@ namespace NuciCraft.API.IntegrationTests
             Assert.That(createResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(getResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(listResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(typeResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(categoryResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(await typeResponse.Content.ReadAsStringAsync(), Does.Contain("\"identifier\":\"cornova\""));
             Assert.That(categoryResponseBody, Does.Contain("\"identifier\":\"cornova\""));
             Assert.That(coordinatesResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(patchResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));

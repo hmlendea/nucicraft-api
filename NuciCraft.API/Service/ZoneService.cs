@@ -177,6 +177,9 @@ namespace NuciCraft.API.Service
         }
 
         public IEnumerable<Zone> GetAllZones()
+            => GetAllZones(null);
+
+        public IEnumerable<Zone> GetAllZones(string type)
         {
             logger.Info(
                 MyOperation.GetAllZones,
@@ -185,6 +188,7 @@ namespace NuciCraft.API.Service
             try
             {
                 IEnumerable<ZoneDataObject> zoneDataObjects = repository.GetAll()
+                    .Where(zoneDataObject => IsOfType(zoneDataObject, type))
                     .Select(zoneDataObject => GetNormalisedZoneDataObject(zoneDataObject));
                 IEnumerable<Zone> zones = zoneDataObjects
                     .ToServiceModels()
@@ -206,6 +210,16 @@ namespace NuciCraft.API.Service
 
                 throw;
             }
+        }
+
+        private static bool IsOfType(ZoneDataObject zoneDataObject, string type)
+        {
+            if (string.IsNullOrWhiteSpace(type))
+            {
+                return true;
+            }
+
+            return string.Equals(zoneDataObject.Type, type, StringComparison.OrdinalIgnoreCase);
         }
 
         public IEnumerable<Zone> GetZonesByCategory(string category)

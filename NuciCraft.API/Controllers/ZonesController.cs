@@ -53,12 +53,12 @@ namespace NuciCraft.API.Controllers
                 authorisation);
 
         [HttpGet]
-        public ActionResult GetAll()
+        public ActionResult GetAll([FromQuery] string type)
             => ProcessRequest(
                 new GetZonesRequest(),
                 () => new NuciApiContentResponse<GetZonesResponse>(new()
                 {
-                    Zones = service.GetAllZones()
+                    Zones = service.GetAllZones(type)
                 }),
                 authorisation);
 

@@ -929,6 +929,36 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenAZoneType_WhenGettingAllZones_ThenOnlyZonesWithMatchingTypeAreReturned()
+        {
+            ZoneDataObject matchingZone = BuildZoneDataObject();
+            matchingZone.Id = "solara";
+            matchingZone.Type = "city";
+            ZoneDataObject nonMatchingZone = BuildZoneDataObject();
+            nonMatchingZone.Id = "nucilandia";
+            nonMatchingZone.Type = "building";
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([matchingZone, nonMatchingZone]);
+
+            Zone[] zones = zoneService.GetAllZones("CITY").ToArray();
+
+            Assert.That(zones.Select(zone => zone.Identifier), Is.EqualTo(["solara"]));
+        }
+
+        [Test]
+        public void GivenAnUnknownZoneType_WhenGettingAllZones_ThenNoZonesAreReturned()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildZoneDataObject()]);
+
+            Zone[] zones = zoneService.GetAllZones("unknown").ToArray();
+
+            Assert.That(zones, Is.Empty);
+        }
+
+        [Test]
         public void GivenARepositoryException_WhenGettingAllZones_ThenTheExceptionIsRethrown()
         {
             repositoryMock

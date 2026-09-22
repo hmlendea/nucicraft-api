@@ -107,15 +107,29 @@ namespace NuciCraft.API.UnitTests.Controllers
         {
             IEnumerable<Zone> zones = [new() { Identifier = "solara" }];
             serviceMock
-                .Setup(service => service.GetAllZones())
+                .Setup(service => service.GetAllZones(null))
                 .Returns(zones);
 
-            OkObjectResult result = controller.GetAll() as OkObjectResult;
+            OkObjectResult result = controller.GetAll(null) as OkObjectResult;
             NuciApiContentResponse<GetZonesResponse> response =
                 result.Value as NuciApiContentResponse<GetZonesResponse>;
             GetZonesResponse content = response.Content;
 
             Assert.That(content.Zones, Is.SameAs(zones));
+        }
+
+        [Test]
+        public void GivenAType_WhenGettingAllZones_ThenTheTypeIsSentToTheService()
+        {
+            IEnumerable<Zone> zones = [new() { Identifier = "solara" }];
+            serviceMock
+                .Setup(service => service.GetAllZones("city"))
+                .Returns(zones);
+
+            OkObjectResult result = controller.GetAll("city") as OkObjectResult;
+
+            Assert.That(result, Is.Not.Null);
+            serviceMock.Verify(service => service.GetAllZones("city"), Times.Once);
         }
 
         [Test]
