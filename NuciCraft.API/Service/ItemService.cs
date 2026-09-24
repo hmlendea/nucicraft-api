@@ -148,6 +148,49 @@ namespace NuciCraft.API.Service
             }
         }
 
+        public Item GetByBukkitId(string bukkitId)
+        {
+            IEnumerable<LogInfo> logInfos =
+            [
+                new(MyLogInfoKey.BukkitId, bukkitId)
+            ];
+
+            logger.Info(
+                MyOperation.GetItemByBukkitId,
+                OperationStatus.Started,
+                logInfos);
+
+            try
+            {
+                ItemDataObject itemDataObject = repository.GetAll()
+                    .FirstOrDefault(item => item.BukkitId.Equals(bukkitId, StringComparison.OrdinalIgnoreCase));
+
+                if (itemDataObject is null)
+                {
+                    throw new KeyNotFoundException($"No item found with Bukkit ID '{bukkitId}'.");
+                }
+
+                Item item = itemDataObject.ToServiceModel();
+
+                logger.Info(
+                    MyOperation.GetItemByBukkitId,
+                    OperationStatus.Success,
+                    logInfos);
+
+                return item;
+            }
+            catch (Exception exception)
+            {
+                logger.Error(
+                    MyOperation.GetItemByBukkitId,
+                    OperationStatus.Failure,
+                    exception,
+                    logInfos);
+
+                throw;
+            }
+        }
+
         public IEnumerable<Item> GetAll()
         {
             logger.Info(

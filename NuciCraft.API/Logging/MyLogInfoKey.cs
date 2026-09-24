@@ -7,12 +7,8 @@ namespace NuciCraft.API.Logging
         private MyLogInfoKey(string name) : base(name) { }
 
         public static LogInfoKey Biome => new MyLogInfoKey(nameof(Biome));
-<<<<<<< Updated upstream
         public static LogInfoKey Category => new MyLogInfoKey(nameof(Category));
-||||||| Stash base
-=======
         public static LogInfoKey BukkitId => new MyLogInfoKey(nameof(BukkitId));
->>>>>>> Stashed changes
         public static LogInfoKey Count => new MyLogInfoKey(nameof(Count));
         public static LogInfoKey CreatedDT => new MyLogInfoKey(nameof(CreatedDT));
         public static LogInfoKey Identifier => new MyLogInfoKey(nameof(Identifier));

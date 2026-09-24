@@ -50,6 +50,18 @@ namespace NuciCraft.API.Controllers
                 authorisation);
 
         [HttpGet]
+        [Route("by-bukkit-id/{bukkitId}")]
+        public ActionResult GetByBukkitId(
+            string bukkitId)
+            => ProcessRequest(
+                new GetItemByBukkitIdRequest()
+                {
+                    BukkitId = bukkitId
+                },
+                () => new GetResponse(service.GetByBukkitId(bukkitId)),
+                authorisation);
+
+        [HttpGet]
         public ActionResult GetAll()
             => ProcessRequest(
                 new GetItemsRequest(),

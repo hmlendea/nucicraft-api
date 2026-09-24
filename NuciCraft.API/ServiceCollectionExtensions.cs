@@ -58,12 +58,8 @@ namespace NuciCraft.API
             .AddJsonRepository<PlayerDataObject>(() => dataStoreSettings.PlayersStorePath)
             .AddJsonRepository<RtpLocationEntity>(() => dataStoreSettings.RtpLocationsStorePath)
             .AddJsonRepository<CountryDataObject>(() => dataStoreSettings.CountriesStorePath)
-<<<<<<< Updated upstream
             .AddJsonRepository<HomeDataObject>(() => dataStoreSettings.HomesStorePath)
-||||||| Stash base
-=======
             .AddJsonRepository<ItemDataObject>(() => dataStoreSettings.ItemsStorePath)
->>>>>>> Stashed changes
             .AddJsonRepository<WorldDataObject>(() => dataStoreSettings.WorldsStorePath)
             .AddJsonRepository<ZoneDataObject>(() => dataStoreSettings.ZonesStorePath)
             .AddJsonRepository<ZoneTypeDataObject>(() => dataStoreSettings.ZoneTypesStorePath)
@@ -75,12 +71,8 @@ namespace NuciCraft.API
             .AddSingleton<IMobService, MobService>()
             .AddSingleton<IServerStatusService, ServerStatusService>()
             .AddSingleton<ICountryService, CountryService>()
-<<<<<<< Updated upstream
             .AddSingleton<IHomeService, HomeService>()
-||||||| Stash base
-=======
             .AddSingleton<IItemService, ItemService>()
->>>>>>> Stashed changes
             .AddSingleton<IWorldService, WorldService>()
             .AddSingleton<IZoneTypeService, ZoneTypeService>()
             .AddSingleton<IPlayerService, PlayerService>()

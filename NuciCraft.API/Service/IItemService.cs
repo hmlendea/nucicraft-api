@@ -13,6 +13,8 @@ namespace NuciCraft.API.Service
 
         Item GetByMinecraftId(string minecraftId);
 
+        Item GetByBukkitId(string bukkitId);
+
         IEnumerable<Item> GetAll();
 
         void Update(PatchItemRequest request);
