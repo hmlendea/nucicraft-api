@@ -30,7 +30,12 @@ namespace NuciCraft.API.UnitTests
         private Mock<IFileRepository<PlayerDataObject>> playerRepositoryMock;
         private Mock<IFileRepository<RtpLocationEntity>> rtpLocationRepositoryMock;
         private Mock<IFileRepository<CountryDataObject>> countryRepositoryMock;
+<<<<<<< Updated upstream
         private Mock<IFileRepository<HomeDataObject>> homeRepositoryMock;
+||||||| Stash base
+=======
+        private Mock<IFileRepository<ItemDataObject>> itemRepositoryMock;
+>>>>>>> Stashed changes
         private Mock<IFileRepository<WorldDataObject>> worldRepositoryMock;
         private Mock<IFileRepository<ZoneDataObject>> zoneRepositoryMock;
         private Mock<IFileRepository<ZoneTypeDataObject>> zoneTypeRepositoryMock;
@@ -47,14 +52,24 @@ namespace NuciCraft.API.UnitTests
             playerRepositoryMock = new Mock<IFileRepository<PlayerDataObject>>();
             rtpLocationRepositoryMock = new Mock<IFileRepository<RtpLocationEntity>>();
             countryRepositoryMock = new Mock<IFileRepository<CountryDataObject>>();
+<<<<<<< Updated upstream
             homeRepositoryMock = new Mock<IFileRepository<HomeDataObject>>();
+||||||| Stash base
+=======
+            itemRepositoryMock = new Mock<IFileRepository<ItemDataObject>>();
+>>>>>>> Stashed changes
             worldRepositoryMock = new Mock<IFileRepository<WorldDataObject>>();
             zoneRepositoryMock = new Mock<IFileRepository<ZoneDataObject>>();
             zoneTypeRepositoryMock = new Mock<IFileRepository<ZoneTypeDataObject>>();
             playerRepositoryMock.Setup(repository => repository.GetAll()).Returns([]);
             rtpLocationRepositoryMock.Setup(repository => repository.GetAll()).Returns([]);
             countryRepositoryMock.Setup(repository => repository.GetAll()).Returns([]);
+<<<<<<< Updated upstream
             homeRepositoryMock.Setup(repository => repository.GetAll()).Returns([]);
+||||||| Stash base
+=======
+            itemRepositoryMock.Setup(repository => repository.GetAll()).Returns([]);
+>>>>>>> Stashed changes
             worldRepositoryMock.Setup(repository => repository.GetAll()).Returns([]);
             zoneRepositoryMock.Setup(repository => repository.GetAll()).Returns([]);
             zoneTypeRepositoryMock.Setup(repository => repository.GetAll()).Returns([]);
@@ -105,14 +120,24 @@ namespace NuciCraft.API.UnitTests
             Assert.That(File.Exists(dataStoreSettings.PlayersStorePath));
             Assert.That(File.Exists(dataStoreSettings.RtpLocationsStorePath));
             Assert.That(File.Exists(dataStoreSettings.CountriesStorePath));
+<<<<<<< Updated upstream
             Assert.That(File.Exists(dataStoreSettings.HomesStorePath));
+||||||| Stash base
+=======
+            Assert.That(File.Exists(dataStoreSettings.ItemsStorePath));
+>>>>>>> Stashed changes
             Assert.That(File.Exists(dataStoreSettings.WorldsStorePath));
             Assert.That(File.Exists(dataStoreSettings.ZonesStorePath));
             Assert.That(File.Exists(dataStoreSettings.ZoneTypesStorePath));
             playerRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
             rtpLocationRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
             countryRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
+<<<<<<< Updated upstream
             homeRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
+||||||| Stash base
+=======
+            itemRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
+>>>>>>> Stashed changes
             worldRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
             zoneRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
             zoneTypeRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
@@ -128,7 +153,12 @@ namespace NuciCraft.API.UnitTests
             services.AddSingleton(playerRepositoryMock.Object);
             services.AddSingleton(rtpLocationRepositoryMock.Object);
             services.AddSingleton(countryRepositoryMock.Object);
+<<<<<<< Updated upstream
             services.AddSingleton(homeRepositoryMock.Object);
+||||||| Stash base
+=======
+            services.AddSingleton(itemRepositoryMock.Object);
+>>>>>>> Stashed changes
             services.AddSingleton(worldRepositoryMock.Object);
             services.AddSingleton(zoneRepositoryMock.Object);
             services.AddSingleton(zoneTypeRepositoryMock.Object);

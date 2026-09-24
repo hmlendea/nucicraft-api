@@ -13,8 +13,14 @@ namespace NuciCraft.API.UnitTests
 
         private static string CountriesStoreFileName => "countries.json";
 
+<<<<<<< Updated upstream
         private static string HomesStoreFileName => "homes.json";
 
+||||||| Stash base
+=======
+        private static string ItemsStoreFileName => "items.json";
+
+>>>>>>> Stashed changes
         private static string LogFileName => "nucicraft-api.log";
 
         private static string PlayersStoreFileName => "players.json";
@@ -35,7 +41,12 @@ namespace NuciCraft.API.UnitTests
             IEnumerable<KeyValuePair<string, string>> values =
             [
                 new("dataStoreSettings:countriesStorePath", dataStoreSettings.CountriesStorePath),
+<<<<<<< Updated upstream
                 new("dataStoreSettings:homesStorePath", dataStoreSettings.HomesStorePath),
+||||||| Stash base
+=======
+                new("dataStoreSettings:itemsStorePath", dataStoreSettings.ItemsStorePath),
+>>>>>>> Stashed changes
                 new("dataStoreSettings:worldsStorePath", dataStoreSettings.WorldsStorePath),
                 new("dataStoreSettings:playersStorePath", dataStoreSettings.PlayersStorePath),
                 new("dataStoreSettings:rtpLocationsStorePath", dataStoreSettings.RtpLocationsStorePath),
@@ -64,8 +75,14 @@ namespace NuciCraft.API.UnitTests
             [
                 "--dataStoreSettings:countriesStorePath",
                 dataStoreSettings.CountriesStorePath,
+<<<<<<< Updated upstream
                 "--dataStoreSettings:homesStorePath",
                 dataStoreSettings.HomesStorePath,
+||||||| Stash base
+=======
+                "--dataStoreSettings:itemsStorePath",
+                dataStoreSettings.ItemsStorePath,
+>>>>>>> Stashed changes
                 "--dataStoreSettings:worldsStorePath",
                 dataStoreSettings.WorldsStorePath,
                 "--dataStoreSettings:playersStorePath",
@@ -92,7 +109,12 @@ namespace NuciCraft.API.UnitTests
         internal static DataStoreSettings BuildDataStoreSettings(string storeDirectory) => new()
         {
             CountriesStorePath = Path.Combine(storeDirectory, CountriesStoreFileName),
+<<<<<<< Updated upstream
             HomesStorePath = Path.Combine(storeDirectory, HomesStoreFileName),
+||||||| Stash base
+=======
+            ItemsStorePath = Path.Combine(storeDirectory, ItemsStoreFileName),
+>>>>>>> Stashed changes
             WorldsStorePath = Path.Combine(storeDirectory, WorldsStoreFileName),
             PlayersStorePath = Path.Combine(storeDirectory, PlayersStoreFileName),
             RtpLocationsStorePath = Path.Combine(storeDirectory, RtpLocationsStoreFileName),
