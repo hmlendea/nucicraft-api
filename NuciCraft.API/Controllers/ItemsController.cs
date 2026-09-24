@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 using NuciAPI.Controllers;
+using NuciAPI.Responses;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
@@ -34,7 +35,8 @@ namespace NuciCraft.API.Controllers
                 {
                     Identifier = itemIdentifier
                 },
-                () => new GetResponse(service.Get(itemIdentifier)),
+                () => new NuciApiContentResponse<GetItemResponse>(
+                    new GetItemResponse(service.Get(itemIdentifier))),
                 authorisation);
 
         [HttpGet]
@@ -46,7 +48,8 @@ namespace NuciCraft.API.Controllers
                 {
                     MinecraftId = minecraftId
                 },
-                () => new GetResponse(service.GetByMinecraftId(minecraftId)),
+                () => new NuciApiContentResponse<GetItemResponse>(
+                    new GetItemResponse(service.GetByMinecraftId(minecraftId))),
                 authorisation);
 
         [HttpGet]
@@ -58,14 +61,18 @@ namespace NuciCraft.API.Controllers
                 {
                     BukkitId = bukkitId
                 },
-                () => new GetResponse(service.GetByBukkitId(bukkitId)),
+                () => new NuciApiContentResponse<GetItemResponse>(
+                    new GetItemResponse(service.GetByBukkitId(bukkitId))),
                 authorisation);
 
         [HttpGet]
         public ActionResult GetAll()
             => ProcessRequest(
                 new GetItemsRequest(),
-                () => new GetResponse(service.GetAll()),
+                () => new NuciApiContentResponse<GetItemsResponse>(new()
+                {
+                    Items = service.GetAll()
+                }),
                 authorisation);
 
         [HttpPatch]
