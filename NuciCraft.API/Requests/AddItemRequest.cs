@@ -6,8 +6,6 @@ using NuciAPI.Requests;
 
 using NuciSecurity.HMAC;
 
-using NuciCraft.API.DataAccess.DataObjects;
-
 namespace NuciCraft.API.Requests
 {
     public class AddItemRequest : NuciApiRequest
@@ -21,12 +19,16 @@ namespace NuciCraft.API.Requests
         [JsonPropertyName("minecraftId")]
         public string MinecraftId { get; set; }
 
-        [Required]
         [HmacOrder(3)]
+        [JsonPropertyName("nucicraftId")]
+        public string NuciCraftId { get; set; }
+
+        [Required]
+        [HmacOrder(4)]
         [JsonPropertyName("bukkitId")]
         public string BukkitId { get; set; }
 
-        [HmacOrder(4)]
+        [HmacOrder(5)]
         [JsonPropertyName("signIds")]
         public List<string> SignIds { get; set; }
     }

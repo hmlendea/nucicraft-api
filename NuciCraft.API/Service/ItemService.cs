@@ -48,8 +48,9 @@ namespace NuciCraft.API.Service
                 {
                     Id = identifier,
                     MinecraftId = request.MinecraftId.ToLowerInvariant(),
+                    NuciCraftId = string.IsNullOrWhiteSpace(request.NuciCraftId) ? request.MinecraftId.ToLowerInvariant() : request.NuciCraftId.ToLowerInvariant(),
                     BukkitId = request.BukkitId.ToUpperInvariant(),
-                    SignIds = request.SignIds ?? signIdGenerator.GenerateDefaultSignIds(request.MinecraftId)
+                    SignIds = request.SignIds ?? signIdGenerator.GenerateDefaultSignIds(string.IsNullOrWhiteSpace(request.NuciCraftId) ? request.MinecraftId : request.NuciCraftId)
                 };
 
                 repository.Add(itemDataObject);
@@ -115,7 +116,7 @@ namespace NuciCraft.API.Service
             ];
 
             logger.Info(
-                MyOperation.GetItemByMinecraftId,
+                MyOperation.GetItem,
                 OperationStatus.Started,
                 logInfos);
 
@@ -132,7 +133,7 @@ namespace NuciCraft.API.Service
                 Item item = itemDataObject.ToServiceModel();
 
                 logger.Info(
-                    MyOperation.GetItemByMinecraftId,
+                    MyOperation.GetItem,
                     OperationStatus.Success,
                     logInfos);
 
@@ -141,7 +142,7 @@ namespace NuciCraft.API.Service
             catch (Exception exception)
             {
                 logger.Error(
-                    MyOperation.GetItemByMinecraftId,
+                    MyOperation.GetItem,
                     OperationStatus.Failure,
                     exception,
                     logInfos);
@@ -158,7 +159,7 @@ namespace NuciCraft.API.Service
             ];
 
             logger.Info(
-                MyOperation.GetItemByBukkitId,
+                MyOperation.GetItem,
                 OperationStatus.Started,
                 logInfos);
 
@@ -175,7 +176,7 @@ namespace NuciCraft.API.Service
                 Item item = itemDataObject.ToServiceModel();
 
                 logger.Info(
-                    MyOperation.GetItemByBukkitId,
+                    MyOperation.GetItem,
                     OperationStatus.Success,
                     logInfos);
 
@@ -184,7 +185,50 @@ namespace NuciCraft.API.Service
             catch (Exception exception)
             {
                 logger.Error(
-                    MyOperation.GetItemByBukkitId,
+                    MyOperation.GetItem,
+                    OperationStatus.Failure,
+                    exception,
+                    logInfos);
+
+                throw;
+            }
+        }
+
+        public Item GetByNuciCraftId(string nuciCraftId)
+        {
+            IEnumerable<LogInfo> logInfos =
+            [
+                new(MyLogInfoKey.NuciCraftId, nuciCraftId)
+            ];
+
+            logger.Info(
+                MyOperation.GetItem,
+                OperationStatus.Started,
+                logInfos);
+
+            try
+            {
+                ItemDataObject itemDataObject = repository.GetAll()
+                    .FirstOrDefault(item => item.NuciCraftId.Equals(nuciCraftId, StringComparison.OrdinalIgnoreCase));
+
+                if (itemDataObject is null)
+                {
+                    throw new KeyNotFoundException($"No item found with NuciCraft ID '{nuciCraftId}'.");
+                }
+
+                Item item = itemDataObject.ToServiceModel();
+
+                logger.Info(
+                    MyOperation.GetItem,
+                    OperationStatus.Success,
+                    logInfos);
+
+                return item;
+            }
+            catch (Exception exception)
+            {
+                logger.Error(
+                    MyOperation.GetItem,
                     OperationStatus.Failure,
                     exception,
                     logInfos);

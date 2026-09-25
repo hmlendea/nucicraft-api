@@ -7,14 +7,15 @@ namespace NuciCraft.API.Logging
         private MyLogInfoKey(string name) : base(name) { }
 
         public static LogInfoKey Biome => new MyLogInfoKey(nameof(Biome));
-        public static LogInfoKey Category => new MyLogInfoKey(nameof(Category));
         public static LogInfoKey BukkitId => new MyLogInfoKey(nameof(BukkitId));
+        public static LogInfoKey Category => new MyLogInfoKey(nameof(Category));
         public static LogInfoKey Count => new MyLogInfoKey(nameof(Count));
         public static LogInfoKey CreatedDT => new MyLogInfoKey(nameof(CreatedDT));
         public static LogInfoKey Identifier => new MyLogInfoKey(nameof(Identifier));
         public static LogInfoKey LastIpAddress => new MyLogInfoKey(nameof(LastIpAddress));
         public static LogInfoKey MinecraftId => new MyLogInfoKey(nameof(MinecraftId));
         public static LogInfoKey MobType => new MyLogInfoKey(nameof(MobType));
+        public static LogInfoKey NuciCraftId => new MyLogInfoKey(nameof(NuciCraftId));
         public static LogInfoKey OfflineUUID => new MyLogInfoKey(nameof(OfflineUUID));
         public static LogInfoKey OnlineUUID => new MyLogInfoKey(nameof(OnlineUUID));
         public static LogInfoKey PlayerID => new MyLogInfoKey(nameof(PlayerID));

@@ -4,6 +4,6 @@ namespace NuciCraft.API.Service.Generators
 {
     public interface ISignIdGenerator
     {
-        List<string> GenerateDefaultSignIds(string minecraftId);
+        List<string> GenerateDefaultSignIds(string nucicraftId);
     }
 }

@@ -28,8 +28,6 @@ namespace NuciCraft.API.Logging
         public static Operation GetZonesByCoordinates => new MyOperation(nameof(GetZonesByCoordinates));
         public static Operation GetCountry => new MyOperation(nameof(GetCountry));
         public static Operation GetItem => new MyOperation(nameof(GetItem));
-        public static Operation GetItemByBukkitId => new MyOperation(nameof(GetItemByBukkitId));
-        public static Operation GetItemByMinecraftId => new MyOperation(nameof(GetItemByMinecraftId));
         public static Operation GetPlayer => new MyOperation(nameof(GetPlayer));
         public static Operation GetRandomMobName => new MyOperation(nameof(GetRandomMobName));
         public static Operation GetRandomRtpLocation => new MyOperation(nameof(GetRandomRtpLocation));

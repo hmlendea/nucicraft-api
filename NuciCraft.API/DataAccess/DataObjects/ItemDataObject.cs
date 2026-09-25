@@ -6,6 +6,8 @@ namespace NuciCraft.API.DataAccess.DataObjects
     {
         public string MinecraftId { get; set; }
 
+        public string NuciCraftId { get; set; }
+
         public string BukkitId { get; set; }
 
         public List<string> SignIds { get; set; }

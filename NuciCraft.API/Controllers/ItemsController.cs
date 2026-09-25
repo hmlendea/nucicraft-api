@@ -66,6 +66,19 @@ namespace NuciCraft.API.Controllers
                 authorisation);
 
         [HttpGet]
+        [Route("by-nucicraft-id/{nuciCraftId}")]
+        public ActionResult GetByNuciCraftId(
+            string nuciCraftId)
+            => ProcessRequest(
+                new GetItemRequest()
+                {
+                    Identifier = nuciCraftId
+                },
+                () => new NuciApiContentResponse<GetItemResponse>(
+                    new GetItemResponse(service.GetByNuciCraftId(nuciCraftId))),
+                authorisation);
+
+        [HttpGet]
         public ActionResult GetAll()
             => ProcessRequest(
                 new GetItemsRequest(),

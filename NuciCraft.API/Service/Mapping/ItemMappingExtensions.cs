@@ -12,6 +12,7 @@ namespace NuciCraft.API.Service.Mapping
         {
             Identifier = dataObject.Id,
             MinecraftId = dataObject.MinecraftId,
+            NuciCraftId = dataObject.NuciCraftId,
             BukkitId = dataObject.BukkitId,
             SignIds = dataObject.SignIds
         };

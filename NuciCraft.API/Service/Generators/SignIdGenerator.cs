@@ -6,9 +6,9 @@ namespace NuciCraft.API.Service.Generators
 {
     public sealed class SignIdGenerator : ISignIdGenerator
     {
-        public List<string> GenerateDefaultSignIds(string minecraftId)
+        public List<string> GenerateDefaultSignIds(string nucicraftId)
         {
-            string signId = minecraftId;
+            string signId = nucicraftId;
 
             if (signId.Contains(':'))
             {
@@ -24,8 +24,8 @@ namespace NuciCraft.API.Service.Generators
             if (string.IsNullOrWhiteSpace(signId))
             {
                 throw new ArgumentException(
-                    "Invalid Minecraft ID.",
-                    nameof(minecraftId));
+                    "Invalid NuciCraft ID.",
+                    nameof(nucicraftId));
             }
 
             signId = ApplyCustomReplacements(signId);
