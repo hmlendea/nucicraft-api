@@ -8,22 +8,101 @@ namespace NuciCraft.API.Service.Generators
     {
         public List<string> GenerateDefaultSignIds(string minecraftId)
         {
-            string[] parts = minecraftId.Split(':', 2);
-            string afterColon = parts.Length > 1 ? parts[1] : string.Empty;
-            string[] words = afterColon
-                .Replace('_', ' ')
-                .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            string signId = minecraftId;
 
-            if (words.Length == 0)
+            if (signId.Contains(':'))
             {
-                return [];
+                signId = signId[(signId.IndexOf(':') + 1)..];
             }
 
-            string signId = string.Concat(
-                words.Select(word =>
-                    char.ToUpperInvariant(word[0]) + word.Substring(1).ToLowerInvariant()));
+            signId = string.Concat(signId
+                .Replace('_', ' ')
+                .Split(' ')
+                .Select(word => char.ToUpperInvariant(word[0]) + word[1..].ToLowerInvariant())
+                .ToArray());
+
+            if (string.IsNullOrWhiteSpace(signId))
+            {
+                throw new ArgumentException(
+                    "Invalid Minecraft ID.",
+                    nameof(minecraftId));
+            }
+
+            signId = ApplyCustomReplacements(signId);
+            signId = TrimTo16Characters(signId);
 
             return [signId];
+        }
+
+        private static string ApplyCustomReplacements(string input)
+        {
+            Dictionary<string, string> customReplacements = new()
+            {
+                { "Axe", "Hatchet" },
+                { "Cherry", "Sakura" },
+                { "Cobblestone", "Cobble" },
+                { "Concrete", "Cement" },
+                { "Deepslate", "Deep" },
+                { "Leaves", "Foliage" },
+                { "Stained", string.Empty },
+                { "Sulfur", "Sulphur" },
+            };
+
+            foreach (var replacement in customReplacements)
+            {
+                input = input.Replace(replacement.Key, replacement.Value);
+            }
+
+            return input;
+        }
+
+        private static string TrimTo16Characters(string input)
+        {
+            if (input.Length <= 16)
+            {
+                return input;
+            }
+
+            Dictionary<string, string> wordShortenings = new()
+            {
+                { "Netherite", "Nether" },
+
+                { "Chiselled", "Chisel" },
+                { "Polished", "Polish" },
+
+                { "Cinnabar", "Cinbar" },
+                { "Nether", "Nthr" },
+                { "Pearlescent", "Pearl" },
+                { "Smithing", "Smith" },
+
+                { "Foliage", "Leaves" },
+                { "Hatchet", "Axe" },
+
+                { "Pickaxe", "Pick" },
+                { "Leaves", "Leaf" },
+                { "Stairs", "Stair" },
+
+                { "Polish", "Poli" },
+                { "Tuff", "Tuf" },
+                { "Upgrade", "Upg" },
+            };
+
+            foreach (var wordShortening in wordShortenings)
+            {
+                if (input.Length <= 16)
+                {
+                    break;
+                }
+
+                input = input.Replace(wordShortening.Key, wordShortening.Value);
+            }
+
+            if (input.Length > 16)
+            {
+                return input[..16];
+            }
+
+            return input;
         }
     }
 }
