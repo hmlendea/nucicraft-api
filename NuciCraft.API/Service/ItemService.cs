@@ -9,6 +9,7 @@ using NuciLog.Core;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
+using NuciCraft.API.Service.Generators;
 using NuciCraft.API.Service.Mapping;
 using NuciCraft.API.Service.Models;
 
@@ -16,7 +17,8 @@ namespace NuciCraft.API.Service
 {
     public sealed class ItemService(
         IFileRepository<ItemDataObject> repository,
-        ILogger logger) : IItemService
+        ILogger logger,
+        ISignIdGenerator signIdGenerator) : IItemService
     {
         public void Add(AddItemRequest request)
         {
@@ -47,7 +49,7 @@ namespace NuciCraft.API.Service
                     Id = identifier,
                     MinecraftId = request.MinecraftId.ToLowerInvariant(),
                     BukkitId = request.BukkitId.ToUpperInvariant(),
-                    SignIds = request.SignIds ?? GenerateDefaultSignIds(request.MinecraftId)
+                    SignIds = request.SignIds ?? signIdGenerator.GenerateDefaultSignIds(request.MinecraftId)
                 };
 
                 repository.Add(itemDataObject);
@@ -302,26 +304,6 @@ namespace NuciCraft.API.Service
             {
                 itemDataObject.SignIds = request.SignIds;
             }
-        }
-
-        private static List<string> GenerateDefaultSignIds(string minecraftId)
-        {
-            string[] parts = minecraftId.Split(':', 2);
-            string afterColon = parts.Length > 1 ? parts[1] : string.Empty;
-            string[] words = afterColon
-                .Replace('_', ' ')
-                .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-            if (words.Length == 0)
-            {
-                return [];
-            }
-
-            string signId = string.Concat(
-                words.Select(word =>
-                    char.ToUpperInvariant(word[0]) + word.Substring(1).ToLowerInvariant()));
-
-            return [signId];
         }
     }
 }

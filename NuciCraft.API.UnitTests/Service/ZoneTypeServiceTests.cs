@@ -47,7 +47,7 @@ namespace NuciCraft.API.UnitTests.Service
                 Name = new() { English = "City", Romanian = "Oras" }
             });
 
-            Assert.That(capturedDataObject.Categories, Is.EqualTo(new[] { "settlement", "civilian" }));
+            Assert.That(capturedDataObject.Categories, Is.EqualTo(["settlement", "civilian"]));
             Assert.That(capturedDataObject.Id, Is.EqualTo("city"));
             Assert.That(capturedDataObject.Name.English, Is.EqualTo("City"));
             Assert.That(capturedDataObject.Name.Romanian, Is.EqualTo("Oras"));
@@ -71,7 +71,7 @@ namespace NuciCraft.API.UnitTests.Service
             ZoneType zoneType = zoneTypeService.GetZoneType("city");
 
             Assert.That(zoneType.Identifier, Is.EqualTo("city"));
-            Assert.That(zoneType.Categories, Is.EqualTo(new[] { "settlement", "civilian" }));
+            Assert.That(zoneType.Categories, Is.EqualTo(["settlement", "civilian"]));
             Assert.That(zoneType.Name.English, Is.EqualTo("City"));
             Assert.That(zoneType.Name.Romanian, Is.EqualTo("Oras"));
         }
@@ -138,7 +138,7 @@ namespace NuciCraft.API.UnitTests.Service
                 Identifier = "city"
             });
 
-            Assert.That(capturedDataObject.Categories, Is.EqualTo(new[] { "capital", "fortified" }));
+            Assert.That(capturedDataObject.Categories, Is.EqualTo(["capital", "fortified"]));
             Assert.That(capturedDataObject.UpdatedDT, Is.Not.Null);
             repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
         }

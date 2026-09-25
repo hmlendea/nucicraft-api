@@ -49,7 +49,7 @@ namespace NuciCraft.API.UnitTests.Responses
                 Is.EqualTo("city"));
             Assert.That(
                 contentElement.GetProperty("categories").EnumerateArray().Select(category => category.GetString()),
-                Is.EqualTo(new[] { "settlement", "civilian" }));
+                Is.EqualTo(["settlement", "civilian"]));
         }
     }
 }

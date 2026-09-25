@@ -62,13 +62,13 @@ namespace NuciCraft.API.IntegrationTests
 
             Assert.That(
                 getContent.GetProperty("categories").EnumerateArray().Select(category => category.GetString()),
-                Is.EqualTo(new[] { "settlement", "civilian" }));
+                Is.EqualTo(["settlement", "civilian"]));
             Assert.That(
                 listZoneType.GetProperty("categories").EnumerateArray().Select(category => category.GetString()),
-                Is.EqualTo(new[] { "settlement", "civilian" }));
+                Is.EqualTo(["settlement", "civilian"]));
             Assert.That(
                 patchedGetContent.GetProperty("categories").EnumerateArray().Select(category => category.GetString()),
-                Is.EqualTo(new[] { "capital", "fortified" }));
+                Is.EqualTo(["capital", "fortified"]));
         }
     }
 }
