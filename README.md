@@ -41,6 +41,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
   - [Dependencies](#dependencies)
 - [Project Structure](#project-structure)
 - [Architecture](#architecture)
+- [Documentation](#documentation)
 - [Contributing](#contributing)
 - [Security](#security)
 - [Supporting the Project](#supporting-the-project)
@@ -547,6 +548,10 @@ The key directories inside `NuciCraft.API/` are:
 ## 🏗️ Architecture
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for a structural synopsis and component interactions.
+
+## 📚 Documentation
+
+Start with the [documentation index](./docs/README.md) for the implementation-grounded architecture, behaviour, process flows, data model, operational guidance, change map, and coverage audit.
 
 ## 🤝 Contributing
 
