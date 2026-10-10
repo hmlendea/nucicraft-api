@@ -39,10 +39,12 @@ namespace NuciCraft.API.Service.Generators
             Dictionary<string, string> customReplacements = new()
             {
                 { "Axe", "Hatchet" },
+                { "Bamboo", "Bambus" },
                 { "Cherry", "Sakura" },
                 { "Cobblestone", "Cobble" },
                 { "Concrete", "Cement" },
                 { "Deepslate", "Deep" },
+                { "Propagule", "Sapling" },
                 { "Leaves", "Foliage" },
                 { "Stained", string.Empty },
                 { "Sulfur", "Sulphur" },
@@ -71,7 +73,7 @@ namespace NuciCraft.API.Service.Generators
                 { "Polished", "Polish" },
 
                 { "Cinnabar", "Cinbar" },
-                { "Nether", "Nthr" },
+                { "Nether", "Neth" },
                 { "Pearlescent", "Pearl" },
                 { "Smithing", "Smith" },
 
@@ -82,6 +84,7 @@ namespace NuciCraft.API.Service.Generators
                 { "Leaves", "Leaf" },
                 { "Stairs", "Stair" },
 
+                { "Cobble", "Cbbl" },
                 { "Polish", "Poli" },
                 { "Tuff", "Tuf" },
                 { "Upgrade", "Upg" },

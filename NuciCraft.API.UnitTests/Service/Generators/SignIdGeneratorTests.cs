@@ -17,15 +17,17 @@ namespace NuciCraft.API.UnitTests.Service.Generators
             signIdGenerator = new();
         }
 
-        [TestCase("polished_cinnabar_stairs", "PoliCinbarStair")]
         [TestCase("acacia_door", "AcaciaDoor")]
-        [TestCase("bamboo_slab", "BambooSlab")]
+        [TestCase("bamboo_slab", "BambusSlab")]
         [TestCase("diamond_leggings", "DiamondLeggings")]
+        [TestCase("minecraft:cherry_boat", "SakuraBoat")]
         [TestCase("minecraft:copper_axe", "CopperHatchet")]
         [TestCase("minecraft:iron_pickaxe", "IronPickaxe")]
-        [TestCase("minecraft:netherite_upgrade_smithing_template", "NthrUpgSmithTemp")]
+        [TestCase("minecraft:mangrove_propagule", "MangroveSapling")]
+        [TestCase("minecraft:netherite_upgrade_smithing_template", "NethUpgSmithTemp")]
         [TestCase("minecraft:pale_oak_trapdoor", "PaleOakTrapdoor")]
         [TestCase("pearlescent_froglight", "PearlFroglight")]
+        [TestCase("polished_cinnabar_stairs", "PoliCinbarStair")]
         [TestCase("polished_deepslate_bricks", "PolishDeepBricks")]
         [TestCase("sulfur", "Sulphur")]
         public void GenerateDefaultSignIds_ReturnsExpectedSignId(
