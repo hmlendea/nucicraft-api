@@ -153,6 +153,7 @@ Store preparation precedes middleware construction and is not itself middleware.
 | `ServerStatusService` | Query the online player count reported by the Java server. | `ServerSettings`, MineStat, outbound TCP access. | Singleton; each query creates independent status state and is synchronous. |
 | `PlayerService` | Register, retrieve, list, and patch players through identifier, username, offline UUID, or online UUID selectors. | Player repository and logger. | Singleton. |
 | `HomeService` | Create, delete, retrieve, filter, and patch homes; validate player identifiers and enforce per-player name uniqueness. | Home repository, `IPlayerService`, logger. | Singleton with an instance lock surrounding Home reads and mutations. |
+| `ItemService` | Add, retrieve by identifier, Minecraft ID, Bukkit ID, or NuciCraft ID, list, and patch item metadata; generate sign-compatible identifiers from NuciCraft IDs. | Item repository, `ISignIdGenerator`, logger. | Singleton. |
 | `WorldService` | Add, retrieve, list, and patch world metadata, including merged localised values, web-map availability, spawn points, and world types. | World repository and logger. | Singleton. |
 | `ZoneTypeService` | Add, retrieve, list, and patch localised zone-type metadata. | Zone type repository and logger. | Singleton. |
 | `CountryService` | Add, retrieve, list, and patch country metadata, including merged localised values. | Country repository, logger. | Singleton. |
@@ -248,6 +249,7 @@ flowchart LR
 | Data or Store | Owner | Representation and Storage | Lifecycle or Consistency |
 |---------------|-------|----------------------------|--------------------------|
 | Home records | `HomeService` | `HomeDataObject` records in the JSON file selected by `dataStoreSettings.homesStorePath`. | Random GUID and creation timestamp generated on creation; patches preserve them and generate an update timestamp. Player references contain identifiers. |
+| `items.json` | `ItemService` | `ItemDataObject` records at `Data/items.json` by default, including Minecraft ID, NuciCraft ID, Bukkit ID, and generated sign IDs. | Added and patched synchronously; sign IDs are generated from NuciCraft ID if not provided; provided localised properties merge with persisted values. |
 | `players.json` | `PlayerService` | `PlayerDataObject` records at `Data/players.json` by default. | Created during registration and patched synchronously; selectors include identifier, username, offline UUID, and online UUID. |
 | `worlds.json` | `WorldService` | `WorldDataObject` records at `Data/worlds.json` by default, including web-map availability, an optional spawn point, and a string world type. | Added and patched synchronously; provided localised properties merge with persisted values, omitted patch fields remain unchanged, and absent or unsupported types map to `overworld`. |
 | `countries.json` | `CountryService` | `CountryDataObject` records at `Data/countries.json` by default. | Added and patched synchronously; provided localised properties merge with persisted values. |
