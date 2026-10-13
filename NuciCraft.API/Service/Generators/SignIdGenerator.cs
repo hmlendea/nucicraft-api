@@ -85,6 +85,9 @@ namespace NuciCraft.API.Service.Generators
                 { "Stairs", "Stair" },
 
                 { "Cobble", "Cbbl" },
+                { "Chiseled", "Chisel" },
+                { "Enchanted", "Ench" },
+                { "Golden", "Gold" },
                 { "Polish", "Poli" },
                 { "Tuff", "Tuf" },
                 { "Upgrade", "Upg" },
