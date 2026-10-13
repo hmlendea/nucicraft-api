@@ -27,6 +27,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 	- [Manage Worlds](#manage-worlds)
 	- [Manage Zone Types](#manage-zone-types)
   - [Manage Zones](#manage-zones)
+  - [Manage Items](#manage-items)
 - [Known Limitations](#known-limitations)
 - [Installation](#installation)
   - [CLI Installation](#cli-installation)
@@ -61,6 +62,8 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 - Stores, retrieves, updates, and deletes zone metadata
 - Validates zone bounds so both corners share the identical world and are necessary on zone creation
 - Assigns a default zone creation date when one is not provided by the caller
+- Stores, retrieves, and updates item metadata with Minecraft, Bukkit, and NuciCraft identifiers
+- Generates sign-compatible identifiers from NuciCraft IDs with custom replacements and length limits
 
 ## 🚀 Usage
 
@@ -427,6 +430,71 @@ curl -X PATCH "http://localhost:5000/Zones/spawn-city" \
 curl -X DELETE "http://localhost:5000/Zones/spawn-city"
 ```
 
+### Manage Items
+
+All Items routes require API-key authorisation:
+
+| Method | Route | Result |
+|--------|-------|--------|
+| `POST` | `/Items` | Create an item. |
+| `GET` | `/Items/{itemIdentifier}` | Retrieve an item by its identifier (NuciCraft ID). |
+| `GET` | `/Items/by-minecraft-id/{minecraftId}` | Retrieve an item by its Minecraft ID (e.g., `minecraft:diamond_sword`). |
+| `GET` | `/Items/by-bukkit-id/{bukkitId}` | Retrieve an item by its Bukkit ID (e.g., `DIAMOND_SWORD`). |
+| `GET` | `/Items/by-nucicraft-id/{nuciCraftId}` | Retrieve an item by its NuciCraft ID. |
+| `GET` | `/Items` | Retrieve all items. |
+| `PATCH` | `/Items/{itemIdentifier}` | Patch an item by its identifier. |
+
+```bash
+curl -X POST "http://localhost:5000/Items" \
+	-H "Authorization: Bearer ${NUCICRAFT_API_KEY}" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"id": "diamond_sword",
+		"minecraftId": "minecraft:diamond_sword",
+		"nucicraftId": "diamond_sword",
+		"bukkitId": "DIAMOND_SWORD",
+		"signIds": ["DiamondSword"]
+	}'
+```
+
+The `id` field is the item's primary identifier (NuciCraft ID). `minecraftId` and `bukkitId` are required. `nucicraftId` is optional and defaults to the `id` value if not provided. `signIds` is optional; if omitted or empty, the service generates a default sign ID from the NuciCraft ID using the sign ID generator (see [Sign ID Generation](#sign-id-generation)).
+
+```bash
+curl "http://localhost:5000/Items/diamond_sword"
+curl "http://localhost:5000/Items/by-minecraft-id/minecraft:diamond_sword"
+curl "http://localhost:5000/Items/by-bukkit-id/DIAMOND_SWORD"
+curl "http://localhost:5000/Items/by-nucicraft-id/diamond_sword"
+curl "http://localhost:5000/Items"
+```
+
+```bash
+curl -X PATCH "http://localhost:5000/Items/diamond_sword" \
+	-H "Authorization: Bearer ${NUCICRAFT_API_KEY}" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"bukkitId": "DIAMOND_SWORD",
+		"signIds": ["DiamondSword", "DiaSword"]
+	}'
+```
+
+Patch requests merge supplied `signIds` and replace other provided fields. Omitted fields preserve their stored values.
+
+#### Sign ID Generation
+
+When `signIds` is not provided on creation, the service generates a default sign ID from the `nucicraftId` (or `id` if `nucicraftId` is not set) using the following rules:
+
+1. If the ID contains a namespace prefix (e.g., `minecraft:diamond_sword`), the prefix is removed.
+2. Underscores are replaced with spaces, and each word is capitalised (e.g., `diamond_sword` → `Diamond Sword` → `DiamondSword`).
+3. Custom replacements are applied (e.g., `Axe` → `Hatchet`, `Bamboo` → `Bambus`, `Cherry` → `Sakura`, `Cobblestone` → `Cobble`, `Concrete` → `Cement`, `Deepslate` → `Deep`, `Propagule` → `Sapling`, `Leaves` → `Foliage`, `Stained` → removed, `Sulfur` → `Sulphur`).
+4. If the result exceeds 16 characters, word shortenings are applied in order until it fits (e.g., `Netherite` → `Nether`, `Chiselled` → `Chisel`, `Polished` → `Polish`, `Pickaxe` → `Pick`, `Stairs` → `Stair`, `Cobble` → `Cbbl`, etc.).
+
+Examples:
+- `minecraft:diamond_sword` → `DiamondSword`
+- `minecraft:copper_axe` → `CopperHatchet`
+- `minecraft:iron_pickaxe` → `IronPickaxe`
+- `minecraft:netherite_upgrade_smithing_template` → `NethUpgSmithTemp`
+- `polished_cinnabar_stairs` → `PoliCinbarStair`
+
 ## ⚠️ Known Limitations
 
 - The service uses JSON-file persistence and is not optimised for high-concurrency multi-instance deployments.
@@ -452,6 +520,7 @@ Settings are loaded from [appsettings.json](./NuciCraft.API/appsettings.json), w
 |---------|-----|-------------|
 | `dataStoreSettings` | `countriesStorePath` | Path to the countries JSON store. |
 | `dataStoreSettings` | `homesStorePath` | Path to the homes JSON store, created automatically at startup using the default in [appsettings.json](./NuciCraft.API/appsettings.json). |
+| `dataStoreSettings` | `itemsStorePath` | Path to the items JSON store. |
 | `dataStoreSettings` | `playersStorePath` | Path to the players JSON store. |
 | `dataStoreSettings` | `rtpLocationsStorePath` | Path to the RTP locations JSON store. |
 | `dataStoreSettings` | `worldsStorePath` | Path to the worlds JSON store. |
@@ -538,7 +607,7 @@ The key directories inside `NuciCraft.API/` are:
 |-----------|---------|
 | `Configuration` | Strongly typed settings models bound from `appsettings.json`. |
 | `Controllers` | REST endpoint definitions and HTTP request handling. |
-| `Data` | JSON data stores for countries, homes, worlds, players, RTP locations, zones, and zone types. |
+| `Data` | JSON data stores for countries, homes, items, worlds, players, RTP locations, zones, and zone types. |
 | `DataAccess` | Data objects and repository mappings for persistence. |
 | `Logging` | Operation and log metadata keys used for diagnostics. |
 | `Requests` | API request DTOs and validation attributes. |

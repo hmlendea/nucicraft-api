@@ -68,6 +68,7 @@ namespace NuciCraft.API
             CreateStoreIfMissing(dataStoreSettings.PlayersStorePath);
             CreateStoreIfMissing(dataStoreSettings.CountriesStorePath);
             CreateStoreIfMissing(dataStoreSettings.HomesStorePath);
+            CreateStoreIfMissing(dataStoreSettings.ItemsStorePath);
             CreateStoreIfMissing(dataStoreSettings.WorldsStorePath);
             CreateStoreIfMissing(dataStoreSettings.ZonesStorePath);
             CreateStoreIfMissing(dataStoreSettings.ZoneTypesStorePath);
@@ -98,6 +99,7 @@ namespace NuciCraft.API
             EagerlyLoadRepository<RtpLocationEntity>(serviceProvider);
             EagerlyLoadRepository<CountryDataObject>(serviceProvider);
             EagerlyLoadRepository<HomeDataObject>(serviceProvider);
+            EagerlyLoadRepository<ItemDataObject>(serviceProvider);
             EagerlyLoadRepository<WorldDataObject>(serviceProvider);
             EagerlyLoadRepository<ZoneDataObject>(serviceProvider);
             EagerlyLoadRepository<ZoneTypeDataObject>(serviceProvider);

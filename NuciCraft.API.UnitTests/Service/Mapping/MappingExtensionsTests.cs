@@ -148,7 +148,7 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 dataObject);
 
             Assert.That(serviceModel.Identifier, Is.EqualTo("city"));
-            Assert.That(serviceModel.Categories, Is.EqualTo(new[] { "settlement", "civilian" }));
+            Assert.That(serviceModel.Categories, Is.EqualTo(["settlement", "civilian"]));
             Assert.That(serviceModel.Name.English, Is.EqualTo("Nucilandia"));
         }
 

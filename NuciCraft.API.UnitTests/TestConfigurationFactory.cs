@@ -15,6 +15,8 @@ namespace NuciCraft.API.UnitTests
 
         private static string HomesStoreFileName => "homes.json";
 
+        private static string ItemsStoreFileName => "items.json";
+
         private static string LogFileName => "nucicraft-api.log";
 
         private static string PlayersStoreFileName => "players.json";
@@ -36,6 +38,7 @@ namespace NuciCraft.API.UnitTests
             [
                 new("dataStoreSettings:countriesStorePath", dataStoreSettings.CountriesStorePath),
                 new("dataStoreSettings:homesStorePath", dataStoreSettings.HomesStorePath),
+                new("dataStoreSettings:itemsStorePath", dataStoreSettings.ItemsStorePath),
                 new("dataStoreSettings:worldsStorePath", dataStoreSettings.WorldsStorePath),
                 new("dataStoreSettings:playersStorePath", dataStoreSettings.PlayersStorePath),
                 new("dataStoreSettings:rtpLocationsStorePath", dataStoreSettings.RtpLocationsStorePath),
@@ -66,6 +69,8 @@ namespace NuciCraft.API.UnitTests
                 dataStoreSettings.CountriesStorePath,
                 "--dataStoreSettings:homesStorePath",
                 dataStoreSettings.HomesStorePath,
+                "--dataStoreSettings:itemsStorePath",
+                dataStoreSettings.ItemsStorePath,
                 "--dataStoreSettings:worldsStorePath",
                 dataStoreSettings.WorldsStorePath,
                 "--dataStoreSettings:playersStorePath",
@@ -93,6 +98,7 @@ namespace NuciCraft.API.UnitTests
         {
             CountriesStorePath = Path.Combine(storeDirectory, CountriesStoreFileName),
             HomesStorePath = Path.Combine(storeDirectory, HomesStoreFileName),
+            ItemsStorePath = Path.Combine(storeDirectory, ItemsStoreFileName),
             WorldsStorePath = Path.Combine(storeDirectory, WorldsStoreFileName),
             PlayersStorePath = Path.Combine(storeDirectory, PlayersStoreFileName),
             RtpLocationsStorePath = Path.Combine(storeDirectory, RtpLocationsStoreFileName),
