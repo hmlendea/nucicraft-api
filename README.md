@@ -46,6 +46,7 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 - [Contributing](#contributing)
 - [Security](#security)
 - [Supporting the Project](#supporting-the-project)
+- [Code of Conduct](#code-of-conduct)
 - [License](#license)
 
 ## ✨ Capabilities
@@ -646,6 +647,10 @@ Discovered a problem or have a suggestion? [Open an issue](https://github.com/hm
 If you find this project useful, consider [funding it](https://hmlendea.go.ro/funding) or starring ⭐️ it on GitHub!
 
 [![Donate](https://raw.githubusercontent.com/hmlendea/readme-assets/master/donate_generic.png)](https://hmlendea.go.ro/funding)
+
+## 📜 Code of Conduct
+
+See the [Code of Conduct](./CODE_OF_CONDUCT.md) for the standards of conduct expected in all project spaces.
 
 ## 📄 License
 

@@ -15,6 +15,7 @@ This document covers the guidelines and processes for contributing to this proje
   - [Code Style](#code-style)
   - [Testing](#testing)
   - [Documentation](#documentation)
+- [Code of Conduct](#-code-of-conduct)
 - [Security](#security)
 - [License](#license)
 - [Getting Help](#getting-help)
@@ -97,9 +98,13 @@ dotnet test NuciCraft.API.IntegrationTests/NuciCraft.API.IntegrationTests.csproj
 - Follow the documentation style guide.
 - Preview changes locally if possible.
 
+## 📋 Code of Conduct
+
+This project follows the [Code of Conduct](./CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+
 ## 🔒 Security
 
-Report security vulnerabilities per the [Security Policy](./SECURITY.md).
+For security issues, please refer to the [Security Policy](SECURITY.md).
 
 ## 📄 License
 
