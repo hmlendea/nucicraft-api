@@ -3,7 +3,7 @@
 | Metadata | Value |
 |----------|-------|
 | Purpose | Document test projects, levels, fixtures, doubles, data isolation, verified conduct, commands, and confirmed coverage limitations. |
-| Scope | Unit and integration projects plus CI execution. |
+| Scope | Architecture, unit, and integration projects plus CI execution. |
 | Primary sources | [NuciCraft.API.UnitTests](../NuciCraft.API.UnitTests/), [NuciCraft.API.IntegrationTests](../NuciCraft.API.IntegrationTests/), their project files, and [.github/workflows/dotnet.yml](../.github/workflows/dotnet.yml) |
 | Related documents | [Architecture](architecture.md), [repository structure](repository-structure.md), [error handling](error-handling.md), and [invariants](invariants.md) |
 
@@ -11,10 +11,11 @@
 
 | Project | Level | Frameworks | Production Host |
 |---------|-------|------------|-----------------|
+| [NuciCraft.API.ArchitectureTests](../NuciCraft.API.ArchitectureTests/) | Structural dependency and boundary rules | NUnit, ArchUnit.NET | No HTTP host. |
 | [NuciCraft.API.UnitTests](../NuciCraft.API.UnitTests/) | Isolated unit and component tests | NUnit 4.6.1, Moq 4.20.72, Microsoft.NET.Test.Sdk 18.10.1 | No HTTP host. |
 | [NuciCraft.API.IntegrationTests](../NuciCraft.API.IntegrationTests/) | In-memory HTTP, restart persistence, and loopback TCP integration | NUnit, Moq, `WebApplicationFactory`, TestHost | ASP.NET Core test host. |
 
-Both target .NET 10 and reference the production project. The integration project activates nullable reference analysis and latest language version; the production and unit project do not declare those identical properties.
+All three target .NET 10 and reference the production project. The architecture and integration projects activate nullable reference analysis and latest language version; the production and unit project do not declare those identical properties.
 
 ## Execution Commands
 
@@ -38,7 +39,37 @@ dotnet test NuciCraft.API.IntegrationTests/NuciCraft.API.IntegrationTests.csproj
 
 CI restores and compiles first, then executes `dotnet test --no-build --verbosity normal`.
 
+Architecture only:
+
+```bash
+dotnet test NuciCraft.API.ArchitectureTests/NuciCraft.API.ArchitectureTests.csproj
+```
+
 No coverage collector, threshold, public report, snapshot framework, benchmark suite, or mutation-test configuration is tracked.
+
+## Architecture Tests
+
+The [architecture test project](../NuciCraft.API.ArchitectureTests/NuciCraft.API.ArchitectureTests.csproj) participates in solution-wide test execution. It loads the single production assembly once through ArchUnit.NET and excludes test assemblies from the analysed architecture. Every source selector must match existing types; internal layer targets must also be nonempty. Forbidden external namespace targets may be absent because those dependencies are prohibited rather than required.
+
+The [dependency rules](../NuciCraft.API.ArchitectureTests/LayerDependencyTests.cs) enforce these forbidden directions:
+
+| Source | Forbidden Dependencies |
+|--------|------------------------|
+| Controllers | Repositories, concrete services, outbound API clients, service helpers/mappings, persistence frameworks, and persistence records except the coordinate exception below. |
+| Services | Controllers, response DTOs, ASP.NET Core MVC, Entity Framework, and DynamoDB. |
+| Service models | Persistence, requests, responses, controllers, and configuration. |
+| Persistence | Controllers, responses, services, and requests except the merge exception below. |
+| Responses | Persistence and controllers. |
+| Configuration and logging | Controllers, services, and persistence. |
+
+These are namespace boundaries inside one production project, not separate Domain, Application, Infrastructure, and API assemblies. A project-level layer matrix cannot exist until those layers are split into projects. Independent [reference checks](../NuciCraft.API.ArchitectureTests/ProductionReferenceTests.cs) inspect both compiled assembly references and a build-copied production project file, rejecting test dependencies and unapproved persistence frameworks. They also prohibit production friend-assembly declarations. [HTTP boundary checks](../NuciCraft.API.ArchitectureTests/HttpBoundaryTests.cs) verify controller placement, the shared Nuci controller base, routing metadata, and interface-based service injection.
+
+Current compatibility exceptions are deliberately narrow:
+- The zone controller may use the persistence-owned coordinate type, but no other persistence record.
+- The player-settings merge extension may consume the player-settings patch request, but no other request contract.
+- Existing requests may expose persistence-owned nested values; services may consume request contracts directly.
+
+The request/persistence cycle is therefore intentional legacy coupling, not an acyclic boundary. The suite does not assert that all namespaces are cycle-free. These exceptions record existing implementation constraints and do not endorse additional coupling. Structural checks complement behavioural tests; they cannot prove authorisation, correct persistence, or runtime dependency lifetimes.
 
 ## Unit-Test Architecture
 
