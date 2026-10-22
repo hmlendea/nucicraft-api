@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace NuciCraft.API.DataAccess.DataObjects
 {
-    public class ZoneDataObject : NuciCraftEntityBase
+    public sealed class ZoneDataObject : NuciCraftEntityBase
     {
         public LocalisedStringDataObject Name { get; set; }
 
@@ -36,8 +36,8 @@ namespace NuciCraft.API.DataAccess.DataObjects
 
         public string PopulationDate { get; set; }
 
-        public string MapLink { get; set; } // TODO: Fetch dynamically
+        public string MapLink { get; set; } // TODO: Fetch dynamically.
 
-        public string WikiUrl { get; set; } // TODO: Fetch dynamically
+        public string WikiUrl { get; set; } // TODO: Fetch dynamically.
     }
 }

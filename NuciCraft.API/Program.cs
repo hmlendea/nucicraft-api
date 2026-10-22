@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace NuciCraft.API
 {
-    public class Program
+    public sealed class Program
     {
         public static void Main(string[] args)
             => CreateHostBuilder(args).Build().Run();

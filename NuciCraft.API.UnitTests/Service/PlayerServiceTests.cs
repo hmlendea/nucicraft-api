@@ -522,7 +522,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Throws<InvalidOperationException>();
 
             Assert.That(
-                () => playerService.GetAll(),
+                playerService.GetAll,
                 Throws.TypeOf<InvalidOperationException>());
         }
 

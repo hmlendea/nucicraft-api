@@ -1,6 +1,6 @@
 namespace NuciCraft.API.Service.Models
 {
-    public class RtpLocation
+    public sealed class RtpLocation
     {
         public string Id { get; set; }
 

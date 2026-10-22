@@ -199,7 +199,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Throws<InvalidOperationException>();
 
             Assert.That(
-                () => worldService.GetAllWorlds(),
+                worldService.GetAllWorlds,
                 Throws.TypeOf<InvalidOperationException>());
         }
 

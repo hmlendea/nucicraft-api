@@ -7,7 +7,7 @@ using NuciSecurity.HMAC;
 
 namespace NuciCraft.API.Requests
 {
-    public class GetZoneRequest : NuciApiRequest
+    public sealed class GetZoneRequest : NuciApiRequest
     {
         [Required]
         [HmacOrder(1)]

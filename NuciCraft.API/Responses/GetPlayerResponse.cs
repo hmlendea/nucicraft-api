@@ -9,7 +9,7 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Responses
 {
-    public class GetPlayerResponse(Player player) : NuciApiResponseContent
+    public sealed class GetPlayerResponse(Player player) : NuciApiResponseContent
     {
         [HmacOrder(1)]
         [JsonPropertyName("id")]

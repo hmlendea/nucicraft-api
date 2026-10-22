@@ -966,7 +966,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Throws<InvalidOperationException>();
 
             Assert.That(
-                () => zoneService.GetAllZones(),
+                zoneService.GetAllZones,
                 Throws.TypeOf<InvalidOperationException>());
         }
 

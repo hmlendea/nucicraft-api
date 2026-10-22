@@ -9,7 +9,7 @@ using NuciCraft.API.DataAccess.DataObjects;
 
 namespace NuciCraft.API.Requests
 {
-    public class AddWorldRequest : NuciApiRequest
+    public sealed class AddWorldRequest : NuciApiRequest
     {
         [Required]
         [HmacOrder(1)]

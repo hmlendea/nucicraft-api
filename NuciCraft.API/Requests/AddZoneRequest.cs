@@ -10,7 +10,7 @@ using NuciCraft.API.DataAccess.DataObjects;
 
 namespace NuciCraft.API.Requests
 {
-    public class AddZoneRequest : NuciApiRequest
+    public sealed class AddZoneRequest : NuciApiRequest
     {
         [Required]
         [HmacOrder(1)]

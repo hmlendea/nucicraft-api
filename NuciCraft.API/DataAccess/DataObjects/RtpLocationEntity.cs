@@ -1,6 +1,6 @@
 namespace NuciCraft.API.DataAccess.DataObjects
 {
-    public class RtpLocationEntity : NuciCraftEntityBase
+    public sealed class RtpLocationEntity : NuciCraftEntityBase
     {
         public string Biome { get; set; }
 

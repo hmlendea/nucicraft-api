@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace NuciCraft.API.DataAccess.DataObjects
 {
-    public class ItemDataObject : NuciCraftEntityBase
+    public sealed class ItemDataObject : NuciCraftEntityBase
     {
         public string MinecraftId { get; set; }
 

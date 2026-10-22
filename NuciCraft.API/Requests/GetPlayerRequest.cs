@@ -6,7 +6,7 @@ using NuciSecurity.HMAC;
 
 namespace NuciCraft.API.Requests
 {
-    public class GetPlayerRequest : NuciApiRequest
+    public sealed class GetPlayerRequest : NuciApiRequest
     {
         [HmacOrder(1)]
         [JsonPropertyName("id")]

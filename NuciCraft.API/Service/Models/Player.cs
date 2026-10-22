@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace NuciCraft.API.Service.Models
 {
-    public class Player
+    public sealed class Player
     {
         public string Identifier { get; set; }
 

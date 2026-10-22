@@ -1,6 +1,6 @@
 namespace NuciCraft.API.Service.Models
 {
-    public class LocalisedString
+    public sealed class LocalisedString
     {
         public string Default { get; set; }
 

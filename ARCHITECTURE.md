@@ -202,7 +202,7 @@ Boundary rules:
 
 Paths:
 - [NuciCraft.API/Service](./NuciCraft.API/Service/)
-- [NuciCraft.API/Service/Helpers](./NuciCraft.API/Service/Helpers/)
+- [NuciCraft.API/DataAccess/DataObjects](./NuciCraft.API/DataAccess/DataObjects/)
 - [NuciCraft.API/Service/Mapping](./NuciCraft.API/Service/Mapping/)
 - [NuciCraft.API/Service/Models](./NuciCraft.API/Service/Models/)
 - [NuciCraft.API/Logging](./NuciCraft.API/Logging/)

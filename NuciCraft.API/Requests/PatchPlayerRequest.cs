@@ -8,7 +8,7 @@ using NuciCraft.API.DataAccess.DataObjects;
 
 namespace NuciCraft.API.Requests
 {
-    public class PatchPlayerRequest : NuciApiRequest
+    public sealed class PatchPlayerRequest : NuciApiRequest
     {
         [HmacOrder(1)]
         [JsonPropertyName("id")]

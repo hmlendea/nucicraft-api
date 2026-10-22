@@ -8,7 +8,7 @@ using NuciCraft.API.DataAccess.DataObjects;
 
 namespace NuciCraft.API.Requests
 {
-    public class RegisterPlayerRequest : NuciApiRequest
+    public sealed class RegisterPlayerRequest : NuciApiRequest
     {
         [Required]
         [HmacOrder(1)]

@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace NuciCraft.API.DataAccess.DataObjects
 {
-    public class LocalisedStringDataObject
+    public sealed class LocalisedStringDataObject
     {
         [JsonPropertyName("default")]
         public string Default { get; set; }

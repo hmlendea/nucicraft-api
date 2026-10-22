@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace NuciCraft.API.Service.Models
 {
-    public class Zone
+    public sealed class Zone
     {
         public string Identifier { get; set; }
 
@@ -38,8 +38,8 @@ namespace NuciCraft.API.Service.Models
 
         public string PopulationDate { get; set; }
 
-        public string MapLink { get; set; } // TODO: Fetch dynamically
+        public string MapLink { get; set; } // TODO: Fetch dynamically.
 
-        public string WikiUrl { get; set; } // TODO: Fetch dynamically
+        public string WikiUrl { get; set; } // TODO: Fetch dynamically.
     }
 }

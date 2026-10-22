@@ -40,17 +40,29 @@ namespace NuciCraft.API.Service
 
             try
             {
-                string identifier = string.IsNullOrWhiteSpace(request.Identifier)
-                    ? Guid.NewGuid().ToString()
-                    : request.Identifier;
+                string identifier = request.Identifier;
+
+                if (string.IsNullOrWhiteSpace(request.Identifier))
+                {
+                    identifier = Guid.NewGuid().ToString();
+                }
+
+                string nuciCraftId = request.NuciCraftId;
+                string signIdSource = request.NuciCraftId;
+
+                if (string.IsNullOrWhiteSpace(request.NuciCraftId))
+                {
+                    nuciCraftId = request.MinecraftId;
+                    signIdSource = request.MinecraftId;
+                }
 
                 ItemDataObject itemDataObject = new()
                 {
                     Id = identifier,
                     MinecraftId = request.MinecraftId.ToLowerInvariant(),
-                    NuciCraftId = string.IsNullOrWhiteSpace(request.NuciCraftId) ? request.MinecraftId.ToLowerInvariant() : request.NuciCraftId.ToLowerInvariant(),
+                    NuciCraftId = nuciCraftId.ToLowerInvariant(),
                     BukkitId = request.BukkitId.ToUpperInvariant(),
-                    SignIds = request.SignIds ?? signIdGenerator.GenerateDefaultSignIds(string.IsNullOrWhiteSpace(request.NuciCraftId) ? request.MinecraftId : request.NuciCraftId)
+                    SignIds = request.SignIds ?? signIdGenerator.GenerateDefaultSignIds(signIdSource)
                 };
 
                 repository.Add(itemDataObject);
@@ -123,7 +135,7 @@ namespace NuciCraft.API.Service
             try
             {
                 ItemDataObject itemDataObject = repository.GetAll()
-                    .FirstOrDefault(item => item.MinecraftId.Equals(minecraftId, StringComparison.OrdinalIgnoreCase));
+                    .FirstOrDefault(item => string.Equals(item.MinecraftId, minecraftId, StringComparison.OrdinalIgnoreCase));
 
                 if (itemDataObject is null)
                 {
@@ -166,7 +178,7 @@ namespace NuciCraft.API.Service
             try
             {
                 ItemDataObject itemDataObject = repository.GetAll()
-                    .FirstOrDefault(item => item.BukkitId.Equals(bukkitId, StringComparison.OrdinalIgnoreCase));
+                    .FirstOrDefault(item => string.Equals(item.BukkitId, bukkitId, StringComparison.OrdinalIgnoreCase));
 
                 if (itemDataObject is null)
                 {
@@ -209,7 +221,7 @@ namespace NuciCraft.API.Service
             try
             {
                 ItemDataObject itemDataObject = repository.GetAll()
-                    .FirstOrDefault(item => item.NuciCraftId.Equals(nuciCraftId, StringComparison.OrdinalIgnoreCase));
+                    .FirstOrDefault(item => string.Equals(item.NuciCraftId, nuciCraftId, StringComparison.OrdinalIgnoreCase));
 
                 if (itemDataObject is null)
                 {

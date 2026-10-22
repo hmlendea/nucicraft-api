@@ -9,7 +9,7 @@ namespace NuciCraft.API.Service.Mapping
     /// <summary>
     /// Coordinates mapping extensions for converting between data objects and service models.
     /// </summary>
-    static class CoordinatesMappingExtensions
+    internal static class CoordinatesMappingExtensions
     {
         /// <summary>
         /// Converts the data object into a service model.

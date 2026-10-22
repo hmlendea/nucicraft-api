@@ -50,7 +50,7 @@ namespace NuciCraft.API.Service.Generators
                 { "Sulfur", "Sulphur" },
             };
 
-            foreach (var replacement in customReplacements)
+            foreach (KeyValuePair<string, string> replacement in customReplacements)
             {
                 input = input.Replace(replacement.Key, replacement.Value);
             }
@@ -93,7 +93,7 @@ namespace NuciCraft.API.Service.Generators
                 { "Upgrade", "Upg" },
             };
 
-            foreach (var wordShortening in wordShortenings)
+            foreach (KeyValuePair<string, string> wordShortening in wordShortenings)
             {
                 if (input.Length <= 16)
                 {

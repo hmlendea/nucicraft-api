@@ -1,6 +1,6 @@
 namespace NuciCraft.API.DataAccess.DataObjects
 {
-    public class CountryDataObject : NuciCraftEntityBase
+    public sealed class CountryDataObject : NuciCraftEntityBase
     {
         public LocalisedStringDataObject Name { get; set; }
 

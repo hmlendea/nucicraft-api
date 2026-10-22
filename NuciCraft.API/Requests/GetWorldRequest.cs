@@ -7,7 +7,7 @@ using NuciSecurity.HMAC;
 
 namespace NuciCraft.API.Requests
 {
-    public class GetWorldRequest : NuciApiRequest
+    public sealed class GetWorldRequest : NuciApiRequest
     {
         [Required]
         [HmacOrder(1)]

@@ -2,7 +2,7 @@ using NuciDAL.DataObjects;
 
 namespace NuciCraft.API.DataAccess.DataObjects
 {
-    public class NuciCraftEntityBase : EntityBase
+    public abstract class NuciCraftEntityBase : EntityBase
     {
         public string CreatedDT { get; set; }
 

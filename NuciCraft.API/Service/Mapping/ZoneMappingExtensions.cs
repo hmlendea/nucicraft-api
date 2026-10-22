@@ -9,7 +9,7 @@ namespace NuciCraft.API.Service.Mapping
     /// <summary>
     /// Zone mapping extensions for converting between data objects and service models.
     /// </summary>
-    static class ZoneMappingExtensions
+    internal static class ZoneMappingExtensions
     {
         /// <summary>
         /// Converts the data object into a service model.
