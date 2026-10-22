@@ -79,28 +79,28 @@ namespace NuciCraft.API.Service.Models
             }
 
             return
-                Name == other.Name &&
-                ExternalName == other.ExternalName;
+                string.Equals(Name, other.Name, StringComparison.Ordinal) &&
+                string.Equals(ExternalName, other.ExternalName, StringComparison.Ordinal);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object value)
         {
-            if (obj is null)
+            if (value is null)
             {
                 return false;
             }
 
-            if (ReferenceEquals(this, obj))
+            if (ReferenceEquals(this, value))
             {
                 return true;
             }
 
-            if (obj.GetType() != GetType())
+            if (value.GetType() != GetType())
             {
                 return false;
             }
 
-            return Equals((Localisation)obj);
+            return Equals((Localisation)value);
         }
 
         public override int GetHashCode() =>

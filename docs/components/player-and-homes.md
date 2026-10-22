@@ -79,7 +79,7 @@ They do not own:
 | Transport input | [AddHomeRequest.cs](../../NuciCraft.API/Requests/AddHomeRequest.cs), [PatchHomeRequest.cs](../../NuciCraft.API/Requests/PatchHomeRequest.cs), [GetHomeRequest.cs](../../NuciCraft.API/Requests/GetHomeRequest.cs), and [GetHomesRequest.cs](../../NuciCraft.API/Requests/GetHomesRequest.cs) |
 | Transport output | [GetHomeResponse.cs](../../NuciCraft.API/Responses/GetHomeResponse.cs) and [GetHomesResponse.cs](../../NuciCraft.API/Responses/GetHomesResponse.cs) |
 | Models and persistence | [Home.cs](../../NuciCraft.API/Service/Models/Home.cs), [HomeDataObject.cs](../../NuciCraft.API/DataAccess/DataObjects/HomeDataObject.cs), [Coordinates.cs](../../NuciCraft.API/Service/Models/Coordinates.cs), and [LocalisedString.cs](../../NuciCraft.API/Service/Models/LocalisedString.cs) |
-| Mapping and merge | [HomeMappingExtensions.cs](../../NuciCraft.API/Service/Mappings/HomeMappingExtensions.cs) and [LocalisedStringDataObjectExtensions.cs](../../NuciCraft.API/Service/Helpers/LocalisedStringDataObjectExtensions.cs) |
+| Mapping and merge | [HomeMappingExtensions.cs](../../NuciCraft.API/Service/Mappings/HomeMappingExtensions.cs) and [LocalisedStringDataObjectExtensions.cs](../../NuciCraft.API/DataAccess/DataObjects/LocalisedStringDataObjectExtensions.cs) |
 
 ## Behaviour
 

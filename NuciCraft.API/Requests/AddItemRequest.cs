@@ -8,7 +8,7 @@ using NuciSecurity.HMAC;
 
 namespace NuciCraft.API.Requests
 {
-    public class AddItemRequest : NuciApiRequest
+    public sealed class AddItemRequest : NuciApiRequest
     {
         [HmacOrder(1)]
         [JsonPropertyName("id")]

@@ -11,7 +11,6 @@ using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
-using NuciCraft.API.Service.Helpers;
 using NuciCraft.API.Service.Mapping;
 using NuciCraft.API.Service.Models;
 
@@ -59,29 +58,7 @@ namespace NuciCraft.API.Service
 
             try
             {
-                ZoneDataObject zoneDataObject = new()
-                {
-                    Id = request.Identifier,
-                    Name = request.Name,
-                    Nickname = request.Nickname,
-                    Type = request.Type,
-                    County = request.County,
-                    Region = request.Region,
-                    Country = request.Country,
-                    World = request.World,
-                    CreationDate = GetCreationDateForAddRequest(request),
-                    Owners = request.Owners,
-                    Creators = GetCreatorsForAddRequest(request),
-                    Leaders = request.Leaders,
-                    TeleportationPoint = request.TeleportationPoint,
-                    Bounds = normalisedBounds,
-                    LeaderTitle = request.LeaderTitle,
-                    Population = request.Population,
-                    PopulationDate = request.PopulationDate,
-                    MapLink = request.MapLink,
-                    WikiUrl = request.WikiUrl,
-                    CreatedDT = TimestampFormats.GetCurrentUtcTimestamp()
-                };
+                ZoneDataObject zoneDataObject = CreateZoneDataObject(request, normalisedBounds);
 
                 repository.Add(zoneDataObject);
                 repository.SaveChanges();
@@ -189,7 +166,7 @@ namespace NuciCraft.API.Service
             {
                 IEnumerable<ZoneDataObject> zoneDataObjects = repository.GetAll()
                     .Where(zoneDataObject => IsOfType(zoneDataObject, type))
-                    .Select(zoneDataObject => GetNormalisedZoneDataObject(zoneDataObject));
+                    .Select(GetNormalisedZoneDataObject);
                 IEnumerable<Zone> zones = zoneDataObjects
                     .ToServiceModels()
                     .Select(EnrichZone);
@@ -249,7 +226,7 @@ namespace NuciCraft.API.Service
                     .Where(zoneDataObject => zoneTypeIdentifiers.Contains(
                         zoneDataObject.Type,
                         StringComparer.Ordinal))
-                    .Select(zoneDataObject => GetNormalisedZoneDataObject(zoneDataObject));
+                    .Select(GetNormalisedZoneDataObject);
                 IEnumerable<Zone> zones = zoneDataObjects
                     .ToServiceModels()
                     .Select(EnrichZone);
@@ -376,6 +353,33 @@ namespace NuciCraft.API.Service
             }
         }
 
+        private static ZoneDataObject CreateZoneDataObject(
+            AddZoneRequest request,
+            ZoneBoundsDataObject normalisedBounds)
+            => new()
+            {
+                Id = request.Identifier,
+                Name = request.Name,
+                Nickname = request.Nickname,
+                Type = request.Type,
+                County = request.County,
+                Region = request.Region,
+                Country = request.Country,
+                World = request.World,
+                CreationDate = GetCreationDateForAddRequest(request),
+                Owners = request.Owners,
+                Creators = GetCreatorsForAddRequest(request),
+                Leaders = request.Leaders,
+                TeleportationPoint = request.TeleportationPoint,
+                Bounds = normalisedBounds,
+                LeaderTitle = request.LeaderTitle,
+                Population = request.Population,
+                PopulationDate = request.PopulationDate,
+                MapLink = request.MapLink,
+                WikiUrl = request.WikiUrl,
+                CreatedDT = TimestampFormats.GetCurrentUtcTimestamp()
+            };
+
         private static void ValidatePatchSelector(PatchZoneRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Identifier))
@@ -427,6 +431,16 @@ namespace NuciCraft.API.Service
             PatchZoneRequest request,
             ZoneDataObject zoneDataObject)
         {
+            ApplyLocalisedValues(request, zoneDataObject);
+            ApplyMetadataValues(request, zoneDataObject);
+            ApplyOwnershipAndLocationValues(request, zoneDataObject);
+            ApplyPopulationValues(request, zoneDataObject);
+        }
+
+        private static void ApplyLocalisedValues(
+            PatchZoneRequest request,
+            ZoneDataObject zoneDataObject)
+        {
             if (request.Name is not null)
             {
                 zoneDataObject.Name = zoneDataObject.Name.MergeWith(request.Name);
@@ -437,6 +451,16 @@ namespace NuciCraft.API.Service
                 zoneDataObject.Nickname = zoneDataObject.Nickname.MergeWith(request.Nickname);
             }
 
+            if (request.LeaderTitle is not null)
+            {
+                zoneDataObject.LeaderTitle = zoneDataObject.LeaderTitle.MergeWith(request.LeaderTitle);
+            }
+        }
+
+        private static void ApplyMetadataValues(
+            PatchZoneRequest request,
+            ZoneDataObject zoneDataObject)
+        {
             if (request.Type is not null)
             {
                 zoneDataObject.Type = request.Type;
@@ -467,6 +491,21 @@ namespace NuciCraft.API.Service
                 zoneDataObject.World = request.World;
             }
 
+            if (request.MapLink is not null)
+            {
+                zoneDataObject.MapLink = request.MapLink;
+            }
+
+            if (request.WikiUrl is not null)
+            {
+                zoneDataObject.WikiUrl = request.WikiUrl;
+            }
+        }
+
+        private static void ApplyOwnershipAndLocationValues(
+            PatchZoneRequest request,
+            ZoneDataObject zoneDataObject)
+        {
             if (request.Owners is not null)
             {
                 zoneDataObject.Owners = request.Owners;
@@ -486,12 +525,12 @@ namespace NuciCraft.API.Service
             {
                 zoneDataObject.TeleportationPoint = request.TeleportationPoint;
             }
+        }
 
-            if (request.LeaderTitle is not null)
-            {
-                zoneDataObject.LeaderTitle = zoneDataObject.LeaderTitle.MergeWith(request.LeaderTitle);
-            }
-
+        private static void ApplyPopulationValues(
+            PatchZoneRequest request,
+            ZoneDataObject zoneDataObject)
+        {
             if (request.Population is not null)
             {
                 zoneDataObject.Population = request.Population.Value;
@@ -502,15 +541,6 @@ namespace NuciCraft.API.Service
                 zoneDataObject.PopulationDate = request.PopulationDate;
             }
 
-            if (request.MapLink is not null)
-            {
-                zoneDataObject.MapLink = request.MapLink;
-            }
-
-            if (request.WikiUrl is not null)
-            {
-                zoneDataObject.WikiUrl = request.WikiUrl;
-            }
         }
 
         private Zone EnrichZone(Zone zone)

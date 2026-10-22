@@ -33,7 +33,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             settings.Hostname = hostname;
 
-            Assert.That(() => service.GetOnlinePlayersCount(), Throws.InstanceOf<ArgumentException>());
+            Assert.That(service.GetOnlinePlayersCount, Throws.InstanceOf<ArgumentException>());
         }
 
         [TestCase(int.MinValue)]
@@ -46,7 +46,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             settings.JavaEditionPort = port;
 
-            Assert.That(() => service.GetOnlinePlayersCount(), Throws.TypeOf<ArgumentOutOfRangeException>());
+            Assert.That(service.GetOnlinePlayersCount, Throws.TypeOf<ArgumentOutOfRangeException>());
         }
     }
 }

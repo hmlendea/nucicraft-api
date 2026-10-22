@@ -9,7 +9,7 @@ namespace NuciCraft.API.Service.Mapping
     /// <summary>
     /// World mapping extensions for converting between data objects and service models.
     /// </summary>
-    static class WorldMappingExtensions
+    internal static class WorldMappingExtensions
     {
         /// <summary>
         /// Converts the data object into a service model.

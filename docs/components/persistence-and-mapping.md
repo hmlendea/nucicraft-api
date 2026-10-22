@@ -82,7 +82,7 @@ Mappings are internal static extension methods. Collection helpers use LINQ and 
 
 ### Merge Helpers
 
-[LocalisedStringDataObjectExtensions.cs](../../NuciCraft.API/Service/Helpers/LocalisedStringDataObjectExtensions.cs) creates or reuses an existing localised record and replaces only non-null incoming language fields.
+[LocalisedStringDataObjectExtensions.cs](../../NuciCraft.API/DataAccess/DataObjects/LocalisedStringDataObjectExtensions.cs) creates or reuses an existing localised record and replaces only non-null incoming language fields.
 
 [PlayerSettingsDataObjectExtensions.cs](../../NuciCraft.API/DataAccess/DataObjects/PlayerSettingsDataObjectExtensions.cs) creates default settings when the persisted object is null and applies only fields whose patch DTO indicates presence, plus non-null localisation and skin URL strings.
 

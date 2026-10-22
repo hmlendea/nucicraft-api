@@ -1,6 +1,6 @@
 namespace NuciCraft.API.DataAccess.DataObjects
 {
-    public class PlayerDataObject : NuciCraftEntityBase
+    public sealed class PlayerDataObject : NuciCraftEntityBase
     {
         public string Username { get; set; }
 

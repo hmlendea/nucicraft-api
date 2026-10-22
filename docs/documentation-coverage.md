@@ -299,7 +299,7 @@ ZoneType:
 - [ZoneMappingExtensions.cs](../NuciCraft.API/Service/Mapping/ZoneMappingExtensions.cs)
 - [ZoneTypeMappingExtensions.cs](../NuciCraft.API/Service/Mapping/ZoneTypeMappingExtensions.cs)
 - [HomeMappingExtensions.cs](../NuciCraft.API/Service/Mappings/HomeMappingExtensions.cs)
-- [LocalisedStringDataObjectExtensions.cs](../NuciCraft.API/Service/Helpers/LocalisedStringDataObjectExtensions.cs)
+- [LocalisedStringDataObjectExtensions.cs](../NuciCraft.API/DataAccess/DataObjects/LocalisedStringDataObjectExtensions.cs)
 
 ## Unit-Test Source Map
 

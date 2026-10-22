@@ -19,7 +19,7 @@ using NuciCraft.API.DataAccess.DataObjects;
 
 namespace NuciCraft.API
 {
-    public class Startup(IConfiguration configuration)
+    public sealed class Startup(IConfiguration configuration)
     {
         public IConfiguration Configuration => configuration;
 

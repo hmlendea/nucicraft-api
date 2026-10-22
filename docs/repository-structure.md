@@ -64,7 +64,7 @@ Subdirectories have distinct purposes:
 | [Service/Models](../NuciCraft.API/Service/Models/) | Fifteen service-layer models and four enum-like value classes. | These represent application values, not repository or request contracts. |
 | [Service/Mapping](../NuciCraft.API/Service/Mapping/) | Ten internal conversion extension classes. | Keep nested and timestamp conversion centralised here. |
 | [Service/Mappings](../NuciCraft.API/Service/Mappings/) | `HomeMappingExtensions` only. | This plural directory is an existing naming inconsistency; preserve references unless deliberately consolidated. |
-| [Service/Helpers](../NuciCraft.API/Service/Helpers/) | Localised-string selective merge logic. | A null incoming language preserves the persisted language. |
+| [DataAccess/DataObjects](../NuciCraft.API/DataAccess/DataObjects/) | Persistence data objects and localised-string selective merge logic. | A null incoming language preserves the persisted language. |
 
 Service interfaces remain controller-facing contracts. Infrastructure implementation selection belongs in the composition root, while domain decisions remain in concrete services.
 
@@ -151,7 +151,7 @@ Future agents must neither document these outputs as stable implementation nor r
 | Application representation | `Service/Models` |
 | Persisted representation | `DataAccess/DataObjects` |
 | Representation conversion | `Service/Mapping`, respecting the existing Home exception |
-| Selective localised merge | `Service/Helpers` |
+| Selective localised merge | `DataAccess/DataObjects` |
 | Concrete adapter or lifetime | `ServiceCollectionExtensions.cs` |
 | Startup filesystem or middleware conduct | `Startup.cs` |
 | Default setting | `appsettings.json` and the matching configuration class |

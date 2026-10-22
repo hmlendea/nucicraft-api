@@ -107,7 +107,7 @@
 
 **Decision:** Null reference-type patch fields preserve persisted values, localised strings merge language by language, and player-setting booleans retain explicit JSON-presence flags.
 
-**Evidence:** [LocalisedStringDataObjectExtensions.cs](../NuciCraft.API/Service/Helpers/LocalisedStringDataObjectExtensions.cs), [PatchPlayerSettingsRequest.cs](../NuciCraft.API/Requests/PatchPlayerSettingsRequest.cs), and [PlayerSettingsDataObjectExtensions.cs](../NuciCraft.API/DataAccess/DataObjects/PlayerSettingsDataObjectExtensions.cs).
+**Evidence:** [LocalisedStringDataObjectExtensions.cs](../NuciCraft.API/DataAccess/DataObjects/LocalisedStringDataObjectExtensions.cs), [PatchPlayerSettingsRequest.cs](../NuciCraft.API/Requests/PatchPlayerSettingsRequest.cs), and [PlayerSettingsDataObjectExtensions.cs](../NuciCraft.API/DataAccess/DataObjects/PlayerSettingsDataObjectExtensions.cs).
 
 **Motivation:** The design differentiates omission from replacement and, for non-nullable booleans, omission from explicit `false`.
 

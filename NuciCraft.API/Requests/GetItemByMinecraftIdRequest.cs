@@ -7,7 +7,7 @@ using NuciSecurity.HMAC;
 
 namespace NuciCraft.API.Requests
 {
-    public class GetItemByMinecraftIdRequest : NuciApiRequest
+    public sealed class GetItemByMinecraftIdRequest : NuciApiRequest
     {
         [Required]
         [HmacOrder(1)]

@@ -3,7 +3,7 @@ using NuciSecurity.HMAC;
 
 namespace NuciCraft.API.Requests
 {
-    public class GetRtpLocationRequest : NuciApiRequest
+    public sealed class GetRtpLocationRequest : NuciApiRequest
     {
         [HmacOrder(1)]
         public string Biome { get; set; }

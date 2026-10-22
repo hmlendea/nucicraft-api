@@ -9,7 +9,7 @@ namespace NuciCraft.API.Service.Mapping
     /// <summary>
     /// Country mapping extensions for converting between data objects and service models.
     /// </summary>
-    static class CountryMappingExtensions
+    internal static class CountryMappingExtensions
     {
         /// <summary>
         /// Converts the data object into a service model.

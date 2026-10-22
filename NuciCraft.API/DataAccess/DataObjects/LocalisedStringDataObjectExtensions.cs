@@ -1,6 +1,4 @@
-using NuciCraft.API.DataAccess.DataObjects;
-
-namespace NuciCraft.API.Service.Helpers
+namespace NuciCraft.API.DataAccess.DataObjects
 {
     internal static class LocalisedStringDataObjectExtensions
     {

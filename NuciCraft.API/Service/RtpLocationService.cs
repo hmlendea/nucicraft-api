@@ -103,13 +103,13 @@ namespace NuciCraft.API.Service
                 if (!string.IsNullOrWhiteSpace(request.World))
                 {
                     rtpLocationEntities = rtpLocationEntities
-                        .Where(location => request.World.Equals(location.Coordinates.World));
+                        .Where(location => string.Equals(request.World, location.Coordinates.World, StringComparison.Ordinal));
                 }
 
                 if (!string.IsNullOrWhiteSpace(request.Biome))
                 {
                     rtpLocationEntities = rtpLocationEntities
-                        .Where(location => request.Biome.Equals(location.Biome));
+                        .Where(location => string.Equals(request.Biome, location.Biome, StringComparison.Ordinal));
                 }
 
                 if (!rtpLocationEntities.Any())
@@ -145,59 +145,59 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private bool IsLocationFarAwayFromOtherLocations(string world, float x, float z)
+        private bool IsLocationFarAwayFromOtherLocations(string world, float coordinateX, float coordinateZ)
             => IsLocationFarAwayFromLocations(
                 rtpLocationsRepository.GetAll(),
                 world,
-                x,
-                z,
+                coordinateX,
+                coordinateZ,
                 settings.MinimumLocationDistance);
 
         private bool IsLocationFarAwayFromOtherLocationsInTheSameBiome(
             string biome,
             string world,
-            float x,
-            float z)
+            float coordinateX,
+            float coordinateZ)
             => IsLocationFarAwayFromLocations(
                 rtpLocationsRepository
                     .GetAll()
-                    .Where(location => biome.Equals(location.Biome)),
+                    .Where(location => string.Equals(biome, location.Biome, StringComparison.Ordinal)),
                 world,
-                x,
-                z,
+                coordinateX,
+                coordinateZ,
                 settings.MinimumBiomeLocationDistance);
 
         private static bool IsLocationFarAwayFromLocations(
             IEnumerable<RtpLocationEntity> locationEntities,
             string world,
-            float x,
-            float z,
+            float coordinateX,
+            float coordinateZ,
             int minimumDistance)
             => !locationEntities.Any(location => AreLocationsTooClose(
                     world,
-                    x,
-                    z,
+                    coordinateX,
+                    coordinateZ,
                     location.Coordinates.World,
                     location.Coordinates.X,
                     location.Coordinates.Z,
                     minimumDistance));
 
         private static bool AreLocationsTooClose(
-            string world1,
-            float x1,
-            float z1,
-            string world2,
-            float x2,
-            float z2,
+            string firstWorld,
+            float firstCoordinateX,
+            float firstCoordinateZ,
+            string secondWorld,
+            float secondCoordinateX,
+            float secondCoordinateZ,
             int minimumDistance)
         {
-            if (!string.Equals(world1, world2, StringComparison.Ordinal))
+            if (!string.Equals(firstWorld, secondWorld, StringComparison.Ordinal))
             {
                 return false;
             }
 
-            double deltaX = (double)x1 - x2;
-            double deltaZ = (double)z1 - z2;
+            double deltaX = (double)firstCoordinateX - secondCoordinateX;
+            double deltaZ = (double)firstCoordinateZ - secondCoordinateZ;
 
             return (deltaX * deltaX) + (deltaZ * deltaZ) <= (double)minimumDistance * minimumDistance;
         }

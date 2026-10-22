@@ -9,7 +9,6 @@ using NuciLog.Core;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
-using NuciCraft.API.Service.Helpers;
 using NuciCraft.API.Service.Mapping;
 using NuciCraft.API.Service.Models;
 

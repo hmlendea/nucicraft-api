@@ -6,7 +6,7 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Service.Mapping
 {
-    static class ZoneTypeMappingExtensions
+    internal static class ZoneTypeMappingExtensions
     {
         internal static ZoneType ToServiceModel(this ZoneTypeDataObject dataObject) => new()
         {

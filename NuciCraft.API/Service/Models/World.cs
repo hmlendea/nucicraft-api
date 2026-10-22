@@ -1,6 +1,6 @@
 namespace NuciCraft.API.Service.Models
 {
-    public class World
+    public sealed class World
     {
         public string Identifier { get; set; }
 

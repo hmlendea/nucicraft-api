@@ -5,7 +5,7 @@ using NuciSecurity.HMAC;
 
 namespace NuciCraft.API.Requests
 {
-    public class AddRtpLocationRequest : NuciApiRequest
+    public sealed class AddRtpLocationRequest : NuciApiRequest
     {
         [HmacOrder(1)]
         [Required]

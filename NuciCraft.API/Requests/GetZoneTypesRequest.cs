@@ -2,7 +2,7 @@ using NuciAPI.Requests;
 
 namespace NuciCraft.API.Requests
 {
-    public class GetZoneTypesRequest : NuciApiRequest
+    public sealed class GetZoneTypesRequest : NuciApiRequest
     {
     }
 }

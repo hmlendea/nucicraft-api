@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace NuciCraft.API.Service.Models
 {
-    public class Item
+    public sealed class Item
     {
         public string Identifier { get; set; }
 

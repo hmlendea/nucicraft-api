@@ -149,7 +149,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Throws<InvalidOperationException>();
 
             Assert.That(
-                () => countryService.GetAll(),
+                countryService.GetAll,
                 Throws.TypeOf<InvalidOperationException>());
         }
 

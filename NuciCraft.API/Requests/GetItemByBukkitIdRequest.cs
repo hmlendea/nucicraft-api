@@ -7,7 +7,7 @@ using NuciSecurity.HMAC;
 
 namespace NuciCraft.API.Requests
 {
-    public class GetItemByBukkitIdRequest : NuciApiRequest
+    public sealed class GetItemByBukkitIdRequest : NuciApiRequest
     {
         [Required]
         [HmacOrder(1)]

@@ -6,7 +6,7 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Service.Mapping
 {
-    static class ItemMappingExtensions
+    internal static class ItemMappingExtensions
     {
         internal static Item ToServiceModel(this ItemDataObject dataObject) => new()
         {

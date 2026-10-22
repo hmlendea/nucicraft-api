@@ -8,7 +8,7 @@ namespace NuciCraft.API.Service.Mapping
     /// <summary>
     /// RtpLocation mapping extensions for converting between data objects and service models.
     /// </summary>
-    static class RtpLocationMappingExtensions
+    internal static class RtpLocationMappingExtensions
     {
         /// <summary>
         /// Converts the data object into a service model.
