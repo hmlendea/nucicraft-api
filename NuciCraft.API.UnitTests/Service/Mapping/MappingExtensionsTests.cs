@@ -361,12 +361,11 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 BuildPlayerDataObjectWithoutOptionalValues(),
             ];
 
-            Player[] domainModels = MappingMethodInvoker
+            Player[] domainModels = [.. MappingMethodInvoker
                 .Invoke<IEnumerable<PlayerDataObject>, IEnumerable<Player>>(
                     PlayerMappingTypeName,
                     ToDomainModelsMethodName,
-                    dataObjects)
-                .ToArray();
+                    dataObjects)];
 
             Assert.That(domainModels, Has.Length.EqualTo(2));
             Assert.That(domainModels[0].DisplayName, Is.EqualTo("Ilarion Pintilie"));
@@ -414,12 +413,11 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 BuildPlayerWithoutOptionalValues(),
             ];
 
-            PlayerDataObject[] dataObjects = MappingMethodInvoker
+            PlayerDataObject[] dataObjects = [.. MappingMethodInvoker
                 .Invoke<IEnumerable<Player>, IEnumerable<PlayerDataObject>>(
                     PlayerMappingTypeName,
                     ToDataObjectsMethodName,
-                    domainModels)
-                .ToArray();
+                    domainModels)];
 
             Assert.That(dataObjects, Has.Length.EqualTo(2));
             Assert.That(dataObjects[0].DisplayName, Is.EqualTo("Ilarion Pintilie"));
@@ -467,12 +465,11 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 new() { Id = "cratesia", Biome = "Desert", Coordinates = null },
             ];
 
-            RtpLocation[] serviceModels = MappingMethodInvoker
+            RtpLocation[] serviceModels = [.. MappingMethodInvoker
                 .Invoke<IEnumerable<RtpLocationEntity>, IEnumerable<RtpLocation>>(
                     RtpLocationMappingTypeName,
                     ToServiceModelsMethodName,
-                    dataObjects)
-                .ToArray();
+                    dataObjects)];
 
             Assert.That(serviceModels[0].Coordinates, Is.Not.Null);
             Assert.That(serviceModels[1].Coordinates, Is.Null);
@@ -487,12 +484,11 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 new() { Id = "cratesia", Biome = "Desert", Coordinates = null },
             ];
 
-            RtpLocationEntity[] dataObjects = MappingMethodInvoker
+            RtpLocationEntity[] dataObjects = [.. MappingMethodInvoker
                 .Invoke<IEnumerable<RtpLocation>, IEnumerable<RtpLocationEntity>>(
                     RtpLocationMappingTypeName,
                     ToDataObjectsMethodName,
-                    serviceModels)
-                .ToArray();
+                    serviceModels)];
 
             Assert.That(dataObjects[0].Coordinates, Is.Not.Null);
             Assert.That(dataObjects[1].Coordinates, Is.Null);
@@ -507,12 +503,11 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 new() { FirstCorner = null, SecondCorner = null },
             ];
 
-            ZoneBounds[] serviceModels = MappingMethodInvoker
+            ZoneBounds[] serviceModels = [.. MappingMethodInvoker
                 .Invoke<IEnumerable<ZoneBoundsDataObject>, IEnumerable<ZoneBounds>>(
                     ZoneBoundsMappingTypeName,
                     ToServiceModelsMethodName,
-                    dataObjects)
-                .ToArray();
+                    dataObjects)];
 
             Assert.That(serviceModels[0].FirstCorner, Is.Not.Null);
             Assert.That(serviceModels[1].FirstCorner, Is.Null);
@@ -528,12 +523,11 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 new() { FirstCorner = null, SecondCorner = null },
             ];
 
-            ZoneBoundsDataObject[] dataObjects = MappingMethodInvoker
+            ZoneBoundsDataObject[] dataObjects = [.. MappingMethodInvoker
                 .Invoke<IEnumerable<ZoneBounds>, IEnumerable<ZoneBoundsDataObject>>(
                     ZoneBoundsMappingTypeName,
                     ToDataObjectsMethodName,
-                    serviceModels)
-                .ToArray();
+                    serviceModels)];
 
             Assert.That(dataObjects[0].FirstCorner, Is.Not.Null);
             Assert.That(dataObjects[1].FirstCorner, Is.Null);
@@ -549,12 +543,11 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 new() { Id = "cratesia" },
             ];
 
-            Zone[] serviceModels = MappingMethodInvoker
+            Zone[] serviceModels = [.. MappingMethodInvoker
                 .Invoke<IEnumerable<ZoneDataObject>, IEnumerable<Zone>>(
                     ZoneMappingTypeName,
                     ToServiceModelsMethodName,
-                    dataObjects)
-                .ToArray();
+                    dataObjects)];
 
             Assert.That(serviceModels[0].Name, Is.Not.Null);
             Assert.That(serviceModels[0].Bounds, Is.Not.Null);
@@ -574,12 +567,11 @@ namespace NuciCraft.API.UnitTests.Service.Mapping
                 new() { Identifier = "cratesia" },
             ];
 
-            ZoneDataObject[] dataObjects = MappingMethodInvoker
+            ZoneDataObject[] dataObjects = [.. MappingMethodInvoker
                 .Invoke<IEnumerable<Zone>, IEnumerable<ZoneDataObject>>(
                     ZoneMappingTypeName,
                     ToDataObjectsMethodName,
-                    serviceModels)
-                .ToArray();
+                    serviceModels)];
 
             Assert.That(dataObjects[0].Name, Is.Not.Null);
             Assert.That(dataObjects[0].Bounds, Is.Not.Null);

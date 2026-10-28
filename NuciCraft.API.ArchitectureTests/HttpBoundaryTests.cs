@@ -16,8 +16,7 @@ namespace NuciCraft.API.ArchitectureTests
         [Test]
         public void GivenControllers_WhenCheckingHttpBoundary_ThenAllUseTheSharedControllerPipeline()
         {
-            Type[] controllers = ProductionArchitecture.Assemblies.SelectMany(assembly => assembly.GetTypes())
-                .Where(type => typeof(ControllerBase).IsAssignableFrom(type)).ToArray();
+            Type[] controllers = [.. ProductionArchitecture.Assemblies.SelectMany(assembly => assembly.GetTypes()).Where(type => typeof(ControllerBase).IsAssignableFrom(type))];
             Assert.That(controllers, Is.Not.Empty);
 
             foreach (Type controller in controllers)
@@ -32,17 +31,17 @@ namespace NuciCraft.API.ArchitectureTests
         [Test]
         public void GivenControllers_WhenCheckingInjectedServices_ThenOnlyServiceInterfacesAreInjected()
         {
-            Type[] controllers = ProductionArchitecture.Assemblies.SelectMany(assembly => assembly.GetTypes())
+            Type[] controllers = [.. ProductionArchitecture.Assemblies.SelectMany(assembly => assembly.GetTypes())
                 .Where(type => string.Equals(type.Namespace, "NuciCraft.API.Controllers", StringComparison.Ordinal))
-                .Where(type => type.IsPublic && type.IsClass).ToArray();
+                .Where(type => type.IsPublic && type.IsClass)];
             Assert.That(controllers, Is.Not.Empty);
 
             foreach (Type controller in controllers)
             {
-                ParameterInfo[] serviceParameters = controller.GetConstructors()
+                ParameterInfo[] serviceParameters = [.. controller.GetConstructors()
                     .SelectMany(constructor => constructor.GetParameters())
                     .Where(parameter => parameter.ParameterType.Namespace?.StartsWith(
-                        "NuciCraft.API.Service", StringComparison.Ordinal) is true).ToArray();
+                        "NuciCraft.API.Service", StringComparison.Ordinal) is true)];
                 Assert.That(serviceParameters, Is.Not.Empty, $"{controller.FullName} must delegate to a service.");
                 Assert.That(
                     serviceParameters.Where(parameter => !parameter.ParameterType.IsInterface),

@@ -215,13 +215,12 @@ namespace NuciCraft.API.Service
 
             try
             {
-                string[] zoneTypeIdentifiers = zoneTypeRepository.GetAll()
+                string[] zoneTypeIdentifiers = [.. zoneTypeRepository.GetAll()
                     .Where(zoneTypeDataObject => zoneTypeDataObject.Categories is not null)
                     .Where(zoneTypeDataObject => zoneTypeDataObject.Categories.Contains(
                         category,
                         StringComparer.Ordinal))
-                    .Select(zoneTypeDataObject => zoneTypeDataObject.Id)
-                    .ToArray();
+                    .Select(zoneTypeDataObject => zoneTypeDataObject.Id)];
                 IEnumerable<ZoneDataObject> zoneDataObjects = repository.GetAll()
                     .Where(zoneDataObject => zoneTypeIdentifiers.Contains(
                         zoneDataObject.Type,
@@ -583,7 +582,7 @@ namespace NuciCraft.API.Service
                 return null;
             }
 
-            string[] owners = request.Owners.ToArray();
+            string[] owners = [.. request.Owners];
 
             if (owners.Length == 1)
             {

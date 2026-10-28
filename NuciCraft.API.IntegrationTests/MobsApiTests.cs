@@ -94,12 +94,11 @@ namespace NuciCraft.API.IntegrationTests
         {
             using JsonDocument document = JsonDocument.Parse(responseBody);
 
-            return document.RootElement
+            return [.. document.RootElement
                 .GetProperty("content")
                 .GetProperty("names")
                 .EnumerateArray()
-                .Select(nameElement => nameElement.GetString()!)
-                .ToArray();
+                .Select(nameElement => nameElement.GetString()!)];
         }
     }
 }

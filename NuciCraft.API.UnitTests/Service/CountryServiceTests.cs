@@ -136,7 +136,7 @@ namespace NuciCraft.API.UnitTests.Service
                     }
                 ]);
 
-            List<Country> countries = countryService.GetAll().ToList();
+            List<Country> countries = [.. countryService.GetAll()];
 
             Assert.That(countries, Has.Count.EqualTo(2));
         }

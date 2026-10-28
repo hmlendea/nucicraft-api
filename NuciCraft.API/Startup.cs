@@ -107,9 +107,8 @@ namespace NuciCraft.API
 
         private static void EagerlyLoadRepository<TDataObject>(IServiceProvider serviceProvider)
             where TDataObject : NuciCraftEntityBase
-            => serviceProvider
+            => [.. serviceProvider
                 .GetRequiredService<IFileRepository<TDataObject>>()
-                .GetAll()
-                .ToList();
+                .GetAll()];
     }
 }

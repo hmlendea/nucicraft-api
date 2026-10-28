@@ -184,7 +184,7 @@ namespace NuciCraft.API.UnitTests.Service
                     }
                 ]);
 
-            World[] worlds = worldService.GetAllWorlds().ToArray();
+            World[] worlds = [.. worldService.GetAllWorlds()];
 
             Assert.That(worlds, Has.Length.EqualTo(2));
             Assert.That(worlds[0].Type, Is.EqualTo(WorldType.Nether));
