@@ -12,7 +12,7 @@ namespace NuciCraft.API.IntegrationTests
     [NonParallelizable]
     public sealed class WorldsApiTests
     {
-        private static JsonSerializerOptions JsonSerializerOptions => new(JsonSerializerDefaults.Web);
+        private static readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerDefaults.Web);
 
         private ApiTestHost testHost = null!;
         private HttpClient client = null!;

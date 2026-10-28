@@ -56,13 +56,20 @@ namespace NuciCraft.API.Service
                     signIdSource = request.MinecraftId;
                 }
 
+                List<string> signIds = request.SignIds;
+
+                if (signIds is null)
+                {
+                    signIds = [.. signIdGenerator.GenerateDefaultSignIds(signIdSource)];
+                }
+
                 ItemDataObject itemDataObject = new()
                 {
                     Id = identifier,
                     MinecraftId = request.MinecraftId.ToLowerInvariant(),
                     NuciCraftId = nuciCraftId.ToLowerInvariant(),
                     BukkitId = request.BukkitId.ToUpperInvariant(),
-                    SignIds = request.SignIds ?? signIdGenerator.GenerateDefaultSignIds(signIdSource)
+                    SignIds = signIds
                 };
 
                 repository.Add(itemDataObject);

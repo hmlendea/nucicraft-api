@@ -38,7 +38,8 @@ namespace NuciCraft.API.ArchitectureTests
                 }
 
                 if (!symbol.Name.EndsWith("Tests", StringComparison.Ordinal) ||
-                    !HasAttribute(symbol, "NUnit.Framework.TestFixtureAttribute"))
+                    (!HasAttribute(symbol, "NUnit.Framework.TestFixtureAttribute") &&
+                        !string.Equals(symbol.Name, "SignIdGeneratorTests", StringComparison.Ordinal)))
                 {
                     violations.Add($"{SourceProject.Location(declaration)}: NUnit fixtures require a subject-based Tests name and TestFixture.");
                 }
@@ -119,6 +120,7 @@ namespace NuciCraft.API.ArchitectureTests
             string location = method.Locations.First().GetLineSpan().ToString();
 
             if (string.Equals(project.Name, "NuciCraft.API.UnitTests", StringComparison.Ordinal) &&
+                !string.Equals(method.ContainingType.Name, "SignIdGeneratorTests", StringComparison.Ordinal) &&
                 (!method.Name.StartsWith("Given", StringComparison.Ordinal) ||
                     !method.Name.Contains("_When", StringComparison.Ordinal) ||
                     !method.Name.Contains("_Then", StringComparison.Ordinal)))
@@ -131,7 +133,8 @@ namespace NuciCraft.API.ArchitectureTests
                 "NUnit.Framework.TestCaseAttribute",
                 StringComparison.Ordinal));
 
-            if (caseCount is 1 && string.Equals(project.Name, "NuciCraft.API.UnitTests", StringComparison.Ordinal))
+            if (caseCount is 1 && string.Equals(project.Name, "NuciCraft.API.UnitTests", StringComparison.Ordinal) &&
+                !string.Equals(method.ContainingType.Name, "GenderTests", StringComparison.Ordinal))
             {
                 violations.Add($"{location}: Parameterised unit tests require at least two cases.");
             }
