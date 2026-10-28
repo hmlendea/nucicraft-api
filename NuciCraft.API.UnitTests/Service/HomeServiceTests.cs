@@ -63,7 +63,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(home.UpdatedDT, Is.Null);
             Assert.That(home.Player, Is.EqualTo("player-id"));
             playerServiceMock.Verify(playerService => playerService.Get(It.Is<GetPlayerRequest>(request =>
-                string.Equals(request.Identifier, "player-id") && request.Username == null)), Times.Once);
+                string.Equals(request.Identifier, "player-id") && string.Equals(request.Username, null))), Times.Once);
             repositoryMock.Verify(repository => repository.SaveChanges(), Times.Once);
         }
 
@@ -228,7 +228,7 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(updated.CreatedDT, Is.EqualTo(original.CreatedDT));
             Assert.That(service.GetAllByPlayer("player-id"), Is.Empty);
             playerServiceMock.Verify(playerService => playerService.Get(It.Is<GetPlayerRequest>(request =>
-                string.Equals(request.Identifier, "other-player-id") && request.Username == null)), Times.Once);
+                string.Equals(request.Identifier, "other-player-id") && string.Equals(request.Username, null))), Times.Once);
         }
 
         [Test]

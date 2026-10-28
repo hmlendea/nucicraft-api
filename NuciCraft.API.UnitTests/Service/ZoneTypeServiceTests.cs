@@ -83,7 +83,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.GetAll())
                 .Returns([BuildZoneTypeDataObject(), new() { Id = "castle" }]);
 
-            ZoneType[] zoneTypes = zoneTypeService.GetAllZoneTypes().ToArray();
+            ZoneType[] zoneTypes = [.. zoneTypeService.GetAllZoneTypes()];
 
             Assert.That(zoneTypes, Has.Length.EqualTo(2));
             Assert.That(zoneTypes[1].Identifier, Is.EqualTo("castle"));
@@ -104,7 +104,7 @@ namespace NuciCraft.API.UnitTests.Service
                     }
                 ]);
 
-            ZoneType[] zoneTypes = zoneTypeService.GetAllZoneTypes("CIVILIAN").ToArray();
+            ZoneType[] zoneTypes = [.. zoneTypeService.GetAllZoneTypes("CIVILIAN")];
 
             Assert.That(zoneTypes.Select(zoneType => zoneType.Identifier), Is.EqualTo(["city"]));
         }
@@ -116,7 +116,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.GetAll())
                 .Returns([BuildZoneTypeDataObject()]);
 
-            ZoneType[] zoneTypes = zoneTypeService.GetAllZoneTypes("unknown").ToArray();
+            ZoneType[] zoneTypes = [.. zoneTypeService.GetAllZoneTypes("unknown")];
 
             Assert.That(zoneTypes, Is.Empty);
         }

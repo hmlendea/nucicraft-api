@@ -4,6 +4,7 @@ using System.Linq;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,7 +26,12 @@ namespace NuciCraft.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services
+                .AddControllers()
+                .AddMvcOptions(options =>
+                {
+                    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+                });
 
             services
                 .AddConfigurations(Configuration)
@@ -109,7 +115,6 @@ namespace NuciCraft.API
             where TDataObject : NuciCraftEntityBase
             => serviceProvider
                 .GetRequiredService<IFileRepository<TDataObject>>()
-                .GetAll()
-                .ToList();
+                .GetAll().ToList();
     }
 }

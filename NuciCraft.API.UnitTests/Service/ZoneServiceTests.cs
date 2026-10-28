@@ -895,7 +895,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.GetAll())
                 .Returns([BuildZoneDataObject()]);
 
-            Zone[] zones = zoneService.GetAllZones().ToArray();
+            Zone[] zones = [.. zoneService.GetAllZones()];
 
             Assert.That(zones, Has.Length.EqualTo(1));
             Assert.That(zones[0].Bounds, Is.Not.Null);
@@ -920,7 +920,7 @@ namespace NuciCraft.API.UnitTests.Service
                     HasWebMap = true
                 });
 
-            Zone[] zones = zoneService.GetAllZones().ToArray();
+            Zone[] zones = [.. zoneService.GetAllZones()];
 
             Assert.That(zones[0].MapLink, Is.EqualTo("https://mc.nucilandia.ro/nucicraft/webmap/?worldname=world&x=42&z=128"));
             Assert.That(zoneDataObject.MapLink, Is.Null);
@@ -941,7 +941,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.GetAll())
                 .Returns([matchingZone, nonMatchingZone]);
 
-            Zone[] zones = zoneService.GetAllZones("CITY").ToArray();
+            Zone[] zones = [.. zoneService.GetAllZones("CITY")];
 
             Assert.That(zones.Select(zone => zone.Identifier), Is.EqualTo(["solara"]));
         }
@@ -953,7 +953,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.GetAll())
                 .Returns([BuildZoneDataObject()]);
 
-            Zone[] zones = zoneService.GetAllZones("unknown").ToArray();
+            Zone[] zones = [.. zoneService.GetAllZones("unknown")];
 
             Assert.That(zones, Is.Empty);
         }
@@ -990,7 +990,7 @@ namespace NuciCraft.API.UnitTests.Service
                     new() { Id = "marker" }
                 ]);
 
-            Zone[] zones = zoneService.GetZonesByCategory("settlement").ToArray();
+            Zone[] zones = [.. zoneService.GetZonesByCategory("settlement")];
 
             Assert.That(zones, Has.Length.EqualTo(1));
             Assert.That(zones[0].Identifier, Is.EqualTo("solara"));
@@ -1015,7 +1015,7 @@ namespace NuciCraft.API.UnitTests.Service
                     HasWebMap = true
                 });
 
-            Zone[] zones = zoneService.GetZonesByCategory("structure").ToArray();
+            Zone[] zones = [.. zoneService.GetZonesByCategory("structure")];
 
             Assert.That(
                 zones[0].MapLink,
@@ -1035,7 +1035,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.GetAll())
                 .Returns([new() { Id = "building", Categories = ["structure"] }]);
 
-            Zone[] zones = zoneService.GetZonesByCategory("settlement").ToArray();
+            Zone[] zones = [.. zoneService.GetZonesByCategory("settlement")];
 
             Assert.That(zones, Is.Empty);
         }
@@ -1050,7 +1050,7 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.GetAll())
                 .Returns([new() { Id = "building", Categories = ["structure"] }]);
 
-            Zone[] zones = zoneService.GetZonesByCategory("Structure").ToArray();
+            Zone[] zones = [.. zoneService.GetZonesByCategory("Structure")];
 
             Assert.That(zones, Is.Empty);
         }
@@ -1098,15 +1098,14 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.GetAll())
                 .Returns([matchingZone, overlappingZone, differentWorldZone, incompleteBoundsZone]);
 
-            string[] zoneIdentifiers = zoneService
+            string[] zoneIdentifiers = [.. zoneService
                 .GetZoneIdentifiersContainingCoordinates(new CoordinatesDataObject
                 {
                     World = "world",
                     X = 96f,
                     Y = 48f,
                     Z = 192f
-                })
-                .ToArray();
+                })];
 
             Assert.That(zoneIdentifiers, Is.EqualTo(["solara", "nucilandia"]));
         }
@@ -1118,15 +1117,14 @@ namespace NuciCraft.API.UnitTests.Service
                 .Setup(repository => repository.GetAll())
                 .Returns([BuildZoneDataObject()]);
 
-            string[] zoneIdentifiers = zoneService
+            string[] zoneIdentifiers = [.. zoneService
                 .GetZoneIdentifiersContainingCoordinates(new CoordinatesDataObject
                 {
                     World = "world",
                     X = 31f,
                     Y = 48f,
                     Z = 192f
-                })
-                .ToArray();
+                })];
 
             Assert.That(zoneIdentifiers, Is.Empty);
         }
