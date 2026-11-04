@@ -14,7 +14,9 @@ using Moq;
 
 using NuciAPI.Client;
 
+using NuciCraft.API.Requests;
 using NuciCraft.API.Service;
+using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.IntegrationTests
 {
@@ -92,6 +94,37 @@ namespace NuciCraft.API.IntegrationTests
             });
             builder.ConfigureServices(services =>
             {
+                Mock<IAccessControlService> accessControlServiceMock = new();
+                accessControlServiceMock
+                    .Setup(service => service.CheckIp(It.IsAny<CheckIpRequest>()))
+                    .Returns((CheckIpRequest request) => new IpCheckResult
+                    {
+                        IsAllowed = false,
+                        CountryCode = "CN",
+                        DeniedReason = "Access denied from your country"
+                    });
+                accessControlServiceMock
+                    .Setup(service => service.CheckUsername(It.IsAny<CheckUsernameRequest>()))
+                    .Returns((CheckUsernameRequest request) =>
+                    {
+                        if (request.Username.Contains("player", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return new UsernameCheckResult
+                            {
+                                IsAllowed = false,
+                                DeniedReason = "Unallowed username. Use another one"
+                            };
+                        }
+
+                        return new UsernameCheckResult
+                        {
+                            IsAllowed = true,
+                            DeniedReason = null
+                        };
+                    });
+                services.RemoveAll<IAccessControlService>();
+                services.AddTransient(_ => accessControlServiceMock.Object);
+
                 Mock<INuciApiClient> nameGeneratorClientMock = new();
                 nameGeneratorClientMock
                     .Setup(client => client.SendRequestAsync<
