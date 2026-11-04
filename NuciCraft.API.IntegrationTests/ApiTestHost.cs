@@ -101,7 +101,7 @@ namespace NuciCraft.API.IntegrationTests
                     {
                         IsAllowed = false,
                         CountryCode = "CN",
-                        DeniedReason = "Access denied from your country"
+                        DeniedReason = "Access is not permitted from this country."
                     });
                 accessControlServiceMock
                     .Setup(service => service.CheckUsername(It.IsAny<CheckUsernameRequest>()))
@@ -112,7 +112,7 @@ namespace NuciCraft.API.IntegrationTests
                             return new UsernameCheckResult
                             {
                                 IsAllowed = false,
-                                DeniedReason = "Unallowed username. Use another one"
+                                DeniedReason = "This username is not permitted."
                             };
                         }
 

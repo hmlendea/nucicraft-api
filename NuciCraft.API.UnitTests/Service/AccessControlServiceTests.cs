@@ -67,7 +67,7 @@ namespace NuciCraft.API.UnitTests.Service
             CheckUsernameRequest request = new() { Username = username };
 
             Assert.That(service.CheckUsername(request).IsAllowed, Is.False);
-            Assert.That(service.CheckUsername(request).DeniedReason, Is.Not.Null);
+            Assert.That(service.CheckUsername(request).DeniedReason, Is.EqualTo("This username is not permitted."));
         }
 
         [TestCase("myofficialname")]
@@ -81,7 +81,7 @@ namespace NuciCraft.API.UnitTests.Service
             CheckUsernameRequest request = new() { Username = username };
 
             Assert.That(service.CheckUsername(request).IsAllowed, Is.False);
-            Assert.That(service.CheckUsername(request).DeniedReason, Is.Not.Null);
+            Assert.That(service.CheckUsername(request).DeniedReason, Is.EqualTo("This username is not permitted."));
         }
 
         [TestCase("Official")]

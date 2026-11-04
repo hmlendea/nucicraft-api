@@ -19,7 +19,7 @@ namespace NuciCraft.API.Service
         AccessControlSettings settings,
         ILogger logger) : IAccessControlService
     {
-        private const string UsernameNotPermittedMessage = "This username is not permitted.";
+        private static string UsernameNotPermittedMessage => "This username is not permitted.";
 
         private readonly HttpClient httpClient = HttpClientCreator.Create();
 

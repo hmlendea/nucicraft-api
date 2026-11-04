@@ -30,24 +30,22 @@ namespace NuciCraft.API.IntegrationTests
         [Test]
         public async Task GivenAnIpAddress_WhenCheckingIt_ThenTheAccessControlResultIsReturned()
         {
-            HttpResponseMessage response = await client.PostAsync(
-                "/accesscontrol/check-ip",
-                "{\"ipAddress\":\"8.8.8.8\"}".CreateJsonContent());
+            HttpResponseMessage response = await client.GetAsync(
+                "/accesscontrol/check-ip?ipAddress=8.8.8.8");
             string body = await response.Content.ReadAsStringAsync();
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(body, Does.Contain("\"success\":true"));
             Assert.That(body, Does.Contain("\"isAllowed\":false"));
             Assert.That(body, Does.Contain("\"countryCode\":\"CN\""));
-            Assert.That(body, Does.Contain("\"deniedReason\":\"Access denied from your country\""));
+            Assert.That(body, Does.Contain("\"deniedReason\":\"Access is not permitted from this country.\""));
         }
 
         [Test]
         public async Task GivenAnAllowedUsername_WhenCheckingIt_ThenTheUsernameIsPermitted()
         {
-            HttpResponseMessage response = await client.PostAsync(
-                "/accesscontrol/check-username",
-                "{\"username\":\"TestyMcTest445\"}".CreateJsonContent());
+            HttpResponseMessage response = await client.GetAsync(
+                "/accesscontrol/check-username?username=TestyMcTest445");
             string body = await response.Content.ReadAsStringAsync();
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
@@ -59,23 +57,21 @@ namespace NuciCraft.API.IntegrationTests
         [Test]
         public async Task GivenADeniedUsername_WhenCheckingIt_ThenTheUsernameIsRejected()
         {
-            HttpResponseMessage response = await client.PostAsync(
-                "/accesscontrol/check-username",
-                "{\"username\":\"Player\"}".CreateJsonContent());
+            HttpResponseMessage response = await client.GetAsync(
+                "/accesscontrol/check-username?username=Player");
             string body = await response.Content.ReadAsStringAsync();
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(body, Does.Contain("\"success\":true"));
             Assert.That(body, Does.Contain("\"isAllowed\":false"));
-            Assert.That(body, Does.Contain("\"deniedReason\":\"Unallowed username. Use another one\""));
+            Assert.That(body, Does.Contain("\"deniedReason\":\"This username is not permitted.\""));
         }
 
         [Test]
         public async Task GivenAMissingIpAddress_WhenCheckingIt_ThenTheRequestIsRejected()
         {
-            HttpResponseMessage response = await client.PostAsync(
-                "/accesscontrol/check-ip",
-                "{}".CreateJsonContent());
+            HttpResponseMessage response = await client.GetAsync(
+                "/accesscontrol/check-ip");
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
         }
@@ -83,9 +79,8 @@ namespace NuciCraft.API.IntegrationTests
         [Test]
         public async Task GivenAMissingUsername_WhenCheckingIt_ThenTheRequestIsRejected()
         {
-            HttpResponseMessage response = await client.PostAsync(
-                "/accesscontrol/check-username",
-                "{}".CreateJsonContent());
+            HttpResponseMessage response = await client.GetAsync(
+                "/accesscontrol/check-username");
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
         }
