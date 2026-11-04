@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text.Json;
 using System.Xml.Linq;
 
+using NUnit.Framework;
+
 namespace NuciCraft.API.ArchitectureTests
 {
     [TestFixture]

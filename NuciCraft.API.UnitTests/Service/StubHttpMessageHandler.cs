@@ -10,8 +10,14 @@ namespace NuciCraft.API.UnitTests.Service
     public sealed class StubHttpMessageHandler(
         Func<HttpRequestMessage, HttpResponseMessage> responder) : HttpMessageHandler
     {
-        private readonly Func<HttpRequestMessage, HttpResponseMessage> responder =
-            responder ?? throw new ArgumentNullException(nameof(responder));
+        private readonly Func<HttpRequestMessage, HttpResponseMessage> responder = GetResponder(responder);
+
+        private static Func<HttpRequestMessage, HttpResponseMessage> GetResponder(
+            Func<HttpRequestMessage, HttpResponseMessage> value)
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            return value;
+        }
 
         public HttpRequestMessage? LastRequest { get; private set; }
 
@@ -29,7 +35,10 @@ namespace NuciCraft.API.UnitTests.Service
             return Task.FromResult(responder(request));
         }
 
-        public static StubHttpMessageHandler ReturningJson(string json, HttpStatusCode statusCode = HttpStatusCode.OK)
+        public static StubHttpMessageHandler ReturningJson(string json)
+            => ReturningJson(json, HttpStatusCode.OK);
+
+        public static StubHttpMessageHandler ReturningJson(string json, HttpStatusCode statusCode)
             => new(_ => new HttpResponseMessage(statusCode)
             {
                 Content = new StringContent(json, Encoding.UTF8, "application/json")

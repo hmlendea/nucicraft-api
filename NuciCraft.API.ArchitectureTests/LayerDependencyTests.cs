@@ -1,6 +1,8 @@
 using ArchUnitNET.Domain;
 using ArchUnitNET.NUnit;
 
+using NUnit.Framework;
+
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 namespace NuciCraft.API.ArchitectureTests

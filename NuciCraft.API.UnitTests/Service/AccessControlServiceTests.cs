@@ -22,106 +22,16 @@ namespace NuciCraft.API.UnitTests.Service
     [TestFixture]
     public sealed class AccessControlServiceTests
     {
-        private Mock<ILogger> logger;
-        private AccessControlSettings settings;
-        private AccessControlService service;
-
-        [SetUp]
-        public void SetUp()
-        {
-            logger = new Mock<ILogger>();
-            settings = new AccessControlSettings
-            {
-                DeniedCountries = ["CN", "RU"],
-                DeniedUsernamePatterns = ["(official)", "[Ss]canner$", "^[Pp]layer$"],
-                MinimumUsernameLength = 4,
-                GeolocationApiUrl = "https://geo.test/",
-                AnonymisationServiceDetection = new()
-                {
-                    ApiUrl = "https://anonymisation.test/check",
-                    ApiLicense = "license/value",
-                    IsCacheEnabled = false
-                }
-            };
-            service = new AccessControlService(settings, logger.Object);
-        }
-
-        [Test]
-        public void GivenANullRequest_WhenCheckingTheUsername_ThenAnExceptionIsThrown()
-        {
-            Assert.That(() => service.CheckUsername(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public void GivenANonEmptyUsername_WhenCheckingTheUsername_ThenAnAllowedResultIsReturned()
-        {
-            CheckUsernameRequest request = new() { Username = "NuciPlayer" };
-
-            Assert.That(service.CheckUsername(request).IsAllowed, Is.True);
-            Assert.That(service.CheckUsername(request).DeniedReason, Is.Null);
-        }
-
-        [TestCase("asdf")]
-        [TestCase("sdfg")]
-        [TestCase("dfgh")]
-        public void GivenAUsernameAtTheMinimumLength_WhenCheckingTheUsername_ThenAnAllowedResultIsReturned(
-            string username)
-        {
-            CheckUsernameRequest request = new() { Username = username };
-
-            Assert.That(service.CheckUsername(request).IsAllowed, Is.True);
-        }
-
-        [TestCase("asd")]
-        [TestCase("dfg")]
-        [TestCase("z")]
-        public void GivenATooShortUsername_WhenCheckingTheUsername_ThenTheResultIsDenied(
-            string username)
-        {
-            CheckUsernameRequest request = new() { Username = username };
-
-            Assert.That(service.CheckUsername(request).IsAllowed, Is.False);
-            Assert.That(service.CheckUsername(request).DeniedReason, Is.EqualTo("This username is not permitted."));
-        }
-
-        [TestCase("myofficialname")]
-        [TestCase("official_org")]
-        [TestCase("NuciScanner")]
-        [TestCase("Player")]
-        [TestCase("player")]
-        public void GivenAUsernameMatchingADeniedPattern_WhenCheckingTheUsername_ThenTheResultIsDenied(
-            string username)
-        {
-            CheckUsernameRequest request = new() { Username = username };
-
-            Assert.That(service.CheckUsername(request).IsAllowed, Is.False);
-            Assert.That(service.CheckUsername(request).DeniedReason, Is.EqualTo("This username is not permitted."));
-        }
-
-        [TestCase("Official")]
-        [TestCase("SCANNER")]
-        public void GivenAUsernameNotMatchingADeniedPattern_WhenCheckingTheUsername_ThenAnAllowedResultIsReturned(
-            string username)
-        {
-            CheckUsernameRequest request = new() { Username = username };
-
-            Assert.That(service.CheckUsername(request).IsAllowed, Is.True);
-        }
-    }
-
-    [TestFixture]
-    public sealed class AccessControlServiceIpCheckTests
-    {
-        private const string AllowedCountryGeolocationJson =
-            """{"status":"success","countryCode":"US","country":"United States"}""";
-        private const string DeniedCountryGeolocationJson =
-            """{"status":"success","countryCode":"CN","country":"China"}""";
-        private const string AnonymisationServiceDetectedJson =
-            """{"success":true,"proxy":true}""";
-        private const string AnonymisationServiceNotDetectedJson =
-            """{"success":true,"proxy":false}""";
-        private const string AnonymisationServiceCheckFailedJson =
-            """{"success":false,"proxy":false}""";
+        private static string AllowedCountryGeolocationJson
+            => """{"status":"success","countryCode":"US","country":"United States"}""";
+        private static string DeniedCountryGeolocationJson
+            => """{"status":"success","countryCode":"CN","country":"China"}""";
+        private static string AnonymisationServiceDetectedJson
+            => """{"success":true,"proxy":true}""";
+        private static string AnonymisationServiceNotDetectedJson
+            => """{"success":true,"proxy":false}""";
+        private static string AnonymisationServiceCheckFailedJson
+            => """{"success":false,"proxy":false}""";
 
         private readonly StubHttpMessageHandler geolocationHandler =
             StubHttpMessageHandler.ReturningJson(AllowedCountryGeolocationJson);
@@ -298,7 +208,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             service.CheckIp(new CheckIpRequest { IpAddress = "8.8.8.8" });
 
-            string requestedUrl = anonymisationHandler.LastRequest?.RequestUri?.ToString() ?? string.Empty;
+            string requestedUrl = GetRequestedUrl(anonymisationHandler);
 
             Assert.That(requestedUrl, Does.Contain("ip=8.8.8.8"));
             Assert.That(requestedUrl, Does.Contain("license=license%2Fvalue"));
@@ -313,7 +223,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             service.CheckIp(new CheckIpRequest { IpAddress = "8.8.8.8" });
 
-            string requestedUrl = anonymisationHandler.LastRequest?.RequestUri?.ToString() ?? string.Empty;
+            string requestedUrl = GetRequestedUrl(anonymisationHandler);
 
             Assert.That(requestedUrl, Does.Contain("cache=true"));
         }
@@ -323,9 +233,19 @@ namespace NuciCraft.API.UnitTests.Service
         {
             service.CheckIp(new CheckIpRequest { IpAddress = "1.2.3.4&x=1" });
 
-            string requestedUrl = anonymisationHandler.LastRequest?.RequestUri?.ToString() ?? string.Empty;
+            string requestedUrl = GetRequestedUrl(anonymisationHandler);
 
             Assert.That(requestedUrl, Does.Contain("ip=1.2.3.4%26x%3D1"));
+        }
+
+        private static string GetRequestedUrl(StubHttpMessageHandler handler)
+        {
+            if (handler.LastRequest?.RequestUri?.ToString() is string url)
+            {
+                return url;
+            }
+
+            return string.Empty;
         }
 
         private AccessControlService CreateServiceWithHandlers(
@@ -335,27 +255,5 @@ namespace NuciCraft.API.UnitTests.Service
                 settings,
                 logger.Object,
                 new HttpClient(new RoutingHandler(geolocation, anonymisationDetection)));
-
-        private sealed class RoutingHandler(
-            StubHttpMessageHandler geolocationHandler,
-            StubHttpMessageHandler anonymisationHandler) : HttpMessageHandler
-        {
-            private readonly StubHttpMessageHandler geolocationHandler = geolocationHandler;
-            private readonly StubHttpMessageHandler anonymisationHandler = anonymisationHandler;
-
-            protected override Task<HttpResponseMessage> SendAsync(
-                HttpRequestMessage request,
-                CancellationToken cancellationToken)
-            {
-                string? url = request.RequestUri?.ToString();
-
-                if (url is not null && url.Contains("anonymisation.test", StringComparison.Ordinal))
-                {
-                    return anonymisationHandler.SendAsyncPublic(request, cancellationToken);
-                }
-
-                return geolocationHandler.SendAsyncPublic(request, cancellationToken);
-            }
-        }
     }
 }

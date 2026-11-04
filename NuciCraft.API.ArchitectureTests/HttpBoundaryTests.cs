@@ -4,6 +4,8 @@ using System.Reflection;
 
 using Microsoft.AspNetCore.Mvc;
 
+using NUnit.Framework;
+
 using NuciAPI.Controllers;
 
 namespace NuciCraft.API.ArchitectureTests

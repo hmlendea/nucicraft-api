@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 
+using NUnit.Framework;
+
 namespace NuciCraft.API.ArchitectureTests
 {
     [TestFixture]
