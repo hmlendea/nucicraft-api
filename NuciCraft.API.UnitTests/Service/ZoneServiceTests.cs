@@ -866,6 +866,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             ZoneDataObject zoneDataObject = BuildZoneDataObject();
             zoneDataObject.MapLink = null;
+            zoneDataObject.TeleportationPoint = null;
 
             repositoryMock
                 .Setup(repository => repository.Get("flusseland_mall_shop_9"))
