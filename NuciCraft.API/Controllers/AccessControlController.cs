@@ -18,10 +18,10 @@ namespace NuciCraft.API.Controllers
     {
         private readonly NuciApiAuthorisation authorisation = NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
 
-        [HttpPost]
+        [HttpGet]
         [Route("check-ip")]
         public ActionResult CheckIp(
-            [FromBody] CheckIpRequest request)
+            [FromQuery] CheckIpRequest request)
             => ProcessRequest(
                 request,
                 () => new NuciApiContentResponse<CheckIpResponse>(
@@ -33,10 +33,10 @@ namespace NuciCraft.API.Controllers
                     }),
                 authorisation);
 
-        [HttpPost]
+        [HttpGet]
         [Route("check-username")]
         public ActionResult CheckUsername(
-            [FromBody] CheckUsernameRequest request)
+            [FromQuery] CheckUsernameRequest request)
             => ProcessRequest(
                 request,
                 () => new NuciApiContentResponse<CheckUsernameResponse>(
