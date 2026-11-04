@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using NuciAPI.Controllers;
 
-using NUnit.Framework;
-
 namespace NuciCraft.API.ArchitectureTests
 {
     [TestFixture]

@@ -15,13 +15,33 @@ using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Service
 {
-    public sealed class AccessControlService(
-        AccessControlSettings settings,
-        ILogger logger) : IAccessControlService
+    public sealed class AccessControlService : IAccessControlService
     {
         private static string UsernameNotPermittedMessage => "This username is not permitted.";
 
-        private readonly HttpClient httpClient = HttpClientCreator.Create();
+        private readonly HttpClient httpClient;
+        private readonly AccessControlSettings settings;
+        private readonly ILogger logger;
+
+        public AccessControlService(
+            AccessControlSettings settings,
+            ILogger logger)
+            : this(settings, logger, HttpClientCreator.Create())
+        {
+        }
+
+        public AccessControlService(
+            AccessControlSettings settings,
+            ILogger logger,
+            HttpClient httpClient)
+        {
+            ArgumentNullException.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(logger);
+
+            this.settings = settings;
+            this.logger = logger;
+            this.httpClient = httpClient;
+        }
 
         public IpCheckResult CheckIp(CheckIpRequest request)
         {

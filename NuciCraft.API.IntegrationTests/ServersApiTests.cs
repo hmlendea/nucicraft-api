@@ -10,8 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Moq;
 
-using NUnit.Framework;
-
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Service;
 
