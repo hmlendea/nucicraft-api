@@ -155,14 +155,16 @@ namespace NuciCraft.API.Service
 
         private async Task<bool> IsAnonymisationServiceDetected(string ipAddress)
         {
-            if (!settings.IsAnonymisationServiceDetectionEnabled)
+            AnonymisationServiceDetectionSettings detectionSettings = settings.AnonymisationServiceDetection;
+
+            if (!detectionSettings.IsEnabled)
             {
                 return false;
             }
 
             try
             {
-                string url = $"{settings.AnonymisationServiceDetectionApiUrl}?ip={Uri.EscapeDataString(ipAddress)}&license={Uri.EscapeDataString(settings.AnonymisationServiceDetectionApiLicense)}&cache=true";
+                string url = $"{detectionSettings.ApiUrl}?ip={Uri.EscapeDataString(ipAddress)}&license={Uri.EscapeDataString(detectionSettings.ApiLicense)}&cache={detectionSettings.IsCacheEnabled.ToString().ToLowerInvariant()}";
 
                 using HttpResponseMessage response = await httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();

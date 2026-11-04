@@ -8,11 +8,7 @@ namespace NuciCraft.API.Configuration
 
         public string GeolocationApiUrl { get; set; } = "http://ip-api.com/json/";
 
-        public string AnonymisationServiceDetectionApiUrl { get; set; } = "https://funkemunky.cc/vpn";
-
-        public string AnonymisationServiceDetectionApiLicense { get; set; } = "none";
-
-        public bool IsAnonymisationServiceDetectionEnabled { get; set; } = true;
+        public AnonymisationServiceDetectionSettings AnonymisationServiceDetection { get; set; } = new();
 
         public int MinimumUsernameLength { get; set; } = 4;
     }
