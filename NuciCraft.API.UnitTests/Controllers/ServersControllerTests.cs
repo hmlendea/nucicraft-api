@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 
 using Moq;
 
-using NUnit.Framework;
-
 using NuciAPI.Responses;
+
+using NUnit.Framework;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Controllers;

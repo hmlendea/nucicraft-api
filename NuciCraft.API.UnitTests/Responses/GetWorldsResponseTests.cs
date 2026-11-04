@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 
-using NUnit.Framework;
-
 using NuciAPI.Responses;
+
+using NUnit.Framework;
 
 using NuciCraft.API.Responses;
 using NuciCraft.API.Service.Models;
