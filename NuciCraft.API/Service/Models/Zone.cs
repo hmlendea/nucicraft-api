@@ -4,6 +4,8 @@ namespace NuciCraft.API.Service.Models
 {
     public sealed class Zone
     {
+        private string customMapLink = null;
+
         public string Identifier { get; set; }
 
         public LocalisedString Name { get; set; }
@@ -38,7 +40,27 @@ namespace NuciCraft.API.Service.Models
 
         public string PopulationDate { get; set; }
 
-        public string MapLink { get; set; } // TODO: Fetch dynamically.
+        public string MapLink
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(customMapLink))
+                {
+                    return customMapLink;
+                }
+
+                if (TeleportationPoint != null)
+                {
+                    return $"https://mc.nucilandia.ro/nucicraft/webmap/?worldname=world&x={TeleportationPoint.X}&z={TeleportationPoint.Z}";
+                }
+
+                return null!;
+            }
+            set
+            {
+                customMapLink = value;
+            }
+        }
 
         public string WikiUrl { get; set; } // TODO: Fetch dynamically.
     }
