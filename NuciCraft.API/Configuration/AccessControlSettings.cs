@@ -8,6 +8,8 @@ namespace NuciCraft.API.Configuration
 
         public string GeolocationApiUrl { get; set; } = "http://ip-api.com/json/";
 
+        public AnonymisationServiceDetectionSettings AnonymisationServiceDetection { get; set; } = new();
+
         public int MinimumUsernameLength { get; set; } = 4;
     }
 }

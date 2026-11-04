@@ -97,11 +97,32 @@ namespace NuciCraft.API.IntegrationTests
                 Mock<IAccessControlService> accessControlServiceMock = new();
                 accessControlServiceMock
                     .Setup(service => service.CheckIp(It.IsAny<CheckIpRequest>()))
-                    .Returns((CheckIpRequest request) => new IpCheckResult
+                    .Returns((CheckIpRequest request) => request.IpAddress switch
                     {
-                        IsAllowed = false,
-                        CountryCode = "CN",
-                        DeniedReason = "Access is not permitted from this country."
+                        "8.8.8.8" => new IpCheckResult
+                        {
+                            IsAllowed = false,
+                            CountryCode = "CN",
+                            DeniedReason = "Access is not permitted from this country."
+                        },
+                        "1.1.1.1" => new IpCheckResult
+                        {
+                            IsAllowed = false,
+                            CountryCode = "US",
+                            DeniedReason = "Access is not permitted via any anonymisation service."
+                        },
+                        "9.9.9.9" => new IpCheckResult
+                        {
+                            IsAllowed = true,
+                            CountryCode = "US",
+                            DeniedReason = null
+                        },
+                        _ => new IpCheckResult
+                        {
+                            IsAllowed = true,
+                            CountryCode = null,
+                            DeniedReason = null
+                        }
                     });
                 accessControlServiceMock
                     .Setup(service => service.CheckUsername(It.IsAny<CheckUsernameRequest>()))

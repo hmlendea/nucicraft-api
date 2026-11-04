@@ -1,6 +1,6 @@
-using NUnit.Framework;
-
 using NuciCraft.API.Logging;
+
+using NUnit.Framework;
 
 namespace NuciCraft.API.UnitTests.Logging
 {
