@@ -65,6 +65,8 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 - Assigns a default zone creation date when one is not provided by the caller
 - Stores, retrieves, and updates item metadata with Minecraft, Bukkit, and NuciCraft identifiers
 - Generates sign-compatible identifiers from NuciCraft IDs with custom replacements and length limits
+- Validates IP addresses against denied countries using real-time geolocation lookup
+- Validates usernames against denied patterns with case-sensitive regex matching and minimum length enforcement
 
 ## 🚀 Usage
 
@@ -496,6 +498,37 @@ Examples:
 - `minecraft:netherite_upgrade_smithing_template` → `NethUpgSmithTemp`
 - `polished_cinnabar_stairs` → `PoliCinbarStair`
 
+### Access Control
+
+All Access Control routes require API-key authorisation:
+
+| Method | Route | Result |
+|--------|-------|--------|
+| `POST` | `/AccessControl/check-ip` | Check if an IP address is allowed based on geolocation and denied countries. |
+| `POST` | `/AccessControl/check-username` | Check if a username is allowed based on denied patterns and minimum length. |
+
+```bash
+curl -X POST "http://localhost:5000/AccessControl/check-ip" \
+	-H "Authorization: Bearer ${NUCICRAFT_API_KEY}" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"ipAddress": "8.8.8.8"
+	}'
+```
+
+The IP check performs a real-time geolocation lookup using the configured geolocation API (default: ip-api.com) to determine the country code, then checks if that country is in the denied countries list. The response contains `isAllowed`, `deniedReason` (if denied), and `countryCode`.
+
+```bash
+curl -X POST "http://localhost:5000/AccessControl/check-username" \
+	-H "Authorization: Bearer ${NUCICRAFT_API_KEY}" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"username": "PlayerName"
+	}'
+```
+
+The username check validates the username against the configured minimum length (default: 4) and checks if it matches any of the denied username patterns (case-sensitive regex). The response contains `isAllowed` and `deniedReason` (if denied).
+
 ## ⚠️ Known Limitations
 
 - The service uses JSON-file persistence and is not optimised for high-concurrency multi-instance deployments.
@@ -538,6 +571,10 @@ Settings are loaded from [appsettings.json](./NuciCraft.API/appsettings.json), w
 | `universalNameGeneratorSettings` | `apiKey` | Universal Name Generator API key. |
 | `nuciLoggerSettings` | `logFilePath` | Path for file-based logs. |
 | `nuciLoggerSettings` | `isFileOutputEnabled` | Enables or disables file log output. |
+| `accessControlSettings` | `deniedCountries` | Array of ISO 3166-1 alpha-2 country codes to deny access from. |
+| `accessControlSettings` | `deniedUsernamePatterns` | Array of case-sensitive regex patterns to deny usernames matching. |
+| `accessControlSettings` | `geolocationApiUrl` | Base URL for the geolocation API (default: http://ip-api.com/json/). |
+| `accessControlSettings` | `minimumUsernameLength` | Minimum allowed username length (default: 4). |
 
 Environment-variable overrides for server information are `serverSettings__name`, `serverSettings__hostname`, `serverSettings__javaEditionPort`, and `serverSettings__bedrockEditionPort`. Settings are bound at startup, so restart the API after modifying them. These values do not configure Minecraft listeners or activate Bedrock support.
 

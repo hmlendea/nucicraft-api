@@ -103,6 +103,19 @@ Consumer type: [UniversalNameGeneratorSettings.cs](../NuciCraft.API/Configuratio
 
 Literal placeholders are non-whitespace and can pass local service validation. A genuine deployment must override both. Base URL validity can fail during client construction or request execution depending on external client behaviour.
 
+## Access Control Settings
+
+Consumer type: [AccessControlSettings.cs](../NuciCraft.API/Configuration/AccessControlSettings.cs).
+
+| Key | Type | Committed Default | Required | Runtime Use |
+|-----|------|-------------------|----------|-------------|
+| `accessControlSettings.deniedCountries` | string[] | See [appsettings.json](../NuciCraft.API/appsettings.json) | No | Checked by `AccessControlService.PerformIpCheck` against geolocation country code. |
+| `accessControlSettings.deniedUsernamePatterns` | string[] | See [appsettings.json](../NuciCraft.API/appsettings.json) | No | Case-sensitive regex patterns checked by `AccessControlService.PerformUsernameCheck`. |
+| `accessControlSettings.geolocationApiUrl` | string | `http://ip-api.com/json/` | No | Base URL for geolocation API calls; IP address and query fields appended. |
+| `accessControlSettings.minimumUsernameLength` | int | `4` | No | Minimum username length enforced by `AccessControlService.PerformUsernameCheck`. |
+
+The geolocation API is called with `fields=status,countryCode,country` appended to the constructed URL. A non-success status or missing country code results in an allowed response (fail-open). Denied country comparison is case-insensitive. Username pattern matching uses `Regex.IsMatch` without `IgnoreCase`.
+
 ## NuciLog Settings
 
 The settings type belongs to NuciLog. Locally configured keys are:
@@ -144,6 +157,10 @@ universalNameGeneratorSettings__baseUrl
 universalNameGeneratorSettings__apiKey
 nuciLoggerSettings__logFilePath
 nuciLoggerSettings__isFileOutputEnabled
+accessControlSettings__deniedCountries
+accessControlSettings__deniedUsernamePatterns
+accessControlSettings__geolocationApiUrl
+accessControlSettings__minimumUsernameLength
 ```
 
 This list documents names only and intentionally contains no secret values.
