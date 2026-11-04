@@ -26,10 +26,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             Assert.That(
                 responseDocument.RootElement.EnumerateObject().Select(property => property.Name),
-                Is.EquivalentTo(["code", "content", "hmac", "message", "names", "success"]));
-            Assert.That(
-                responseDocument.RootElement.GetProperty("content").ValueKind,
-                Is.EqualTo(JsonValueKind.Null));
+                Is.EquivalentTo(["code", "hmac", "message", "names", "success"]));
             Assert.That(
                 responseDocument.RootElement
                     .GetProperty("names")
