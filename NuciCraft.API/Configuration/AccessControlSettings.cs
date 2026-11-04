@@ -6,8 +6,6 @@ namespace NuciCraft.API.Configuration
 
         public string[] DeniedUsernamePatterns { get; set; } = [];
 
-        public string[] DeniedExactUsernames { get; set; } = [];
-
         public int MinimumUsernameLength { get; set; } = 4;
     }
 }

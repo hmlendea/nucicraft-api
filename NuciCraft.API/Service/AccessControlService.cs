@@ -110,24 +110,12 @@ namespace NuciCraft.API.Service
 
             foreach (string pattern in settings.DeniedUsernamePatterns)
             {
-                if (username.Contains(pattern, StringComparison.OrdinalIgnoreCase))
+                if (Regex.IsMatch(username, pattern))
                 {
                     return new UsernameCheckResult
                     {
                         IsAllowed = false,
                         DeniedReason = "Unallowed username. Use another one"
-                    };
-                }
-            }
-
-            foreach (string exactName in settings.DeniedExactUsernames)
-            {
-                if (string.Equals(username, exactName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return new UsernameCheckResult
-                    {
-                        IsAllowed = false,
-                        DeniedReason = "Unknown host"
                     };
                 }
             }
