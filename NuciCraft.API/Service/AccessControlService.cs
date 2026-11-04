@@ -19,6 +19,8 @@ namespace NuciCraft.API.Service
         AccessControlSettings settings,
         ILogger logger) : IAccessControlService
     {
+        private const string UsernameNotPermittedMessage = "This username is not permitted.";
+
         private readonly HttpClient httpClient = HttpClientCreator.Create();
 
         public IpCheckResult CheckIp(CheckIpRequest request)
@@ -123,7 +125,7 @@ namespace NuciCraft.API.Service
                 {
                     IsAllowed = false,
                     CountryCode = countryCode,
-                    DeniedReason = "Access denied from your country"
+                    DeniedReason = "Access is not permitted from this country."
                 };
             }
 
@@ -142,7 +144,7 @@ namespace NuciCraft.API.Service
                 return new UsernameCheckResult
                 {
                     IsAllowed = false,
-                    DeniedReason = "Unallowed username. Use another one"
+                    DeniedReason = UsernameNotPermittedMessage
                 };
             }
 
@@ -153,7 +155,7 @@ namespace NuciCraft.API.Service
                     return new UsernameCheckResult
                     {
                         IsAllowed = false,
-                        DeniedReason = "Unallowed username. Use another one"
+                        DeniedReason = UsernameNotPermittedMessage
                     };
                 }
             }
