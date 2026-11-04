@@ -6,7 +6,6 @@ using NUnit.Framework;
 using NuciAPI.Responses;
 
 using NuciCraft.API.Responses;
-using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.UnitTests.Responses
 {

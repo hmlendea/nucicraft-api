@@ -9,6 +9,6 @@ namespace NuciCraft.API.Requests
     {
         [Required]
         [JsonPropertyName("username")]
-        public string Username { get; set; }
+        public string Username { get; set; } = string.Empty;
     }
 }

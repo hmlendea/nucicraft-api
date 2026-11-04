@@ -12,7 +12,6 @@ using NuciSecurity.HMAC;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
-using NuciCraft.API.Responses;
 using NuciCraft.API.Service;
 
 using NuciLog.Core;

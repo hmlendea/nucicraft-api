@@ -12,7 +12,6 @@ using NuciCraft.API.Configuration;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service.Models;
-using NuciCraft.API.Service;
 
 namespace NuciCraft.API.Service
 {

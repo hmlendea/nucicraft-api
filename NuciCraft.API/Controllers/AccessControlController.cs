@@ -7,7 +7,6 @@ using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Responses;
 using NuciCraft.API.Service;
-using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Controllers
 {

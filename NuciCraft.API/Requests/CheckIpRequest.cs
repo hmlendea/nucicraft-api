@@ -9,6 +9,6 @@ namespace NuciCraft.API.Requests
     {
         [Required]
         [JsonPropertyName("ipAddress")]
-        public string IpAddress { get; set; }
+        public string IpAddress { get; set; } = string.Empty;
     }
 }
