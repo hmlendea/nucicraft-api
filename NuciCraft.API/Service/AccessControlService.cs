@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 using NuciLog.Core;
+using NuciWeb.HTTP;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Logging;
@@ -16,6 +20,8 @@ namespace NuciCraft.API.Service
         AccessControlSettings settings,
         ILogger logger) : IAccessControlService
     {
+        private readonly HttpClient httpClient = HttpClientCreator.Create();
+
         public IpCheckResult CheckIp(CheckIpRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);
@@ -32,7 +38,7 @@ namespace NuciCraft.API.Service
 
             try
             {
-                IpCheckResult response = PerformIpCheck(request.IpAddress);
+                IpCheckResult response = PerformIpCheck(request.IpAddress).GetAwaiter().GetResult();
 
                 logger.Info(
                     MyOperation.CheckIp,
@@ -90,12 +96,45 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private IpCheckResult PerformIpCheck(string ipAddress) => new()
+        private async Task<IpCheckResult> PerformIpCheck(string ipAddress)
         {
-            IsAllowed = true,
-            CountryCode = null,
-            DeniedReason = null
-        };
+            string url = $"{settings.GeolocationApiUrl}{ipAddress}?fields=status,countryCode,country";
+
+            using HttpResponseMessage response = await httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            string json = await response.Content.ReadAsStringAsync();
+            GeolocationData? geo = JsonSerializer.Deserialize<GeolocationData>(json);
+
+            if (geo is null || !string.Equals(geo.Status, "success", StringComparison.OrdinalIgnoreCase))
+            {
+                return new IpCheckResult
+                {
+                    IsAllowed = true,
+                    CountryCode = null,
+                    DeniedReason = null
+                };
+            }
+
+            string countryCode = geo.CountryCode;
+
+            if (Array.Exists(settings.DeniedCountries, c => string.Equals(c, countryCode, StringComparison.OrdinalIgnoreCase)))
+            {
+                return new IpCheckResult
+                {
+                    IsAllowed = false,
+                    CountryCode = countryCode,
+                    DeniedReason = "Access denied from your country"
+                };
+            }
+
+            return new IpCheckResult
+            {
+                IsAllowed = true,
+                CountryCode = countryCode,
+                DeniedReason = null
+            };
+        }
 
         private UsernameCheckResult PerformUsernameCheck(string username)
         {

@@ -6,6 +6,8 @@ namespace NuciCraft.API.Configuration
 
         public string[] DeniedUsernamePatterns { get; set; } = [];
 
+        public string GeolocationApiUrl { get; set; } = "http://ip-api.com/json/";
+
         public int MinimumUsernameLength { get; set; } = 4;
     }
 }
