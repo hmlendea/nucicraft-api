@@ -12,6 +12,7 @@ namespace NuciCraft.API.Logging
         public static LogInfoKey Count => new MyLogInfoKey(nameof(Count));
         public static LogInfoKey CreatedDT => new MyLogInfoKey(nameof(CreatedDT));
         public static LogInfoKey Identifier => new MyLogInfoKey(nameof(Identifier));
+        public static LogInfoKey IpAddress => new MyLogInfoKey(nameof(IpAddress));
         public static LogInfoKey LastIpAddress => new MyLogInfoKey(nameof(LastIpAddress));
         public static LogInfoKey MinecraftId => new MyLogInfoKey(nameof(MinecraftId));
         public static LogInfoKey MobType => new MyLogInfoKey(nameof(MobType));
