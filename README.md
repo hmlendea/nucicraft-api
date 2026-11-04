@@ -1,7 +1,7 @@
 [![Donate](https://img.shields.io/badge/-%E2%99%A5%20Donate-%23ff69b4)](https://hmlendea.go.ro/funding)
 [![Latest Release](https://img.shields.io/github/v/release/hmlendea/nucicraft-api)](https://github.com/hmlendea/nucicraft-api/releases/latest)
 [![Build Status](https://github.com/hmlendea/nucicraft-api/actions/workflows/dotnet.yml/badge.svg)](https://github.com/hmlendea/nucicraft-api/actions/workflows/dotnet.yml)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://gnu.org/licenses/gpl-3.0)
+[![License](https://img.shields.io/github/license/hmlendea/nucicraft-api)](https://github.com/hmlendea/nucicraft-api/blob/master/LICENSE)
 
 # NuciCraft API
 
@@ -13,24 +13,26 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
 - [Usage](#usage)
   - [Get Server Information](#get-server-information)
   - [Register a Player](#register-a-player)
-	- [Get a Player by ID](#get-a-player-by-id)
-	- [Get a Player by Username](#get-a-player-by-username)
-	- [Get a Player by Offline UUID](#get-a-player-by-offline-uuid)
-	- [Get a Player by Online UUID](#get-a-player-by-online-uuid)
+  - [Get a Player by ID](#get-a-player-by-id)
+  - [Get a Player by Username](#get-a-player-by-username)
+  - [Get a Player by Offline UUID](#get-a-player-by-offline-uuid)
+  - [Get a Player by Online UUID](#get-a-player-by-online-uuid)
   - [Get All Players](#get-all-players)
-	- [Patch a Player](#patch-a-player)
+  - [Patch a Player](#patch-a-player)
   - [Manage Homes](#manage-homes)
   - [Add an RTP Location](#add-an-rtp-location)
   - [Get a Random RTP Location](#get-a-random-rtp-location)
-	- [Get Random Mob Names](#get-random-mob-names)
-	- [Manage Countries](#manage-countries)
-	- [Manage Worlds](#manage-worlds)
-	- [Manage Zone Types](#manage-zone-types)
+  - [Get Random Mob Names](#get-random-mob-names)
+  - [Manage Countries](#manage-countries)
+  - [Manage Worlds](#manage-worlds)
+  - [Manage Zone Types](#manage-zone-types)
   - [Manage Zones](#manage-zones)
   - [Manage Items](#manage-items)
+    - [Sign ID Generation](#sign-id-generation)
+  - [Access Control](#access-control)
 - [Known Limitations](#known-limitations)
 - [Installation](#installation)
-  - [CLI Installation](#cli-installation)
+  - [Installation from Source](#installation-from-source)
 - [Configuration](#configuration)
 - [Development](#development)
   - [Requirements](#requirements)
@@ -40,13 +42,14 @@ NuciCraft API is a lightweight ASP.NET Core REST service for NuciCraft Minecraft
   - [Test](#test)
   - [Release](#release)
   - [Dependencies](#dependencies)
+- [GitHub Actions](#github-actions)
 - [Project Structure](#project-structure)
 - [Architecture](#architecture)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
-- [Security](#security)
-- [Supporting the Project](#supporting-the-project)
 - [Code of Conduct](#code-of-conduct)
+- [Security](#security)
+- [Project Engagement](#project-engagement)
 - [License](#license)
 
 ## ✨ Capabilities
@@ -538,7 +541,7 @@ The username check validates the username against the configured minimum length 
 
 [![Obtain it from GitHub](https://raw.githubusercontent.com/hmlendea/readme-assets/master/badges/stores/github.png)](https://github.com/hmlendea/nucicraft-api/releases)
 
-### CLI Installation
+### Installation from Source
 
 ```bash
 git clone https://github.com/hmlendea/nucicraft-api.git
@@ -620,16 +623,29 @@ This script downloads and executes an external release helper from `https://raw.
 
 ### Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `MineStat` | Java server-list status queries for the live online player count. |
-| `NuciAPI` | Base API abstractions and request/response contracts. |
-| `NuciAPI.Controllers` | Shared controller infrastructure and request processing helpers. |
-| `NuciAPI.Middleware.*` | Exception handling, request logging, and scanner-protection middleware. |
-| `NuciDAL` | JSON-file-backed repository abstractions and persistence. |
-| `NuciLog` and `NuciLog.Core` | Structured operation logging and diagnostic context. |
-| `NuciSecurity.HMAC` | Request/response signing metadata via ordered HMAC fields. |
-| `NuciText.Normalisation` and `NuciText.Obfuscation` | Text normalisation and obfuscation utilities. |
+| Package | Version | Scope | Purpose |
+|---------|---------|-------|---------|
+| `MineStat` | 3.1.2 | Runtime | Java server-list status queries for the live online player count. |
+| `NuciAPI` | 3.6.1 | Runtime | Base API abstractions and request/response contracts. |
+| `NuciAPI.Client` | 1.2.3 | Runtime | Outbound HTTP client for the Universal Name Generator integration. |
+| `NuciAPI.Controllers` | 2.3.1 | Runtime | Shared controller infrastructure and request processing helpers. |
+| `NuciAPI.Middleware` | 2.0.3 | Runtime | Shared middleware abstractions. |
+| `NuciAPI.Middleware.ExceptionHandling` | 1.0.2 | Runtime | Exception-handling middleware. |
+| `NuciAPI.Middleware.Logging` | 1.0.1 | Runtime | Request-logging middleware. |
+| `NuciAPI.Middleware.Security` | 1.0.6 | Runtime | Scanner-protection and security middleware. |
+| `NuciDAL` | 3.2.1 | Runtime | JSON-file-backed repository abstractions and persistence. |
+| `NuciLog` | 1.2.1 | Runtime | Structured operation logging. |
+| `NuciLog.Core` | 3.1.0 | Runtime | Logging core and diagnostic context. |
+| `NuciSecurity.HMAC` | 4.1.3 | Runtime | Request/response signing metadata via ordered HMAC fields. |
+| `NuciText.Normalisation` | 1.0.1 | Runtime | Text normalisation utilities. |
+| `NuciText.Obfuscation` | 1.1.1 | Runtime | Text obfuscation utilities. |
+| `NuciWeb.HTTP` | 1.7.3 | Runtime | HTTP utilities for outbound requests. |
+
+## ⚙️ GitHub Actions
+
+| Workflow | Purpose | What it does |
+|----------|---------|--------------|
+| [ .NET ](https://github.com/hmlendea/nucicraft-api/blob/master/.github/workflows/dotnet.yml) | Continuous integration | Sets up .NET 10, restores dependencies, builds the solution, and runs all tests on pushes and pull requests targeting `master`. |
 
 ## 🗂️ Project Structure
 
@@ -654,7 +670,9 @@ The key directories inside `NuciCraft.API/` are:
 
 ## 🏗️ Architecture
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for a structural synopsis and component interactions.
+NuciCraft API is a layered modular monolith with interface-based adapters at its persistence and outbound HTTP boundaries.
+
+See the [Architecture Documentation](./ARCHITECTURE.md) for the system context, principal components, runtime flows, ownership boundaries, dependencies, constraints, and extension points.
 
 ## 📚 Documentation
 
@@ -666,18 +684,27 @@ You are welcome to submit any suggestion, feedback, or modification to this proj
 
 When doing so, please:
 - Maintain cross-platform compatibility
-- Maintain the existing public contract intact unless a breaking change is intentional
-- Maintain the pull requests as focused and consistent with the existing code style
-- Maintain your branch up-to-date with `master`
-- Revise the documentation when behaviour changes
-- Properly test all changes, including edge cases and error conditions
-- Add unit tests for any new or changed functionality
+- Preserve the existing public contract unless a breaking change is intentional
+- Submit focused pull requests that conform to the existing code style
+- Maintain your branch synchronised with `master`
+- Revise the documentation when functionality changes
+- Properly test all modifications, including edge cases and error conditions
+- Include tests for additional or modified functionality
+- Raise a new [issue](https://github.com/hmlendea/nucicraft-api/issues) for problems or suggestions
+
+See the [Contributing Guidelines](./CONTRIBUTING.md) for details on how to report issues, suggest enhancements, and submit changes.
+
+## 📜 Code of Conduct
+
+See the [Code of Conduct](./CODE_OF_CONDUCT.md) for the standards of conduct expected in all project spaces.
 
 ## 🔒 Security
 
-For information on reporting security vulnerabilities, see [SECURITY.md](./SECURITY.md).
+NuciCraft API uses API-key authorisation and self-hosted storage; operators are responsible for protecting configuration, persisted data, and logs.
 
-## 💝 Supporting the Project
+For information on reporting security vulnerabilities, see the [Security Policy](./SECURITY.md).
+
+## 💝 Project Engagement
 
 Discovered a problem or have a suggestion? [Open an issue](https://github.com/hmlendea/nucicraft-api/issues)!
 
@@ -685,11 +712,7 @@ If you find this project useful, consider [funding it](https://hmlendea.go.ro/fu
 
 [![Donate](https://raw.githubusercontent.com/hmlendea/readme-assets/master/donate_generic.png)](https://hmlendea.go.ro/funding)
 
-## 📜 Code of Conduct
-
-See the [Code of Conduct](./CODE_OF_CONDUCT.md) for the standards of conduct expected in all project spaces.
-
 ## 📄 License
 
 This project is being distributed under the `GNU General Public License v3.0` or later.
-See [LICENSE](./LICENSE) for further information.
+See [LICENSE](./LICENSE) for additional information.
