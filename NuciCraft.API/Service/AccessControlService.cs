@@ -99,13 +99,7 @@ namespace NuciCraft.API.Service
 
         private async Task<IpCheckResult> PerformIpCheck(string ipAddress)
         {
-            string url = $"{settings.GeolocationApiUrl}{ipAddress}?fields=status,countryCode,country";
-
-            using HttpResponseMessage response = await httpClient.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-
-            string json = await response.Content.ReadAsStringAsync();
-            GeolocationData? geo = JsonSerializer.Deserialize<GeolocationData>(json);
+            GeolocationData? geo = await GetGeolocationData(ipAddress);
 
             if (geo is null || !string.Equals(geo.Status, "success", StringComparison.OrdinalIgnoreCase))
             {
@@ -129,12 +123,65 @@ namespace NuciCraft.API.Service
                 };
             }
 
+            if (await IsAnonymisationServiceDetected(ipAddress))
+            {
+                return new IpCheckResult
+                {
+                    IsAllowed = false,
+                    CountryCode = countryCode,
+                    DeniedReason = "Access is not permitted via any anonymisation service."
+                };
+            }
+
             return new IpCheckResult
             {
                 IsAllowed = true,
                 CountryCode = countryCode,
                 DeniedReason = null
             };
+        }
+
+        private async Task<GeolocationData?> GetGeolocationData(string ipAddress)
+        {
+            string url = $"{settings.GeolocationApiUrl}{ipAddress}?fields=status,countryCode,country";
+
+            using HttpResponseMessage response = await httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            string json = await response.Content.ReadAsStringAsync();
+
+            return JsonSerializer.Deserialize<GeolocationData>(json);
+        }
+
+        private async Task<bool> IsAnonymisationServiceDetected(string ipAddress)
+        {
+            if (!settings.IsAnonymisationServiceDetectionEnabled)
+            {
+                return false;
+            }
+
+            try
+            {
+                string url = $"{settings.AnonymisationServiceDetectionApiUrl}?ip={Uri.EscapeDataString(ipAddress)}&license={Uri.EscapeDataString(settings.AnonymisationServiceDetectionApiLicense)}&cache=true";
+
+                using HttpResponseMessage response = await httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                string json = await response.Content.ReadAsStringAsync();
+                AnonymisationServiceCheckData? anonymisationServiceCheck = JsonSerializer.Deserialize<AnonymisationServiceCheckData>(json);
+
+                return anonymisationServiceCheck is not null && anonymisationServiceCheck.Success && anonymisationServiceCheck.IsAnonymisationService;
+            }
+            catch (Exception exception)
+            {
+                logger.Error(
+                    MyOperation.CheckIp,
+                    OperationStatus.Failure,
+                    exception,
+                    [new(MyLogInfoKey.IpAddress, ipAddress)]);
+
+                return false;
+            }
         }
 
         private UsernameCheckResult PerformUsernameCheck(string username)
