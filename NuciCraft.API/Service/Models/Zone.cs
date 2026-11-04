@@ -49,7 +49,7 @@ namespace NuciCraft.API.Service.Models
                     return customMapLink;
                 }
 
-                if (TeleportationPoint != null)
+                if (TeleportationPoint is not null)
                 {
                     return $"https://mc.nucilandia.ro/nucicraft/webmap/?worldname=world&x={TeleportationPoint.X}&z={TeleportationPoint.Z}";
                 }
