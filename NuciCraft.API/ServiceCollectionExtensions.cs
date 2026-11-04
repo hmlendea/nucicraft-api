@@ -34,6 +34,7 @@ namespace NuciCraft.API
             RtpLocationSettings rtpLocationSettings = new();
             UniversalNameGeneratorSettings universalNameGeneratorSettings = new();
             WebMapSettings webMapSettings = new();
+            AccessControlSettings accessControlSettings = new();
 
             configuration.Bind(nameof(dataStoreSettings), dataStoreSettings);
             configuration.Bind(nameof(securitySettings), securitySettings);
@@ -43,6 +44,7 @@ namespace NuciCraft.API
             configuration.Bind(
                 nameof(universalNameGeneratorSettings),
                 universalNameGeneratorSettings);
+            configuration.Bind(nameof(accessControlSettings), accessControlSettings);
 
             return services
                 .AddSingleton(dataStoreSettings)
@@ -51,6 +53,7 @@ namespace NuciCraft.API
                 .AddSingleton(rtpLocationSettings)
                 .AddSingleton(universalNameGeneratorSettings)
                 .AddSingleton(webMapSettings)
+                .AddSingleton(accessControlSettings)
                 .AddNuciLoggerSettings(configuration);
         }
 
@@ -78,6 +81,7 @@ namespace NuciCraft.API
             .AddSingleton<IPlayerService, PlayerService>()
             .AddSingleton<IRtpLocationService, RtpLocationService>()
             .AddSingleton<IZoneService, ZoneService>()
+            .AddSingleton<IAccessControlService, AccessControlService>()
             .AddSingleton<INuciTextNormaliser, NuciTextNormaliser>()
             .AddSingleton<INuciTextObfuscator, NuciTextObfuscator>()
             .AddScoped<ILogger, NuciLogger>();

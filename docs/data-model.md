@@ -278,8 +278,35 @@ This top-level shape is significant: `MobService` casts the returned `NuciApiRes
 | `RtpLocationSettings` | MinimumLocationDistance, MinimumBiomeLocationDistance. |
 | `UniversalNameGeneratorSettings` | BaseUrl, ApiKey. |
 | `WebMapSettings` | BaseUrl. |
+| `AccessControlSettings` | DeniedCountries, DeniedUsernamePatterns, GeolocationApiUrl, MinimumUsernameLength. |
 
 NuciLog settings are package-defined and bound separately.
+
+## Access Control Representations
+
+### Requests
+
+| Request | Fields | Notes |
+|---------|--------|-------|
+| [CheckIpRequest](../NuciCraft.API/Requests/CheckIpRequest.cs) | IpAddress | Required. JSON property name `ipAddress`. |
+| [CheckUsernameRequest](../NuciCraft.API/Requests/CheckUsernameRequest.cs) | Username | Required. JSON property name `username`. |
+
+### Service Models
+
+| Model | Fields | Notes |
+|-------|--------|-------|
+| [IpCheckResult](../NuciCraft.API/Service/Models/IpCheckResult.cs) | IsAllowed, CountryCode, DeniedReason | Returned by `IAccessControlService.CheckIp`. |
+| [UsernameCheckResult](../NuciCraft.API/Service/Models/UsernameCheckResult.cs) | IsAllowed, DeniedReason | Returned by `IAccessControlService.CheckUsername`. |
+| [GeolocationData](../NuciCraft.API/Service/Models/GeolocationData.cs) | Status, CountryCode, CountryName, RegionCode, RegionName, City, PostalCode, Latitude, Longitude, Timezone, InternetServiceProvider, Organisation, AutonomousSystem, Query | JSON deserialization model for ip-api.com response. All properties use `JsonPropertyName` for wire names. |
+
+### Responses
+
+| Response | Fields | Notes |
+|----------|--------|-------|
+| [CheckIpResponse](../NuciCraft.API/Responses/CheckIpResponse.cs) | IsAllowed, DeniedReason, CountryCode | JSON properties: `isAllowed`, `deniedReason`, `countryCode`. |
+| [CheckUsernameResponse](../NuciCraft.API/Responses/CheckUsernameResponse.cs) | IsAllowed, DeniedReason | JSON properties: `isAllowed`, `deniedReason`. |
+
+The IP check performs a real-time geolocation lookup using `HttpClientCreator.Create()` from NuciWeb.HTTP, calls the configured geolocation API with `fields=status,countryCode,country`, and checks the returned country code against the denied countries list (case-insensitive). A non-success geolocation status or missing country code results in an allowed response (fail-open). The username check validates the username length against `MinimumUsernameLength` and checks against `DeniedUsernamePatterns` using case-sensitive `Regex.IsMatch`.
 
 ## Relationships
 

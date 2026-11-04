@@ -138,6 +138,15 @@ Patch routes assign their route selector into the body object. If a client body 
 
 The singular route is explicit and does not derive from the plural controller name.
 
+### Access Control
+
+| Method | Route | Input | Service Transition | Success Content |
+|--------|-------|-------|--------------------|-----------------|
+| POST | `/AccessControl/check-ip` | `CheckIpRequest` body | `IAccessControlService.CheckIp` | `CheckIpResponse`. |
+| POST | `/AccessControl/check-username` | `CheckUsernameRequest` body | `IAccessControlService.CheckUsername` | `CheckUsernameResponse`. |
+
+Both endpoints require API-key authorisation. The IP check performs a real-time geolocation lookup using the configured geolocation API to determine the country code, then checks if that country is in the denied countries list. The username check validates against the configured minimum length and denied username patterns (case-sensitive regex).
+
 ### Worlds
 
 | Method | Route | Input | Service Transition | Success Content |
