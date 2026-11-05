@@ -15,7 +15,7 @@
 | Universal Name Generator API | External service | Outbound HTTP | Mob-name generation only. |
 | Minecraft Java server | External service | Outbound TCP | Live count in `GET /Server`. |
 | NuciAPI package family | Runtime framework | In-process | Controller processing, envelopes, clients, and middleware. |
-| NuciDAL | Persistence library | In-process to filesystem | Seven JSON repositories. |
+| NuciDAL | Persistence library | In-process to filesystem | Eight JSON repositories. |
 | NuciLog | Logging library | In-process to configured sink | Request and service diagnostics. |
 | NuciSecurity.HMAC | Contract/security library | In-process | Property ordering metadata. |
 | NuciText libraries | Utility libraries | In-process | Registered extension utilities; no local production caller. |
@@ -30,7 +30,7 @@ Provide durable state without a database service.
 
 ### Initialisation
 
-Seven `JsonRepository<T>` singleton instances are constructed lazily by dependency injection. During startup, [Startup.cs](../NuciCraft.API/Startup.cs) creates absent paths and enumerates each repository.
+Eight `JsonRepository<T>` singleton instances are constructed lazily by dependency injection. During startup, [Startup.cs](../NuciCraft.API/Startup.cs) creates absent paths and enumerates each repository.
 
 ### Data Exchange
 

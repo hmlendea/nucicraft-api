@@ -14,7 +14,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 
 using NuciAPI.Client;
+using NuciDAL.Repositories;
 
+using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service;
 using NuciCraft.API.Service.Models;
@@ -29,6 +31,7 @@ namespace NuciCraft.API.IntegrationTests
 
         private readonly bool deletesStoreDirectory;
         private readonly string storeDirectory;
+        private readonly bool useInMemoryRepositories;
 
         public ApiTestHost()
             : this(
@@ -36,21 +39,24 @@ namespace NuciCraft.API.IntegrationTests
                     Path.GetTempPath(),
                     StoreDirectoryName,
                     Guid.NewGuid().ToString("N")),
+                true,
                 true)
         {
         }
 
         public ApiTestHost(string storeDirectory)
-            : this(storeDirectory, false)
+            : this(storeDirectory, false, false)
         {
         }
 
         private ApiTestHost(
             string storeDirectory,
-            bool deletesStoreDirectory)
+            bool deletesStoreDirectory,
+            bool useInMemoryRepositories)
         {
             this.storeDirectory = storeDirectory;
             this.deletesStoreDirectory = deletesStoreDirectory;
+            this.useInMemoryRepositories = useInMemoryRepositories;
         }
 
         public HttpClient CreateAuthorisedClient()
@@ -70,13 +76,6 @@ namespace NuciCraft.API.IntegrationTests
             {
                 Dictionary<string, string?> configurationValues = new()
                 {
-                    ["dataStoreSettings:countriesStorePath"] = GetStorePath("countries.json"),
-                    ["dataStoreSettings:homesStorePath"] = GetStorePath("homes.json"),
-                    ["dataStoreSettings:playersStorePath"] = GetStorePath("players.json"),
-                    ["dataStoreSettings:rtpLocationsStorePath"] = GetStorePath("rtp_locations.json"),
-                    ["dataStoreSettings:worldsStorePath"] = GetStorePath("worlds.json"),
-                    ["dataStoreSettings:zonesStorePath"] = GetStorePath("zones.json"),
-                    ["dataStoreSettings:zoneTypesStorePath"] = GetStorePath("zone_types.json"),
                     ["rtpLocationSettings:minimumLocationDistance"] = "613",
                     ["rtpLocationSettings:minimumBiomeLocationDistance"] = "873",
                     ["webMapSettings:baseUrl"] = "https://example.invalid/webmap/",
@@ -91,10 +90,48 @@ namespace NuciCraft.API.IntegrationTests
                     ["nuciLoggerSettings:isFileOutputEnabled"] = "false"
                 };
 
+                if (!useInMemoryRepositories)
+                {
+                    configurationValues["dataStoreSettings:countriesStorePath"] = GetStorePath("countries.json");
+                    configurationValues["dataStoreSettings:homesStorePath"] = GetStorePath("homes.json");
+                    configurationValues["dataStoreSettings:playersStorePath"] = GetStorePath("players.json");
+                    configurationValues["dataStoreSettings:rtpLocationsStorePath"] = GetStorePath("rtp_locations.json");
+                    configurationValues["dataStoreSettings:worldsStorePath"] = GetStorePath("worlds.json");
+                    configurationValues["dataStoreSettings:zonesStorePath"] = GetStorePath("zones.json");
+                    configurationValues["dataStoreSettings:zoneTypesStorePath"] = GetStorePath("zone_types.json");
+                }
+
                 configurationBuilder.AddInMemoryCollection(configurationValues);
             });
             builder.ConfigureServices(services =>
             {
+                if (useInMemoryRepositories)
+                {
+                    services.RemoveAll<IFileRepository<PlayerDataObject>>();
+                    services.AddSingleton<IFileRepository<PlayerDataObject>>(_ => new InMemoryRepository<PlayerDataObject>());
+
+                    services.RemoveAll<IFileRepository<RtpLocationEntity>>();
+                    services.AddSingleton<IFileRepository<RtpLocationEntity>>(_ => new InMemoryRepository<RtpLocationEntity>());
+
+                    services.RemoveAll<IFileRepository<CountryDataObject>>();
+                    services.AddSingleton<IFileRepository<CountryDataObject>>(_ => new InMemoryRepository<CountryDataObject>());
+
+                    services.RemoveAll<IFileRepository<HomeDataObject>>();
+                    services.AddSingleton<IFileRepository<HomeDataObject>>(_ => new InMemoryRepository<HomeDataObject>());
+
+                    services.RemoveAll<IFileRepository<ItemDataObject>>();
+                    services.AddSingleton<IFileRepository<ItemDataObject>>(_ => new InMemoryRepository<ItemDataObject>());
+
+                    services.RemoveAll<IFileRepository<WorldDataObject>>();
+                    services.AddSingleton<IFileRepository<WorldDataObject>>(_ => new InMemoryRepository<WorldDataObject>());
+
+                    services.RemoveAll<IFileRepository<ZoneDataObject>>();
+                    services.AddSingleton<IFileRepository<ZoneDataObject>>(_ => new InMemoryRepository<ZoneDataObject>());
+
+                    services.RemoveAll<IFileRepository<ZoneTypeDataObject>>();
+                    services.AddSingleton<IFileRepository<ZoneTypeDataObject>>(_ => new InMemoryRepository<ZoneTypeDataObject>());
+                }
+
                 Mock<IAccessControlService> accessControlServiceMock = new();
                 accessControlServiceMock
                     .Setup(service => service.CheckIpAsync(It.IsAny<CheckIpRequest>(), It.IsAny<CancellationToken>()))

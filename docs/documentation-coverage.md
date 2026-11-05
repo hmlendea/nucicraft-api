@@ -13,7 +13,7 @@ The audit used these independent checks:
 1. Enumerated tracked files by project and source area.
 2. Counted and inspected all controller HTTP attributes.
 3. Counted and inspected all public service operations.
-4. Mapped all seven persisted record types and path settings.
+4. Mapped all eight persisted record types and path settings.
 5. Mapped every outbound system and infrastructure package boundary.
 6. Mapped every local settings class and committed setting key.
 7. Confirmed no background-process implementation exists.
@@ -29,23 +29,23 @@ This is a source-reference and semantic coverage audit, not a statement of compl
 | Area | Tracked C# Files | Documentation Owner |
 |------|------------------|---------------------|
 | Composition root | 3 | [Architecture](architecture.md), [host component](components/host-and-composition.md), [startup flow](flows/startup.md) |
-| Configuration | 6 | [Configuration](configuration.md) |
-| Controllers | 9 | [HTTP boundary](components/http-api-boundary.md), [interfaces](interfaces.md) |
-| Data access | 13 | [Data model](data-model.md), [persistence component](components/persistence-and-mapping.md) |
+| Configuration | 8 | [Configuration](configuration.md) |
+| Controllers | 11 | [HTTP boundary](components/http-api-boundary.md), [interfaces](interfaces.md) |
+| Data access | 16 | [Data model](data-model.md), [persistence component](components/persistence-and-mapping.md) |
 | Logging | 2 | [Cross-cutting concerns](cross-cutting-concerns.md) |
-| Requests | 31 | [Data model](data-model.md), [interfaces](interfaces.md) |
-| Responses | 16 | [Data model](data-model.md), [interfaces](interfaces.md) |
-| Service root and subdirectories | 48 | Component, behaviour, flow, invariant, and dependency documents |
-| Production total | 128 | This map links every file below. |
-| Unit tests | 42 | [Testing](testing.md) and test map below |
-| Integration tests | 14 | [Testing](testing.md) and test map below |
+| Requests | 39 | [Data model](data-model.md), [interfaces](interfaces.md) |
+| Responses | 20 | [Data model](data-model.md), [interfaces](interfaces.md) |
+| Service root and subdirectories | 59 | Component, behaviour, flow, invariant, and dependency documents |
+| Production total | 158 | This map links every file below. |
+| Unit tests | 55 | [Testing](testing.md) and test map below |
+| Integration tests | 17 | [Testing](testing.md) and test map below |
 
 ## Principal Component Coverage
 
 | Component | Implementation | Canonical Documentation |
 |-----------|----------------|-------------------------|
 | Host and composition | Program, Startup, registrations, settings | [Host component](components/host-and-composition.md), [architecture](architecture.md), [startup flow](flows/startup.md) |
-| HTTP boundary | Nine controllers and transport contracts | [HTTP component](components/http-api-boundary.md), [interfaces](interfaces.md), [data model](data-model.md) |
+| HTTP boundary | Eleven controllers and transport contracts | [HTTP component](components/http-api-boundary.md), [interfaces](interfaces.md), [data model](data-model.md) |
 | Persistence and mapping | Data objects, NuciDAL adapters, conversions | [Persistence component](components/persistence-and-mapping.md), [state](state-and-persistence.md), [data model](data-model.md) |
 | Players and Homes | Two services and related contracts | [Component](components/player-and-homes.md), [behaviour](behaviour/player-and-home-capabilities.md), [flow](flows/player-and-home-requests.md) |
 | Geographic metadata | Country, World, ZoneType, Zone | [Component](components/geographic-metadata.md), [behaviour](behaviour/geographic-metadata-capabilities.md), [Zone flow](flows/zone-requests.md) |
@@ -59,6 +59,7 @@ This is a source-reference and semantic coverage audit, not a statement of compl
 |--------------------|-------------------|-----------------------------|
 | Country add, read, list, patch | 4 | Geographic behaviour and generic file-backed flow. |
 | Home add, delete, read variants, list variants, patch | 6 | Player/Home behaviour and method-level flow. |
+| Item add, four selector reads, list, and patch | 7 | Item HTTP contract and generic file-backed flow. |
 | Mob-name generation | 1 | External behaviour and outbound flow. |
 | Player register, four selector reads, list, four selector patches | 10 | Player/Home behaviour and method-level flow. |
 | RTP add and random selection | 2 | RTP behaviour and component algorithm. |
@@ -109,7 +110,7 @@ Store creation, eager loading, save boundaries, consistency limits, ignored loca
 ## Configuration Coverage
 
 Every key in [appsettings.json](../NuciCraft.API/appsettings.json) is inventoried in [configuration.md](configuration.md):
-- Seven data store paths.
+- Eight data store paths.
 - Four server fields.
 - Two RTP thresholds.
 - Web-map BaseUrl.
@@ -154,8 +155,10 @@ No production background process, scheduler, timer, queue, or hosted service exi
 
 ### Controllers
 
+- [AccessControlController.cs](../NuciCraft.API/Controllers/AccessControlController.cs)
 - [CountriesController.cs](../NuciCraft.API/Controllers/CountriesController.cs)
 - [HomesController.cs](../NuciCraft.API/Controllers/HomesController.cs)
+- [ItemsController.cs](../NuciCraft.API/Controllers/ItemsController.cs)
 - [MobsController.cs](../NuciCraft.API/Controllers/MobsController.cs)
 - [PlayersController.cs](../NuciCraft.API/Controllers/PlayersController.cs)
 - [RtpLocationsController.cs](../NuciCraft.API/Controllers/RtpLocationsController.cs)
@@ -169,6 +172,7 @@ No production background process, scheduler, timer, queue, or hosted service exi
 - [CoordinatesDataObject.cs](../NuciCraft.API/DataAccess/DataObjects/CoordinatesDataObject.cs)
 - [CountryDataObject.cs](../NuciCraft.API/DataAccess/DataObjects/CountryDataObject.cs)
 - [HomeDataObject.cs](../NuciCraft.API/DataAccess/DataObjects/HomeDataObject.cs)
+- [ItemDataObject.cs](../NuciCraft.API/DataAccess/DataObjects/ItemDataObject.cs)
 - [LocalisedStringDataObject.cs](../NuciCraft.API/DataAccess/DataObjects/LocalisedStringDataObject.cs)
 - [NuciCraftEntityBase.cs](../NuciCraft.API/DataAccess/DataObjects/NuciCraftEntityBase.cs)
 - [PlayerDataObject.cs](../NuciCraft.API/DataAccess/DataObjects/PlayerDataObject.cs)
@@ -198,6 +202,14 @@ Home:
 - [GetHomeRequest.cs](../NuciCraft.API/Requests/GetHomeRequest.cs)
 - [GetHomesRequest.cs](../NuciCraft.API/Requests/GetHomesRequest.cs)
 - [PatchHomeRequest.cs](../NuciCraft.API/Requests/PatchHomeRequest.cs)
+
+Item:
+- [AddItemRequest.cs](../NuciCraft.API/Requests/AddItemRequest.cs)
+- [GetItemByBukkitIdRequest.cs](../NuciCraft.API/Requests/GetItemByBukkitIdRequest.cs)
+- [GetItemByMinecraftIdRequest.cs](../NuciCraft.API/Requests/GetItemByMinecraftIdRequest.cs)
+- [GetItemRequest.cs](../NuciCraft.API/Requests/GetItemRequest.cs)
+- [GetItemsRequest.cs](../NuciCraft.API/Requests/GetItemsRequest.cs)
+- [PatchItemRequest.cs](../NuciCraft.API/Requests/PatchItemRequest.cs)
 
 Mob and Server:
 - [GetMobNameRequest.cs](../NuciCraft.API/Requests/GetMobNameRequest.cs)
@@ -240,6 +252,8 @@ ZoneType:
 - [GetCountryResponse.cs](../NuciCraft.API/Responses/GetCountryResponse.cs)
 - [GetHomeResponse.cs](../NuciCraft.API/Responses/GetHomeResponse.cs)
 - [GetHomesResponse.cs](../NuciCraft.API/Responses/GetHomesResponse.cs)
+- [GetItemResponse.cs](../NuciCraft.API/Responses/GetItemResponse.cs)
+- [GetItemsResponse.cs](../NuciCraft.API/Responses/GetItemsResponse.cs)
 - [GetMobNameResponse.cs](../NuciCraft.API/Responses/GetMobNameResponse.cs)
 - [GetPlayerResponse.cs](../NuciCraft.API/Responses/GetPlayerResponse.cs)
 - [GetPlayersResponse.cs](../NuciCraft.API/Responses/GetPlayersResponse.cs)
@@ -257,6 +271,7 @@ ZoneType:
 
 - [ICountryService.cs](../NuciCraft.API/Service/ICountryService.cs) and [CountryService.cs](../NuciCraft.API/Service/CountryService.cs)
 - [IHomeService.cs](../NuciCraft.API/Service/IHomeService.cs) and [HomeService.cs](../NuciCraft.API/Service/HomeService.cs)
+- [IItemService.cs](../NuciCraft.API/Service/IItemService.cs) and [ItemService.cs](../NuciCraft.API/Service/ItemService.cs)
 - [IMobService.cs](../NuciCraft.API/Service/IMobService.cs) and [MobService.cs](../NuciCraft.API/Service/MobService.cs)
 - [IPlayerService.cs](../NuciCraft.API/Service/IPlayerService.cs) and [PlayerService.cs](../NuciCraft.API/Service/PlayerService.cs)
 - [IRtpLocationService.cs](../NuciCraft.API/Service/IRtpLocationService.cs) and [RtpLocationService.cs](../NuciCraft.API/Service/RtpLocationService.cs)
@@ -274,6 +289,7 @@ ZoneType:
 - [Country.cs](../NuciCraft.API/Service/Models/Country.cs)
 - [Gender.cs](../NuciCraft.API/Service/Models/Gender.cs)
 - [Home.cs](../NuciCraft.API/Service/Models/Home.cs)
+- [Item.cs](../NuciCraft.API/Service/Models/Item.cs)
 - [Localisation.cs](../NuciCraft.API/Service/Models/Localisation.cs)
 - [LocalisedString.cs](../NuciCraft.API/Service/Models/LocalisedString.cs)
 - [MobType.cs](../NuciCraft.API/Service/Models/MobType.cs)
@@ -315,6 +331,7 @@ ZoneType:
 - [ControllerTestContext.cs](../NuciCraft.API.UnitTests/Controllers/ControllerTestContext.cs)
 - [CountriesControllerTests.cs](../NuciCraft.API.UnitTests/Controllers/CountriesControllerTests.cs)
 - [HomesControllerTests.cs](../NuciCraft.API.UnitTests/Controllers/HomesControllerTests.cs)
+- [ItemsControllerTests.cs](../NuciCraft.API.UnitTests/Controllers/ItemsControllerTests.cs)
 - [MobsControllerTests.cs](../NuciCraft.API.UnitTests/Controllers/MobsControllerTests.cs)
 - [PlayersControllerTests.cs](../NuciCraft.API.UnitTests/Controllers/PlayersControllerTests.cs)
 - [RtpLocationsControllerTests.cs](../NuciCraft.API.UnitTests/Controllers/RtpLocationsControllerTests.cs)
@@ -329,6 +346,7 @@ ZoneType:
 - [GenderTests.cs](../NuciCraft.API.UnitTests/Service/GenderTests.cs)
 - [GenerateNamesResponseTests.cs](../NuciCraft.API.UnitTests/Service/GenerateNamesResponseTests.cs)
 - [HomeServiceTests.cs](../NuciCraft.API.UnitTests/Service/HomeServiceTests.cs)
+- [ItemServiceTests.cs](../NuciCraft.API.UnitTests/Service/ItemServiceTests.cs)
 - [LocalisationTests.cs](../NuciCraft.API.UnitTests/Service/LocalisationTests.cs)
 - [MobServiceTests.cs](../NuciCraft.API.UnitTests/Service/MobServiceTests.cs)
 - [MobTypeTests.cs](../NuciCraft.API.UnitTests/Service/MobTypeTests.cs)
@@ -348,6 +366,10 @@ ZoneType:
 - [MappingExtensionsTests.cs](../NuciCraft.API.UnitTests/Service/Mapping/MappingExtensionsTests.cs)
 - [MappingMethodInvoker.cs](../NuciCraft.API.UnitTests/Service/Mapping/MappingMethodInvoker.cs)
 - [GetCountryResponseTests.cs](../NuciCraft.API.UnitTests/Responses/GetCountryResponseTests.cs)
+- [GetHomeResponseTests.cs](../NuciCraft.API.UnitTests/Responses/GetHomeResponseTests.cs)
+- [GetHomesResponseTests.cs](../NuciCraft.API.UnitTests/Responses/GetHomesResponseTests.cs)
+- [GetItemResponseTests.cs](../NuciCraft.API.UnitTests/Responses/GetItemResponseTests.cs)
+- [GetMobNameResponseTests.cs](../NuciCraft.API.UnitTests/Responses/GetMobNameResponseTests.cs)
 - [GetPlayerResponseTests.cs](../NuciCraft.API.UnitTests/Responses/GetPlayerResponseTests.cs)
 - [GetRtpLocationResponseTests.cs](../NuciCraft.API.UnitTests/Responses/GetRtpLocationResponseTests.cs)
 - [GetWorldResponseTests.cs](../NuciCraft.API.UnitTests/Responses/GetWorldResponseTests.cs)
@@ -364,6 +386,8 @@ ZoneType:
 - [ApiTestHost.cs](../NuciCraft.API.IntegrationTests/ApiTestHost.cs)
 - [CountriesApiTests.cs](../NuciCraft.API.IntegrationTests/CountriesApiTests.cs)
 - [HomesApiTests.cs](../NuciCraft.API.IntegrationTests/HomesApiTests.cs)
+- [InMemoryRepository.cs](../NuciCraft.API.IntegrationTests/InMemoryRepository.cs)
+- [ItemsApiTests.cs](../NuciCraft.API.IntegrationTests/ItemsApiTests.cs)
 - [MobsApiTests.cs](../NuciCraft.API.IntegrationTests/MobsApiTests.cs)
 - [PersistenceApiTests.cs](../NuciCraft.API.IntegrationTests/PersistenceApiTests.cs)
 - [PlayersApiTests.cs](../NuciCraft.API.IntegrationTests/PlayersApiTests.cs)

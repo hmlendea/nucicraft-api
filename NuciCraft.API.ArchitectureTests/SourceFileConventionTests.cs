@@ -143,6 +143,51 @@ namespace NuciCraft.API.ArchitectureTests
             Assert.That(violations, Is.Empty, string.Join(Environment.NewLine, violations));
         }
 
+        [TestCaseSource(nameof(SourceFiles))]
+        public void GivenASourceFile_WhenCheckingTransportContracts_ThenIdentifierPropertiesAreSerialisedAsId(
+            object sourceProject,
+            object sourceTree)
+        {
+            SyntaxTree tree = (SyntaxTree)sourceTree;
+            CompilationUnitSyntax root = (CompilationUnitSyntax)tree.GetRoot();
+            BaseNamespaceDeclarationSyntax namespaceDeclaration = root.DescendantNodes()
+                .OfType<BaseNamespaceDeclarationSyntax>()
+                .Single();
+            bool isTransportContract = namespaceDeclaration.Name.ToString()
+                    .EndsWith(".Requests", StringComparison.Ordinal) ||
+                namespaceDeclaration.Name.ToString().EndsWith(".Responses", StringComparison.Ordinal);
+
+            if (!isTransportContract)
+            {
+                Assert.Ignore("The rule targets transport contracts only.");
+            }
+
+            List<string> violations = [];
+            PropertyDeclarationSyntax[] identifierProperties = [.. tree.GetRoot().DescendantNodes()
+                .OfType<PropertyDeclarationSyntax>()
+                .Where(property => property.Identifier.ValueText == "Identifier")];
+
+            if (identifierProperties.Length < 1)
+            {
+                Assert.Ignore("Files without an Identifier contract have no selector to check.");
+            }
+
+            foreach (PropertyDeclarationSyntax property in identifierProperties)
+            {
+                bool hasIdMapping = property.DescendantNodes().OfType<AttributeListSyntax>()
+                    .SelectMany(list => list.Attributes)
+                    .Any(attribute => attribute.Name.ToString() is "JsonPropertyName" or "JsonIgnore");
+
+                if (!hasIdMapping)
+                {
+                    violations.Add(
+                        $"{SourceProject.Location(property)}: Identifier properties must declare JsonPropertyName(\"id\") or JsonIgnore.");
+                }
+            }
+
+            Assert.That(violations, Is.Empty, string.Join(Environment.NewLine, violations));
+        }
+
         private static string ForbiddenForm(SyntaxNode node)
             => node switch
             {

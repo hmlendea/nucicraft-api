@@ -118,7 +118,7 @@ One singleton `IFileRepository<T>` maps to one configured JSON file. Exact dupli
 
 ## Filesystem Contract
 
-The process requires seven path strings. Before request handling it creates absent parent directories and absent files containing `[]`, then repositories must enumerate every file successfully.
+The process requires eight path strings. Before request handling it creates absent parent directories and absent files containing `[]`, then repositories must enumerate every file successfully.
 
 Deployment must provide:
 - Read and write access.

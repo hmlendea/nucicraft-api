@@ -31,7 +31,7 @@ sequenceDiagram
     participant Extensions as ServiceCollectionExtensions
     participant DI as Service Provider
     participant FS as Filesystem
-    participant Repo as Seven Repositories
+    participant Repo as Eight Repositories
 
     OS->>Program: Main(args)
     Program->>Program: CreateHostBuilder(args)
@@ -49,11 +49,11 @@ sequenceDiagram
     Extensions->>DI: Add repositories, client, services, utilities, logger
     Host->>Startup: Configure(applicationBuilder, environment)
     Startup->>DI: Resolve DataStoreSettings
-    loop Seven configured paths
+    loop Eight configured paths
         Startup->>FS: Create directory if absent
         Startup->>FS: Write [] if file absent
     end
-    loop Seven record types
+    loop Eight record types
         Startup->>DI: Resolve IFileRepository<T>
         Startup->>Repo: GetAll().ToList()
     end
@@ -82,9 +82,9 @@ No validation executes at binding time.
 ### Phase 3: Runtime Dependency Selection
 
 `AddCustomServices` registers:
-1. Seven singleton JSON repositories using path delegates.
+1. Eight singleton JSON repositories using path delegates.
 2. Singleton `NuciApiClient` using generator BaseUrl.
-3. Nine singleton application service implementations.
+3. Eleven singleton application service implementations and the sign-ID generator dependency.
 4. Two singleton NuciText utilities.
 5. Scoped `NuciLogger` as `ILogger`.
 
@@ -148,7 +148,7 @@ No local catch, retry, fallback, rollback, or partial endpoint activation exists
 On success:
 - Six application settings singletons are bound.
 - Every runtime dependency is registered.
-- Seven store paths exist and each repository has successfully enumerated.
+- Eight store paths exist and each repository has successfully enumerated.
 - Middleware and controller endpoints are configured.
 - The host can accept requests.
 
