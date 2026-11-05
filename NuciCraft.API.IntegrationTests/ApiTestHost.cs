@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -168,8 +169,8 @@ namespace NuciCraft.API.IntegrationTests
                 services.AddSingleton(nameGeneratorClientMock.Object);
                 Mock<IServerStatusService> serverStatusServiceMock = new();
                 serverStatusServiceMock
-                    .Setup(service => service.GetOnlinePlayersCount())
-                    .Returns(42);
+                    .Setup(service => service.GetOnlinePlayersCountAsync(It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(42);
                 services.RemoveAll<IServerStatusService>();
                 services.AddSingleton(serverStatusServiceMock.Object);
             });

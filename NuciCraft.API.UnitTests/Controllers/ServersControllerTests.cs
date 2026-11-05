@@ -1,3 +1,6 @@
+using System.Threading;
+using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
@@ -39,7 +42,7 @@ namespace NuciCraft.API.UnitTests.Controllers
         [TestCase("Testy McTestface", "example.invalid", 613, 613)]
         [TestCase("", "", 0, 0)]
         [TestCase(null, null, 0, 0)]
-        public void GivenServerSettings_WhenRetrievingServerInformation_ThenTheValuesArePreserved(
+        public async Task GivenServerSettings_WhenRetrievingServerInformation_ThenTheValuesArePreserved(
             string name,
             string hostname,
             int javaEditionPort,
@@ -50,7 +53,11 @@ namespace NuciCraft.API.UnitTests.Controllers
             serverSettings.JavaEditionPort = javaEditionPort;
             serverSettings.BedrockEditionPort = bedrockEditionPort;
 
-            OkObjectResult result = controller.Get() as OkObjectResult;
+            serverStatusServiceMock
+                .Setup(service => service.GetOnlinePlayersCountAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(0);
+
+            OkObjectResult result = await controller.GetAsync(CancellationToken.None) as OkObjectResult;
 
             Assert.That(result, Is.Not.Null);
 
@@ -69,19 +76,19 @@ namespace NuciCraft.API.UnitTests.Controllers
         [TestCase(42)]
         [TestCase(613)]
         [TestCase(int.MaxValue)]
-        public void GivenALivePlayerCount_WhenRetrievingServerInformation_ThenTheCountIsReturned(
+        public async Task GivenALivePlayerCount_WhenRetrievingServerInformation_ThenTheCountIsReturned(
             int onlinePlayersCount)
         {
             serverStatusServiceMock
-                .Setup(service => service.GetOnlinePlayersCount())
-                .Returns(onlinePlayersCount);
+                .Setup(service => service.GetOnlinePlayersCountAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(onlinePlayersCount);
 
-            OkObjectResult result = controller.Get() as OkObjectResult;
+            OkObjectResult result = await controller.GetAsync(CancellationToken.None) as OkObjectResult;
             NuciApiContentResponse<GetServerResponse> response =
                 result.Value as NuciApiContentResponse<GetServerResponse>;
 
             Assert.That(response.Content.OnlinePlayersCount, Is.EqualTo(onlinePlayersCount));
-            serverStatusServiceMock.Verify(service => service.GetOnlinePlayersCount(), Times.Once);
+            serverStatusServiceMock.Verify(service => service.GetOnlinePlayersCountAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

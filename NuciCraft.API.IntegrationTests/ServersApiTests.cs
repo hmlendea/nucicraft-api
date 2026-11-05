@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -49,8 +50,8 @@ namespace NuciCraft.API.IntegrationTests
             int onlinePlayersCount)
         {
             serverStatusServiceMock
-                .Setup(service => service.GetOnlinePlayersCount())
-                .Returns(onlinePlayersCount);
+                .Setup(service => service.GetOnlinePlayersCountAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(onlinePlayersCount);
 
             using HttpResponseMessage response = await client.GetAsync(ServerRoute);
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -81,8 +82,8 @@ namespace NuciCraft.API.IntegrationTests
                 JavaEditionPort = endpoint.Port
             });
             serverStatusServiceMock
-                .Setup(statusService => statusService.GetOnlinePlayersCount())
-                .Returns(service.GetOnlinePlayersCount);
+                .Setup(statusService => statusService.GetOnlinePlayersCountAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(await service.GetOnlinePlayersCountAsync().ConfigureAwait(false));
 
             using HttpResponseMessage response = await client.GetAsync(ServerRoute);
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -98,8 +99,8 @@ namespace NuciCraft.API.IntegrationTests
         public async Task GivenAnInvalidJavaStatus_WhenRetrievingServerInformation_ThenAnErrorIsReturned()
         {
             serverStatusServiceMock
-                .Setup(service => service.GetOnlinePlayersCount())
-                .Throws(new InvalidOperationException("The Java status query failed."));
+                .Setup(service => service.GetOnlinePlayersCountAsync(It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new InvalidOperationException("The Java status query failed."));
 
             using HttpResponseMessage response = await client.GetAsync(ServerRoute);
 
@@ -121,7 +122,7 @@ namespace NuciCraft.API.IntegrationTests
             using HttpResponseMessage response = await client.GetAsync(ServerRoute);
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
-            serverStatusServiceMock.Verify(service => service.GetOnlinePlayersCount(), Times.Never);
+            serverStatusServiceMock.Verify(service => service.GetOnlinePlayersCountAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
     }
 }

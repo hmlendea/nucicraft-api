@@ -84,11 +84,11 @@ namespace NuciCraft.API.IntegrationTests
                 Throws.TypeOf<FormatException>());
 
         [Test]
-        public void GivenAnUnavailableServer_WhenQueryingItsPlayerCount_ThenZeroIsReturned()
+        public async Task GivenAnUnavailableServer_WhenQueryingItsPlayerCount_ThenZeroIsReturned()
         {
             listener.Stop();
 
-            Assert.That(service.GetOnlinePlayersCount(), Is.Zero);
+            Assert.That(await service.GetOnlinePlayersCountAsync(), Is.Zero);
         }
 
         [Test]
@@ -104,7 +104,7 @@ namespace NuciCraft.API.IntegrationTests
         public async Task GivenNoServerReply_WhenQueryingItsPlayerCount_ThenZeroIsReturned(
             bool connectionIsClosed)
         {
-            Task<int> query = Task.Run(service.GetOnlinePlayersCount);
+            Task<int> query = Task.Run(() => service.GetOnlinePlayersCountAsync());
             using TcpClient connection = await listener.AcceptTcpClientAsync().WaitAsync(TestTimeout);
 
             if (connectionIsClosed)
@@ -119,7 +119,7 @@ namespace NuciCraft.API.IntegrationTests
 
         private async Task<int> QueryServerAsync(string payload)
         {
-            Task<int> query = Task.Run(service.GetOnlinePlayersCount);
+            Task<int> query = Task.Run(() => service.GetOnlinePlayersCountAsync());
             using TcpClient connection = await listener.AcceptTcpClientAsync().WaitAsync(TestTimeout);
             using NetworkStream stream = connection.GetStream();
             byte[] request = new byte[2];

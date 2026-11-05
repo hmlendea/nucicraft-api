@@ -39,11 +39,11 @@ namespace NuciCraft.API.Controllers
                 request.Count = count.Value;
             }
 
-            return await ProcessRequest(
+            return ProcessRequest(
                 request,
-                async () => new NuciApiContentResponse<GetMobNameResponse>(new()
+                () => new NuciApiContentResponse<GetMobNameResponse>(new()
                 {
-                    Names = await service.GetRandomMobNameAsync(request, cancellationToken)
+                    Names = service.GetRandomMobNameAsync(request, cancellationToken).GetAwaiter().GetResult()
                 }),
                 authorisation);
         }
