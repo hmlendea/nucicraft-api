@@ -1,3 +1,6 @@
+using System.Threading;
+using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Mvc;
 
 using NuciAPI.Controllers;
@@ -21,15 +24,15 @@ namespace NuciCraft.API.Controllers
             NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
 
         [HttpGet]
-        public ActionResult Get() => ProcessRequest(
+        public async Task<ActionResult> GetAsync(CancellationToken cancellationToken) => await ProcessRequest(
             new GetServerRequest(),
-            () => new NuciApiContentResponse<GetServerResponse>(new()
+            async () => new NuciApiContentResponse<GetServerResponse>(new()
             {
                 Name = serverSettings.Name,
                 Hostname = serverSettings.Hostname,
                 JavaEditionPort = serverSettings.JavaEditionPort,
                 BedrockEditionPort = serverSettings.BedrockEditionPort,
-                OnlinePlayersCount = serverStatusService.GetOnlinePlayersCount()
+                OnlinePlayersCount = await serverStatusService.GetOnlinePlayersCountAsync(cancellationToken).ConfigureAwait(false)
             }),
             authorisation);
     }

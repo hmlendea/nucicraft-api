@@ -1,3 +1,6 @@
+using System.Threading;
+using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Mvc;
 
 using NuciAPI.Controllers;
@@ -7,6 +10,7 @@ using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Responses;
 using NuciCraft.API.Service;
+using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Controllers
 {
@@ -20,31 +24,41 @@ namespace NuciCraft.API.Controllers
 
         [HttpGet]
         [Route("check-ip")]
-        public ActionResult CheckIp(
-            [FromQuery] CheckIpRequest request)
-            => ProcessRequest(
+        public async Task<ActionResult> CheckIp(
+            [FromQuery] CheckIpRequest request,
+            CancellationToken cancellationToken)
+        {
+            IpCheckResult result = await service.CheckIpAsync(request, cancellationToken);
+
+            return ProcessRequest(
                 request,
                 () => new NuciApiContentResponse<CheckIpResponse>(
                     new CheckIpResponse
                     {
-                        IsAllowed = service.CheckIp(request).IsAllowed,
-                        DeniedReason = service.CheckIp(request).DeniedReason,
-                        CountryCode = service.CheckIp(request).CountryCode
+                        IsAllowed = result.IsAllowed,
+                        DeniedReason = result.DeniedReason,
+                        CountryCode = result.CountryCode
                     }),
                 authorisation);
+        }
 
         [HttpGet]
         [Route("check-username")]
-        public ActionResult CheckUsername(
-            [FromQuery] CheckUsernameRequest request)
-            => ProcessRequest(
+        public async Task<ActionResult> CheckUsername(
+            [FromQuery] CheckUsernameRequest request,
+            CancellationToken cancellationToken)
+        {
+            UsernameCheckResult result = await service.CheckUsernameAsync(request, cancellationToken);
+
+            return ProcessRequest(
                 request,
                 () => new NuciApiContentResponse<CheckUsernameResponse>(
                     new CheckUsernameResponse
                     {
-                        IsAllowed = service.CheckUsername(request).IsAllowed,
-                        DeniedReason = service.CheckUsername(request).DeniedReason
+                        IsAllowed = result.IsAllowed,
+                        DeniedReason = result.DeniedReason
                     }),
                 authorisation);
+        }
     }
 }

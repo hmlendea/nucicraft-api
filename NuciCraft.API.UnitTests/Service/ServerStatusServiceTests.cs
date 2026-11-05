@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 using NUnit.Framework;
 
@@ -28,12 +29,14 @@ namespace NuciCraft.API.UnitTests.Service
         [TestCase("")]
         [TestCase(" ")]
         [TestCase("\t\r\n")]
-        public void GivenAMissingHostname_WhenRetrievingThePlayerCount_ThenTheConfigurationIsRejected(
+        public async Task GivenAMissingHostname_WhenRetrievingThePlayerCount_ThenTheConfigurationIsRejected(
             string hostname)
         {
             settings.Hostname = hostname;
 
-            Assert.That(service.GetOnlinePlayersCount, Throws.InstanceOf<ArgumentException>());
+            await Assert.ThatAsync(
+                async () => await service.GetOnlinePlayersCountAsync(),
+                Throws.InstanceOf<ArgumentException>());
         }
 
         [TestCase(int.MinValue)]
@@ -41,12 +44,14 @@ namespace NuciCraft.API.UnitTests.Service
         [TestCase(0)]
         [TestCase(65536)]
         [TestCase(int.MaxValue)]
-        public void GivenAnInvalidJavaPort_WhenRetrievingThePlayerCount_ThenTheConfigurationIsRejected(
+        public async Task GivenAnInvalidJavaPort_WhenRetrievingThePlayerCount_ThenTheConfigurationIsRejected(
             int port)
         {
             settings.JavaEditionPort = port;
 
-            Assert.That(service.GetOnlinePlayersCount, Throws.TypeOf<ArgumentOutOfRangeException>());
+            await Assert.ThatAsync(
+                async () => await service.GetOnlinePlayersCountAsync(),
+                Throws.TypeOf<ArgumentOutOfRangeException>());
         }
     }
 }

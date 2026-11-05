@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Reflection;
+using System.Threading.Tasks;
 
 using Moq;
+
 using NUnit.Framework;
 
 using NuciAPI.Client;
@@ -54,7 +56,7 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenASupportedMobType_WhenGettingRandomMobNames_ThenTheGeneratedNamesAreReturned()
+        public async Task GivenASupportedMobType_WhenGettingRandomMobNames_ThenTheGeneratedNamesAreReturned()
         {
             IEnumerable<string> expectedNames = ["Ilarion"];
             universalNameGeneratorClientMock
@@ -66,14 +68,14 @@ namespace NuciCraft.API.UnitTests.Service
                         "Names"))
                 .ReturnsAsync(BuildGenerateNamesApiResponse(expectedNames));
 
-            IEnumerable<string> generatedNames = mobService.GetRandomMobName(
+            IEnumerable<string> generatedNames = await mobService.GetRandomMobNameAsync(
                 BuildGetMobNameRequest());
 
             Assert.That(generatedNames, Is.EqualTo(expectedNames));
         }
 
         [Test]
-        public void GivenASupportedMobType_WhenGettingARandomMobName_ThenTheUniversalNameGeneratorRequestIsBuiltCorrectly()
+        public async Task GivenASupportedMobType_WhenGettingARandomMobName_ThenTheUniversalNameGeneratorRequestIsBuiltCorrectly()
         {
             GenerateNamesRequest capturedRequest = null;
             NuciApiRequestAuthorisationInfo capturedAuthorisationInfo = null;
@@ -99,7 +101,7 @@ namespace NuciCraft.API.UnitTests.Service
                     })
                 .ReturnsAsync(BuildGenerateNamesApiResponse(["Ilarion"]));
 
-            mobService.GetRandomMobName(request);
+            await mobService.GetRandomMobNameAsync(request);
 
             Assert.That(capturedRequest, Is.Not.Null);
             Assert.That(capturedAuthorisationInfo, Is.Not.Null);
@@ -113,7 +115,7 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenTheEnderDragonMobType_WhenGettingARandomMobName_ThenTheFantasyDragonsSchemaIsUsed()
+        public async Task GivenTheEnderDragonMobType_WhenGettingARandomMobName_ThenTheFantasyDragonsSchemaIsUsed()
         {
             GenerateNamesRequest capturedRequest = null;
 
@@ -132,7 +134,7 @@ namespace NuciCraft.API.UnitTests.Service
                         endpoint) => capturedRequest = request)
                 .ReturnsAsync(BuildGenerateNamesApiResponse(["Smaug"]));
 
-            mobService.GetRandomMobName(
+            await mobService.GetRandomMobNameAsync(
                 BuildGetMobNameRequest(MobType.EnderDragon));
 
             Assert.That(capturedRequest, Is.Not.Null);
@@ -141,7 +143,7 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenTheCowMobType_WhenGettingARandomMobName_ThenTheRomanianAnimalsCowsSchemaIsUsed()
+        public async Task GivenTheCowMobType_WhenGettingARandomMobName_ThenTheRomanianAnimalsCowsSchemaIsUsed()
         {
             GenerateNamesRequest capturedRequest = null;
 
@@ -160,7 +162,7 @@ namespace NuciCraft.API.UnitTests.Service
                         endpoint) => capturedRequest = request)
                 .ReturnsAsync(BuildGenerateNamesApiResponse(["Ilarion"]));
 
-            mobService.GetRandomMobName(
+            await mobService.GetRandomMobNameAsync(
                 BuildGetMobNameRequest(MobType.Cow));
 
             Assert.That(capturedRequest, Is.Not.Null);
@@ -169,7 +171,7 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenThePigMobType_WhenGettingARandomMobName_ThenTheRomanianAnimalsPigsSchemaIsUsed()
+        public async Task GivenThePigMobType_WhenGettingARandomMobName_ThenTheRomanianAnimalsPigsSchemaIsUsed()
         {
             GenerateNamesRequest capturedRequest = null;
 
@@ -188,7 +190,7 @@ namespace NuciCraft.API.UnitTests.Service
                         endpoint) => capturedRequest = request)
                 .ReturnsAsync(BuildGenerateNamesApiResponse(["Ilarion"]));
 
-            mobService.GetRandomMobName(
+            await mobService.GetRandomMobNameAsync(
                 BuildGetMobNameRequest(MobType.Pig));
 
             Assert.That(capturedRequest, Is.Not.Null);
@@ -200,7 +202,7 @@ namespace NuciCraft.API.UnitTests.Service
         [TestCase("illusioner")]
         [TestCase("pillager")]
         [TestCase("vindicator")]
-        public void GivenTheNewIllagerMobType_WhenGettingARandomMobName_ThenThePinchedUniverseZaganianPersonsMaleSchemaIsUsed(
+        public async Task GivenTheNewIllagerMobType_WhenGettingARandomMobName_ThenThePinchedUniverseZaganianPersonsMaleSchemaIsUsed(
             string mobTypeName)
         {
             GenerateNamesRequest capturedRequest = null;
@@ -220,7 +222,7 @@ namespace NuciCraft.API.UnitTests.Service
                         endpoint) => capturedRequest = request)
                 .ReturnsAsync(BuildGenerateNamesApiResponse(["Radu"]));
 
-            mobService.GetRandomMobName(new GetMobNameRequest
+            await mobService.GetRandomMobNameAsync(new GetMobNameRequest
             {
                 MobType = mobTypeName
             });
@@ -233,7 +235,7 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenTheVillageMobType_WhenGettingARandomMobName_ThenARomanianPersonSchemaIsUsed()
+        public async Task GivenTheVillageMobType_WhenGettingARandomMobName_ThenARomanianPersonSchemaIsUsed()
         {
             GenerateNamesRequest capturedRequest = null;
 
@@ -252,7 +254,7 @@ namespace NuciCraft.API.UnitTests.Service
                         endpoint) => capturedRequest = request)
                 .ReturnsAsync(BuildGenerateNamesApiResponse(["Mary"]));
 
-            mobService.GetRandomMobName(
+            await mobService.GetRandomMobNameAsync(
                 BuildGetMobNameRequest(MobType.Villager));
 
             Assert.That(capturedRequest, Is.Not.Null);
@@ -282,13 +284,13 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenAnUnsupportedMobType_WhenGettingARandomMobName_ThenANotImplementedExceptionIsThrown()
+        public async Task GivenAnUnsupportedMobType_WhenGettingARandomMobName_ThenANotImplementedExceptionIsThrown()
         {
             GetMobNameRequest request = BuildGetMobNameRequest();
             request.MobType = "zombie";
 
             Assert.That(
-                () => mobService.GetRandomMobName(request),
+                () => mobService.GetRandomMobNameAsync(request),
                 Throws.TypeOf<NotImplementedException>());
 
             universalNameGeneratorClientMock.Verify(
@@ -301,7 +303,7 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenAnEmptyUniversalNameGeneratorResponse_WhenGettingARandomMobName_ThenAnInvalidOperationExceptionIsThrown()
+        public async Task GivenAnEmptyUniversalNameGeneratorResponse_WhenGettingARandomMobName_ThenAnInvalidOperationExceptionIsThrown()
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
@@ -313,12 +315,12 @@ namespace NuciCraft.API.UnitTests.Service
                 .ReturnsAsync(BuildGenerateNamesApiResponse([]));
 
             Assert.That(
-                () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
+                () => mobService.GetRandomMobNameAsync(BuildGetMobNameRequest()),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
         [Test]
-        public void GivenNullNamesInTheUniversalNameGeneratorResponse_WhenGettingARandomMobName_ThenAnInvalidOperationExceptionIsThrown()
+        public async Task GivenNullNamesInTheUniversalNameGeneratorResponse_WhenGettingARandomMobName_ThenAnInvalidOperationExceptionIsThrown()
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
@@ -330,12 +332,12 @@ namespace NuciCraft.API.UnitTests.Service
                 .ReturnsAsync(BuildGenerateNamesApiResponse(null));
 
             Assert.That(
-                () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
+                () => mobService.GetRandomMobNameAsync(BuildGetMobNameRequest()),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
         [Test]
-        public void GivenASuccessfulUnexpectedResponseType_WhenGettingARandomMobName_ThenAnInvalidOperationExceptionIsThrown()
+        public async Task GivenASuccessfulUnexpectedResponseType_WhenGettingARandomMobName_ThenAnInvalidOperationExceptionIsThrown()
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
@@ -347,12 +349,12 @@ namespace NuciCraft.API.UnitTests.Service
                 .ReturnsAsync((NuciApiResponse)new NuciApiSuccessResponse());
 
             Assert.That(
-                () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
+                () => mobService.GetRandomMobNameAsync(BuildGetMobNameRequest()),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
         [Test]
-        public void GivenANullUniversalNameGeneratorResponse_WhenGettingARandomMobName_ThenAnArgumentNullExceptionIsThrown()
+        public async Task GivenANullUniversalNameGeneratorResponse_WhenGettingARandomMobName_ThenAnArgumentNullExceptionIsThrown()
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
@@ -364,12 +366,12 @@ namespace NuciCraft.API.UnitTests.Service
                 .ReturnsAsync((NuciApiResponse)null);
 
             Assert.That(
-                () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
+                () => mobService.GetRandomMobNameAsync(BuildGetMobNameRequest()),
                 Throws.TypeOf<ArgumentNullException>());
         }
 
         [Test]
-        public void GivenAnUngErrorResponse_WhenGettingARandomMobName_ThenAnInvalidOperationExceptionContainsTheUngFailureDetails()
+        public async Task GivenAnUngErrorResponse_WhenGettingARandomMobName_ThenAnInvalidOperationExceptionContainsTheUngFailureDetails()
         {
             universalNameGeneratorClientMock
                 .Setup(client => client
@@ -385,42 +387,42 @@ namespace NuciCraft.API.UnitTests.Service
                 });
 
             Assert.That(
-                () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
+                () => mobService.GetRandomMobNameAsync(BuildGetMobNameRequest()),
                 Throws.TypeOf<InvalidOperationException>()
                     .With.Message.Contains("AUTHENTICATION_FAILURE")
                     .And.Message.Contains("The authentication has failed."));
         }
 
         [Test]
-        public void GivenAMissingBaseUrl_WhenGettingARandomMobName_ThenAnArgumentExceptionIsThrown()
+        public async Task GivenAMissingBaseUrl_WhenGettingARandomMobName_ThenAnArgumentExceptionIsThrown()
         {
             settings.BaseUrl = string.Empty;
 
             Assert.That(
-                () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
+                () => mobService.GetRandomMobNameAsync(BuildGetMobNameRequest()),
                 Throws.TypeOf<ArgumentException>());
         }
 
         [Test]
-        public void GivenAMissingApiKey_WhenGettingARandomMobName_ThenAnArgumentExceptionIsThrown()
+        public async Task GivenAMissingApiKey_WhenGettingARandomMobName_ThenAnArgumentExceptionIsThrown()
         {
             settings.ApiKey = string.Empty;
 
             Assert.That(
-                () => mobService.GetRandomMobName(BuildGetMobNameRequest()),
+                () => mobService.GetRandomMobNameAsync(BuildGetMobNameRequest()),
                 Throws.TypeOf<ArgumentException>());
         }
 
         [Test]
-        public void GivenANullRequest_WhenGettingARandomMobName_ThenAnArgumentNullExceptionIsThrown()
+        public async Task GivenANullRequest_WhenGettingARandomMobName_ThenAnArgumentNullExceptionIsThrown()
             => Assert.That(
-                () => mobService.GetRandomMobName(null),
+                () => mobService.GetRandomMobNameAsync(null),
                 Throws.TypeOf<ArgumentNullException>());
 
         [Test]
-        public void GivenAWhitespaceMobType_WhenGettingARandomMobName_ThenAnArgumentExceptionIsThrown()
+        public async Task GivenAWhitespaceMobType_WhenGettingARandomMobName_ThenAnArgumentExceptionIsThrown()
             => Assert.That(
-                () => mobService.GetRandomMobName(new GetMobNameRequest { MobType = " " }),
+                () => mobService.GetRandomMobNameAsync(new GetMobNameRequest { MobType = " " }),
                 Throws.TypeOf<ArgumentException>());
 
         [Test]

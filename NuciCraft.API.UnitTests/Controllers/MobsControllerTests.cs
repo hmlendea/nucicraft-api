@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,16 +47,16 @@ namespace NuciCraft.API.UnitTests.Controllers
         }
 
         [Test]
-        public void GivenNoCount_WhenGettingRandomMobNames_ThenOneGeneratedNameIsReturned()
+        public async Task GivenNoCount_WhenGettingRandomMobNames_ThenOneGeneratedNameIsReturned()
         {
             GetMobNameRequest capturedRequest = null;
             IEnumerable<string> generatedNames = ["Ilarion"];
             serviceMock
-                .Setup(service => service.GetRandomMobName(It.IsAny<GetMobNameRequest>()))
-                .Callback<GetMobNameRequest>(request => capturedRequest = request)
-                .Returns(generatedNames);
+                .Setup(service => service.GetRandomMobNameAsync(It.IsAny<GetMobNameRequest>(), It.IsAny<CancellationToken>()))
+                .Callback<GetMobNameRequest, CancellationToken>((request, _) => capturedRequest = request)
+                .ReturnsAsync(generatedNames);
 
-            OkObjectResult result = controller.GetRandomMobName("villager", null) as OkObjectResult;
+            OkObjectResult result = await controller.GetRandomMobName("villager", null, CancellationToken.None) as OkObjectResult;
             NuciApiContentResponse<GetMobNameResponse> response =
                 result.Value as NuciApiContentResponse<GetMobNameResponse>;
             GetMobNameResponse content = response.Content;
@@ -65,7 +67,7 @@ namespace NuciCraft.API.UnitTests.Controllers
         }
 
         [Test]
-        public void GivenACount_WhenGettingRandomMobNames_ThenThatManyGeneratedNamesAreReturned()
+        public async Task GivenACount_WhenGettingRandomMobNames_ThenThatManyGeneratedNamesAreReturned()
         {
             GetMobNameRequest capturedRequest = null;
             IEnumerable<string> generatedNames =
@@ -76,11 +78,11 @@ namespace NuciCraft.API.UnitTests.Controllers
                 "Tibi"
             ];
             serviceMock
-                .Setup(service => service.GetRandomMobName(It.IsAny<GetMobNameRequest>()))
-                .Callback<GetMobNameRequest>(request => capturedRequest = request)
-                .Returns(generatedNames);
+                .Setup(service => service.GetRandomMobNameAsync(It.IsAny<GetMobNameRequest>(), It.IsAny<CancellationToken>()))
+                .Callback<GetMobNameRequest, CancellationToken>((request, _) => capturedRequest = request)
+                .ReturnsAsync(generatedNames);
 
-            OkObjectResult result = controller.GetRandomMobName("villager", 4) as OkObjectResult;
+            OkObjectResult result = await controller.GetRandomMobName("villager", 4, CancellationToken.None) as OkObjectResult;
             NuciApiContentResponse<GetMobNameResponse> response =
                 result.Value as NuciApiContentResponse<GetMobNameResponse>;
             GetMobNameResponse content = response.Content;

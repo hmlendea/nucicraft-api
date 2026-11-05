@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using NUnit.Framework;
 
@@ -128,6 +129,40 @@ namespace NuciCraft.API.UnitTests.Service.Generators
             List<string> result = signIdGenerator.GenerateDefaultSignIds("minecraft:diamond_sword");
 
             Assert.That(result, Has.Exactly(1).Items);
+        }
+
+        [Test]
+        public void GetNextId_ParallelStress_NoDuplicateIds()
+        {
+            const int threadCount = 16;
+            const int iterationsPerThread = 1000;
+            HashSet<int> generatedIds = [];
+            object lockObject = new();
+
+            Parallel.For(0, threadCount, _ =>
+            {
+                for (int i = 0; i < iterationsPerThread; i++)
+                {
+                    int id = signIdGenerator.GetNextId();
+                    lock (lockObject)
+                    {
+                        Assert.That(generatedIds.Add(id), Is.True, $"Duplicate ID generated: {id}");
+                    }
+                }
+            });
+
+            Assert.That(generatedIds.Count, Is.EqualTo(threadCount * iterationsPerThread));
+        }
+
+        [Test]
+        public void GetNextId_Sequential_IncrementsByOne()
+        {
+            int firstId = signIdGenerator.GetNextId();
+            int secondId = signIdGenerator.GetNextId();
+            int thirdId = signIdGenerator.GetNextId();
+
+            Assert.That(secondId, Is.EqualTo(firstId + 1));
+            Assert.That(thirdId, Is.EqualTo(secondId + 1));
         }
     }
 }

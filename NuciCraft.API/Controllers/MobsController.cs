@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,9 +25,10 @@ namespace NuciCraft.API.Controllers
             NuciApiAuthorisation.ApiKey(securitySettings.ApiKey);
 
         [HttpGet("{mobType}/random-name")]
-        public ActionResult GetRandomMobName(
+        public async Task<ActionResult> GetRandomMobName(
             [FromRoute] string mobType,
-            [FromQuery, Range(1, 100000)] int? count)
+            [FromQuery, Range(1, 100000)] int? count,
+            CancellationToken cancellationToken)
         {
             GetMobNameRequest request = new()
             {
@@ -36,11 +40,13 @@ namespace NuciCraft.API.Controllers
                 request.Count = count.Value;
             }
 
+            IEnumerable<string> names = await service.GetRandomMobNameAsync(request, cancellationToken);
+
             return ProcessRequest(
                 request,
                 () => new NuciApiContentResponse<GetMobNameResponse>(new()
                 {
-                    Names = service.GetRandomMobName(request)
+                    Names = names
                 }),
                 authorisation);
         }

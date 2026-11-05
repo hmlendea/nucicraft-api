@@ -79,7 +79,14 @@ namespace NuciCraft.API.Service
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(homeIdentifier);
 
-            return repository.Get(homeIdentifier).ToServiceModel();
+            HomeDataObject homeDataObject = repository.Get(homeIdentifier);
+
+            if (homeDataObject is null)
+            {
+                throw new KeyNotFoundException($"No home found with identifier '{homeIdentifier}'.");
+            }
+
+            return homeDataObject.ToServiceModel();
         });
 
         public Home Get(string playerIdentifier, string name) => Execute(MyOperation.GetHome, () =>
@@ -116,7 +123,14 @@ namespace NuciCraft.API.Service
         {
             ArgumentNullException.ThrowIfNull(request);
             ArgumentException.ThrowIfNullOrWhiteSpace(request.Identifier);
-            HomeDataObject home = repository.Get(request.Identifier).ToServiceModel().ToDataObject();
+            HomeDataObject homeDataObject = repository.Get(request.Identifier);
+
+            if (homeDataObject is null)
+            {
+                throw new KeyNotFoundException($"No home found with identifier '{request.Identifier}'.");
+            }
+
+            HomeDataObject home = homeDataObject.ToServiceModel().ToDataObject();
             ApplyPatch(request, home);
             ValidateUniqueName(home);
             home.UpdatedDT = TimestampFormats.GetCurrentUtcTimestamp();

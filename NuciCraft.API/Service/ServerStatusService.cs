@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 using MineStatLib;
 
@@ -12,7 +14,9 @@ namespace NuciCraft.API.Service
     {
         private static int QueryTimeoutSeconds => 5;
 
-        public int GetOnlinePlayersCount()
+        public Task<int> GetOnlinePlayersCountAsync() => GetOnlinePlayersCountAsync(CancellationToken.None);
+
+        public async Task<int> GetOnlinePlayersCountAsync(CancellationToken cancellationToken)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(settings.Hostname);
             ArgumentOutOfRangeException.ThrowIfLessThan(settings.JavaEditionPort, 1);
@@ -22,17 +26,23 @@ namespace NuciCraft.API.Service
 
             try
             {
-                status = new(
-                    settings.Hostname,
-                    (ushort)settings.JavaEditionPort,
-                    QueryTimeoutSeconds,
-                    SlpProtocol.Legacy);
+                status = await Task.Run(
+                    () => new MineStat(
+                        settings.Hostname,
+                        (ushort)settings.JavaEditionPort,
+                        QueryTimeoutSeconds,
+                        SlpProtocol.Legacy),
+                    cancellationToken).ConfigureAwait(false);
             }
             catch (IOException)
             {
                 return 0;
             }
             catch (SocketException)
+            {
+                return 0;
+            }
+            catch (OperationCanceledException)
             {
                 return 0;
             }

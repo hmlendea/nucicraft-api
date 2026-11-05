@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -96,8 +97,8 @@ namespace NuciCraft.API.IntegrationTests
             {
                 Mock<IAccessControlService> accessControlServiceMock = new();
                 accessControlServiceMock
-                    .Setup(service => service.CheckIp(It.IsAny<CheckIpRequest>()))
-                    .Returns((CheckIpRequest request) => request.IpAddress switch
+                    .Setup(service => service.CheckIpAsync(It.IsAny<CheckIpRequest>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync((CheckIpRequest request, CancellationToken _) => request.IpAddress switch
                     {
                         "8.8.8.8" => new IpCheckResult
                         {
@@ -125,8 +126,8 @@ namespace NuciCraft.API.IntegrationTests
                         }
                     });
                 accessControlServiceMock
-                    .Setup(service => service.CheckUsername(It.IsAny<CheckUsernameRequest>()))
-                    .Returns((CheckUsernameRequest request) =>
+                    .Setup(service => service.CheckUsernameAsync(It.IsAny<CheckUsernameRequest>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync((CheckUsernameRequest request, CancellationToken _) =>
                     {
                         if (request.Username.Contains("player", StringComparison.OrdinalIgnoreCase))
                         {
@@ -168,8 +169,8 @@ namespace NuciCraft.API.IntegrationTests
                 services.AddSingleton(nameGeneratorClientMock.Object);
                 Mock<IServerStatusService> serverStatusServiceMock = new();
                 serverStatusServiceMock
-                    .Setup(service => service.GetOnlinePlayersCount())
-                    .Returns(42);
+                    .Setup(service => service.GetOnlinePlayersCountAsync(It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(42);
                 services.RemoveAll<IServerStatusService>();
                 services.AddSingleton(serverStatusServiceMock.Object);
             });

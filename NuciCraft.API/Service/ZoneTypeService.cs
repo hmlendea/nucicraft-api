@@ -63,7 +63,14 @@ namespace NuciCraft.API.Service
 
             try
             {
-                ZoneType zoneType = repository.Get(zoneTypeIdentifier).ToServiceModel();
+                ZoneTypeDataObject zoneTypeDataObject = repository.Get(zoneTypeIdentifier);
+
+                if (zoneTypeDataObject is null)
+                {
+                    throw new KeyNotFoundException($"No zone type found with identifier '{zoneTypeIdentifier}'.");
+                }
+
+                ZoneType zoneType = zoneTypeDataObject.ToServiceModel();
 
                 logger.Info(MyOperation.GetZoneType, OperationStatus.Success, logInfos);
 
@@ -131,6 +138,11 @@ namespace NuciCraft.API.Service
             try
             {
                 ZoneTypeDataObject zoneTypeDataObject = repository.Get(request.Identifier);
+
+                if (zoneTypeDataObject is null)
+                {
+                    throw new KeyNotFoundException($"No zone type found with identifier '{request.Identifier}'.");
+                }
 
                 if (request.Categories is not null)
                 {

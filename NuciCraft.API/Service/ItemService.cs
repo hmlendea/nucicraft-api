@@ -106,7 +106,14 @@ namespace NuciCraft.API.Service
 
             try
             {
-                Item item = repository.Get(itemIdentifier).ToServiceModel();
+                ItemDataObject itemDataObject = repository.Get(itemIdentifier);
+
+                if (itemDataObject is null)
+                {
+                    throw new KeyNotFoundException($"No item found with identifier '{itemIdentifier}'.");
+                }
+
+                Item item = itemDataObject.ToServiceModel();
 
                 logger.Info(
                     MyOperation.GetItem,
@@ -303,6 +310,11 @@ namespace NuciCraft.API.Service
             try
             {
                 ItemDataObject itemDataObject = repository.Get(request.Identifier);
+
+                if (itemDataObject is null)
+                {
+                    throw new KeyNotFoundException($"No item found with identifier '{request.Identifier}'.");
+                }
 
                 ApplyPatchValues(request, itemDataObject);
 
