@@ -1077,6 +1077,26 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
+        public void GivenNoPlayersInRepository_WhenGettingAllPlayers_ThenAnEmptyEnumerableIsReturned()
+        {
+            repositoryMock
+                .Setup(repository => repository.GetAll())
+                .Returns([]);
+
+            IEnumerable<Player> players = playerService.GetAll();
+
+            Assert.That(players, Is.Empty);
+        }
+
+        [Test]
+        public void GivenAWhitespaceSelector_WhenPatchingAPlayer_ThenAnArgumentExceptionIsThrown()
+        {
+            Assert.That(
+                () => playerService.Update(new PatchPlayerRequest { Identifier = "   " }),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
         public void GivenNoSelectors_WhenPatchingAPlayer_ThenAnArgumentExceptionIsThrown()
         {
             Assert.That(
