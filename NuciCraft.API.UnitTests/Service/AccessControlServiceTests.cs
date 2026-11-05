@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 using Moq;
 
@@ -64,13 +65,13 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenANullRequest_WhenCheckingTheIp_ThenAnExceptionIsThrown()
-            => Assert.That(() => service.CheckIp(null), Throws.ArgumentNullException);
+        public async Task GivenANullRequest_WhenCheckingTheIp_ThenAnExceptionIsThrown()
+            => Assert.That(() => service.CheckIpAsync(null), Throws.ArgumentNullException);
 
         [Test]
-        public void GivenAnIpFromAnAllowedCountryWithoutAnAnonymisationService_WhenCheckingTheIp_ThenAnAllowedResultIsReturned()
+        public async Task GivenAnIpFromAnAllowedCountryWithoutAnAnonymisationService_WhenCheckingTheIp_ThenAnAllowedResultIsReturned()
         {
-            IpCheckResult result = service.CheckIp(new CheckIpRequest { IpAddress = "8.8.8.8" });
+            IpCheckResult result = await service.CheckIpAsync(new CheckIpRequest { IpAddress = "8.8.8.8" });
 
             Assert.That(result.IsAllowed, Is.True);
             Assert.That(result.DeniedReason, Is.Null);
@@ -78,13 +79,13 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenAnIpFromADeniedCountry_WhenCheckingTheIp_ThenTheResultIsDenied()
+        public async Task GivenAnIpFromADeniedCountry_WhenCheckingTheIp_ThenTheResultIsDenied()
         {
             StubHttpMessageHandler deniedGeoHandler = StubHttpMessageHandler.ReturningJson(DeniedCountryGeolocationJson);
 
             service = CreateServiceWithHandlers(deniedGeoHandler, anonymisationHandler);
 
-            IpCheckResult result = service.CheckIp(new CheckIpRequest { IpAddress = "1.2.3.4" });
+            IpCheckResult result = await service.CheckIpAsync(new CheckIpRequest { IpAddress = "1.2.3.4" });
 
             Assert.That(result.IsAllowed, Is.False);
             Assert.That(result.DeniedReason, Is.EqualTo("Access is not permitted from this country."));
@@ -93,7 +94,7 @@ namespace NuciCraft.API.UnitTests.Service
 
         [TestCase("cn")]
         [TestCase("Ru")]
-        public void GivenADeniedCountryCodeWithDifferentCasing_WhenCheckingTheIp_ThenTheResultIsDenied(
+        public async Task GivenADeniedCountryCodeWithDifferentCasing_WhenCheckingTheIp_ThenTheResultIsDenied(
             string countryCode)
         {
             string json = $$"""{"status":"success","countryCode":"{{countryCode}}","country":"Somewhere"}""";
@@ -101,20 +102,20 @@ namespace NuciCraft.API.UnitTests.Service
 
             service = CreateServiceWithHandlers(geoHandler, anonymisationHandler);
 
-            IpCheckResult result = service.CheckIp(new CheckIpRequest { IpAddress = "1.2.3.4" });
+            IpCheckResult result = await service.CheckIpAsync(new CheckIpRequest { IpAddress = "1.2.3.4" });
 
             Assert.That(result.IsAllowed, Is.False);
             Assert.That(result.DeniedReason, Is.EqualTo("Access is not permitted from this country."));
         }
 
         [Test]
-        public void GivenAnIpDetectedAsAnAnonymisationService_WhenCheckingTheIp_ThenTheResultIsDenied()
+        public async Task GivenAnIpDetectedAsAnAnonymisationService_WhenCheckingTheIp_ThenTheResultIsDenied()
         {
             StubHttpMessageHandler detectedHandler = StubHttpMessageHandler.ReturningJson(AnonymisationServiceDetectedJson);
 
             service = CreateServiceWithHandlers(geolocationHandler, detectedHandler);
 
-            IpCheckResult result = service.CheckIp(new CheckIpRequest { IpAddress = "8.8.8.8" });
+            IpCheckResult result = await service.CheckIpAsync(new CheckIpRequest { IpAddress = "8.8.8.8" });
 
             Assert.That(result.IsAllowed, Is.False);
             Assert.That(result.DeniedReason, Is.EqualTo("Access is not permitted via any anonymisation service."));
@@ -122,50 +123,50 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenAnAnonymisationServiceCheckWithoutSuccess_WhenCheckingTheIp_ThenAnAllowedResultIsReturned()
+        public async Task GivenAnAnonymisationServiceCheckWithoutSuccess_WhenCheckingTheIp_ThenAnAllowedResultIsReturned()
         {
             StubHttpMessageHandler failedCheckHandler = StubHttpMessageHandler.ReturningJson(AnonymisationServiceCheckFailedJson);
 
             service = CreateServiceWithHandlers(geolocationHandler, failedCheckHandler);
 
-            IpCheckResult result = service.CheckIp(new CheckIpRequest { IpAddress = "8.8.8.8" });
+            IpCheckResult result = await service.CheckIpAsync(new CheckIpRequest { IpAddress = "8.8.8.8" });
 
             Assert.That(result.IsAllowed, Is.True);
             Assert.That(result.DeniedReason, Is.Null);
         }
 
         [Test]
-        public void GivenADisabledAnonymisationServiceDetection_WhenCheckingTheIp_ThenTheAnonymisationApiIsNotCalled()
+        public async Task GivenADisabledAnonymisationServiceDetection_WhenCheckingTheIp_ThenTheAnonymisationApiIsNotCalled()
         {
             settings.AnonymisationServiceDetection.IsEnabled = false;
             service = CreateServiceWithHandlers(geolocationHandler, anonymisationHandler);
 
-            IpCheckResult result = service.CheckIp(new CheckIpRequest { IpAddress = "8.8.8.8" });
+            IpCheckResult result = await service.CheckIpAsync(new CheckIpRequest { IpAddress = "8.8.8.8" });
 
             Assert.That(result.IsAllowed, Is.True);
             Assert.That(anonymisationHandler.LastRequest, Is.Null);
         }
 
         [Test]
-        public void GivenAFailingAnonymisationServiceApi_WhenCheckingTheIp_ThenAnAllowedResultIsReturned()
+        public async Task GivenAFailingAnonymisationServiceApi_WhenCheckingTheIp_ThenAnAllowedResultIsReturned()
         {
             StubHttpMessageHandler failingHandler = StubHttpMessageHandler.FailingWith(HttpStatusCode.InternalServerError);
 
             service = CreateServiceWithHandlers(geolocationHandler, failingHandler);
 
-            IpCheckResult result = service.CheckIp(new CheckIpRequest { IpAddress = "8.8.8.8" });
+            IpCheckResult result = await service.CheckIpAsync(new CheckIpRequest { IpAddress = "8.8.8.8" });
 
             Assert.That(result.IsAllowed, Is.True);
             Assert.That(result.CountryCode, Is.EqualTo("US"));
         }
 
         [Test]
-        public void GivenAFailingAnonymisationServiceApi_WhenCheckingTheIp_ThenTheFailureIsLogged()
+        public async Task GivenAFailingAnonymisationServiceApi_WhenCheckingTheIp_ThenTheFailureIsLogged()
         {
             StubHttpMessageHandler failingHandler = StubHttpMessageHandler.FailingWith(HttpStatusCode.InternalServerError);
 
             service = CreateServiceWithHandlers(geolocationHandler, failingHandler);
-            service.CheckIp(new CheckIpRequest { IpAddress = "8.8.8.8" });
+            await service.CheckIpAsync(new CheckIpRequest { IpAddress = "8.8.8.8" });
 
             Assert.That(
                 logger.Invocations.Count(invocation => invocation.Method.Name == nameof(ILogger.Error)),
@@ -174,14 +175,14 @@ namespace NuciCraft.API.UnitTests.Service
 
         [TestCase("""{"status":"fail","countryCode":"","country":""}""")]
         [TestCase("""{"status":"FAIL","countryCode":"US","country":"United States"}""")]
-        public void GivenAFailingGeolocationLookup_WhenCheckingTheIp_ThenAnAllowedResultIsReturned(
+        public async Task GivenAFailingGeolocationLookup_WhenCheckingTheIp_ThenAnAllowedResultIsReturned(
             string geolocationJson)
         {
             StubHttpMessageHandler geoHandler = StubHttpMessageHandler.ReturningJson(geolocationJson);
 
             service = CreateServiceWithHandlers(geoHandler, anonymisationHandler);
 
-            IpCheckResult result = service.CheckIp(new CheckIpRequest { IpAddress = "8.8.8.8" });
+            IpCheckResult result = await service.CheckIpAsync(new CheckIpRequest { IpAddress = "8.8.8.8" });
 
             Assert.That(result.IsAllowed, Is.True);
             Assert.That(result.DeniedReason, Is.Null);
@@ -189,21 +190,21 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenAFailingGeolocationApi_WhenCheckingTheIp_ThenAnExceptionIsThrown()
+        public async Task GivenAFailingGeolocationApi_WhenCheckingTheIp_ThenAnExceptionIsThrown()
         {
             StubHttpMessageHandler geoHandler = StubHttpMessageHandler.FailingWith(HttpStatusCode.ServiceUnavailable);
 
             service = CreateServiceWithHandlers(geoHandler, anonymisationHandler);
 
             Assert.That(
-                () => service.CheckIp(new CheckIpRequest { IpAddress = "8.8.8.8" }),
+                () => service.CheckIpAsync(new CheckIpRequest { IpAddress = "8.8.8.8" }),
                 Throws.InstanceOf<HttpRequestException>());
         }
 
         [Test]
-        public void GivenAnEnablingAnonymisationServiceDetection_WhenCheckingTheIp_ThenTheRequestContainsTheIpAddressAndSettings()
+        public async Task GivenAnEnablingAnonymisationServiceDetection_WhenCheckingTheIp_ThenTheRequestContainsTheIpAddressAndSettings()
         {
-            service.CheckIp(new CheckIpRequest { IpAddress = "8.8.8.8" });
+            await service.CheckIpAsync(new CheckIpRequest { IpAddress = "8.8.8.8" });
 
             string requestedUrl = GetRequestedUrl(anonymisationHandler);
 
@@ -213,12 +214,12 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenAnEnabledAnonymisationServiceDetectionCache_WhenCheckingTheIp_ThenTheRequestAsksForTheCache()
+        public async Task GivenAnEnabledAnonymisationServiceDetectionCache_WhenCheckingTheIp_ThenTheRequestAsksForTheCache()
         {
             settings.AnonymisationServiceDetection.IsCacheEnabled = true;
             service = CreateServiceWithHandlers(geolocationHandler, anonymisationHandler);
 
-            service.CheckIp(new CheckIpRequest { IpAddress = "8.8.8.8" });
+            await service.CheckIpAsync(new CheckIpRequest { IpAddress = "8.8.8.8" });
 
             string requestedUrl = GetRequestedUrl(anonymisationHandler);
 
@@ -226,9 +227,9 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenAnIpWithSpecialCharacters_WhenCheckingTheIp_ThenTheIpAddressIsEscaped()
+        public async Task GivenAnIpWithSpecialCharacters_WhenCheckingTheIp_ThenTheIpAddressIsEscaped()
         {
-            service.CheckIp(new CheckIpRequest { IpAddress = "1.2.3.4&x=1" });
+            await service.CheckIpAsync(new CheckIpRequest { IpAddress = "1.2.3.4&x=1" });
 
             string requestedUrl = GetRequestedUrl(anonymisationHandler);
 

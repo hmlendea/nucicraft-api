@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,11 +40,13 @@ namespace NuciCraft.API.Controllers
                 request.Count = count.Value;
             }
 
+            IEnumerable<string> names = await service.GetRandomMobNameAsync(request, cancellationToken);
+
             return ProcessRequest(
                 request,
                 () => new NuciApiContentResponse<GetMobNameResponse>(new()
                 {
-                    Names = service.GetRandomMobNameAsync(request, cancellationToken).GetAwaiter().GetResult()
+                    Names = names
                 }),
                 authorisation);
         }

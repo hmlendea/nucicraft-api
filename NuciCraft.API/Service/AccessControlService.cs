@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 using NuciLog.Core;
@@ -43,7 +44,10 @@ namespace NuciCraft.API.Service
             this.httpClient = httpClient;
         }
 
-        public IpCheckResult CheckIp(CheckIpRequest request)
+        public Task<IpCheckResult> CheckIpAsync(CheckIpRequest request)
+            => CheckIpAsync(request, CancellationToken.None);
+
+        public async Task<IpCheckResult> CheckIpAsync(CheckIpRequest request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
 
@@ -59,7 +63,7 @@ namespace NuciCraft.API.Service
 
             try
             {
-                IpCheckResult response = PerformIpCheck(request.IpAddress).GetAwaiter().GetResult();
+                IpCheckResult response = await PerformIpCheck(request.IpAddress, cancellationToken);
 
                 logger.Info(
                     MyOperation.CheckIp,
@@ -80,7 +84,10 @@ namespace NuciCraft.API.Service
             }
         }
 
-        public UsernameCheckResult CheckUsername(CheckUsernameRequest request)
+        public Task<UsernameCheckResult> CheckUsernameAsync(CheckUsernameRequest request)
+            => CheckUsernameAsync(request, CancellationToken.None);
+
+        public async Task<UsernameCheckResult> CheckUsernameAsync(CheckUsernameRequest request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
 
@@ -96,7 +103,7 @@ namespace NuciCraft.API.Service
 
             try
             {
-                UsernameCheckResult response = PerformUsernameCheck(request.Username);
+                UsernameCheckResult response = await PerformUsernameCheckAsync(request.Username, cancellationToken);
 
                 logger.Info(
                     MyOperation.CheckUsername,
@@ -117,9 +124,9 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private async Task<IpCheckResult> PerformIpCheck(string ipAddress)
+        private async Task<IpCheckResult> PerformIpCheck(string ipAddress, CancellationToken cancellationToken)
         {
-            GeolocationData? geo = await GetGeolocationData(ipAddress);
+            GeolocationData? geo = await GetGeolocationData(ipAddress, cancellationToken);
 
             if (geo is null || !string.Equals(geo.Status, "success", StringComparison.OrdinalIgnoreCase))
             {
@@ -143,7 +150,7 @@ namespace NuciCraft.API.Service
                 };
             }
 
-            if (await IsAnonymisationServiceDetected(ipAddress))
+            if (await IsAnonymisationServiceDetected(ipAddress, cancellationToken))
             {
                 return new IpCheckResult
                 {
@@ -161,19 +168,19 @@ namespace NuciCraft.API.Service
             };
         }
 
-        private async Task<GeolocationData?> GetGeolocationData(string ipAddress)
+        private async Task<GeolocationData?> GetGeolocationData(string ipAddress, CancellationToken cancellationToken)
         {
             string url = $"{settings.GeolocationApiUrl}{ipAddress}?fields=status,countryCode,country";
 
-            using HttpResponseMessage response = await httpClient.GetAsync(url);
+            using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken);
             response.EnsureSuccessStatusCode();
 
-            string json = await response.Content.ReadAsStringAsync();
+            string json = await response.Content.ReadAsStringAsync(cancellationToken);
 
             return JsonSerializer.Deserialize<GeolocationData>(json);
         }
 
-        private async Task<bool> IsAnonymisationServiceDetected(string ipAddress)
+        private async Task<bool> IsAnonymisationServiceDetected(string ipAddress, CancellationToken cancellationToken)
         {
             AnonymisationServiceDetectionSettings detectionSettings = settings.AnonymisationServiceDetection;
 
@@ -186,10 +193,10 @@ namespace NuciCraft.API.Service
             {
                 string url = $"{detectionSettings.ApiUrl}?ip={Uri.EscapeDataString(ipAddress)}&license={Uri.EscapeDataString(detectionSettings.ApiLicense)}&cache={detectionSettings.IsCacheEnabled.ToString().ToLowerInvariant()}";
 
-                using HttpResponseMessage response = await httpClient.GetAsync(url);
+                using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken);
                 response.EnsureSuccessStatusCode();
 
-                string json = await response.Content.ReadAsStringAsync();
+                string json = await response.Content.ReadAsStringAsync(cancellationToken);
                 AnonymisationServiceCheckData? anonymisationServiceCheck = JsonSerializer.Deserialize<AnonymisationServiceCheckData>(json);
 
                 return anonymisationServiceCheck is not null && anonymisationServiceCheck.Success && anonymisationServiceCheck.IsAnonymisationService;
@@ -206,7 +213,7 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private UsernameCheckResult PerformUsernameCheck(string username)
+        private async Task<UsernameCheckResult> PerformUsernameCheckAsync(string username, CancellationToken cancellationToken)
         {
             if (username.Length < settings.MinimumUsernameLength)
             {

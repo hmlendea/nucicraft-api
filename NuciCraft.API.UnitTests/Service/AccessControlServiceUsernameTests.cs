@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 using Moq;
 
 using NuciCraft.API.Configuration;
@@ -38,39 +40,39 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public void GivenANullRequest_WhenCheckingTheUsername_ThenAnExceptionIsThrown()
-            => Assert.That(() => service.CheckUsername(null), Throws.ArgumentNullException);
+        public async Task GivenANullRequest_WhenCheckingTheUsername_ThenAnExceptionIsThrown()
+            => Assert.That(() => service.CheckUsernameAsync(null), Throws.ArgumentNullException);
 
         [Test]
-        public void GivenANonEmptyUsername_WhenCheckingTheUsername_ThenAnAllowedResultIsReturned()
+        public async Task GivenANonEmptyUsername_WhenCheckingTheUsername_ThenAnAllowedResultIsReturned()
         {
             CheckUsernameRequest request = new() { Username = "NuciPlayer" };
 
-            Assert.That(service.CheckUsername(request).IsAllowed, Is.True);
-            Assert.That(service.CheckUsername(request).DeniedReason, Is.Null);
+            Assert.That((await service.CheckUsernameAsync(request)).IsAllowed, Is.True);
+            Assert.That((await service.CheckUsernameAsync(request)).DeniedReason, Is.Null);
         }
 
         [TestCase("asdf")]
         [TestCase("sdfg")]
         [TestCase("dfgh")]
-        public void GivenAUsernameAtTheMinimumLength_WhenCheckingTheUsername_ThenAnAllowedResultIsReturned(
+        public async Task GivenAUsernameAtTheMinimumLength_WhenCheckingTheUsername_ThenAnAllowedResultIsReturned(
             string username)
         {
             CheckUsernameRequest request = new() { Username = username };
 
-            Assert.That(service.CheckUsername(request).IsAllowed, Is.True);
+            Assert.That((await service.CheckUsernameAsync(request)).IsAllowed, Is.True);
         }
 
         [TestCase("asd")]
         [TestCase("dfg")]
         [TestCase("z")]
-        public void GivenATooShortUsername_WhenCheckingTheUsername_ThenTheResultIsDenied(
+        public async Task GivenATooShortUsername_WhenCheckingTheUsername_ThenTheResultIsDenied(
             string username)
         {
             CheckUsernameRequest request = new() { Username = username };
 
-            Assert.That(service.CheckUsername(request).IsAllowed, Is.False);
-            Assert.That(service.CheckUsername(request).DeniedReason, Is.EqualTo("This username is not permitted."));
+            Assert.That((await service.CheckUsernameAsync(request)).IsAllowed, Is.False);
+            Assert.That((await service.CheckUsernameAsync(request)).DeniedReason, Is.EqualTo("This username is not permitted."));
         }
 
         [TestCase("myofficialname")]
@@ -78,23 +80,23 @@ namespace NuciCraft.API.UnitTests.Service
         [TestCase("NuciScanner")]
         [TestCase("Player")]
         [TestCase("player")]
-        public void GivenAUsernameMatchingADeniedPattern_WhenCheckingTheUsername_ThenTheResultIsDenied(
+        public async Task GivenAUsernameMatchingADeniedPattern_WhenCheckingTheUsername_ThenTheResultIsDenied(
             string username)
         {
             CheckUsernameRequest request = new() { Username = username };
 
-            Assert.That(service.CheckUsername(request).IsAllowed, Is.False);
-            Assert.That(service.CheckUsername(request).DeniedReason, Is.EqualTo("This username is not permitted."));
+            Assert.That((await service.CheckUsernameAsync(request)).IsAllowed, Is.False);
+            Assert.That((await service.CheckUsernameAsync(request)).DeniedReason, Is.EqualTo("This username is not permitted."));
         }
 
         [TestCase("Official")]
         [TestCase("SCANNER")]
-        public void GivenAUsernameNotMatchingADeniedPattern_WhenCheckingTheUsername_ThenAnAllowedResultIsReturned(
+        public async Task GivenAUsernameNotMatchingADeniedPattern_WhenCheckingTheUsername_ThenAnAllowedResultIsReturned(
             string username)
         {
             CheckUsernameRequest request = new() { Username = username };
 
-            Assert.That(service.CheckUsername(request).IsAllowed, Is.True);
+            Assert.That((await service.CheckUsernameAsync(request)).IsAllowed, Is.True);
         }
     }
 }
