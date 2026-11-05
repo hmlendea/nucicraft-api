@@ -14,7 +14,7 @@
 | Every controller operation passes `NuciApiAuthorisation.ApiKey(SecuritySettings.ApiKey)` to `ProcessRequest`. | All files under [Controllers](../NuciCraft.API/Controllers/) | Every API client and protected route. | An endpoint may become unauthenticated or incompatible with peer endpoints. |
 | Mutation services call repository `SaveChanges` after `Add`, `Update`, or `Remove`. | Concrete services under [Service](../NuciCraft.API/Service/) | Restart persistence and integration tests. | In-memory success may not survive process termination. |
 | Services log started and success, or started and failure, then rethrow. | Concrete file-backed and mob services. | Operational diagnosis and error middleware. | Lost operation visibility or altered error propagation. |
-| Store preparation includes all seven registered repositories. | [Startup.cs](../NuciCraft.API/Startup.cs) and [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCollectionExtensions.cs) | Process readiness. | A novel store may fail only on its first request rather than startup. |
+| Store preparation includes all eight registered repositories. | [Startup.cs](../NuciCraft.API/Startup.cs) and [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCollectionExtensions.cs) | Process readiness. | A novel store may fail only on its first request rather than startup. |
 | Runtime data under `Data/` is excluded from source control. | [.gitignore](../.gitignore) | Privacy, secret hygiene, and deployment state. | Personal or operational records may enter version history. |
 
 ## Identifier Rules

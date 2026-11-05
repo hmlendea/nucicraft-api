@@ -40,7 +40,7 @@ This is the inbound adapter. It depends on service interfaces and transport type
 - `NuciApiAuthorisation.ApiKey` for service-wide bearer credential configuration.
 - `NuciApiContentResponse<T>` and `NuciApiResponseContent` for success envelopes.
 - NuciSecurity HMAC attributes for canonical field metadata.
-- Nine application service interfaces.
+- Eleven application service interfaces.
 
 ## Dependants
 
@@ -53,7 +53,7 @@ This is the inbound adapter. It depends on service interfaces and transport type
 
 ### Controllers
 
-All nine controllers are sealed primary-constructor classes derived from `NuciApiController`. Each constructs one private authorisation descriptor from `SecuritySettings.ApiKey`.
+All eleven controllers are sealed primary-constructor classes derived from `NuciApiController`. Each constructs one private authorisation descriptor from `SecuritySettings.ApiKey`.
 
 ### Requests
 

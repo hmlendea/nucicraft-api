@@ -135,7 +135,7 @@ Deployment packaging and process supervision are operator decisions.
 | Requirement | Reason |
 |-------------|--------|
 | Compatible .NET 10 runtime | Execute the framework-dependent web application. |
-| Seven writable persistent paths | Store API state. |
+| Eight writable persistent paths | Store API state. |
 | Optional writable log path | Required when file logging is enabled. |
 | Protected configuration provider | Supply genuine inbound and outbound API keys. |
 | Outbound HTTPS or HTTP to generator | Mob-name capability. |

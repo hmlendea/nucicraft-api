@@ -85,7 +85,7 @@ The request/persistence cycle is therefore intentional legacy coupling, not an a
 
 ### Controller Tests
 
-Nine fixtures under [Controllers](../NuciCraft.API.UnitTests/Controllers/) mirror the nine production controllers. [ControllerTestContext.cs](../NuciCraft.API.UnitTests/Controllers/ControllerTestContext.cs) creates a `DefaultHttpContext`, inserts an authorised bearer header, and assigns it to the controller.
+The fixtures under [Controllers](../NuciCraft.API.UnitTests/Controllers/) mirror the eleven production controllers, including [ItemsControllerTests.cs](../NuciCraft.API.UnitTests/Controllers/ItemsControllerTests.cs). [ControllerTestContext.cs](../NuciCraft.API.UnitTests/Controllers/ControllerTestContext.cs) creates a `DefaultHttpContext`, inserts an authorised bearer header, and assigns it to the controller.
 
 These tests verify:
 - Service method selection and request construction.
@@ -107,6 +107,7 @@ Notable coverage includes:
 - Player GetAll, alternate selectors, patch presence, settings merge, and failures.
 - Home CRUD, localisation uniqueness, owner transfer, finite coordinates, and concurrent duplicate addition.
 - RTP distance thresholds, world and biome distinctions, random filters, and error paths.
+- Item selectors by identifier, Minecraft ID, Bukkit ID, and NuciCraft ID; patch application and sign-identifier generation.
 - Mob schema selection, outbound bearer authorisation, response validation, and HMAC request ordering.
 - World type fallback and patching.
 - Zone references, bounds canonicalisation, partial bounds, containment, category filtering, creation defaults, and non-persisted web-map enrichment.
@@ -129,10 +130,10 @@ Reflection-based mapping tests are sensitive to namespace, type, method, and par
 
 ### Per-Host State
 
-The default constructor creates a unique path beneath the system temporary directory and deletes it on disposal. A second constructor accepts a retained directory for restart-persistence tests.
+The default constructor creates a unique path beneath the system temporary directory, deletes it on disposal, and substitutes every `IFileRepository<T>` with [InMemoryRepository.cs](../NuciCraft.API.IntegrationTests/InMemoryRepository.cs), a JSON clone-backed in-memory double implementing the full repository contract. Ordinary HTTP fixtures therefore share no on-disk state and store paths are not configured. A second constructor accepts a retained directory, keeps the real file-backed repositories, and configures the eight isolated store paths for restart-persistence tests.
 
 In-memory configuration supplies:
-- Seven isolated store paths.
+- Eight isolated store paths for the file-backed restart fixtures only.
 - Test-specific RTP thresholds.
 - Example-invalid external URLs.
 - Deterministic server metadata.
@@ -141,10 +142,12 @@ In-memory configuration supplies:
 
 ### Substitutions
 
+- All eight `IFileRepository<T>` registrations are replaced with in-memory repositories by default, giving clones on read and write isolation between fixtures.
 - `INuciApiClient` is replaced with a mock returning the requested count of `Ilarion` names.
 - `IServerStatusService` is replaced with a mock returning 42.
+- `IAccessControlService` is replaced with a mock allowing all IP addresses and usernames except the fixture-specific denied cases.
 
-Ordinary HTTP integration tests therefore do not contact the internet or Minecraft. The dedicated server-status fixture constructs the real service separately.
+Ordinary HTTP integration tests therefore contact neither the filesystem stores nor the internet or Minecraft. The dedicated server-status fixture constructs the real service separately.
 
 ### Authorised Client
 
@@ -157,6 +160,7 @@ Ordinary HTTP integration tests therefore do not contact the internet or Minecra
 | [ApiErrorResponseTests.cs](../NuciCraft.API.IntegrationTests/ApiErrorResponseTests.cs) | `401`, required-field `400`, malformed JSON problem response, absent-record `404`. |
 | [CountriesApiTests.cs](../NuciCraft.API.IntegrationTests/CountriesApiTests.cs) | Country create, read, list, patch. |
 | [HomesApiTests.cs](../NuciCraft.API.IntegrationTests/HomesApiTests.cs) | Home CRUD, selectors, uniqueness, ownership conflicts, and unauthorised commands. |
+| [ItemsApiTests.cs](../NuciCraft.API.IntegrationTests/ItemsApiTests.cs) | Item create, every selector read, list, patch, duplicate conflict, absent `404`, required-field `400`, and unauthorised `401`. |
 | [MobsApiTests.cs](../NuciCraft.API.IntegrationTests/MobsApiTests.cs) | Supported types, count range, and unsupported `501`. |
 | [PersistenceApiTests.cs](../NuciCraft.API.IntegrationTests/PersistenceApiTests.cs) | Home state and uniqueness plus World state across host restart. |
 | [PlayersApiTests.cs](../NuciCraft.API.IntegrationTests/PlayersApiTests.cs) | Registration, selector reads, list, and patch settings. |
@@ -167,7 +171,7 @@ Ordinary HTTP integration tests therefore do not contact the internet or Minecra
 | [ZonesApiTests.cs](../NuciCraft.API.IntegrationTests/ZonesApiTests.cs) | Zone add, reference and bounds behaviour, category, type, and coordinate queries. |
 | [ZoneTypesApiTests.cs](../NuciCraft.API.IntegrationTests/ZoneTypesApiTests.cs) | ZoneType create, read, list, category, and patch. |
 
-Fixtures touching the shared in-memory host or filesystem commonly use `NonParallelizable` to prevent test interference.
+Fixtures touching the shared in-memory host or filesystem commonly use `NonParallelizable` to prevent test interference. The file-backed restart fixtures are the primary source of store-level concurrency and persistence assertions; fixtures using the default in-memory host exercise the full middleware, binding, and authorisation pipeline over isolated process state.
 
 ## Test Data
 
@@ -185,7 +189,7 @@ The integration host's remote URLs use the reserved `.invalid` domain and mocked
 | Mapping | Reflection-based mapping tests. |
 | Response projection | Response unit tests. |
 | Middleware and HTTP binding | In-memory HTTP integration tests. |
-| File persistence | Integration host and restart tests. |
+| File persistence | In-memory repositories for ordinary HTTP isolation; file-backed restart tests for persistence and eager-load startup. |
 | External name service | Mocked client contract tests, not live service. |
 | Minecraft protocol | Loopback TCP integration tests. |
 

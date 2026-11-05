@@ -9,7 +9,7 @@
 
 ## Architectural Summary
 
-NuciCraft API is a layered modular monolith hosted as one ASP.NET Core 10 process. It contains multiple capability modules but no independent deployment, database, queue, or worker boundary. The process exposes authenticated HTTP controllers, delegates decisions to application services, persists seven record types through NuciDAL file repositories, and invokes two external network systems.
+NuciCraft API is a layered modular monolith hosted as one ASP.NET Core 10 process. It contains multiple capability modules but no independent deployment, database, queue, or worker boundary. The process exposes authenticated HTTP controllers, delegates decisions to application services, persists eight record types through NuciDAL file repositories, and invokes two external network systems.
 
 ```mermaid
 flowchart TB
@@ -98,9 +98,9 @@ The registrations in [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCo
 | Registration Group | Lifetime | Concrete Selection |
 |--------------------|----------|--------------------|
 | Six application settings objects | Singleton | Constructed, bound, and registered instances. |
-| Seven `IFileRepository<T>` services | Singleton | One `JsonRepository<T>` per persisted record type. |
+| Eight `IFileRepository<T>` services | Singleton | One `JsonRepository<T>` per persisted record type, including items. |
 | `INuciApiClient` | Singleton | `NuciApiClient` constructed with the configured Universal Name Generator base URL. |
-| Nine application services | Singleton | One implementation per service interface. |
+| Eleven application services | Singleton | One implementation per service interface, including access control; `ISignIdGenerator` is registered separately as a singleton generator dependency. |
 | `INuciTextNormaliser`, `INuciTextObfuscator` | Singleton | NuciText implementations; no local production consumer is present. |
 | `ILogger` | Scoped | `NuciLogger`. Singleton services therefore retain the instance resolved when the singleton is first constructed. |
 
@@ -124,10 +124,10 @@ sequenceDiagram
     Startup->>DI: Register settings, adapters, and services
     Host->>Startup: Configure
     Startup->>DI: Resolve DataStoreSettings
-    loop Seven store paths
+    loop Eight store paths
         Startup->>FileSystem: Create directory and [] file when absent
     end
-    loop Seven repositories
+    loop Eight repositories
         Startup->>DI: Resolve IFileRepository<T>
         Startup->>Repository: GetAll().ToList()
     end
@@ -163,7 +163,7 @@ No files under a `wwwroot` directory are present, although default and static-fi
 
 ## HTTP Boundary
 
-Nine controllers in [Controllers](../NuciCraft.API/Controllers/) expose unversioned attribute routes. Their responsibilities are:
+Eleven controllers in [Controllers](../NuciCraft.API/Controllers/) expose unversioned attribute routes. Their responsibilities are:
 - Bind route, query, and body values.
 - Construct request objects when no body object naturally exists.
 - Copy route selectors into patch requests so the route controls record selection.
@@ -200,9 +200,10 @@ Services record failures and rethrow them. They do not translate exceptions into
 
 Persistence classes in [DataAccess/DataObjects](../NuciCraft.API/DataAccess/DataObjects/) extend the NuciDAL `EntityBase` through `NuciCraftEntityBase`, which adds `CreatedDT` and `UpdatedDT` string properties. `EntityBase` owns `Id`; its exact duplicate and serialisation semantics are external to this repository.
 
-The seven repositories are independently configured and independently saved:
+The eight repositories are independently configured and independently saved:
 - `PlayerDataObject`
 - `HomeDataObject`
+- `ItemDataObject`
 - `RtpLocationEntity`
 - `CountryDataObject`
 - `WorldDataObject`

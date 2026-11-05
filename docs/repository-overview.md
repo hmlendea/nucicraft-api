@@ -54,7 +54,7 @@ flowchart LR
     Http --> Application[Application service interfaces]
     Application --> Domain[Service models and rules]
     Application --> Persistence[IFileRepository adapters]
-    Persistence --> Files[(Seven JSON stores)]
+    Persistence --> Files[(Eight JSON stores)]
     Application --> NameApi[Universal Name Generator]
     Http --> Status[ServerStatusService]
     Status --> Minecraft[Minecraft Java status port]
@@ -77,8 +77,8 @@ The deployment unit is the web project defined by [NuciCraft.API.csproj](../Nuci
 
 The process boundary contains:
 - Kestrel and the ASP.NET Core request pipeline.
-- Nine controllers and nine corresponding application services.
-- Seven singleton NuciDAL file repositories.
+- Eleven controllers and eleven application services, including access control, server status, and sign-ID generation support.
+- Eight singleton NuciDAL file repositories.
 - One singleton Universal Name Generator client.
 - One singleton Java server-status service.
 - Bound settings and text utility singletons.
@@ -116,7 +116,7 @@ There is no common local base service. Most services repeat this logging and exc
 
 ### Persistence
 
-The seven configured stores contain players, homes, RTP locations, countries, worlds, zones, and zone types. Their schemas are defined by classes in [DataAccess/DataObjects](../NuciCraft.API/DataAccess/DataObjects/). Default paths in [appsettings.json](../NuciCraft.API/appsettings.json) reside under `Data/`, which is excluded by [.gitignore](../.gitignore); runtime data is therefore local operational state rather than version-controlled source data.
+The eight configured stores contain players, homes, items, RTP locations, countries, worlds, zones, and zone types. Their schemas are defined by classes in [DataAccess/DataObjects](../NuciCraft.API/DataAccess/DataObjects/). Default paths in [appsettings.json](../NuciCraft.API/appsettings.json) reside under `Data/`, which is excluded by [.gitignore](../.gitignore); runtime data is therefore local operational state rather than version-controlled source data.
 
 On startup, missing parent directories and files are created, vacant stores receive a JSON array, and every repository is queried once. Invalid paths, denied filesystem access, malformed persisted data, or repository construction failures can prevent the process from accepting requests.
 

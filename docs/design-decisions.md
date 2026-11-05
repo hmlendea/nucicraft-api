@@ -24,7 +24,7 @@
 
 ## JSON File Persistence Through NuciDAL
 
-**Decision:** Persist seven aggregate record types in independently configured JSON files using singleton `JsonRepository<T>` instances.
+**Decision:** Persist eight aggregate record types in independently configured JSON files using singleton `JsonRepository<T>` instances.
 
 **Evidence:** Repository factories in [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCollectionExtensions.cs), store preparation in [Startup.cs](../NuciCraft.API/Startup.cs), and data objects in [DataAccess/DataObjects](../NuciCraft.API/DataAccess/DataObjects/).
 

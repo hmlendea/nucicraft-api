@@ -3,7 +3,7 @@
 | Metadata | Value |
 |----------|-------|
 | Purpose | Explain persisted representations, repository adapters, explicit save points, mappings, and state compatibility constraints. |
-| Scope | NuciDAL integration, seven stores, data objects, mapping extensions, timestamps, and patch merge helpers. |
+| Scope | NuciDAL integration, eight stores, data objects, mapping extensions, timestamps, and patch merge helpers. |
 | Primary sources | [DataAccess/DataObjects](../../NuciCraft.API/DataAccess/DataObjects/), [Service/Mapping](../../NuciCraft.API/Service/Mapping/), [Home mappings](../../NuciCraft.API/Service/Mappings/HomeMappingExtensions.cs), and [ServiceCollectionExtensions.cs](../../NuciCraft.API/ServiceCollectionExtensions.cs) |
 | Related documents | [Data model](../data-model.md), [state and persistence](../state-and-persistence.md), [architecture](../architecture.md), and [file-backed request flow](../flows/file-backed-request.md) |
 
@@ -151,7 +151,7 @@ Services log and rethrow repository failures. There is no retry, atomic file gro
 
 ## Configuration
 
-Seven path values in `DataStoreSettings` select stores. The defaults under `Data/` are relative to process working directory. Startup creates absent paths, but operators own permissions and durable storage.
+Eight path values in `DataStoreSettings` select stores. The defaults under `Data/` are relative to process working directory. Startup creates absent paths, but operators own permissions and durable storage.
 
 No serialiser settings, write mode, indentation, locking option, encoding, schema version, or backup path is configured locally.
 

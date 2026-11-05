@@ -38,6 +38,7 @@ Consumer type: [DataStoreSettings.cs](../NuciCraft.API/Configuration/DataStoreSe
 |-----|------|-------------------|----------|---------------------------|
 | `dataStoreSettings.countriesStorePath` | string | `Data/countries.json` | Yes at startup | Country repository, store creation, eager load. |
 | `dataStoreSettings.homesStorePath` | string | `Data/homes.json` | Yes at startup | Home repository, store creation, eager load. |
+| `dataStoreSettings.itemsStorePath` | string | `Data/items.json` | Yes at startup | Item repository, store creation, eager load. |
 | `dataStoreSettings.playersStorePath` | string | `Data/players.json` | Yes at startup | Player repository, store creation, eager load. |
 | `dataStoreSettings.rtpLocationsStorePath` | string | `Data/rtp_locations.json` | Yes at startup | RTP repository, store creation, eager load. |
 | `dataStoreSettings.worldsStorePath` | string | `Data/worlds.json` | Yes at startup | World repository, store creation, eager load. |
@@ -140,6 +141,7 @@ The complete environment-key forms are:
 ```text
 dataStoreSettings__countriesStorePath
 dataStoreSettings__homesStorePath
+dataStoreSettings__itemsStorePath
 dataStoreSettings__playersStorePath
 dataStoreSettings__rtpLocationsStorePath
 dataStoreSettings__worldsStorePath

@@ -167,7 +167,7 @@ The repository does not implement redaction, retention, rotation, or audit acces
 ## Privilege Boundaries
 
 The process requires:
-- Read and write access to seven store locations.
+- Read and write access to eight store locations.
 - Optional write access to log destination.
 - Outbound HTTP access to the generator.
 - Outbound TCP access to the Minecraft Java port.

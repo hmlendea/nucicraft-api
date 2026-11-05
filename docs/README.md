@@ -9,7 +9,7 @@
 
 ## Repository Synopsis
 
-NuciCraft API is one ASP.NET Core 10 process that exposes API-key-protected HTTP operations for Minecraft server metadata, Players, Homes, random-teleport locations, Countries, Worlds, ZoneTypes, Zones, and generated mob names. It persists seven record types in configured JSON files, queries a Minecraft Java server for live status, and calls the Universal Name Generator for names.
+NuciCraft API is one ASP.NET Core 10 process that exposes API-key-protected HTTP operations for Minecraft server metadata, Players, Homes, random-teleport locations, Countries, Worlds, ZoneTypes, Zones, and generated mob names. It persists eight record types in configured JSON files, queries a Minecraft Java server for live status, and calls the Universal Name Generator for names.
 
 The service is a layered modular monolith. Controllers delegate to singleton application services; services use singleton NuciDAL repositories or outbound adapters; request processing, error translation, HMAC handling, scanner protection, and substantial infrastructure behaviour come from versioned Nuci packages.
 
@@ -57,7 +57,7 @@ Source code remains authoritative. Use the corpus to select the correct source s
 |----------|--------------------|
 | [Host And Composition](components/host-and-composition.md) | Process entry, service registration, settings binding, store preparation, middleware, and lifecycle. |
 | [HTTP API Boundary](components/http-api-boundary.md) | Controllers, routes, binding, API-key hand-off, HMAC metadata, and success contracts. |
-| [Persistence And Mapping](components/persistence-and-mapping.md) | NuciDAL boundary, seven stores, data objects, mappings, timestamps, and merge helpers. |
+| [Persistence And Mapping](components/persistence-and-mapping.md) | NuciDAL boundary, eight stores, data objects, mappings, timestamps, and merge helpers. |
 | [Player And Homes](components/player-and-homes.md) | Player identity, settings, selectors, personal data, Home ownership, localisation, uniqueness, and locking. |
 | [Geographic Metadata](components/geographic-metadata.md) | Country, World, ZoneType, Zone, references, bounds, containment, filtering, and web-map enrichment. |
 | [RTP Locations](components/rtp-locations.md) | Spatial exclusion algorithm, storage, optional filters, random selection, and race implications. |

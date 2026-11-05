@@ -272,7 +272,7 @@ This top-level shape is significant: `MobService` casts the returned `NuciApiRes
 
 | Model | Fields |
 |-------|--------|
-| `DataStoreSettings` | Seven store path strings. |
+| `DataStoreSettings` | Eight store path strings. |
 | `SecuritySettings` | ApiKey. |
 | `ServerSettings` | Name, Hostname, JavaEditionPort, BedrockEditionPort. |
 | `RtpLocationSettings` | MinimumLocationDistance, MinimumBiomeLocationDistance. |

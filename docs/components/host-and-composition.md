@@ -9,7 +9,7 @@
 
 ## Purpose
 
-The host and composition component turns repository types and deployment configuration into one runnable ASP.NET Core process. It selects concrete infrastructure, defines dependency lifetimes, verifies the seven persistence adapters can load, and establishes the inbound middleware pipeline.
+The host and composition component turns repository types and deployment configuration into one runnable ASP.NET Core process. It selects concrete infrastructure, defines dependency lifetimes, verifies the eight persistence adapters can load, and establishes the inbound middleware pipeline.
 
 ## Scope
 
@@ -68,7 +68,7 @@ No custom host lifetime, configuration provider, web server, content root, or lo
 [Startup.cs](../../NuciCraft.API/Startup.cs) contains:
 - `ConfigureServices`, the high-level registration sequence.
 - `Configure`, store preparation and middleware construction.
-- `PrepareRepositories`, orchestration for all seven stores.
+- `PrepareRepositories`, orchestration for all eight stores.
 - `CreateStoreIfMissing`, filesystem creation.
 - `EagerlyLoadRepositories` and its generic helper, repository resolution and enumeration.
 
@@ -122,12 +122,12 @@ Inputs are:
 - Process arguments accepted by the default host.
 - Standard default-host configuration sources.
 - Six application sections and the external NuciLog section.
-- Filesystem state at seven paths.
+- Filesystem state at eight paths.
 - ASP.NET Core environment name.
 
 Outputs are:
 - A service provider containing every runtime dependency.
-- Seven present and deserialisable stores.
+- Eight present and deserialisable stores.
 - A configured request pipeline.
 - A running Kestrel-hosted process.
 

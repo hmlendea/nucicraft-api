@@ -44,7 +44,7 @@ Composition code must select infrastructure and lifetimes. Domain validation doe
 
 | Directory | Contents | Boundary Rule |
 |-----------|----------|---------------|
-| [Controllers](../NuciCraft.API/Controllers/) | Nine attribute-routed controllers. | Bind and delegate; do not access repositories directly. |
+| [Controllers](../NuciCraft.API/Controllers/) | Eleven attribute-routed controllers. | Bind and delegate; do not access repositories directly. |
 | [Requests](../NuciCraft.API/Requests/) | Thirty-one inbound request and patch structures. | Own transport names, required/range validation, query/body shape, and HMAC ordering. |
 | [Responses](../NuciCraft.API/Responses/) | Sixteen success-content structures. | Own public response shape and derived collection counts, not persistence. |
 
@@ -52,7 +52,7 @@ Controller names determine most route roots through `[Route("[controller]")]`. `
 
 ### Application Services
 
-The [Service](../NuciCraft.API/Service/) directory contains nine service interfaces and implementations:
+The [Service](../NuciCraft.API/Service/) directory contains eleven service interfaces and implementations:
 - Country, Home, Mob, Player, RTP location, server status, World, Zone, and ZoneType.
 - `GenerateNamesRequest` and `GenerateNamesResponse` define the outbound Universal Name Generator contract.
 - `TimestampFormats` centralises generated persisted timestamps and strict player-registration parsing.
@@ -72,7 +72,7 @@ Service interfaces remain controller-facing contracts. Infrastructure implementa
 
 The [DataAccess/DataObjects](../NuciCraft.API/DataAccess/DataObjects/) directory contains:
 - `NuciCraftEntityBase`, which extends NuciDAL `EntityBase` with string creation and revision timestamps.
-- Seven root persisted record types corresponding to the seven stores.
+- Eight root persisted record types corresponding to the eight stores.
 - Nested coordinates, zone bounds, localised string, and player settings data objects.
 - `PlayerSettingsDataObjectExtensions`, which merges patch settings according to explicit property-presence flags.
 
