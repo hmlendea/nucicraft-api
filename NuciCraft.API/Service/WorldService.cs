@@ -78,7 +78,14 @@ namespace NuciCraft.API.Service
 
             try
             {
-                World world = repository.Get(worldIdentifier).ToServiceModel();
+                WorldDataObject worldDataObject = repository.Get(worldIdentifier);
+
+                if (worldDataObject is null)
+                {
+                    throw new KeyNotFoundException($"No world found with identifier '{worldIdentifier}'.");
+                }
+
+                World world = worldDataObject.ToServiceModel();
 
                 logger.Info(
                     MyOperation.GetWorld,
@@ -146,6 +153,11 @@ namespace NuciCraft.API.Service
                 ValidatePatchSelector(request);
 
                 WorldDataObject worldDataObject = repository.Get(request.Identifier);
+
+                if (worldDataObject is null)
+                {
+                    throw new KeyNotFoundException($"No world found with identifier '{request.Identifier}'.");
+                }
 
                 ApplyPatchValues(request, worldDataObject);
 

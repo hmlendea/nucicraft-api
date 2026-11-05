@@ -130,6 +130,11 @@ namespace NuciCraft.API.Service
             {
                 ZoneDataObject zoneDataObject = repository.Get(zoneIdentifier);
 
+                if (zoneDataObject is null)
+                {
+                    throw new KeyNotFoundException($"No zone found with identifier '{zoneIdentifier}'.");
+                }
+
                 zoneDataObject.Bounds = GetNormalisedBounds(zoneDataObject.Bounds);
 
                 Zone zone = EnrichZone(zoneDataObject.ToServiceModel());
@@ -314,6 +319,11 @@ namespace NuciCraft.API.Service
                 ValidateTypeForPatch(request);
 
                 ZoneDataObject zoneDataObject = repository.Get(request.Identifier);
+
+                if (zoneDataObject is null)
+                {
+                    throw new KeyNotFoundException($"No zone found with identifier '{request.Identifier}'.");
+                }
 
                 ZoneBoundsDataObject mergedBounds = GetMergedBounds(request, zoneDataObject);
 
@@ -552,6 +562,11 @@ namespace NuciCraft.API.Service
             }
 
             WorldDataObject worldDataObject = worldRepository.Get(zone.World);
+
+            if (worldDataObject is null)
+            {
+                return zone;
+            }
 
             if (!worldDataObject.HasWebMap)
             {

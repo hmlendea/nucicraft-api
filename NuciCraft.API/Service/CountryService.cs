@@ -78,7 +78,14 @@ namespace NuciCraft.API.Service
 
             try
             {
-                Country country = repository.Get(countryIdentifier).ToServiceModel();
+                CountryDataObject countryDataObject = repository.Get(countryIdentifier);
+
+                if (countryDataObject is null)
+                {
+                    throw new KeyNotFoundException($"No country found with identifier '{countryIdentifier}'.");
+                }
+
+                Country country = countryDataObject.ToServiceModel();
 
                 logger.Info(
                     MyOperation.GetCountry,
@@ -146,6 +153,11 @@ namespace NuciCraft.API.Service
                 ValidatePatchSelector(request);
 
                 CountryDataObject countryDataObject = repository.Get(request.Identifier);
+
+                if (countryDataObject is null)
+                {
+                    throw new KeyNotFoundException($"No country found with identifier '{request.Identifier}'.");
+                }
 
                 ApplyPatchValues(request, countryDataObject);
 
