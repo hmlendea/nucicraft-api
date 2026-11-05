@@ -12,6 +12,9 @@ jobs:
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      security-events: read
+      contents: read
 
     steps:
     - uses: actions/checkout@v7
