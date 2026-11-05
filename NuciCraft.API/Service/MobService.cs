@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 using NuciAPI.Client;
 using NuciAPI.Responses;
@@ -35,7 +37,10 @@ namespace NuciCraft.API.Service
 
         private static int VillageSchemaVariantsCount => 2;
 
-        public IEnumerable<string> GetRandomMobName(GetMobNameRequest request)
+        public async Task<IEnumerable<string>> GetRandomMobNameAsync(GetMobNameRequest request)
+            => await GetRandomMobNameAsync(request, CancellationToken.None);
+
+        public async Task<IEnumerable<string>> GetRandomMobNameAsync(GetMobNameRequest request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
             ArgumentException.ThrowIfNullOrWhiteSpace(request.MobType);
@@ -61,16 +66,14 @@ namespace NuciCraft.API.Service
                     request.Count);
                 NuciApiRequestAuthorisationInfo requestAuthorisationInfo =
                     BuildRequestAuthorisationInfo();
-                NuciApiResponse apiResponse = universalNameGeneratorClient
+                NuciApiResponse apiResponse = await universalNameGeneratorClient
                     .SendRequestAsync<
                         GenerateNamesRequest,
                         GenerateNamesResponse>(
                         HttpMethod.Get,
                         generateNamesRequest,
                         requestAuthorisationInfo,
-                        NamesEndpoint)
-                    .GetAwaiter()
-                    .GetResult();
+                        NamesEndpoint);
                 IEnumerable<string> generatedNames = ExtractGeneratedNames(
                     apiResponse,
                     mobType);
