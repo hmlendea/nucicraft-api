@@ -7,5 +7,7 @@ namespace NuciCraft.API.DataAccess.DataObjects
         public string CreatedDT { get; set; }
 
         public string UpdatedDT { get; set; }
+
+        public long Version { get; set; }
     }
 }

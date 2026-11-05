@@ -4,8 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using NuciAPI.Client;
-
-using NuciDAL.DataObjects;
 using NuciDAL.Repositories;
 
 using NuciLog;
@@ -16,6 +14,7 @@ using NuciText.Obfuscation;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
+using NuciCraft.API.DataAccess.Repositories;
 using NuciCraft.API.Service;
 
 namespace NuciCraft.API
@@ -89,8 +88,8 @@ namespace NuciCraft.API
         private static IServiceCollection AddJsonRepository<TDataObject>(
             this IServiceCollection services,
             Func<string> storePathProvider)
-            where TDataObject : EntityBase
+            where TDataObject : NuciCraftEntityBase
             => services.AddSingleton<IFileRepository<TDataObject>>(
-                _ => new JsonRepository<TDataObject>(storePathProvider()));
+                _ => new OptimisticJsonRepository<TDataObject>(storePathProvider()));
     }
 }
