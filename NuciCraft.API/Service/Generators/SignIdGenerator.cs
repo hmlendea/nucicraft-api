@@ -1,11 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace NuciCraft.API.Service.Generators
 {
     public sealed class SignIdGenerator : ISignIdGenerator
     {
+        private static int _currentId;
+
+        public int GetNextId() => Interlocked.Increment(ref _currentId);
+
         public List<string> GenerateDefaultSignIds(string nucicraftId)
         {
             string signId = nucicraftId;
