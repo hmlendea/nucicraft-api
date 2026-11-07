@@ -16,6 +16,7 @@ using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.DataAccess.Repositories;
 using NuciCraft.API.Service;
+using NuciCraft.API.Service.Anonymisation;
 using NuciCraft.API.Service.Generators;
 
 namespace NuciCraft.API
@@ -82,6 +83,7 @@ namespace NuciCraft.API
             .AddSingleton<IRtpLocationService, RtpLocationService>()
             .AddSingleton<IZoneService, ZoneService>()
             .AddSingleton<IAccessControlService, AccessControlService>()
+            .AddSingleton<IAnonymisationServiceDetectorFactory, AnonymisationServiceDetectorFactory>()
             .AddSingleton<ISignIdGenerator, SignIdGenerator>()
             .AddSingleton<INuciTextNormaliser, NuciTextNormaliser>()
             .AddSingleton<INuciTextObfuscator, NuciTextObfuscator>()
