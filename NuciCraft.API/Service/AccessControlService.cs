@@ -12,6 +12,7 @@ using NuciWeb.HTTP;
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
+using NuciCraft.API.Service.Anonymisation;
 using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.Service
@@ -22,24 +23,29 @@ namespace NuciCraft.API.Service
 
         private readonly HttpClient httpClient;
         private readonly AccessControlSettings settings;
+        private readonly IAnonymisationServiceDetectorFactory anonymisationServiceDetectorFactory;
         private readonly ILogger logger;
 
         public AccessControlService(
             AccessControlSettings settings,
+            IAnonymisationServiceDetectorFactory anonymisationServiceDetectorFactory,
             ILogger logger)
-            : this(settings, logger, HttpClientCreator.Create())
+            : this(settings, anonymisationServiceDetectorFactory, logger, HttpClientCreator.Create())
         {
         }
 
         public AccessControlService(
             AccessControlSettings settings,
+            IAnonymisationServiceDetectorFactory anonymisationServiceDetectorFactory,
             ILogger logger,
             HttpClient httpClient)
         {
             ArgumentNullException.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(anonymisationServiceDetectorFactory);
             ArgumentNullException.ThrowIfNull(logger);
 
             this.settings = settings;
+            this.anonymisationServiceDetectorFactory = anonymisationServiceDetectorFactory;
             this.logger = logger;
             this.httpClient = httpClient;
         }
@@ -191,15 +197,9 @@ namespace NuciCraft.API.Service
 
             try
             {
-                string url = $"{detectionSettings.ApiUrl}?ip={Uri.EscapeDataString(ipAddress)}&license={Uri.EscapeDataString(detectionSettings.ApiLicense)}&cache={detectionSettings.IsCacheEnabled.ToString().ToLowerInvariant()}";
+                IAnonymisationServiceDetector detector = anonymisationServiceDetectorFactory.Create();
 
-                using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken);
-                response.EnsureSuccessStatusCode();
-
-                string json = await response.Content.ReadAsStringAsync(cancellationToken);
-                AnonymisationServiceCheckData? anonymisationServiceCheck = JsonSerializer.Deserialize<AnonymisationServiceCheckData>(json);
-
-                return anonymisationServiceCheck is not null && anonymisationServiceCheck.Success && anonymisationServiceCheck.IsAnonymisationService;
+                return await detector.IsAnonymisationService(ipAddress, cancellationToken);
             }
             catch (Exception exception)
             {

@@ -18,7 +18,7 @@ namespace NuciCraft.API.UnitTests.Service
         {
             string? url = request.RequestUri?.ToString();
 
-            if (url is not null && url.Contains("anonymisation.test", StringComparison.Ordinal))
+            if (url is not null && (url.Contains("funkemunky.cc", StringComparison.Ordinal) || url.Contains("proxycheck.io", StringComparison.Ordinal)))
             {
                 return anonymisationHandler.SendAsyncPublic(request, cancellationToken);
             }

@@ -13,6 +13,7 @@ using NUnit.Framework;
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service;
+using NuciCraft.API.Service.Anonymisation;
 using NuciCraft.API.Service.Models;
 
 namespace NuciCraft.API.UnitTests.Service
@@ -37,6 +38,7 @@ namespace NuciCraft.API.UnitTests.Service
             StubHttpMessageHandler.ReturningJson(AnonymisationServiceNotDetectedJson);
 
         private Mock<ILogger> logger;
+        private Mock<IAnonymisationServiceDetectorFactory> factory;
         private AccessControlSettings settings;
         private AccessControlService service;
 
@@ -44,6 +46,7 @@ namespace NuciCraft.API.UnitTests.Service
         public void SetUp()
         {
             logger = new Mock<ILogger>();
+            factory = new Mock<IAnonymisationServiceDetectorFactory>();
             settings = new AccessControlSettings
             {
                 DeniedCountries = ["CN", "RU"],
@@ -51,15 +54,20 @@ namespace NuciCraft.API.UnitTests.Service
                 GeolocationApiUrl = "https://geo.test/",
                 AnonymisationServiceDetection = new()
                 {
-                    ApiUrl = "https://anonymisation.test/check",
-                    ApiLicense = "license/value",
+                    Provider = "funkemunky",
                     IsCacheEnabled = false,
                     IsEnabled = true
                 }
             };
 
+            IAnonymisationServiceDetector detector = new FunkeMunkyAnonymisationServiceDetector(
+                settings,
+                new HttpClient(new RoutingHandler(geolocationHandler, anonymisationHandler)));
+            factory.Setup(f => f.Create()).Returns(detector);
+
             service = new AccessControlService(
                 settings,
+                factory.Object,
                 logger.Object,
                 new HttpClient(new RoutingHandler(geolocationHandler, anonymisationHandler)));
         }
@@ -201,6 +209,21 @@ namespace NuciCraft.API.UnitTests.Service
                 Throws.InstanceOf<HttpRequestException>());
         }
 
+        private AccessControlService CreateServiceWithHandlers(
+            StubHttpMessageHandler geolocation,
+            StubHttpMessageHandler anonymisationDetection)
+        {
+            IAnonymisationServiceDetector detector = new FunkeMunkyAnonymisationServiceDetector(
+                settings,
+                new HttpClient(new RoutingHandler(geolocation, anonymisationDetection)));
+            factory.Setup(f => f.Create()).Returns(detector);
+            return new AccessControlService(
+                settings,
+                factory.Object,
+                logger.Object,
+                new HttpClient(new RoutingHandler(geolocation, anonymisationDetection)));
+        }
+
         [Test]
         public async Task GivenAnEnablingAnonymisationServiceDetection_WhenCheckingTheIp_ThenTheRequestContainsTheIpAddressAndSettings()
         {
@@ -209,7 +232,7 @@ namespace NuciCraft.API.UnitTests.Service
             string requestedUrl = GetRequestedUrl(anonymisationHandler);
 
             Assert.That(requestedUrl, Does.Contain("ip=8.8.8.8"));
-            Assert.That(requestedUrl, Does.Contain("license=license%2Fvalue"));
+            Assert.That(requestedUrl, Does.Contain("license=none"));
             Assert.That(requestedUrl, Does.Contain("cache=false"));
         }
 
@@ -217,7 +240,15 @@ namespace NuciCraft.API.UnitTests.Service
         public async Task GivenAnEnabledAnonymisationServiceDetectionCache_WhenCheckingTheIp_ThenTheRequestAsksForTheCache()
         {
             settings.AnonymisationServiceDetection.IsCacheEnabled = true;
-            service = CreateServiceWithHandlers(geolocationHandler, anonymisationHandler);
+            IAnonymisationServiceDetector detector = new FunkeMunkyAnonymisationServiceDetector(
+                settings,
+                new HttpClient(new RoutingHandler(geolocationHandler, anonymisationHandler)));
+            factory.Setup(f => f.Create()).Returns(detector);
+            service = new AccessControlService(
+                settings,
+                factory.Object,
+                logger.Object,
+                new HttpClient(new RoutingHandler(geolocationHandler, anonymisationHandler)));
 
             await service.CheckIpAsync(new CheckIpRequest { IpAddress = "8.8.8.8" });
 
@@ -236,6 +267,31 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(requestedUrl, Does.Contain("ip=1.2.3.4%26x%3D1"));
         }
 
+        [Test]
+        public async Task GivenProxyCheckProvider_WhenCheckingTheIp_ThenTheRequestUsesProxyCheckUrl()
+        {
+            settings.AnonymisationServiceDetection.Provider = "proxycheck";
+            IAnonymisationServiceDetector detector = new ProxyCheckAnonymisationServiceDetector(
+                settings,
+                new HttpClient(new RoutingHandler(geolocationHandler, anonymisationHandler)));
+            factory.Setup(f => f.Create()).Returns(detector);
+            service = new AccessControlService(
+                settings,
+                factory.Object,
+                logger.Object,
+                new HttpClient(new RoutingHandler(geolocationHandler, anonymisationHandler)));
+
+            await service.CheckIpAsync(new CheckIpRequest { IpAddress = "8.8.8.8" });
+
+            string requestedUrl = GetRequestedUrl(anonymisationHandler);
+
+            Assert.That(requestedUrl, Does.Contain("proxycheck.io/v2/8.8.8.8"));
+            Assert.That(requestedUrl, Does.Contain("vpn=1"));
+            Assert.That(requestedUrl, Does.Contain("asn=1"));
+            Assert.That(requestedUrl, Does.Contain("risk=1"));
+            Assert.That(requestedUrl, Does.Contain("cache=false"));
+        }
+
         private static string GetRequestedUrl(StubHttpMessageHandler handler)
         {
             if (handler.LastRequest?.RequestUri?.ToString() is string url)
@@ -245,13 +301,5 @@ namespace NuciCraft.API.UnitTests.Service
 
             return string.Empty;
         }
-
-        private AccessControlService CreateServiceWithHandlers(
-            StubHttpMessageHandler geolocation,
-            StubHttpMessageHandler anonymisationDetection)
-            => new(
-                settings,
-                logger.Object,
-                new HttpClient(new RoutingHandler(geolocation, anonymisationDetection)));
     }
 }
