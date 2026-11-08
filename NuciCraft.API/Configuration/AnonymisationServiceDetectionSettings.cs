@@ -11,5 +11,7 @@ namespace NuciCraft.API.Configuration
         public int CacheDurationHoursWhenDetected { get; set; } = 6;
 
         public int CacheDurationHoursWhenNotDetected { get; set; } = 2;
+
+        public int CacheDurationHoursForExpiredFallback { get; set; } = 6;
     }
 }

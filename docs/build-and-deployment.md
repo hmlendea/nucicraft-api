@@ -4,7 +4,7 @@
 |----------|-------|
 | Purpose | Document restoration, compilation, test, publication, CI, release, runtime requirements, startup, shutdown, and operator responsibilities. |
 | Scope | Repository-provided development and delivery mechanisms plus evidenced deployment assumptions. |
-| Primary sources | [NuciCraft.API.slnx](../NuciCraft.API.slnx), project files, [.github/workflows/dotnet.yml](../.github/workflows/dotnet.yml), [.vscode/tasks.json](../.vscode/tasks.json), [.vscode/launch.json](../.vscode/launch.json), and [release.sh](../release.sh) |
+| Primary sources | [NuciCraft.API.slnx](../NuciCraft.API.slnx), project files, [.github/workflows/dotnet.yml](../.github/workflows/dotnet.yml), [.github/workflows/security.yml](../.github/workflows/security.yml), [.vscode/tasks.json](../.vscode/tasks.json), [.vscode/launch.json](../.vscode/launch.json), and [release.sh](../release.sh) |
 | Related documents | [Repository structure](repository-structure.md), [configuration](configuration.md), [startup flow](flows/startup.md), and [testing](testing.md) |
 
 ## Toolchain
@@ -107,7 +107,27 @@ One Ubuntu job performs:
 4. `dotnet build --no-restore`.
 5. `dotnet test --no-build --verbosity normal`.
 
-CI does not publish artefacts, produce coverage, scan dependencies, lint Markdown, validate Mermaid, deploy, create releases, or run against multiple operating systems.
+CI does not publish artefacts, produce coverage, lint Markdown, validate Mermaid, deploy, create releases, or run against multiple operating systems.
+
+## Security Scanning
+
+[.github/workflows/security.yml](../.github/workflows/security.yml) is named `Security` and executes on:
+- Push to `master`.
+- Pull request targeting `master`.
+- A weekly schedule at `0 0 * * 0`.
+
+One Ubuntu job performs:
+1. `actions/checkout@v7`.
+2. `actions/setup-dotnet@v5` with `10.0.x`.
+3. `dotnet restore`.
+4. `dotnet list package --vulnerable --include-transitive`.
+5. CodeQL initialisation for `csharp` through `github/codeql-action/init@v4`.
+6. `dotnet build --no-restore`.
+7. CodeQL analysis through `github/codeql-action/analyze@v4`.
+
+The job grants `security-events: write` and `contents: read`. The write scope is required because the analysis step uploads SARIF results to GitHub Code Scanning. With a read scope, the upload fails on push and schedule runs with `Resource not accessible by integration`, while pull request runs still complete.
+
+The security workflow does not publish artefacts, produce coverage, execute tests, lint Markdown, validate Mermaid, deploy, create releases, or run against multiple operating systems.
 
 ## Maintainer Release Process
 

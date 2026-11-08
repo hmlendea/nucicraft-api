@@ -37,7 +37,7 @@ Integration only:
 dotnet test NuciCraft.API.IntegrationTests/NuciCraft.API.IntegrationTests.csproj
 ```
 
-CI restores and compiles first, then executes `dotnet test --no-build --verbosity normal`.
+CI restores and compiles first, then executes `dotnet test --no-build --verbosity normal`. The separate [security workflow](../.github/workflows/security.yml) reports vulnerable packages and uploads CodeQL results; it does not execute tests.
 
 Architecture only:
 

@@ -4,7 +4,7 @@
 |----------|-------|
 | Purpose | Map the physical repository to architectural responsibilities and modification boundaries. |
 | Scope | Tracked source, tests, configuration, automation, and documentation; generated outputs and local runtime data are identified but not inventoried record by record. |
-| Primary sources | [Solution](../NuciCraft.API.slnx), [runtime project](../NuciCraft.API/), [unit tests](../NuciCraft.API.UnitTests/), [integration tests](../NuciCraft.API.IntegrationTests/), and [GitHub workflow](../.github/workflows/dotnet.yml) |
+| Primary sources | [Solution](../NuciCraft.API.slnx), [runtime project](../NuciCraft.API/), [unit tests](../NuciCraft.API.UnitTests/), [integration tests](../NuciCraft.API.IntegrationTests/), and [GitHub workflows](../.github/workflows/) |
 | Related documents | [Architecture](architecture.md), [repository overview](repository-overview.md), and [design decisions](design-decisions.md) |
 
 ## Root Organisation
@@ -123,6 +123,7 @@ These classes extend NuciLog types. Add a corresponding operation when a novel s
 | Path | Conduct |
 |------|---------|
 | [.github/workflows/dotnet.yml](../.github/workflows/dotnet.yml) | On pushes and pull requests to `master`, checks out source, installs .NET 10, restores, compiles without a second restore, and tests without a second compile. |
+| [.github/workflows/security.yml](../.github/workflows/security.yml) | On pushes and pull requests to `master` and on a weekly schedule, checks out source, installs .NET 10, restores, reports vulnerable packages, builds, and uploads CodeQL results with `security-events: write`. |
 | [.vscode/tasks.json](../.vscode/tasks.json) | Defines runtime-project compile, publish, and watch tasks. |
 | [.vscode/launch.json](../.vscode/launch.json) | Launches the Debug .NET 10 assembly in Development and detects the server URL. |
 | [release.sh](../release.sh) | Downloads a version-selected remote release script and pipes it to Bash. |

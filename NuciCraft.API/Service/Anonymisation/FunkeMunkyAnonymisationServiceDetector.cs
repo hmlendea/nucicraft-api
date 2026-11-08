@@ -25,7 +25,7 @@ namespace NuciCraft.API.Service.Anonymisation
 
         public async Task<bool> IsAnonymisationService(string ipAddress, CancellationToken cancellationToken)
         {
-            string url = $"https://funkemunky.cc/vpn?ip={Uri.EscapeDataString(ipAddress)}&license=none&cache={settings.AnonymisationServiceDetection.IsCacheEnabled.ToString().ToLowerInvariant()}";
+            string url = $"https://funkemunky.cc/vpn?ip={Uri.EscapeDataString(ipAddress)}&license=none&cache=false";
 
             using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken);
             response.EnsureSuccessStatusCode();

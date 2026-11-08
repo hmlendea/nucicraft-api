@@ -407,6 +407,7 @@ ZoneType:
 | [NuciCraft.API.UnitTests.csproj](../NuciCraft.API.UnitTests/NuciCraft.API.UnitTests.csproj) | Testing and dependencies. |
 | [NuciCraft.API.IntegrationTests.csproj](../NuciCraft.API.IntegrationTests/NuciCraft.API.IntegrationTests.csproj) | Testing and dependencies. |
 | [.github/workflows/dotnet.yml](../.github/workflows/dotnet.yml) | Build and deployment. |
+| [.github/workflows/security.yml](../.github/workflows/security.yml) | Build and deployment. |
 | [.vscode/tasks.json](../.vscode/tasks.json) | Build and deployment. |
 | [.vscode/launch.json](../.vscode/launch.json) | Build and deployment. |
 | [release.sh](../release.sh) | Build, integrations, security, and ambiguity register. |

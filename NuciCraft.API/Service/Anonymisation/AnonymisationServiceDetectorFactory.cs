@@ -13,10 +13,12 @@ namespace NuciCraft.API.Service.Anonymisation
 {
     public sealed class AnonymisationServiceDetectorFactory(
         AccessControlSettings settings,
-        IServiceProvider serviceProvider) : IAnonymisationServiceDetectorFactory
+        IServiceProvider serviceProvider,
+        ILogger logger) : IAnonymisationServiceDetectorFactory
     {
         private readonly AccessControlSettings settings = settings;
         private readonly IServiceProvider serviceProvider = serviceProvider;
+        private readonly ILogger logger = logger;
 
         public IAnonymisationServiceDetector Create()
         {
@@ -24,7 +26,7 @@ namespace NuciCraft.API.Service.Anonymisation
 
             HttpClient httpClient = serviceProvider.GetRequiredService<HttpClient>();
             IMemoryCache memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
-            ILogger logger = serviceProvider.GetRequiredService<ILogger>();
+            TimeProvider timeProvider = serviceProvider.GetRequiredService<TimeProvider>();
 
             IAnonymisationServiceDetector innerDetector;
 
@@ -41,7 +43,12 @@ namespace NuciCraft.API.Service.Anonymisation
                 throw new NotSupportedException($"Unsupported anonymisation service provider '{provider}'.");
             }
 
-            return new CachedAnonymisationServiceDetector(innerDetector, memoryCache, settings, logger);
+            return new CachedAnonymisationServiceDetector(
+                innerDetector,
+                memoryCache,
+                settings,
+                timeProvider,
+                logger);
         }
     }
 }
