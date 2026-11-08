@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using Moq;
@@ -5,6 +7,7 @@ using Moq;
 using NuciCraft.API.Configuration;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service;
+using NuciCraft.API.Service.Anonymisation;
 
 using NuciLog.Core;
 
@@ -16,6 +19,7 @@ namespace NuciCraft.API.UnitTests.Service
     public sealed class AccessControlServiceUsernameTests
     {
         private Mock<ILogger> logger;
+        private Mock<IAnonymisationServiceDetectorFactory> factory;
         private AccessControlSettings settings;
         private AccessControlService service;
 
@@ -23,6 +27,7 @@ namespace NuciCraft.API.UnitTests.Service
         public void SetUp()
         {
             logger = new Mock<ILogger>();
+            factory = new Mock<IAnonymisationServiceDetectorFactory>();
             settings = new AccessControlSettings
             {
                 DeniedCountries = ["CN", "RU"],
@@ -31,12 +36,16 @@ namespace NuciCraft.API.UnitTests.Service
                 GeolocationApiUrl = "https://geo.test/",
                 AnonymisationServiceDetection = new()
                 {
-                    ApiUrl = "https://anonymisation.test/check",
-                    ApiLicense = "license/value",
-                    IsCacheEnabled = false
+                    Provider = "funkemunky",
+                    IsCacheEnabled = false,
+                    IsEnabled = true
                 }
             };
-            service = new AccessControlService(settings, logger.Object);
+            IAnonymisationServiceDetector detector = new FunkeMunkyAnonymisationServiceDetector(
+                settings,
+                new HttpClient(new StubHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("""{"success":true,"proxy":false}""") })));
+            factory.Setup(f => f.Create()).Returns(detector);
+            service = new AccessControlService(settings, factory.Object, logger.Object);
         }
 
         [Test]
