@@ -31,19 +31,26 @@ namespace NuciCraft.API.Service
 
         private static string SuccessfulGeolocationStatus => "success";
 
+        private static string BuildBannedUserMessage(string serverName) => $"This user is banned on {serverName}";
+
+        private static string BuildBannedIpAddressMessage(string serverName) => $"This IP address is banned on {serverName}";
+
         private readonly HttpClient httpClient;
         private readonly AccessControlSettings settings;
+        private readonly ServerSettings serverSettings;
         private readonly IAnonymisationServiceDetectorFactory anonymisationServiceDetectorFactory;
         private readonly IFileRepository<PlayerDataObject> playerRepository;
         private readonly ILogger logger;
 
         public AccessControlService(
             AccessControlSettings settings,
+            ServerSettings serverSettings,
             IAnonymisationServiceDetectorFactory anonymisationServiceDetectorFactory,
             IFileRepository<PlayerDataObject> playerRepository,
             ILogger logger)
             : this(
                 settings,
+                serverSettings,
                 anonymisationServiceDetectorFactory,
                 playerRepository,
                 logger,
@@ -53,17 +60,20 @@ namespace NuciCraft.API.Service
 
         public AccessControlService(
             AccessControlSettings settings,
+            ServerSettings serverSettings,
             IAnonymisationServiceDetectorFactory anonymisationServiceDetectorFactory,
             IFileRepository<PlayerDataObject> playerRepository,
             ILogger logger,
             HttpClient httpClient)
         {
             ArgumentNullException.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(serverSettings);
             ArgumentNullException.ThrowIfNull(anonymisationServiceDetectorFactory);
             ArgumentNullException.ThrowIfNull(playerRepository);
             ArgumentNullException.ThrowIfNull(logger);
 
             this.settings = settings;
+            this.serverSettings = serverSettings;
             this.anonymisationServiceDetectorFactory = anonymisationServiceDetectorFactory;
             this.playerRepository = playerRepository;
             this.logger = logger;
@@ -153,7 +163,9 @@ namespace NuciCraft.API.Service
 
         private async Task<IpCheckResult> PerformIpCheck(CheckIpRequest request, CancellationToken cancellationToken)
         {
-            if (IsRegisteredPlayerExemptionApplicable(request.Username))
+            PlayerDataObject[] players = [.. playerRepository.GetAll()];
+
+            if (IsRegisteredPlayerExemptionApplicable(request.Username, players))
             {
                 return new IpCheckResult
                 {
@@ -163,7 +175,27 @@ namespace NuciCraft.API.Service
                 };
             }
 
+            if (IsIpAddressAssociatedWithBannedPlayer(request.IpAddress, players))
+            {
+                return new IpCheckResult
+                {
+                    IsAllowed = false,
+                    CountryCode = null,
+                    DeniedReason = BuildBannedDenialMessage(request.Username)
+                };
+            }
+
             return await PerformRegularIpCheck(request.IpAddress, cancellationToken);
+        }
+
+        private string BuildBannedDenialMessage(string? username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return BuildBannedIpAddressMessage(serverSettings.Name);
+            }
+
+            return BuildBannedUserMessage(serverSettings.Name);
         }
 
         private async Task<IpCheckResult> PerformRegularIpCheck(
@@ -231,20 +263,28 @@ namespace NuciCraft.API.Service
                     countryCode,
                     StringComparison.OrdinalIgnoreCase));
 
-        private bool IsRegisteredPlayerExemptionApplicable(string? username)
+        private bool IsRegisteredPlayerExemptionApplicable(
+            string? username,
+            IEnumerable<PlayerDataObject> players)
         {
             if (!settings.IsRegisteredPlayerExemptionEnabled || string.IsNullOrWhiteSpace(username))
             {
                 return false;
             }
 
-            PlayerDataObject? playerDataObject = playerRepository
-                .GetAll()
+            PlayerDataObject? playerDataObject = players
                 .FirstOrDefault(player =>
                     string.Equals(player.Username, username, StringComparison.Ordinal));
 
             return playerDataObject is not null && !playerDataObject.IsBanned;
         }
+
+        private static bool IsIpAddressAssociatedWithBannedPlayer(
+            string ipAddress,
+            IEnumerable<PlayerDataObject> players)
+            => players.Any(player =>
+                player.IsBanned &&
+                string.Equals(player.LastIpAddress, ipAddress, StringComparison.Ordinal));
 
         private async Task<GeolocationData?> GetGeolocationData(string ipAddress, CancellationToken cancellationToken)
         {

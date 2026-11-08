@@ -132,6 +132,16 @@ When the setting is disabled, the username is absent or whitespace, no player re
 
 The lookup reads the player store through the same repository used by [PlayerService](components/player-and-homes.md), so an unregistered username does not produce a failure log.
 
+### Banned Player Denial
+
+An IP address recorded as the last IP address of any banned player is denied by default. The denial runs after the registered-player exemption and before the geolocation, denied-country, and anonymisation-service checks, so no outbound request is performed for such an address.
+
+The denial reason is `This IP address is banned on {serverName}` when the request supplies no username, and `This user is banned on {serverName}` when it supplies one. The server name comes from `serverSettings.name`.
+
+A request that supplies the username of a registered, non-banned player is permitted before the denial applies, even when the same address is recorded for a banned player. This denial has no configuration switch.
+
+The comparison uses the persisted `LastIpAddress` field with ordinal, case-sensitive equality.
+
 ### Anonymisation Service Detection Cache
 
 `CachedAnonymisationServiceDetector` stores one entry per IP address in the in-process `IMemoryCache` under the `anonymisation:` key prefix. A cached result is served without a live request until its lifetime elapses.

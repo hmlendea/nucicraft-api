@@ -192,12 +192,19 @@ Rules are:
 ### IP Check
 
 - The IP address is transport-required; the username is optional.
+- The checks run in a fixed order: registered-player exemption, banned-player denial, then the geolocation, denied-country, and anonymisation-service checks.
 - The username lookup compares ordinally and case-sensitively against the persisted player usernames.
 - A whitespace or absent username never grants the exemption.
 - The exemption applies only to a registered, non-banned player.
 - A banned or unregistered username leaves the geolocation, denied-country, and anonymisation-service checks unchanged.
 - The exemption is permitted before any external request, so a granted exemption performs no geolocation or detection call and returns a null country code.
 - The exemption is configurable through `accessControlSettings.isRegisteredPlayerExemptionEnabled`. When disabled, the username is ignored.
+- An IP address recorded as the last IP address of any banned player is denied before the remaining checks run, so no external request is made for it.
+- The banned-player denial compares the recorded last IP address ordinally and case-sensitively.
+- The denied reason is `This IP address is banned on {serverName}` when the request supplies no username, and `This user is banned on {serverName}` when it supplies one.
+- The server name comes from `serverSettings.name` and is interpolated verbatim.
+- A username naming a registered, non-banned player permits the request even when the same address belongs to a banned player.
+- The banned-player denial is not configurable and applies regardless of the registered-player exemption setting.
 - A non-success geolocation status or a missing country code remains fail-open and permits the request.
 - Denied-country comparison is case-insensitive.
 - A failing anonymisation-service provider is logged and permits the request.

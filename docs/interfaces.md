@@ -45,7 +45,7 @@
 | `POST /RtpLocations` | AddRtpLocationRequest | None | Validate proximity; add and save. |
 | `GET /RtpLocations/random` | Optional World and Biome | GetRtpLocationResponse | Filter and select random record. |
 | `GET /Server` | None | GetServerResponse | Live Java TCP query plus settings. |
-| `POST /AccessControl/check-ip` | CheckIpRequest body | CheckIpResponse | Optional registered-player exemption, then geolocation lookup and denied country check. |
+| `POST /AccessControl/check-ip` | CheckIpRequest body | CheckIpResponse | Optional registered-player exemption, banned-player denial, then geolocation lookup and denied country check. |
 | `POST /AccessControl/check-username` | CheckUsernameRequest body | CheckUsernameResponse | Denied pattern and minimum length check. |
 | `POST /Worlds` | AddWorldRequest | None | Add and save World. |
 | `GET /Worlds/{id}` | Route id | GetWorldResponse | Direct World query. |
@@ -98,7 +98,7 @@ The subsequent elements are compatibility-sensitive:
 | [IWorldService](../NuciCraft.API/Service/IWorldService.cs) | WorldsController | Add, GetWorld, GetAllWorlds, Update | World repository writes. |
 | [IZoneService](../NuciCraft.API/Service/IZoneService.cs) | ZonesController | Add, Delete, GetZone, GetAllZones, category query, coordinate query, Update | Zone writes and cross-store reads. |
 | [IZoneTypeService](../NuciCraft.API/Service/IZoneTypeService.cs) | ZoneTypesController | Add, GetZoneType, GetAllZoneTypes, Update | ZoneType repository writes. |
-| [IAccessControlService](../NuciCraft.API/Service/IAccessControlService.cs) | AccessControlController | CheckIp, CheckUsername | Outbound geolocation HTTP call and player-store lookup. |
+| [IAccessControlService](../NuciCraft.API/Service/IAccessControlService.cs) | AccessControlController | CheckIp, CheckUsername | Outbound geolocation HTTP call and player-store lookups. |
 
 All methods are synchronous and accept no cancellation token. Exceptions propagate to callers after service logging where implemented.
 

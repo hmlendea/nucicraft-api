@@ -519,7 +519,7 @@ curl -X POST "http://localhost:5000/AccessControl/check-ip" \
 	}'
 ```
 
-The IP check performs a real-time geolocation lookup using the configured geolocation API (default: ip-api.com) to determine the country code, then checks if that country is in the denied countries list. The response contains `isAllowed`, `deniedReason` (if denied), and `countryCode`. An optional `username` value may be supplied; when it identifies a registered, non-banned player, the check is permitted immediately without any geolocation, denied-country, or anonymisation-service check. This exemption is controlled by `accessControlSettings.isRegisteredPlayerExemptionEnabled`.
+The IP check performs a real-time geolocation lookup using the configured geolocation API (default: ip-api.com) to determine the country code, then checks if that country is in the denied countries list. The response contains `isAllowed`, `deniedReason` (if denied), and `countryCode`. An optional `username` value may be supplied; when it identifies a registered, non-banned player, the check is permitted immediately without any geolocation, denied-country, or anonymisation-service check. This exemption is controlled by `accessControlSettings.isRegisteredPlayerExemptionEnabled`. An IP address recorded as the last IP address of any banned player is denied before those checks, with the reason `This IP address is banned on {serverName}` when no username is supplied and `This user is banned on {serverName}` when one is.
 
 ```bash
 curl -X POST "http://localhost:5000/AccessControl/check-username" \

@@ -154,6 +154,75 @@ namespace NuciCraft.API.IntegrationTests
             Assert.That(body, Does.Contain("\"deniedReason\":\"Access is not permitted from this country.\""));
         }
 
+        [Test]
+        public async Task GivenAnIpAddressOfABannedPlayer_WhenCheckingItWithoutAUsername_ThenTheIpAddressIsDenied()
+        {
+            testHost.PlayerRepository.Add(BuildBannedPlayer("GrumpyCat", "8.8.8.8"));
+
+            HttpResponseMessage response = await client.GetAsync(
+                "/accesscontrol/check-ip?ipAddress=8.8.8.8");
+            string body = await response.Content.ReadAsStringAsync();
+
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(body, Does.Contain("\"isAllowed\":false"));
+            Assert.That(body, Does.Contain("\"deniedReason\":\"This IP address is banned on NuciCraft\""));
+        }
+
+        [Test]
+        public async Task GivenAnIpAddressOfABannedPlayer_WhenCheckingItWithAUsername_ThenTheUserIsDenied()
+        {
+            testHost.PlayerRepository.Add(BuildBannedPlayer("GrumpyCat", "8.8.8.8"));
+
+            HttpResponseMessage response = await client.GetAsync(
+                "/accesscontrol/check-ip?ipAddress=8.8.8.8&username=DummyUser");
+            string body = await response.Content.ReadAsStringAsync();
+
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(body, Does.Contain("\"isAllowed\":false"));
+            Assert.That(body, Does.Contain("\"deniedReason\":\"This user is banned on NuciCraft\""));
+        }
+
+        [Test]
+        public async Task GivenAnIpAddressOfABannedPlayer_WhenCheckingIt_ThenNoExternalCheckIsPerformed()
+        {
+            testHost.PlayerRepository.Add(BuildBannedPlayer("GrumpyCat", "8.8.8.8"));
+
+            await client.GetAsync("/accesscontrol/check-ip?ipAddress=8.8.8.8");
+
+            Assert.That(httpMessageHandler.RequestCount, Is.Zero);
+        }
+
+        [Test]
+        public async Task GivenARegisteredNonBannedUsernameAndAnIpAddressOfABannedPlayer_WhenCheckingTheIp_ThenTheIpIsAllowed()
+        {
+            testHost.PlayerRepository.Add(BuildBannedPlayer("GrumpyCat", "8.8.8.8"));
+            RegisterPlayer("DummyUser", false);
+
+            HttpResponseMessage response = await client.GetAsync(
+                "/accesscontrol/check-ip?ipAddress=8.8.8.8&username=DummyUser");
+            string body = await response.Content.ReadAsStringAsync();
+
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(body, Does.Contain("\"isAllowed\":true"));
+            Assert.That(body, Does.Contain("\"deniedReason\":null"));
+        }
+
+        [Test]
+        public async Task GivenAnIpAddressOfANonBannedPlayer_WhenCheckingIt_ThenTheIpIsAllowed()
+        {
+            PlayerDataObject player = BuildPlayer("IlarionPintilie", false);
+            player.LastIpAddress = "8.8.8.8";
+
+            testHost.PlayerRepository.Add(player);
+
+            HttpResponseMessage response = await client.GetAsync(
+                "/accesscontrol/check-ip?ipAddress=8.8.8.8");
+            string body = await response.Content.ReadAsStringAsync();
+
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(body, Does.Contain("\"isAllowed\":true"));
+        }
+
         private void RegisterPlayer(string username, bool isBanned)
             => testHost.PlayerRepository.Add(BuildPlayer(username, isBanned));
 
@@ -163,6 +232,16 @@ namespace NuciCraft.API.IntegrationTests
             Username = username,
             IsBanned = isBanned
         };
+
+        private static PlayerDataObject BuildBannedPlayer(
+            string username,
+            string lastIpAddress) => new()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Username = username,
+                IsBanned = true,
+                LastIpAddress = lastIpAddress
+            };
 
         private void UseDeniedCountryGeolocation()
             => httpMessageHandler.SetResponder(

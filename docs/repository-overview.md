@@ -77,7 +77,7 @@ The deployment unit is the web project defined by [NuciCraft.API.csproj](../Nuci
 
 The process boundary contains:
 - Kestrel and the ASP.NET Core request pipeline.
-- Eleven controllers and eleven application services, including access control, server status, and sign-ID generation support. Access control resolves the optional registered-player exemption through the Player store.
+- Eleven controllers and eleven application services, including access control, server status, and sign-ID generation support. Access control resolves the optional registered-player exemption and the banned-player IP denial through the Player store.
 - Eight singleton NuciDAL file repositories.
 - One singleton Universal Name Generator client.
 - One singleton Java server-status service.

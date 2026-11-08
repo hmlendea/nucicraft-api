@@ -53,7 +53,7 @@ They do not own:
 
 - Player and Home controllers.
 - Home service owner validation depends on Player retrieval semantics.
-- Access control depends on the Player store to resolve the optional registered-player exemption in the IP check.
+- Access control depends on the Player store to resolve the optional registered-player exemption and the banned-player IP denial in the IP check.
 - API clients consuming Player identity, settings, personal data, or Home locations.
 - Integration tests that use a registered Player before creating a Home.
 - Persistence restart tests that rely on stable Home representation and uniqueness checks.

@@ -71,6 +71,17 @@ Consequences:
 - Banned players never receive the exemption, but a banned player cannot be used to deny a different registered player either.
 - The exemption short-circuits all outbound access-control calls, so it also reduces detection-provider usage.
 
+### Banned Player Denial
+
+An IP address recorded as the last IP address of any banned player is denied. The denial reason is `This IP address is banned on {serverName}` when the request supplies no username, and `This user is banned on {serverName}` when it supplies one.
+
+Consequences:
+- The denial precedes the geolocation, denied-country, and anonymisation-service checks, so a banned address never triggers outbound requests.
+- The denial has no configuration switch and applies even when the registered-player exemption is disabled.
+- The username message discloses that the supplied username is banned. It is asserted by the caller and may refer to a player other than the caller.
+- A registered, non-banned username permits the request before the denial applies, so a banned address shared with a legitimate player remains reachable.
+- Only the persisted `LastIpAddress` field is compared, so an address a banned player used but never recorded as their last address is not denied.
+
 ## Secret Handling
 
 Secret-bearing settings are:

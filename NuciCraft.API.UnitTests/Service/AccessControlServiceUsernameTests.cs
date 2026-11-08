@@ -25,6 +25,7 @@ namespace NuciCraft.API.UnitTests.Service
         private Mock<IAnonymisationServiceDetectorFactory> factory;
         private Mock<IFileRepository<PlayerDataObject>> playerRepository;
         private AccessControlSettings settings;
+        private ServerSettings serverSettings;
         private AccessControlService service;
 
         [SetUp]
@@ -51,7 +52,16 @@ namespace NuciCraft.API.UnitTests.Service
                 settings,
                 new HttpClient(new StubHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("""{"success":true,"proxy":false}""") })));
             factory.Setup(f => f.Create()).Returns(detector);
-            service = new AccessControlService(settings, factory.Object, playerRepository.Object, logger.Object);
+            serverSettings = new ServerSettings
+            {
+                Name = "NuciCraft"
+            };
+            service = new AccessControlService(
+                settings,
+                serverSettings,
+                factory.Object,
+                playerRepository.Object,
+                logger.Object);
         }
 
         [Test]

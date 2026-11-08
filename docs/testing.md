@@ -122,7 +122,7 @@ Notable coverage includes:
 - World type fallback and patching.
 - Zone references, bounds canonicalisation, partial bounds, containment, category filtering, creation defaults, and non-persisted web-map enrichment.
 - Server settings validation in unit tests and protocol parsing in integration tests.
-- Access-control IP checks covering the registered-player exemption, its configuration toggle, banned and unregistered usernames, casing, and whitespace.
+- Access-control IP checks covering the registered-player exemption, its configuration toggle, banned and unregistered usernames, casing, whitespace, banned-player IP denial, and both denial messages.
 
 ### Models, Mappings, Responses, And Logging
 
@@ -172,7 +172,7 @@ The anonymisation caching fixture uses a separate host, [AccessControlApiTestHos
 |---------|--------------------|
 | [ApiErrorResponseTests.cs](../NuciCraft.API.IntegrationTests/ApiErrorResponseTests.cs) | `401`, required-field `400`, malformed JSON problem response, absent-record `404`. |
 | [AccessControlApiTests.cs](../NuciCraft.API.IntegrationTests/AccessControlApiTests.cs) | Substituted access-control decisions across the country, anonymisation, and username paths. |
-| [AccessControlIpUsernameApiTests.cs](../NuciCraft.API.IntegrationTests/AccessControlIpUsernameApiTests.cs) | Registered-player exemption across HTTP query binding, including unregistered, banned, absent, and differently cased usernames. |
+| [AccessControlIpUsernameApiTests.cs](../NuciCraft.API.IntegrationTests/AccessControlIpUsernameApiTests.cs) | Registered-player exemption and banned-player IP denial across HTTP query binding, including unregistered, banned, absent, and differently cased usernames. |
 | [AnonymisationDetectionCachingApiTests.cs](../NuciCraft.API.IntegrationTests/AnonymisationDetectionCachingApiTests.cs) | Detection cache reuse per IP address, cache expiry, successful refresh, and expired-result fallback on provider failure. |
 | [CountriesApiTests.cs](../NuciCraft.API.IntegrationTests/CountriesApiTests.cs) | Country create, read, list, patch. |
 | [HomesApiTests.cs](../NuciCraft.API.IntegrationTests/HomesApiTests.cs) | Home CRUD, selectors, uniqueness, ownership conflicts, and unauthorised commands. |
