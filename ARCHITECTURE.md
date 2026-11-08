@@ -160,6 +160,7 @@ Store preparation precedes middleware construction and is not itself middleware.
 | `ZoneService` | Add, retrieve, list, category-filter, patch, and delete zones while enforcing bounds, zone-type references, and localised merge rules. | Zone, world, and zone-type repositories plus logger. | Singleton. |
 | `RtpLocationService` | Enforce proximity rules, persist RTP locations, and select random filtered locations. | RTP repository, `RtpLocationSettings`, logger. | Singleton. |
 | `MobService` | Map supported mobs to schemas and obtain one name from the external generator. | `INuciApiClient`, `UniversalNameGeneratorSettings`, logger. | Singleton. |
+| `AccessControlService` | Check IP addresses against geolocation, denied countries, and anonymisation-service detection, and check usernames against length and denied patterns. An optional username grants a configurable exemption for a registered, non-banned player. | `AccessControlSettings`, anonymisation detector factory, player repository, logger, outbound HTTP client. | Singleton. |
 | `JsonRepository<T>` | Provide file-backed `IFileRepository<T>` operations for one data-object type. | NuciDAL, configured store path. | One singleton per store. |
 | `NuciApiClient` | Send typed requests to the Universal Name Generator API. | Configured base URL and per-request bearer information. | Singleton. |
 | `NuciLogger` | Emit structured operation records consumed by services and request middleware. | NuciLog settings. | Scoped registration; consumed by singleton services. |
@@ -398,6 +399,7 @@ The default ASP.NET Core host supplies file, environment, and command-line confi
 | `securitySettings` | Deployment placeholder and default host providers. | Supply inbound API-key authorisation material. | Genuine values must originate from a protected secret source. |
 | `universalNameGeneratorSettings` | Deployment placeholders and default host providers. | Supply the external base URL and bearer token. | The base URL is environmental; the API key must originate from a protected secret source. |
 | `nuciLoggerSettings` | `appsettings.json` and default host providers. | Select log-file path and file-output activation. | Operators own destination permissions, access, and retention. |
+| `accessControlSettings` | `appsettings.json` and default host providers. | Select denied countries and username patterns, the geolocation base URL, and the registered-player exemption toggle of the IP check. | Non-secret operational values may be overridden per environment. The exemption toggle is bound once at startup. |
 
 ### Concurrency and Resource Use
 

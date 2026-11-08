@@ -187,6 +187,27 @@ Rules are:
 - Zero cannot distinguish an unavailable server from an available server with no online players.
 - Bedrock port is returned as metadata but is not queried.
 
+## Access Control Invariants
+
+### IP Check
+
+- The IP address is transport-required; the username is optional.
+- The username lookup compares ordinally and case-sensitively against the persisted player usernames.
+- A whitespace or absent username never grants the exemption.
+- The exemption applies only to a registered, non-banned player.
+- A banned or unregistered username leaves the geolocation, denied-country, and anonymisation-service checks unchanged.
+- The exemption is permitted before any external request, so a granted exemption performs no geolocation or detection call and returns a null country code.
+- The exemption is configurable through `accessControlSettings.isRegisteredPlayerExemptionEnabled`. When disabled, the username is ignored.
+- A non-success geolocation status or a missing country code remains fail-open and permits the request.
+- Denied-country comparison is case-insensitive.
+- A failing anonymisation-service provider is logged and permits the request.
+
+### Username Check
+
+- The username is transport-required.
+- A username shorter than `accessControlSettings.minimumUsernameLength` is denied.
+- Denied username patterns are matched case-sensitively with `Regex.IsMatch`.
+
 ## Contract Compatibility Rules
 
 - Public routes are unversioned; route or JSON shape changes affect every current client.

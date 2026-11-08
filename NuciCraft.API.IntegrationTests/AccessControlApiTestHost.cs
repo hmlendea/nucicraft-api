@@ -32,7 +32,9 @@ namespace NuciCraft.API.IntegrationTests
 
         private readonly StubHttpMessageHandler httpMessageHandler;
         private readonly FakeTimeProvider timeProvider;
+        private readonly InMemoryRepository<PlayerDataObject> playerRepository = new();
         private readonly bool deletesStoreDirectory;
+        private readonly bool isRegisteredPlayerExemptionEnabled;
         private readonly string storeDirectory;
 
         internal AccessControlApiTestHost(StubHttpMessageHandler httpMessageHandler)
@@ -44,7 +46,24 @@ namespace NuciCraft.API.IntegrationTests
                     Path.GetTempPath(),
                     StoreDirectoryName,
                     Guid.NewGuid().ToString("N")),
+                true,
                 true)
+        {
+        }
+
+        internal AccessControlApiTestHost(
+            StubHttpMessageHandler httpMessageHandler,
+            bool isRegisteredPlayerExemptionEnabled)
+            : this(
+                httpMessageHandler,
+                new FakeTimeProvider(
+                    new DateTimeOffset(2026, 1, 2, 3, 4, 5, TimeSpan.Zero)),
+                Path.Combine(
+                    Path.GetTempPath(),
+                    StoreDirectoryName,
+                    Guid.NewGuid().ToString("N")),
+                true,
+                isRegisteredPlayerExemptionEnabled)
         {
         }
 
@@ -52,15 +71,19 @@ namespace NuciCraft.API.IntegrationTests
             StubHttpMessageHandler httpMessageHandler,
             FakeTimeProvider timeProvider,
             string storeDirectory,
-            bool deletesStoreDirectory)
+            bool deletesStoreDirectory,
+            bool isRegisteredPlayerExemptionEnabled)
         {
             this.httpMessageHandler = httpMessageHandler;
             this.timeProvider = timeProvider;
             this.storeDirectory = storeDirectory;
             this.deletesStoreDirectory = deletesStoreDirectory;
+            this.isRegisteredPlayerExemptionEnabled = isRegisteredPlayerExemptionEnabled;
         }
 
         internal FakeTimeProvider TimeProvider => timeProvider;
+
+        internal InMemoryRepository<PlayerDataObject> PlayerRepository => playerRepository;
 
         internal HttpClient CreateAuthorisedClient()
         {
@@ -83,6 +106,7 @@ namespace NuciCraft.API.IntegrationTests
                     ["accessControlSettings:anonymisationServiceDetection:provider"] = "funkemunky",
                     ["accessControlSettings:anonymisationServiceDetection:isEnabled"] = "true",
                     ["accessControlSettings:anonymisationServiceDetection:isCacheEnabled"] = "true",
+                    ["accessControlSettings:isRegisteredPlayerExemptionEnabled"] = isRegisteredPlayerExemptionEnabled.ToString().ToLowerInvariant(),
                     ["dataStoreSettings:countriesStorePath"] = GetStorePath("countries.json"),
                     ["dataStoreSettings:homesStorePath"] = GetStorePath("homes.json"),
                     ["dataStoreSettings:playersStorePath"] = GetStorePath("players.json"),
@@ -100,7 +124,7 @@ namespace NuciCraft.API.IntegrationTests
             builder.ConfigureTestServices(services =>
             {
                 services.RemoveAll<IFileRepository<PlayerDataObject>>();
-                services.AddSingleton<IFileRepository<PlayerDataObject>>(_ => new InMemoryRepository<PlayerDataObject>());
+                services.AddSingleton<IFileRepository<PlayerDataObject>>(_ => playerRepository);
 
                 services.RemoveAll<IFileRepository<CountryDataObject>>();
                 services.AddSingleton<IFileRepository<CountryDataObject>>(_ => new InMemoryRepository<CountryDataObject>());

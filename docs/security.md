@@ -61,6 +61,16 @@ Examples:
 
 `UseAuthorization` is present, but no local policy or `[Authorize]` usage adds another control.
 
+### Registered Player Exemption
+
+The IP check accepts an optional username. When `accessControlSettings.isRegisteredPlayerExemptionEnabled` is enabled and the supplied username matches a registered, non-banned player record, the geolocation, denied-country, and anonymisation-service checks are skipped and the request is permitted.
+
+Consequences:
+- The username is asserted by the caller and is not authenticated by the API key, so any authorised client that knows a valid registered player username can obtain a permitted response for any IP address.
+- The exemption is disabled by setting `accessControlSettings.isRegisteredPlayerExemptionEnabled` to `false`.
+- Banned players never receive the exemption, but a banned player cannot be used to deny a different registered player either.
+- The exemption short-circuits all outbound access-control calls, so it also reduces detection-provider usage.
+
 ## Secret Handling
 
 Secret-bearing settings are:
@@ -198,6 +208,7 @@ It does not require database, message broker, or Minecraft filesystem access. De
 - Runtime-data Git exclusion.
 - Separate outbound bearer credential.
 - No genuine committed secret.
+- Optional registered-player exemption for the IP check, disabled by configuration.
 
 ### Assumed External Controls
 

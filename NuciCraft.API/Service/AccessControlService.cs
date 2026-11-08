@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
+using NuciDAL.Repositories;
+
 using NuciLog.Core;
 using NuciWeb.HTTP;
 
 using NuciCraft.API.Configuration;
+using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Logging;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service.Anonymisation;
@@ -21,31 +25,47 @@ namespace NuciCraft.API.Service
     {
         private static string UsernameNotPermittedMessage => "This username is not permitted.";
 
+        private static string DeniedCountryMessage => "Access is not permitted from this country.";
+
+        private static string AnonymisationServiceMessage => "Access is not permitted via any anonymisation service.";
+
+        private static string SuccessfulGeolocationStatus => "success";
+
         private readonly HttpClient httpClient;
         private readonly AccessControlSettings settings;
         private readonly IAnonymisationServiceDetectorFactory anonymisationServiceDetectorFactory;
+        private readonly IFileRepository<PlayerDataObject> playerRepository;
         private readonly ILogger logger;
 
         public AccessControlService(
             AccessControlSettings settings,
             IAnonymisationServiceDetectorFactory anonymisationServiceDetectorFactory,
+            IFileRepository<PlayerDataObject> playerRepository,
             ILogger logger)
-            : this(settings, anonymisationServiceDetectorFactory, logger, HttpClientCreator.Create())
+            : this(
+                settings,
+                anonymisationServiceDetectorFactory,
+                playerRepository,
+                logger,
+                HttpClientCreator.Create())
         {
         }
 
         public AccessControlService(
             AccessControlSettings settings,
             IAnonymisationServiceDetectorFactory anonymisationServiceDetectorFactory,
+            IFileRepository<PlayerDataObject> playerRepository,
             ILogger logger,
             HttpClient httpClient)
         {
             ArgumentNullException.ThrowIfNull(settings);
             ArgumentNullException.ThrowIfNull(anonymisationServiceDetectorFactory);
+            ArgumentNullException.ThrowIfNull(playerRepository);
             ArgumentNullException.ThrowIfNull(logger);
 
             this.settings = settings;
             this.anonymisationServiceDetectorFactory = anonymisationServiceDetectorFactory;
+            this.playerRepository = playerRepository;
             this.logger = logger;
             this.httpClient = httpClient;
         }
@@ -59,7 +79,8 @@ namespace NuciCraft.API.Service
 
             IEnumerable<LogInfo> logInfos =
             [
-                new(MyLogInfoKey.IpAddress, request.IpAddress)
+                new(MyLogInfoKey.IpAddress, request.IpAddress),
+                new(MyLogInfoKey.Username, request.Username)
             ];
 
             logger.Info(
@@ -69,7 +90,7 @@ namespace NuciCraft.API.Service
 
             try
             {
-                IpCheckResult response = await PerformIpCheck(request.IpAddress, cancellationToken);
+                IpCheckResult response = await PerformIpCheck(request, cancellationToken);
 
                 logger.Info(
                     MyOperation.CheckIp,
@@ -130,11 +151,9 @@ namespace NuciCraft.API.Service
             }
         }
 
-        private async Task<IpCheckResult> PerformIpCheck(string ipAddress, CancellationToken cancellationToken)
+        private async Task<IpCheckResult> PerformIpCheck(CheckIpRequest request, CancellationToken cancellationToken)
         {
-            GeolocationData? geo = await GetGeolocationData(ipAddress, cancellationToken);
-
-            if (geo is null || !string.Equals(geo.Status, "success", StringComparison.OrdinalIgnoreCase))
+            if (IsRegisteredPlayerExemptionApplicable(request.Username))
             {
                 return new IpCheckResult
                 {
@@ -144,25 +163,52 @@ namespace NuciCraft.API.Service
                 };
             }
 
-            string countryCode = geo.CountryCode;
+            return await PerformRegularIpCheck(request.IpAddress, cancellationToken);
+        }
 
-            if (Array.Exists(settings.DeniedCountries, c => string.Equals(c, countryCode, StringComparison.OrdinalIgnoreCase)))
+        private async Task<IpCheckResult> PerformRegularIpCheck(
+            string ipAddress,
+            CancellationToken cancellationToken)
+        {
+            GeolocationData? geolocationData = await GetGeolocationData(ipAddress, cancellationToken);
+
+            if (geolocationData is null || !IsSuccessfulGeolocationStatus(geolocationData.Status))
+            {
+                return new IpCheckResult
+                {
+                    IsAllowed = true,
+                    CountryCode = null,
+                    DeniedReason = null
+                };
+            }
+
+            string countryCode = geolocationData.CountryCode;
+
+            if (IsDeniedCountry(countryCode))
             {
                 return new IpCheckResult
                 {
                     IsAllowed = false,
                     CountryCode = countryCode,
-                    DeniedReason = "Access is not permitted from this country."
+                    DeniedReason = DeniedCountryMessage
                 };
             }
 
+            return await PerformAnonymisationServiceCheck(ipAddress, countryCode, cancellationToken);
+        }
+
+        private async Task<IpCheckResult> PerformAnonymisationServiceCheck(
+            string ipAddress,
+            string countryCode,
+            CancellationToken cancellationToken)
+        {
             if (await IsAnonymisationServiceDetected(ipAddress, cancellationToken))
             {
                 return new IpCheckResult
                 {
                     IsAllowed = false,
                     CountryCode = countryCode,
-                    DeniedReason = "Access is not permitted via any anonymisation service."
+                    DeniedReason = AnonymisationServiceMessage
                 };
             }
 
@@ -172,6 +218,32 @@ namespace NuciCraft.API.Service
                 CountryCode = countryCode,
                 DeniedReason = null
             };
+        }
+
+        private static bool IsSuccessfulGeolocationStatus(string status)
+            => string.Equals(status, SuccessfulGeolocationStatus, StringComparison.OrdinalIgnoreCase);
+
+        private bool IsDeniedCountry(string countryCode)
+            => Array.Exists(
+                settings.DeniedCountries,
+                deniedCountry => string.Equals(
+                    deniedCountry,
+                    countryCode,
+                    StringComparison.OrdinalIgnoreCase));
+
+        private bool IsRegisteredPlayerExemptionApplicable(string? username)
+        {
+            if (!settings.IsRegisteredPlayerExemptionEnabled || string.IsNullOrWhiteSpace(username))
+            {
+                return false;
+            }
+
+            PlayerDataObject? playerDataObject = playerRepository
+                .GetAll()
+                .FirstOrDefault(player =>
+                    string.Equals(player.Username, username, StringComparison.Ordinal));
+
+            return playerDataObject is not null && !playerDataObject.IsBanned;
         }
 
         private async Task<GeolocationData?> GetGeolocationData(string ipAddress, CancellationToken cancellationToken)

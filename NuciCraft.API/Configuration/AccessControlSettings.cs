@@ -10,6 +10,8 @@ namespace NuciCraft.API.Configuration
 
         public AnonymisationServiceDetectionSettings AnonymisationServiceDetection { get; set; } = new();
 
+        public bool IsRegisteredPlayerExemptionEnabled { get; set; } = true;
+
         public int MinimumUsernameLength { get; set; } = 4;
     }
 }

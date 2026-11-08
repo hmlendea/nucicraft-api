@@ -4,7 +4,10 @@ using System.Threading.Tasks;
 
 using Moq;
 
+using NuciDAL.Repositories;
+
 using NuciCraft.API.Configuration;
+using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service;
 using NuciCraft.API.Service.Anonymisation;
@@ -20,6 +23,7 @@ namespace NuciCraft.API.UnitTests.Service
     {
         private Mock<ILogger> logger;
         private Mock<IAnonymisationServiceDetectorFactory> factory;
+        private Mock<IFileRepository<PlayerDataObject>> playerRepository;
         private AccessControlSettings settings;
         private AccessControlService service;
 
@@ -28,6 +32,8 @@ namespace NuciCraft.API.UnitTests.Service
         {
             logger = new Mock<ILogger>();
             factory = new Mock<IAnonymisationServiceDetectorFactory>();
+            playerRepository = new Mock<IFileRepository<PlayerDataObject>>();
+            playerRepository.Setup(repository => repository.GetAll()).Returns([]);
             settings = new AccessControlSettings
             {
                 DeniedCountries = ["CN", "RU"],
@@ -45,7 +51,7 @@ namespace NuciCraft.API.UnitTests.Service
                 settings,
                 new HttpClient(new StubHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("""{"success":true,"proxy":false}""") })));
             factory.Setup(f => f.Create()).Returns(detector);
-            service = new AccessControlService(settings, factory.Object, logger.Object);
+            service = new AccessControlService(settings, factory.Object, playerRepository.Object, logger.Object);
         }
 
         [Test]

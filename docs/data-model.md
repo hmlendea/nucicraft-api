@@ -278,7 +278,7 @@ This top-level shape is significant: `MobService` casts the returned `NuciApiRes
 | `RtpLocationSettings` | MinimumLocationDistance, MinimumBiomeLocationDistance. |
 | `UniversalNameGeneratorSettings` | BaseUrl, ApiKey. |
 | `WebMapSettings` | BaseUrl. |
-| `AccessControlSettings` | DeniedCountries, DeniedUsernamePatterns, GeolocationApiUrl, MinimumUsernameLength, AnonymisationServiceDetection. |
+| `AccessControlSettings` | DeniedCountries, DeniedUsernamePatterns, GeolocationApiUrl, MinimumUsernameLength, AnonymisationServiceDetection, IsRegisteredPlayerExemptionEnabled. |
 | `AnonymisationServiceDetectionSettings` | Provider, IsEnabled, IsCacheEnabled, CacheDurationHoursWhenDetected, CacheDurationHoursWhenNotDetected, CacheDurationHoursForExpiredFallback. |
 
 NuciLog settings are package-defined and bound separately.
@@ -289,7 +289,7 @@ NuciLog settings are package-defined and bound separately.
 
 | Request | Fields | Notes |
 |---------|--------|-------|
-| [CheckIpRequest](../NuciCraft.API/Requests/CheckIpRequest.cs) | IpAddress | Required. JSON property name `ipAddress`. |
+| [CheckIpRequest](../NuciCraft.API/Requests/CheckIpRequest.cs) | IpAddress, Username | IpAddress is required with JSON property name `ipAddress`. Username is optional with JSON property name `username` and grants the registered-player exemption when it matches a non-banned player record. |
 | [CheckUsernameRequest](../NuciCraft.API/Requests/CheckUsernameRequest.cs) | Username | Required. JSON property name `username`. |
 
 ### Service Models
@@ -308,7 +308,7 @@ NuciLog settings are package-defined and bound separately.
 | [CheckIpResponse](../NuciCraft.API/Responses/CheckIpResponse.cs) | IsAllowed, DeniedReason, CountryCode | JSON properties: `isAllowed`, `deniedReason`, `countryCode`. |
 | [CheckUsernameResponse](../NuciCraft.API/Responses/CheckUsernameResponse.cs) | IsAllowed, DeniedReason | JSON properties: `isAllowed`, `deniedReason`. |
 
-The IP check performs a real-time geolocation lookup using `HttpClientCreator.Create()` from NuciWeb.HTTP, calls the configured geolocation API with `fields=status,countryCode,country`, and checks the returned country code against the denied countries list (case-insensitive). A non-success geolocation status or missing country code results in an allowed response (fail-open). The username check validates the username length against `MinimumUsernameLength` and checks against `DeniedUsernamePatterns` using case-sensitive `Regex.IsMatch`.
+The IP check performs a real-time geolocation lookup using `HttpClientCreator.Create()` from NuciWeb.HTTP, calls the configured geolocation API with `fields=status,countryCode,country`, and checks the returned country code against the denied countries list (case-insensitive). A non-success geolocation status or missing country code results in an allowed response (fail-open). When the request supplies the username of a registered, non-banned player and `IsRegisteredPlayerExemptionEnabled` is set, the check is permitted without performing the geolocation, denied-country, and anonymisation-service checks. The username check validates the username length against `MinimumUsernameLength` and checks against `DeniedUsernamePatterns` using case-sensitive `Regex.IsMatch`.
 
 ## Relationships
 

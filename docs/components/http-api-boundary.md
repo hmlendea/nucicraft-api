@@ -145,7 +145,7 @@ The singular route is explicit and does not derive from the plural controller na
 | POST | `/AccessControl/check-ip` | `CheckIpRequest` body | `IAccessControlService.CheckIp` | `CheckIpResponse`. |
 | POST | `/AccessControl/check-username` | `CheckUsernameRequest` body | `IAccessControlService.CheckUsername` | `CheckUsernameResponse`. |
 
-Both endpoints require API-key authorisation. The IP check performs a real-time geolocation lookup using the configured geolocation API to determine the country code, then checks if that country is in the denied countries list. The username check validates against the configured minimum length and denied username patterns (case-sensitive regex).
+Both endpoints require API-key authorisation. The IP check performs a real-time geolocation lookup using the configured geolocation API to determine the country code, then checks if that country is in the denied countries list. When the request supplies the optional `username` value and that username identifies a registered, non-banned player, the check is permitted immediately without the geolocation, denied-country, and anonymisation-service checks. This exemption is controlled by `accessControlSettings.isRegisteredPlayerExemptionEnabled`. The username check validates against the configured minimum length and denied username patterns (case-sensitive regex).
 
 ### Worlds
 

@@ -6,11 +6,14 @@ using System.Threading.Tasks;
 
 using Moq;
 
+using NuciDAL.Repositories;
+
 using NuciLog.Core;
 
 using NUnit.Framework;
 
 using NuciCraft.API.Configuration;
+using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service;
 using NuciCraft.API.Service.Anonymisation;
@@ -39,6 +42,7 @@ namespace NuciCraft.API.UnitTests.Service
 
         private Mock<ILogger> logger;
         private Mock<IAnonymisationServiceDetectorFactory> factory;
+        private Mock<IFileRepository<PlayerDataObject>> playerRepository;
         private AccessControlSettings settings;
         private AccessControlService service;
 
@@ -47,6 +51,8 @@ namespace NuciCraft.API.UnitTests.Service
         {
             logger = new Mock<ILogger>();
             factory = new Mock<IAnonymisationServiceDetectorFactory>();
+            playerRepository = new Mock<IFileRepository<PlayerDataObject>>();
+            playerRepository.Setup(repository => repository.GetAll()).Returns([]);
             settings = new AccessControlSettings
             {
                 DeniedCountries = ["CN", "RU"],
@@ -68,6 +74,7 @@ namespace NuciCraft.API.UnitTests.Service
             service = new AccessControlService(
                 settings,
                 factory.Object,
+                playerRepository.Object,
                 logger.Object,
                 new HttpClient(new RoutingHandler(geolocationHandler, anonymisationHandler)));
         }
@@ -209,6 +216,138 @@ namespace NuciCraft.API.UnitTests.Service
                 Throws.InstanceOf<HttpRequestException>());
         }
 
+        [Test]
+        public async Task GivenARegisteredNonBannedUsername_WhenCheckingADeniedIp_ThenTheResultIsAllowed()
+        {
+            StubHttpMessageHandler deniedGeoHandler = StubHttpMessageHandler.ReturningJson(DeniedCountryGeolocationJson);
+
+            service = CreateServiceWithHandlers(deniedGeoHandler, anonymisationHandler);
+            playerRepository.Setup(repository => repository.GetAll()).Returns([BuildPlayer("IlarionPintilie", false)]);
+
+            IpCheckResult result = await service.CheckIpAsync(new CheckIpRequest
+            {
+                IpAddress = "1.2.3.4",
+                Username = "IlarionPintilie"
+            });
+
+            Assert.That(result.IsAllowed, Is.True);
+            Assert.That(result.DeniedReason, Is.Null);
+        }
+
+        [Test]
+        public async Task GivenARegisteredNonBannedUsername_WhenCheckingTheIp_ThenTheExternalChecksAreSkipped()
+        {
+            StubHttpMessageHandler geolocationDetection = StubHttpMessageHandler.ReturningJson(AllowedCountryGeolocationJson);
+            StubHttpMessageHandler anonymisationDetection = StubHttpMessageHandler.ReturningJson(AnonymisationServiceNotDetectedJson);
+
+            service = CreateServiceWithHandlers(geolocationDetection, anonymisationDetection);
+            playerRepository.Setup(repository => repository.GetAll()).Returns([BuildPlayer("IlarionPintilie", false)]);
+
+            await service.CheckIpAsync(new CheckIpRequest
+            {
+                IpAddress = "8.8.8.8",
+                Username = "IlarionPintilie"
+            });
+
+            Assert.That(geolocationDetection.LastRequest, Is.Null);
+            Assert.That(anonymisationDetection.LastRequest, Is.Null);
+        }
+
+        [Test]
+        public async Task GivenARegisteredBannedUsername_WhenCheckingADeniedIp_ThenTheRegularChecksApply()
+        {
+            StubHttpMessageHandler deniedGeoHandler = StubHttpMessageHandler.ReturningJson(DeniedCountryGeolocationJson);
+
+            service = CreateServiceWithHandlers(deniedGeoHandler, anonymisationHandler);
+            playerRepository.Setup(repository => repository.GetAll()).Returns([BuildPlayer("GrumpyCat", true)]);
+
+            IpCheckResult result = await service.CheckIpAsync(new CheckIpRequest
+            {
+                IpAddress = "1.2.3.4",
+                Username = "GrumpyCat"
+            });
+
+            Assert.That(result.IsAllowed, Is.False);
+            Assert.That(result.DeniedReason, Is.EqualTo("Access is not permitted from this country."));
+        }
+
+        [Test]
+        public async Task GivenAnUnregisteredUsername_WhenCheckingADeniedIp_ThenTheRegularChecksApply()
+        {
+            StubHttpMessageHandler deniedGeoHandler = StubHttpMessageHandler.ReturningJson(DeniedCountryGeolocationJson);
+
+            service = CreateServiceWithHandlers(deniedGeoHandler, anonymisationHandler);
+            playerRepository.Setup(repository => repository.GetAll()).Returns([BuildPlayer("IlarionPintilie", false)]);
+
+            IpCheckResult result = await service.CheckIpAsync(new CheckIpRequest
+            {
+                IpAddress = "1.2.3.4",
+                Username = "UnknownPlayer"
+            });
+
+            Assert.That(result.IsAllowed, Is.False);
+            Assert.That(result.DeniedReason, Is.EqualTo("Access is not permitted from this country."));
+        }
+
+        [TestCase("IlarionPintilie")]
+        [TestCase("Angetenar")]
+        public async Task GivenADisabledRegisteredPlayerExemption_WhenCheckingADeniedIp_ThenTheRegularChecksApply(
+            string username)
+        {
+            StubHttpMessageHandler deniedGeoHandler = StubHttpMessageHandler.ReturningJson(DeniedCountryGeolocationJson);
+
+            settings.IsRegisteredPlayerExemptionEnabled = false;
+            service = CreateServiceWithHandlers(deniedGeoHandler, anonymisationHandler);
+            playerRepository
+                .Setup(repository => repository.GetAll())
+                .Returns([BuildPlayer("IlarionPintilie", false), BuildPlayer("Angetenar", false)]);
+
+            IpCheckResult result = await service.CheckIpAsync(new CheckIpRequest
+            {
+                IpAddress = "1.2.3.4",
+                Username = username
+            });
+
+            Assert.That(result.IsAllowed, Is.False);
+            Assert.That(result.DeniedReason, Is.EqualTo("Access is not permitted from this country."));
+        }
+
+        [Test]
+        public async Task GivenAWhitespaceUsername_WhenCheckingADeniedIp_ThenTheRegularChecksApply()
+        {
+            StubHttpMessageHandler deniedGeoHandler = StubHttpMessageHandler.ReturningJson(DeniedCountryGeolocationJson);
+
+            service = CreateServiceWithHandlers(deniedGeoHandler, anonymisationHandler);
+            playerRepository.Setup(repository => repository.GetAll()).Returns([BuildPlayer("   ", false)]);
+
+            IpCheckResult result = await service.CheckIpAsync(new CheckIpRequest
+            {
+                IpAddress = "1.2.3.4",
+                Username = "   "
+            });
+
+            Assert.That(result.IsAllowed, Is.False);
+            Assert.That(result.DeniedReason, Is.EqualTo("Access is not permitted from this country."));
+        }
+
+        [Test]
+        public async Task GivenARegisteredNonBannedUsernameWithDifferentCasing_WhenCheckingADeniedIp_ThenTheRegularChecksApply()
+        {
+            StubHttpMessageHandler deniedGeoHandler = StubHttpMessageHandler.ReturningJson(DeniedCountryGeolocationJson);
+
+            service = CreateServiceWithHandlers(deniedGeoHandler, anonymisationHandler);
+            playerRepository.Setup(repository => repository.GetAll()).Returns([BuildPlayer("IlarionPintilie", false)]);
+
+            IpCheckResult result = await service.CheckIpAsync(new CheckIpRequest
+            {
+                IpAddress = "1.2.3.4",
+                Username = "ilarionpintilie"
+            });
+
+            Assert.That(result.IsAllowed, Is.False);
+            Assert.That(result.DeniedReason, Is.EqualTo("Access is not permitted from this country."));
+        }
+
         private AccessControlService CreateServiceWithHandlers(
             StubHttpMessageHandler geolocation,
             StubHttpMessageHandler anonymisationDetection)
@@ -220,6 +359,7 @@ namespace NuciCraft.API.UnitTests.Service
             return new AccessControlService(
                 settings,
                 factory.Object,
+                playerRepository.Object,
                 logger.Object,
                 new HttpClient(new RoutingHandler(geolocation, anonymisationDetection)));
         }
@@ -247,6 +387,7 @@ namespace NuciCraft.API.UnitTests.Service
             service = new AccessControlService(
                 settings,
                 factory.Object,
+                playerRepository.Object,
                 logger.Object,
                 new HttpClient(new RoutingHandler(geolocationHandler, anonymisationHandler)));
 
@@ -278,6 +419,7 @@ namespace NuciCraft.API.UnitTests.Service
             service = new AccessControlService(
                 settings,
                 factory.Object,
+                playerRepository.Object,
                 logger.Object,
                 new HttpClient(new RoutingHandler(geolocationHandler, anonymisationHandler)));
 
@@ -301,5 +443,12 @@ namespace NuciCraft.API.UnitTests.Service
 
             return string.Empty;
         }
+
+        private static PlayerDataObject BuildPlayer(string username, bool isBanned) => new()
+        {
+            Id = Guid.NewGuid().ToString(),
+            Username = username,
+            IsBanned = isBanned
+        };
     }
 }

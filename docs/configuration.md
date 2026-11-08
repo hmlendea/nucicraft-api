@@ -114,6 +114,7 @@ Consumer type: [AccessControlSettings.cs](../NuciCraft.API/Configuration/AccessC
 | `accessControlSettings.deniedUsernamePatterns` | string[] | See [appsettings.json](../NuciCraft.API/appsettings.json) | No | Case-sensitive regex patterns checked by `AccessControlService.PerformUsernameCheck`. |
 | `accessControlSettings.geolocationApiUrl` | string | `http://ip-api.com/json/` | No | Base URL for geolocation API calls; IP address and query fields appended. |
 | `accessControlSettings.minimumUsernameLength` | int | `4` | No | Minimum username length enforced by `AccessControlService.PerformUsernameCheck`. |
+| `accessControlSettings.isRegisteredPlayerExemptionEnabled` | bool | `true` | No | When enabled, an IP check that supplies the username of a registered, non-banned player is permitted without the geolocation, denied-country, and anonymisation-service checks. |
 | `accessControlSettings.anonymisationServiceDetection.provider` | string | `proxycheck` | No | Selects the upstream detection provider (`proxycheck` or `funkemunky`). An unsupported value raises `NotSupportedException` when a detector is created. |
 | `accessControlSettings.anonymisationServiceDetection.isEnabled` | bool | `true` | No | When disabled, `AccessControlService` skips the detection request entirely and permits the request. |
 | `accessControlSettings.anonymisationServiceDetection.isCacheEnabled` | bool | `true` | No | Enables the in-process detection result cache. When disabled, every check performs a live detection request. |
@@ -122,6 +123,14 @@ Consumer type: [AccessControlSettings.cs](../NuciCraft.API/Configuration/AccessC
 | `accessControlSettings.anonymisationServiceDetection.cacheDurationHoursForExpiredFallback` | int | `6` | No | Additional retention of an expired detection result, so that it remains available as a fallback when a live refresh fails. |
 
 The geolocation API is called with `fields=status,countryCode,country` appended to the constructed URL. A non-success status or missing country code results in an allowed response (fail-open). Denied country comparison is case-insensitive. Username pattern matching uses `Regex.IsMatch` without `IgnoreCase`.
+
+### Registered Player Exemption
+
+When `accessControlSettings.isRegisteredPlayerExemptionEnabled` is `true` and the IP check supplies a non-whitespace `username`, the service looks the username up in the player store. When a matching player record exists and is not banned, the check is permitted immediately, with `countryCode` and `deniedReason` both `null`, and no geolocation or anonymisation-service request is made.
+
+When the setting is disabled, the username is absent or whitespace, no player record matches, or the matching record is banned, the regular checks apply unchanged. Player username comparison is ordinal and case-sensitive, so a differently cased username does not match a registered player.
+
+The lookup reads the player store through the same repository used by [PlayerService](components/player-and-homes.md), so an unregistered username does not produce a failure log.
 
 ### Anonymisation Service Detection Cache
 
@@ -149,7 +158,7 @@ The repository does not configure retention, rotation, redaction, structured sin
 
 `ASPNETCORE_ENVIRONMENT=Development` causes `Startup.Configure` to register the Developer Exception Page. Other values omit it. The integration host selects `IntegrationTesting` and disables file logger output through in-memory overrides.
 
-No capability feature flags exist.
+No capability feature flags exist. The only behaviour toggle is `accessControlSettings.isRegisteredPlayerExemptionEnabled`, which switches the registered-player exemption of the IP check.
 
 ## Environment Variable Examples
 
@@ -180,6 +189,7 @@ accessControlSettings__deniedCountries
 accessControlSettings__deniedUsernamePatterns
 accessControlSettings__geolocationApiUrl
 accessControlSettings__minimumUsernameLength
+accessControlSettings__isRegisteredPlayerExemptionEnabled
 accessControlSettings__anonymisationServiceDetection__provider
 accessControlSettings__anonymisationServiceDetection__isEnabled
 accessControlSettings__anonymisationServiceDetection__isCacheEnabled

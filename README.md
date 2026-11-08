@@ -519,7 +519,7 @@ curl -X POST "http://localhost:5000/AccessControl/check-ip" \
 	}'
 ```
 
-The IP check performs a real-time geolocation lookup using the configured geolocation API (default: ip-api.com) to determine the country code, then checks if that country is in the denied countries list. The response contains `isAllowed`, `deniedReason` (if denied), and `countryCode`.
+The IP check performs a real-time geolocation lookup using the configured geolocation API (default: ip-api.com) to determine the country code, then checks if that country is in the denied countries list. The response contains `isAllowed`, `deniedReason` (if denied), and `countryCode`. An optional `username` value may be supplied; when it identifies a registered, non-banned player, the check is permitted immediately without any geolocation, denied-country, or anonymisation-service check. This exemption is controlled by `accessControlSettings.isRegisteredPlayerExemptionEnabled`.
 
 ```bash
 curl -X POST "http://localhost:5000/AccessControl/check-username" \
@@ -578,6 +578,7 @@ Settings are loaded from [appsettings.json](./NuciCraft.API/appsettings.json), w
 | `accessControlSettings` | `deniedUsernamePatterns` | Array of case-sensitive regex patterns to deny usernames matching. |
 | `accessControlSettings` | `geolocationApiUrl` | Base URL for the geolocation API (default: http://ip-api.com/json/). |
 | `accessControlSettings` | `minimumUsernameLength` | Minimum allowed username length (default: 4). |
+| `accessControlSettings` | `isRegisteredPlayerExemptionEnabled` | Allows the IP check to permit a registered, non-banned player's username without any geolocation or anonymisation-service check (default: true). |
 
 Environment-variable overrides for server information are `serverSettings__name`, `serverSettings__hostname`, `serverSettings__javaEditionPort`, and `serverSettings__bedrockEditionPort`. Settings are bound at startup, so restart the API after modifying them. These values do not configure Minecraft listeners or activate Bedrock support.
 
