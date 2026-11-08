@@ -278,7 +278,8 @@ This top-level shape is significant: `MobService` casts the returned `NuciApiRes
 | `RtpLocationSettings` | MinimumLocationDistance, MinimumBiomeLocationDistance. |
 | `UniversalNameGeneratorSettings` | BaseUrl, ApiKey. |
 | `WebMapSettings` | BaseUrl. |
-| `AccessControlSettings` | DeniedCountries, DeniedUsernamePatterns, GeolocationApiUrl, MinimumUsernameLength. |
+| `AccessControlSettings` | DeniedCountries, DeniedUsernamePatterns, GeolocationApiUrl, MinimumUsernameLength, AnonymisationServiceDetection. |
+| `AnonymisationServiceDetectionSettings` | Provider, IsEnabled, IsCacheEnabled, CacheDurationHoursWhenDetected, CacheDurationHoursWhenNotDetected, CacheDurationHoursForExpiredFallback. |
 
 NuciLog settings are package-defined and bound separately.
 
@@ -298,6 +299,7 @@ NuciLog settings are package-defined and bound separately.
 | [IpCheckResult](../NuciCraft.API/Service/Models/IpCheckResult.cs) | IsAllowed, CountryCode, DeniedReason | Returned by `IAccessControlService.CheckIp`. |
 | [UsernameCheckResult](../NuciCraft.API/Service/Models/UsernameCheckResult.cs) | IsAllowed, DeniedReason | Returned by `IAccessControlService.CheckUsername`. |
 | [GeolocationData](../NuciCraft.API/Service/Models/GeolocationData.cs) | Status, CountryCode, CountryName, RegionCode, RegionName, City, PostalCode, Latitude, Longitude, Timezone, InternetServiceProvider, Organisation, AutonomousSystem, Query | JSON deserialization model for ip-api.com response. All properties use `JsonPropertyName` for wire names. |
+| [AnonymisationDetectionCacheEntry](../NuciCraft.API/Service/Anonymisation/AnonymisationDetectionCacheEntry.cs) | IsAnonymisationService, ExpiresAt | Cached detection result and its expiry instant. |
 
 ### Responses
 
