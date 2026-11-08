@@ -1,5 +1,6 @@
 using System;
 
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -59,6 +60,7 @@ namespace NuciCraft.API
         }
 
         public static IServiceCollection AddCustomServices(this IServiceCollection services) => services
+            .AddMemoryCache()
             .AddJsonRepository<PlayerDataObject>(() => dataStoreSettings.PlayersStorePath)
             .AddJsonRepository<RtpLocationEntity>(() => dataStoreSettings.RtpLocationsStorePath)
             .AddJsonRepository<CountryDataObject>(() => dataStoreSettings.CountriesStorePath)
