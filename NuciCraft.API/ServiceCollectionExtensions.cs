@@ -1,5 +1,6 @@
 using System;
 
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,6 +12,8 @@ using NuciLog.Core;
 
 using NuciText.Normalisation;
 using NuciText.Obfuscation;
+
+using NuciWeb.HTTP;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
@@ -59,6 +62,9 @@ namespace NuciCraft.API
         }
 
         public static IServiceCollection AddCustomServices(this IServiceCollection services) => services
+            .AddMemoryCache()
+            .AddSingleton(TimeProvider.System)
+            .AddSingleton(_ => HttpClientCreator.Create())
             .AddJsonRepository<PlayerDataObject>(() => dataStoreSettings.PlayersStorePath)
             .AddJsonRepository<RtpLocationEntity>(() => dataStoreSettings.RtpLocationsStorePath)
             .AddJsonRepository<CountryDataObject>(() => dataStoreSettings.CountriesStorePath)

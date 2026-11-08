@@ -7,5 +7,11 @@ namespace NuciCraft.API.Configuration
         public bool IsEnabled { get; set; } = true;
 
         public bool IsCacheEnabled { get; set; } = true;
+
+        public int CacheDurationHoursWhenDetected { get; set; } = 6;
+
+        public int CacheDurationHoursWhenNotDetected { get; set; } = 2;
+
+        public int CacheDurationHoursForExpiredFallback { get; set; } = 6;
     }
 }

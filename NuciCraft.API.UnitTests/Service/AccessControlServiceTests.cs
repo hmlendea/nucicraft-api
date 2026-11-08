@@ -237,7 +237,7 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public async Task GivenAnEnabledAnonymisationServiceDetectionCache_WhenCheckingTheIp_ThenTheRequestAsksForTheCache()
+        public async Task GivenAnEnabledAnonymisationServiceDetectionCache_WhenCheckingTheIp_ThenTheRequestDoesNotAskForTheUpstreamCache()
         {
             settings.AnonymisationServiceDetection.IsCacheEnabled = true;
             IAnonymisationServiceDetector detector = new FunkeMunkyAnonymisationServiceDetector(
@@ -254,7 +254,7 @@ namespace NuciCraft.API.UnitTests.Service
 
             string requestedUrl = GetRequestedUrl(anonymisationHandler);
 
-            Assert.That(requestedUrl, Does.Contain("cache=true"));
+            Assert.That(requestedUrl, Does.Contain("cache=false"));
         }
 
         [Test]

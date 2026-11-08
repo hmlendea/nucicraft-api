@@ -37,7 +37,7 @@ Integration only:
 dotnet test NuciCraft.API.IntegrationTests/NuciCraft.API.IntegrationTests.csproj
 ```
 
-CI restores and compiles first, then executes `dotnet test --no-build --verbosity normal`.
+CI restores and compiles first, then executes `dotnet test --no-build --verbosity normal`. The separate [security workflow](../.github/workflows/security.yml) reports vulnerable packages and uploads CodeQL results; it does not execute tests.
 
 Architecture only:
 
@@ -82,6 +82,16 @@ The request/persistence cycle is therefore intentional legacy coupling, not an a
 | [ServiceCollectionExtensionsTests.cs](../NuciCraft.API.UnitTests/ServiceCollectionExtensionsTests.cs) | All settings values and every custom registration resolve. |
 
 `TestConfigurationFactory` constructs in-memory and command-line settings with temporary paths. Startup tests replace every repository with Moq and verify each eager enumeration.
+
+### Anonymisation Detection Tests
+
+| Fixture | Verification |
+|---------|--------------|
+| [CachedAnonymisationServiceDetectorTests.cs](../NuciCraft.API.UnitTests/Service/Anonymisation/CachedAnonymisationServiceDetectorTests.cs) | Cache reuse, two-hour and six-hour lifetimes, expiry refresh, expired-result fallback, and failure propagation without a cache entry. |
+| [AnonymisationServiceDetectorFactoryTests.cs](../NuciCraft.API.UnitTests/Service/Anonymisation/AnonymisationServiceDetectorFactoryTests.cs) | Provider selection, cached-decorator construction, and rejection of unsupported providers. |
+| [AnonymisationServiceDetectionSettingsTests.cs](../NuciCraft.API.UnitTests/Configuration/AnonymisationServiceDetectionSettingsTests.cs) | Committed default cache durations, provider, and flags. |
+
+The cached-detector fixture drives expiry through a `FakeTimeProvider` instead of a wall-clock wait, so the assertions remain deterministic.
 
 ### Controller Tests
 
@@ -149,6 +159,8 @@ In-memory configuration supplies:
 
 Ordinary HTTP integration tests therefore contact neither the filesystem stores nor the internet or Minecraft. The dedicated server-status fixture constructs the real service separately.
 
+The anonymisation caching fixture uses a separate host, [AccessControlApiTestHost.cs](../NuciCraft.API.IntegrationTests/AccessControlApiTestHost.cs), which keeps the real `IAccessControlService` and replaces `HttpClient`, `TimeProvider`, and `ILogger` instead. Its stubbed HTTP handler records every requested URL, so the fixture asserts how many detection requests reached the provider, and its `FakeTimeProvider` advances the clock past the cache lifetime.
+
 ### Authorised Client
 
 `CreateAuthorisedClient` creates an HttpClient, adds bearer credentials, and adds `X-Forwarded-For: 127.0.0.1`. [ApiRequestExtensions.cs](../NuciCraft.API.IntegrationTests/ApiRequestExtensions.cs) creates UTF-8 `application/json` content.
@@ -158,6 +170,8 @@ Ordinary HTTP integration tests therefore contact neither the filesystem stores 
 | Fixture | Principal Coverage |
 |---------|--------------------|
 | [ApiErrorResponseTests.cs](../NuciCraft.API.IntegrationTests/ApiErrorResponseTests.cs) | `401`, required-field `400`, malformed JSON problem response, absent-record `404`. |
+| [AccessControlApiTests.cs](../NuciCraft.API.IntegrationTests/AccessControlApiTests.cs) | Substituted access-control decisions across the country, anonymisation, and username paths. |
+| [AnonymisationDetectionCachingApiTests.cs](../NuciCraft.API.IntegrationTests/AnonymisationDetectionCachingApiTests.cs) | Detection cache reuse per IP address, cache expiry, successful refresh, and expired-result fallback on provider failure. |
 | [CountriesApiTests.cs](../NuciCraft.API.IntegrationTests/CountriesApiTests.cs) | Country create, read, list, patch. |
 | [HomesApiTests.cs](../NuciCraft.API.IntegrationTests/HomesApiTests.cs) | Home CRUD, selectors, uniqueness, ownership conflicts, and unauthorised commands. |
 | [ItemsApiTests.cs](../NuciCraft.API.IntegrationTests/ItemsApiTests.cs) | Item create, every selector read, list, patch, duplicate conflict, absent `404`, required-field `400`, and unauthorised `401`. |

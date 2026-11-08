@@ -646,6 +646,7 @@ This script downloads and executes an external release helper from `https://raw.
 | Workflow | Purpose | What it does |
 |----------|---------|--------------|
 | [ .NET ](https://github.com/hmlendea/nucicraft-api/blob/master/.github/workflows/dotnet.yml) | Continuous integration | Sets up .NET 10, restores dependencies, builds the solution, and runs all tests on pushes and pull requests targeting `master`. |
+| [ Security ](https://github.com/hmlendea/nucicraft-api/blob/master/.github/workflows/security.yml) | Security scanning | Sets up .NET 10, restores dependencies, reports vulnerable packages, builds the solution, and uploads CodeQL analysis results to GitHub Code Scanning on pushes and pull requests targeting `master` and on a weekly schedule. |
 
 ## 🗂️ Project Structure
 

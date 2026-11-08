@@ -114,8 +114,25 @@ Consumer type: [AccessControlSettings.cs](../NuciCraft.API/Configuration/AccessC
 | `accessControlSettings.deniedUsernamePatterns` | string[] | See [appsettings.json](../NuciCraft.API/appsettings.json) | No | Case-sensitive regex patterns checked by `AccessControlService.PerformUsernameCheck`. |
 | `accessControlSettings.geolocationApiUrl` | string | `http://ip-api.com/json/` | No | Base URL for geolocation API calls; IP address and query fields appended. |
 | `accessControlSettings.minimumUsernameLength` | int | `4` | No | Minimum username length enforced by `AccessControlService.PerformUsernameCheck`. |
+| `accessControlSettings.anonymisationServiceDetection.provider` | string | `proxycheck` | No | Selects the upstream detection provider (`proxycheck` or `funkemunky`). An unsupported value raises `NotSupportedException` when a detector is created. |
+| `accessControlSettings.anonymisationServiceDetection.isEnabled` | bool | `true` | No | When disabled, `AccessControlService` skips the detection request entirely and permits the request. |
+| `accessControlSettings.anonymisationServiceDetection.isCacheEnabled` | bool | `true` | No | Enables the in-process detection result cache. When disabled, every check performs a live detection request. |
+| `accessControlSettings.anonymisationServiceDetection.cacheDurationHoursWhenDetected` | int | `6` | No | Lifetime of a cached detection result that reported an anonymisation service. |
+| `accessControlSettings.anonymisationServiceDetection.cacheDurationHoursWhenNotDetected` | int | `2` | No | Lifetime of a cached detection result that reported no anonymisation service. |
+| `accessControlSettings.anonymisationServiceDetection.cacheDurationHoursForExpiredFallback` | int | `6` | No | Additional retention of an expired detection result, so that it remains available as a fallback when a live refresh fails. |
 
 The geolocation API is called with `fields=status,countryCode,country` appended to the constructed URL. A non-success status or missing country code results in an allowed response (fail-open). Denied country comparison is case-insensitive. Username pattern matching uses `Regex.IsMatch` without `IgnoreCase`.
+
+### Anonymisation Service Detection Cache
+
+`CachedAnonymisationServiceDetector` stores one entry per IP address in the in-process `IMemoryCache` under the `anonymisation:` key prefix. A cached result is served without a live request until its lifetime elapses.
+
+| Detection outcome | Cache lifetime |
+|------------------|----------------|
+| Anonymisation service detected | `cacheDurationHoursWhenDetected` hours. |
+| No anonymisation service detected | `cacheDurationHoursWhenNotDetected` hours. |
+
+When a cached result has expired, a live detection request is made. A successful request replaces the stale entry with a new result and a new lifetime. A failed request leaves the stale entry in place and serves it as a fallback, so that a provider outage does not change the access decision. When no entry exists, a failed request is propagated to `AccessControlService`, which logs the failure and permits the request.
 
 ## NuciLog Settings
 
@@ -163,6 +180,12 @@ accessControlSettings__deniedCountries
 accessControlSettings__deniedUsernamePatterns
 accessControlSettings__geolocationApiUrl
 accessControlSettings__minimumUsernameLength
+accessControlSettings__anonymisationServiceDetection__provider
+accessControlSettings__anonymisationServiceDetection__isEnabled
+accessControlSettings__anonymisationServiceDetection__isCacheEnabled
+accessControlSettings__anonymisationServiceDetection__cacheDurationHoursWhenDetected
+accessControlSettings__anonymisationServiceDetection__cacheDurationHoursWhenNotDetected
+accessControlSettings__anonymisationServiceDetection__cacheDurationHoursForExpiredFallback
 ```
 
 This list documents names only and intentionally contains no secret values.

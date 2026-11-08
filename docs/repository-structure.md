@@ -4,7 +4,7 @@
 |----------|-------|
 | Purpose | Map the physical repository to architectural responsibilities and modification boundaries. |
 | Scope | Tracked source, tests, configuration, automation, and documentation; generated outputs and local runtime data are identified but not inventoried record by record. |
-| Primary sources | [Solution](../NuciCraft.API.slnx), [runtime project](../NuciCraft.API/), [unit tests](../NuciCraft.API.UnitTests/), [integration tests](../NuciCraft.API.IntegrationTests/), and [GitHub workflow](../.github/workflows/dotnet.yml) |
+| Primary sources | [Solution](../NuciCraft.API.slnx), [runtime project](../NuciCraft.API/), [unit tests](../NuciCraft.API.UnitTests/), [integration tests](../NuciCraft.API.IntegrationTests/), and [GitHub workflows](../.github/workflows/) |
 | Related documents | [Architecture](architecture.md), [repository overview](repository-overview.md), and [design decisions](design-decisions.md) |
 
 ## Root Organisation
@@ -99,6 +99,7 @@ These classes extend NuciLog types. Add a corresponding operation when a novel s
 | Composition | [ProgramTests.cs](../NuciCraft.API.UnitTests/ProgramTests.cs), [StartupTests.cs](../NuciCraft.API.UnitTests/StartupTests.cs), and [ServiceCollectionExtensionsTests.cs](../NuciCraft.API.UnitTests/ServiceCollectionExtensionsTests.cs) | Host builder, store preparation, eager loads, settings, and registrations. |
 | Controller boundary | [Controllers](../NuciCraft.API.UnitTests/Controllers/) | Request construction, route branch delegation, wrappers, and authorisation context. |
 | Services and models | [Service](../NuciCraft.API.UnitTests/Service/) | Domain operations, validation branches, mappings, enum-like values, and settings merges. |
+| Anonymisation detection | [Service/Anonymisation](../NuciCraft.API.UnitTests/Service/Anonymisation/) | Cached detector lifetimes, expiry refresh, and expired-result fallback. |
 | Response contracts | [Responses](../NuciCraft.API.UnitTests/Responses/) | Property projection and collection count derivation. |
 | Logging keys | [Logging](../NuciCraft.API.UnitTests/Logging/) | Key identity and naming. |
 | Shared configuration | [TestConfigurationFactory.cs](../NuciCraft.API.UnitTests/TestConfigurationFactory.cs) | Repeatable in-memory settings and temporary store paths. |
@@ -110,6 +111,8 @@ These classes extend NuciLog types. Add a corresponding operation when a novel s
 | Path | Responsibility |
 |------|----------------|
 | [ApiTestHost.cs](../NuciCraft.API.IntegrationTests/ApiTestHost.cs) | `WebApplicationFactory<Program>`, temporary store configuration, authorised client creation, and deterministic integration substitutions. |
+| [AccessControlApiTestHost.cs](../NuciCraft.API.IntegrationTests/AccessControlApiTestHost.cs) | Access-control host that keeps the real service and substitutes HTTP, time, and logging. |
+| [StubHttpMessageHandler.cs](../NuciCraft.API.IntegrationTests/StubHttpMessageHandler.cs) | Switchable HTTP responder that records every requested URL. |
 | [ApiRequestExtensions.cs](../NuciCraft.API.IntegrationTests/ApiRequestExtensions.cs) | JSON HTTP content construction for tests. |
 | [ApiErrorResponseTests.cs](../NuciCraft.API.IntegrationTests/ApiErrorResponseTests.cs) | Observable authorisation, model-binding, malformed JSON, and absent-record statuses. |
 | [PersistenceApiTests.cs](../NuciCraft.API.IntegrationTests/PersistenceApiTests.cs) | State and Home uniqueness across process restarts. |
@@ -123,6 +126,7 @@ These classes extend NuciLog types. Add a corresponding operation when a novel s
 | Path | Conduct |
 |------|---------|
 | [.github/workflows/dotnet.yml](../.github/workflows/dotnet.yml) | On pushes and pull requests to `master`, checks out source, installs .NET 10, restores, compiles without a second restore, and tests without a second compile. |
+| [.github/workflows/security.yml](../.github/workflows/security.yml) | On pushes and pull requests to `master` and on a weekly schedule, checks out source, installs .NET 10, restores, reports vulnerable packages, builds, and uploads CodeQL results with `security-events: write`. |
 | [.vscode/tasks.json](../.vscode/tasks.json) | Defines runtime-project compile, publish, and watch tasks. |
 | [.vscode/launch.json](../.vscode/launch.json) | Launches the Debug .NET 10 assembly in Development and detects the server URL. |
 | [release.sh](../release.sh) | Downloads a version-selected remote release script and pipes it to Bash. |
