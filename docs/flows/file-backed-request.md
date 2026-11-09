@@ -15,7 +15,7 @@ An external client initiates an HTTP request with a bearer API key. The exact en
 
 - The process has prepared all stores.
 - Controller dependencies have been resolved.
-- The service and repository are singleton instances.
+- The service and repository are scoped to the request.
 - Persisted records may or may not contain the requested identifier.
 
 ## Generic Read Sequence

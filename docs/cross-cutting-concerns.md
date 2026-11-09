@@ -70,8 +70,8 @@ The composition root registers concrete infrastructure once. Key conventions are
 - Controller dependencies use service interfaces.
 - Service dependencies use repository or client interfaces where available.
 - Settings are concrete singleton objects rather than options wrappers.
-- Application services and repositories are singleton.
-- Logger is scoped despite singleton consumers.
+- Application services and repositories are scoped.
+- Logger is scoped alongside application-service consumers.
 
 Constructor injection uses C# primary constructors throughout much of the code. A novel dependency requires registration and service-collection resolution coverage.
 

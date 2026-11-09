@@ -78,7 +78,7 @@ The request/persistence cycle is therefore intentional legacy coupling, not an a
 | Fixture | Verification |
 |---------|--------------|
 | [ProgramTests.cs](../NuciCraft.API.UnitTests/ProgramTests.cs) | Host builder can compile from command-line settings; invalid store path fails before server loop. |
-| [StartupTests.cs](../NuciCraft.API.UnitTests/StartupTests.cs) | Configuration retention, service registration, directory and file creation, and eager GetAll calls in Development and Production. |
+| [StartupTests.cs](../NuciCraft.API.UnitTests/StartupTests.cs) | Configuration retention, service registration, directory and file creation, and verification that startup does not eagerly call `GetAll`. |
 | [ServiceCollectionExtensionsTests.cs](../NuciCraft.API.UnitTests/ServiceCollectionExtensionsTests.cs) | All settings values and every custom registration resolve; two service collections with different store paths each read their own store. |
 
 `TestConfigurationFactory` constructs in-memory and command-line settings with temporary paths. Startup tests replace every repository with Moq and verify each eager enumeration.
@@ -209,7 +209,7 @@ The integration host's remote URLs use the reserved `.invalid` domain and mocked
 | Mapping | Reflection-based mapping tests. |
 | Response projection | Response unit tests. |
 | Middleware and HTTP binding | In-memory HTTP integration tests. |
-| File persistence | In-memory repositories for ordinary HTTP isolation; file-backed restart tests for persistence and eager-load startup. |
+| File persistence | In-memory repositories for ordinary HTTP isolation; file-backed restart tests for persistence and startup store preparation. |
 | External name service | Mocked client contract tests, not live service. |
 | Minecraft protocol | Loopback TCP integration tests. |
 

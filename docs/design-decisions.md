@@ -24,7 +24,7 @@
 
 ## JSON File Persistence Through NuciDAL
 
-**Decision:** Persist eight aggregate record types in independently configured JSON files using singleton `JsonRepository<T>` instances.
+**Decision:** Persist eight aggregate record types in independently configured JSON files using scoped `OptimisticJsonRepository<T>` instances.
 
 **Evidence:** Repository factories in [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCollectionExtensions.cs), store preparation in [Startup.cs](../NuciCraft.API/Startup.cs), and data objects in [DataAccess/DataObjects](../NuciCraft.API/DataAccess/DataObjects/).
 
@@ -37,20 +37,20 @@
 
 **Modification constraint:** Persisted shape changes require compatibility analysis and, when incompatible, an explicit migration mechanism before deployment.
 
-## Eager Store Preparation
+## Store Preparation And Deferred Loading
 
-**Decision:** Create missing store files and enumerate all repositories before accepting requests.
+**Decision:** Create missing store files before accepting requests, but defer repository construction and enumeration until a request operation needs the repository.
 
-**Evidence:** `PrepareRepositories`, `CreateStoreIfMissing`, and `EagerlyLoadRepositories` in [Startup.cs](../NuciCraft.API/Startup.cs).
+**Evidence:** `CreateStoreIfMissing` and scoped repository registrations in [Startup.cs](../NuciCraft.API/Startup.cs) and [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCollectionExtensions.cs).
 
-**Motivation:** Not recorded. The implementation produces early failure for absent paths, invalid registrations, and unreadable stores.
+**Motivation:** Keep startup responsible for filesystem preparation while request scopes own repository state.
 
 **Consequences:**
 - Initialisation is synchronous and all stores participate in process readiness.
 - One malformed or inaccessible store prevents the complete API from starting.
 - Existing data is never automatically repaired or migrated.
 
-**Modification constraint:** A novel file-backed domain requires path creation, repository registration, and eager load parity.
+**Modification constraint:** A novel file-backed domain requires path creation and scoped repository registration; loading occurs when the domain is used.
 
 ## Container-Resolved Settings For Repository Factories
 
@@ -67,20 +67,20 @@
 
 **Modification constraint:** Preserve container resolution for settings consumed by registration helpers. Do not reintroduce static fields that retain registration state.
 
-## Singleton Services And Repositories
+## Scoped Services And Repositories
 
-**Decision:** Register all application services and file repositories as singletons.
+**Decision:** Register application services, file repositories, and the Universal Name Generator client as scoped services; retain singleton lifetime only for process-wide generators and text utilities.
 
 **Evidence:** [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCollectionExtensions.cs).
 
-**Motivation:** Not recorded. Singleton lifetime aligns with process-wide file repository instances and settings.
+**Motivation:** Isolate request state and repository instances while preserving process-wide stateless utilities.
 
 **Consequences:**
-- Service implementations must not retain mutable request-specific state.
-- Concurrent HTTP requests share each service and repository.
-- The scoped `ILogger` injected into a singleton is effectively captured beyond an ordinary request scope.
+- Each request receives its own application-service and repository instances.
+- File coordination across requests and processes remains dependent on repository and filesystem semantics.
+- `ILogger` is resolved within the same request scope as application services.
 
-**Modification constraint:** Review thread safety before adding mutable fields, caches, random generators, or scoped dependencies to a service.
+**Modification constraint:** Keep request-specific state scoped and review file-write coordination when changing repository behaviour.
 
 ## Thin Controllers And Explicit Service Interfaces
 
@@ -142,7 +142,7 @@
 **Motivation:** Not recorded. The lock makes uniqueness checks and saves atomic relative to other Home operations in the identical process.
 
 **Consequences:**
-- Reads and mutations cannot execute concurrently through the singleton Home service.
+- Reads and mutations in the same request scope cannot execute concurrently through the scoped Home service instance.
 - The lock does not coordinate another process or direct repository consumer.
 - Player validation occurs while the Home lock is held.
 

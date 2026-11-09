@@ -29,7 +29,7 @@ Neither component persists state.
 
 ### Mob Name Generation
 
-- `INuciApiClient`, implemented by singleton `NuciApiClient`.
+- `INuciApiClient`, implemented by scoped `NuciApiClient` with managed HTTP client infrastructure.
 - `UniversalNameGeneratorSettings`.
 - `MobType` registry and `Random.Shared`.
 - Nuci API request authorisation and response types.
@@ -130,7 +130,7 @@ Input is process configuration rather than request values. The outbound query tr
 
 ## State
 
-- `NuciApiClient`, `MobService`, and `ServerStatusService` are singletons.
+- `NuciApiClient`, `MobService`, and `ServerStatusService` are scoped per request.
 - Each mob request allocates an outbound request and response objects.
 - Each server request creates a new MineStat instance.
 - No local cache, persisted state, shared socket, or prior result exists.

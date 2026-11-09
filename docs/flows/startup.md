@@ -82,9 +82,9 @@ No validation executes at binding time.
 ### Phase 3: Runtime Dependency Selection
 
 `AddCustomServices` registers:
-1. Eight singleton JSON repositories using path delegates.
-2. Singleton `NuciApiClient` using generator BaseUrl.
-3. Eleven singleton application service implementations and the sign-ID generator dependency.
+1. Eight scoped `OptimisticJsonRepository<T>` services using path delegates.
+2. Scoped `NuciApiClient` using generator BaseUrl, with managed HTTP client infrastructure.
+3. Eleven scoped application service implementations and the singleton sign-ID generator dependency.
 4. Two singleton NuciText utilities.
 5. Scoped `NuciLogger` as `ILogger`.
 
@@ -92,7 +92,7 @@ Repository path delegates resolve `DataStoreSettings` from the container when ea
 
 ### Phase 4: Store Creation
 
-`Startup.Configure` calls `PrepareRepositories` before middleware registration. For each path, `CreateStoreIfMissing`:
+`Startup.Configure` prepares store directories before middleware registration. For each path, `CreateStoreIfMissing`:
 1. Calls `ArgumentException.ThrowIfNullOrWhiteSpace`.
 2. Calls `Path.GetDirectoryName`.
 3. Creates the directory when `Directory.Exists` is false.
@@ -100,11 +100,9 @@ Repository path delegates resolve `DataStoreSettings` from the container when ea
 
 An existing file remains intact regardless of content.
 
-### Phase 5: Eager Repository Enumeration
+### Phase 5: Deferred Repository Loading
 
-`EagerlyLoadRepositories` invokes the generic helper for Player, RTP Location, Country, Home, World, Zone, and ZoneType in that order. Each helper resolves `IFileRepository<T>` and forces enumeration with `GetAll().ToList()`.
-
-The return values are discarded. The phase verifies resolution and materialisation and may initialise package-internal repository state.
+Startup does not resolve or enumerate repositories. A request scope creates the scoped `IFileRepository<T>` required by the selected service, and the repository reads its configured file when the operation calls `Get` or `GetAll`.
 
 ### Phase 6: Middleware
 
@@ -138,7 +136,7 @@ The sequence terminates without process readiness when:
 - File creation fails.
 - Repository resolution fails.
 - Existing JSON cannot materialise.
-- Service construction fails during eager resolution.
+- Repository construction or deserialisation fails when the affected service operation resolves or uses it.
 - Middleware registration or host construction fails.
 
 No local catch, retry, fallback, rollback, or partial endpoint activation exists. Directories or empty files created before a later failure remain as filesystem side effects.
@@ -146,9 +144,9 @@ No local catch, retry, fallback, rollback, or partial endpoint activation exists
 ## Final State
 
 On success:
-- Six application settings singletons are bound.
+- Six application settings registrations are bound.
 - Every runtime dependency is registered.
-- Eight store paths exist and each repository has successfully enumerated.
+- Eight store paths exist; repositories remain deferred until requested.
 - Middleware and controller endpoints are configured.
 - The host can accept requests.
 

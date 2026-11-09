@@ -167,7 +167,7 @@ Creation and patch commands return the base Nuci API success response rather tha
 
 - Four independent JSON stores own records.
 - Zone references are string identifiers, not repository-enforced foreign keys.
-- Services and repositories are singletons.
+- Services and repositories are scoped per request.
 - No application locks protect these operations.
 - Derived map links are request-duration state only.
 - Country, World, and ZoneType records cannot be deleted through current interfaces.

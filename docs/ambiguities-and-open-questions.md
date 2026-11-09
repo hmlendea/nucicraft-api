@@ -25,15 +25,15 @@
 
 **Relevant sources:** Repository use throughout [Service](../NuciCraft.API/Service/) and adapter creation in [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCollectionExtensions.cs).
 
-**Confirmed:** Local code uses Get, GetAll, Add, Update, Remove, and SaveChanges over singleton JSON repositories; ordinary restart persistence works in selected tests.
+**Confirmed:** Local code uses Get, GetAll, Add, Update, Remove, and SaveChanges over scoped JSON repositories; ordinary restart persistence works in selected tests.
 
 **Indeterminate:** Atomic writes, locks, duplicate IDs, in-memory retention, snapshots, file-watch conduct, external-edit visibility, recovery, and durability.
 
 **Why it matters:** These semantics control concurrency, scale-out, corruption recovery, and persistence-adapter upgrades.
 
-## Scoped Logger Captured By Singletons
+## Scoped Service And Repository State
 
-**Ambiguity:** `ILogger` is scoped while every application service is singleton.
+**Ambiguity:** Application services and repositories are scoped, while settings and selected utilities are singleton registrations.
 
 **Relevant source:** [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCollectionExtensions.cs).
 
@@ -191,7 +191,7 @@
 
 **Ambiguity:** Architecture and persistence strongly favour one writable process, but no explicit runtime guard prohibits several instances.
 
-**Relevant sources:** Singleton repositories, lack of distributed coordination, and file stores.
+**Relevant sources:** Scoped repositories, lack of distributed coordination, and file stores.
 
 **Confirmed:** No cross-process lock or invalidation exists.
 

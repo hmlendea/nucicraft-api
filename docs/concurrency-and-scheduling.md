@@ -17,16 +17,16 @@ No background worker, hosted service, timer, scheduler, queue consumer, producer
 
 | Dependency | Lifetime | Concurrent Access Consequence |
 |------------|----------|-------------------------------|
-| Application services | Singleton | Every request for a domain shares one service instance. |
-| File repositories | Singleton | Reads and writes for a record type share one adapter instance. |
+| Application services | Scoped | Each request resolves its own service instances. |
+| File repositories | Scoped | Each request resolves its own adapter instance for a record type. |
 | Settings | Singleton | Effectively read-only after startup but publicly mutable objects. |
-| NuciApiClient | Singleton | Concurrent name requests share client infrastructure. |
-| ServerStatusService | Singleton | Method creates independent MineStat state per call. |
+| NuciApiClient | Scoped | Each request resolves a client wrapper; HTTP transport is managed by `AddHttpClient`. |
+| ServerStatusService | Scoped | Method creates independent MineStat state per call. |
 | NuciText utilities | Singleton | No local production consumer. |
-| ILogger | Scoped registration | Singleton service construction captures a resolved instance beyond ordinary request scope expectations. |
+| ILogger | Scoped registration | One logger instance is resolved per request scope. |
 | Controllers | Framework activated | Hold only dependencies and immutable authorisation descriptor. |
 
-Singleton services contain no mutable request fields except `HomeService.persistenceLock`. Their local variables are invocation-specific.
+Scoped services contain no mutable request fields except `HomeService.persistenceLock`. Their local variables are invocation-specific; repository state is isolated per request scope.
 
 ## Home Synchronisation
 
@@ -48,7 +48,7 @@ The lock covers:
 
 ### Guarantees
 
-For requests entering the identical singleton HomeService instance:
+For operations entering the same scoped HomeService instance:
 - No two Home operations execute their critical sections concurrently.
 - A name uniqueness check and its subsequent save cannot interleave with another Home operation.
 - Returned collection arrays are materialised before lock release.
@@ -91,7 +91,7 @@ The local project neither wraps NuciDAL with locks nor documents NuciDAL's inter
 - Whether each repository retains an in-memory collection.
 - Whether separate repository instances coordinate on one path.
 
-Do not assert thread safety from singleton registration alone.
+Do not assert cross-request file-write safety from scoped registration alone.
 
 ## Synchronous And Asynchronous Conduct
 
@@ -171,7 +171,7 @@ There is no deferred cleanup, retry queue, reconciliation, compaction, backup, h
 ## Modification Guidance
 
 - Add synchronisation at the ownership boundary that covers both validation and save.
-- Do not add mutable request state to singleton fields.
+- Do not add mutable request state to process-wide singleton fields.
 - Prefer an atomic persistence constraint over an application lock when supporting multiple processes.
 - Convert full call paths to async when introducing asynchronous service methods; include cancellation propagation.
 - Add concurrency tests for any read-check-write invariant.

@@ -78,7 +78,7 @@ Rules are:
 - Name patches merge supplied non-null languages and preserve omitted languages.
 - Location patches replace the complete nested location.
 - Identifier and creation timestamp are immutable; revision timestamp is generated after a successful patch.
-- Every Home operation, including reads, executes inside the singleton service's instance lock.
+- Every Home operation, including reads, executes inside its scoped service instance lock.
 - The lock protects one process only.
 
 ## RTP Location Invariants

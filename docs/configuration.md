@@ -36,14 +36,14 @@ Consumer type: [DataStoreSettings.cs](../NuciCraft.API/Configuration/DataStoreSe
 
 | Key | Type | Committed Default | Required | Consumers And Consequence |
 |-----|------|-------------------|----------|---------------------------|
-| `dataStoreSettings.countriesStorePath` | string | `Data/countries.json` | Yes at startup | Country repository, store creation, eager load. |
-| `dataStoreSettings.homesStorePath` | string | `Data/homes.json` | Yes at startup | Home repository, store creation, eager load. |
-| `dataStoreSettings.itemsStorePath` | string | `Data/items.json` | Yes at startup | Item repository, store creation, eager load. |
-| `dataStoreSettings.playersStorePath` | string | `Data/players.json` | Yes at startup | Player repository, store creation, eager load. |
-| `dataStoreSettings.rtpLocationsStorePath` | string | `Data/rtp_locations.json` | Yes at startup | RTP repository, store creation, eager load. |
-| `dataStoreSettings.worldsStorePath` | string | `Data/worlds.json` | Yes at startup | World repository, store creation, eager load. |
-| `dataStoreSettings.zonesStorePath` | string | `Data/zones.json` | Yes at startup | Zone repository, store creation, eager load. |
-| `dataStoreSettings.zoneTypesStorePath` | string | `Data/zone_types.json` | Yes at startup | ZoneType repository, store creation, eager load. |
+| `dataStoreSettings.countriesStorePath` | string | `Data/countries.json` | Yes at startup | Country repository, store creation, deferred loading. |
+| `dataStoreSettings.homesStorePath` | string | `Data/homes.json` | Yes at startup | Home repository, store creation, deferred loading. |
+| `dataStoreSettings.itemsStorePath` | string | `Data/items.json` | Yes at startup | Item repository, store creation, deferred loading. |
+| `dataStoreSettings.playersStorePath` | string | `Data/players.json` | Yes at startup | Player repository, store creation, deferred loading. |
+| `dataStoreSettings.rtpLocationsStorePath` | string | `Data/rtp_locations.json` | Yes at startup | RTP repository, store creation, deferred loading. |
+| `dataStoreSettings.worldsStorePath` | string | `Data/worlds.json` | Yes at startup | World repository, store creation, deferred loading. |
+| `dataStoreSettings.zonesStorePath` | string | `Data/zones.json` | Yes at startup | Zone repository, store creation, deferred loading. |
+| `dataStoreSettings.zoneTypesStorePath` | string | `Data/zone_types.json` | Yes at startup | ZoneType repository, store creation, deferred loading. |
 
 Relative paths resolve from the process working directory. Every path must include a usable parent-directory result for current startup logic. All stores must be readable and writable for full capability operation.
 
@@ -232,7 +232,7 @@ No custom command-line parser or application-specific options exist.
 
 | Setting Group | First Effective Validation |
 |---------------|----------------------------|
-| Store paths | Startup `CreateStoreIfMissing` and repository eager load. |
+| Store paths | Startup `CreateStoreIfMissing`; repository loading is deferred until use. |
 | Server host and Java port | First `GetOnlinePlayersCount` call. |
 | Bedrock port and server name | None locally. |
 | RTP distances | None locally; arithmetic at first addition. |

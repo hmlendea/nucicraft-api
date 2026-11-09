@@ -11,7 +11,7 @@
 
 NuciCraft API is one ASP.NET Core 10 process that exposes API-key-protected HTTP operations for Minecraft server metadata, Players, Homes, random-teleport locations, Countries, Worlds, ZoneTypes, Zones, and generated mob names. It persists eight record types in configured JSON files, queries a Minecraft Java server for live status, and calls the Universal Name Generator for names.
 
-The service is a layered modular monolith. Controllers delegate to singleton application services; services use singleton NuciDAL repositories or outbound adapters; request processing, error translation, HMAC handling, scanner protection, and substantial infrastructure behaviour come from versioned Nuci packages.
+The service is a layered modular monolith. Controllers delegate to scoped application services; services use scoped NuciDAL repositories or outbound adapters; request processing, error translation, HMAC handling, scanner protection, and substantial infrastructure behaviour come from versioned Nuci packages.
 
 ## Purpose Of This Corpus
 
@@ -42,7 +42,7 @@ Source code remains authoritative. Use the corpus to select the correct source s
 | [State And Persistence](state-and-persistence.md) | State inventory, store topology, transitions, save boundaries, consistency, caches, distributed limits, backup, and migration. |
 | [Error Handling And Resilience](error-handling.md) | Error taxonomy, validation, translation, network and persistence failures, retries, fallback, cleanup, partial failure, and idempotency. |
 | [Security Model](security.md) | Trust boundaries, authentication, authorisation, secrets, sensitive data, network and storage security, attack surfaces, and assumptions. |
-| [Concurrency And Scheduling](concurrency-and-scheduling.md) | Singleton sharing, Home locking, race risks, blocking calls, ordering, cancellation, randomness, and absence of scheduled work. |
+| [Concurrency And Scheduling](concurrency-and-scheduling.md) | Scoped request state, Home locking, race risks, blocking calls, ordering, cancellation, randomness, and absence of scheduled work. |
 | [Testing Architecture](testing.md) | Unit and integration fixtures, test host, doubles, temporary state, coverage by boundary, commands, and verified gaps. |
 | [Build, Deployment, And Operations](build-and-deployment.md) | Restore, compile, test, run, publish, CI, remote release, runtime requirements, readiness, shutdown, and rollback. |
 | [Dependencies](dependencies.md) | Package versions, architectural roles, encapsulation, transitive use, and replacement or upgrade consequences. |
@@ -75,7 +75,7 @@ Source code remains authoritative. Use the corpus to select the correct source s
 
 | Document | Trace |
 |----------|-------|
-| [Process Startup](flows/startup.md) | `Program.Main` through settings, DI, store creation, eager loads, middleware, and readiness. |
+| [Process Startup](flows/startup.md) | `Program.Main` through settings, DI, store creation, deferred repository loading, middleware, and readiness. |
 | [File-Backed Request](flows/file-backed-request.md) | Shared controller, processor, service, repository, mapping, response, and error sequence. |
 | [Player And Home Requests](flows/player-and-home-requests.md) | Registration, patching, selectors, Home lock, uniqueness, and query branches. |
 | [Zone Requests](flows/zone-requests.md) | Reference validation, bounds, patch merge, filters, containment, enrichment, and delete. |
@@ -193,7 +193,7 @@ This sequence provides purpose, boundaries, placement, constraints, and uncertai
 | JsonRepository, SaveChanges, migration | [State and persistence](state-and-persistence.md) |
 | settings key or environment variable | [Configuration](configuration.md) |
 | exception, status, retry, fallback | [Error handling](error-handling.md) |
-| singleton, race, lock, cancellation | [Concurrency](concurrency-and-scheduling.md) |
+| scoped, singleton, race, lock, cancellation | [Concurrency](concurrency-and-scheduling.md) |
 | package version or replacement | [Dependencies](dependencies.md) |
 | where to modify | [Change guide](change-guide.md) |
 | whether documentation covers a file | [Coverage map](documentation-coverage.md) |
