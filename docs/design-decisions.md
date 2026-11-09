@@ -52,6 +52,21 @@
 
 **Modification constraint:** A novel file-backed domain requires path creation, repository registration, and eager load parity.
 
+## Container-Resolved Settings For Repository Factories
+
+**Decision:** Resolve `DataStoreSettings` from the dependency-injection container when each repository instance is created, instead of retaining it in a static field.
+
+**Evidence:** `AddConfigurations` and `AddJsonRepository<T>` in [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCollectionExtensions.cs).
+
+**Motivation:** The former static field was process-global registration state. It bound every subsequently constructed repository to whichever assignment happened last, which broke test isolation and prevented concurrent service-collection construction.
+
+**Consequences:**
+- Concurrent and sequential service collections resolve their own store paths.
+- Repository creation order no longer influences which paths are bound.
+- `AddCustomServices` still presumes `AddConfigurations` executed first, because it resolves `DataStoreSettings` from the container.
+
+**Modification constraint:** Preserve container resolution for settings consumed by registration helpers. Do not reintroduce static fields that retain registration state.
+
 ## Singleton Services And Repositories
 
 **Decision:** Register all application services and file repositories as singletons.

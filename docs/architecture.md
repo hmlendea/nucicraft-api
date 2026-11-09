@@ -104,7 +104,7 @@ The registrations in [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCo
 | `INuciTextNormaliser`, `INuciTextObfuscator` | Singleton | NuciText implementations; no local production consumer is present. |
 | `ILogger` | Scoped | `NuciLogger`. Singleton services therefore retain the instance resolved when the singleton is first constructed. |
 
-`ServiceCollectionExtensions` retains `DataStoreSettings` in a private static field so repository factories can access paths. This creates process-global registration state and means multiple concurrent service-collection constructions are not isolated by design. Normal production startup invokes the registration once.
+`ServiceCollectionExtensions` resolves `DataStoreSettings` from the container when it creates each repository, so no static field retains registration state. Multiple concurrent service-collection constructions therefore remain isolated from one another by design.
 
 ## Initialisation And Lifecycle
 

@@ -87,19 +87,16 @@ namespace NuciCraft.API.IntegrationTests
                     ["universalNameGeneratorSettings:baseUrl"] = "https://example.invalid",
                     ["universalNameGeneratorSettings:apiKey"] = ApiKey,
                     ["nuciLoggerSettings:logFilePath"] = GetStorePath("nucicraft-api.log"),
-                    ["nuciLoggerSettings:isFileOutputEnabled"] = "false"
+                    ["nuciLoggerSettings:isFileOutputEnabled"] = "false",
+                    ["dataStoreSettings:countriesStorePath"] = GetStorePath("countries.json"),
+                    ["dataStoreSettings:homesStorePath"] = GetStorePath("homes.json"),
+                    ["dataStoreSettings:itemsStorePath"] = GetStorePath("items.json"),
+                    ["dataStoreSettings:playersStorePath"] = GetStorePath("players.json"),
+                    ["dataStoreSettings:rtpLocationsStorePath"] = GetStorePath("rtp_locations.json"),
+                    ["dataStoreSettings:worldsStorePath"] = GetStorePath("worlds.json"),
+                    ["dataStoreSettings:zonesStorePath"] = GetStorePath("zones.json"),
+                    ["dataStoreSettings:zoneTypesStorePath"] = GetStorePath("zone_types.json")
                 };
-
-                if (!useInMemoryRepositories)
-                {
-                    configurationValues["dataStoreSettings:countriesStorePath"] = GetStorePath("countries.json");
-                    configurationValues["dataStoreSettings:homesStorePath"] = GetStorePath("homes.json");
-                    configurationValues["dataStoreSettings:playersStorePath"] = GetStorePath("players.json");
-                    configurationValues["dataStoreSettings:rtpLocationsStorePath"] = GetStorePath("rtp_locations.json");
-                    configurationValues["dataStoreSettings:worldsStorePath"] = GetStorePath("worlds.json");
-                    configurationValues["dataStoreSettings:zonesStorePath"] = GetStorePath("zones.json");
-                    configurationValues["dataStoreSettings:zoneTypesStorePath"] = GetStorePath("zone_types.json");
-                }
 
                 configurationBuilder.AddInMemoryCollection(configurationValues);
             });

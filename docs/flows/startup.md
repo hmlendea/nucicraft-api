@@ -88,7 +88,7 @@ No validation executes at binding time.
 4. Two singleton NuciText utilities.
 5. Scoped `NuciLogger` as `ILogger`.
 
-Repository path delegates close over the static `dataStoreSettings` field assigned in Phase 2.
+Repository path delegates resolve `DataStoreSettings` from the container when each repository instance is created.
 
 ### Phase 4: Store Creation
 

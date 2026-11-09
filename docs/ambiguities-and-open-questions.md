@@ -55,18 +55,6 @@
 
 **Why it matters:** Renumbering may repair a defect or create a signature compatibility break.
 
-## Static DataStoreSettings During Registration
-
-**Ambiguity:** `ServiceCollectionExtensions` stores DataStoreSettings in a private static field.
-
-**Relevant source:** [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCollectionExtensions.cs).
-
-**Confirmed:** Normal production startup assigns it before repository registration. Tests construct several service collections sequentially.
-
-**Indeterminate:** Whether concurrent host construction is supported or intended and whether repository delegates can observe a later assignment.
-
-**Why it matters:** Parallel test hosts or multiple in-process hosts may bind repositories to unexpected paths.
-
 ## Unused NuciText Registrations
 
 **Ambiguity:** Normaliser and obfuscator are registered but not consumed by local production classes.

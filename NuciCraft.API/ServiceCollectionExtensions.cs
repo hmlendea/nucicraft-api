@@ -26,13 +26,11 @@ namespace NuciCraft.API
 {
     public static class ServiceCollectionExtensions
     {
-        private static DataStoreSettings dataStoreSettings;
-
         public static IServiceCollection AddConfigurations(
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            dataStoreSettings = new DataStoreSettings();
+            DataStoreSettings dataStoreSettings = new();
             SecuritySettings securitySettings = new();
             ServerSettings serverSettings = new();
             RtpLocationSettings rtpLocationSettings = new();
@@ -65,14 +63,14 @@ namespace NuciCraft.API
             .AddMemoryCache()
             .AddSingleton(TimeProvider.System)
             .AddSingleton(_ => HttpClientCreator.Create())
-            .AddJsonRepository<PlayerDataObject>(() => dataStoreSettings.PlayersStorePath)
-            .AddJsonRepository<RtpLocationEntity>(() => dataStoreSettings.RtpLocationsStorePath)
-            .AddJsonRepository<CountryDataObject>(() => dataStoreSettings.CountriesStorePath)
-            .AddJsonRepository<HomeDataObject>(() => dataStoreSettings.HomesStorePath)
-            .AddJsonRepository<ItemDataObject>(() => dataStoreSettings.ItemsStorePath)
-            .AddJsonRepository<WorldDataObject>(() => dataStoreSettings.WorldsStorePath)
-            .AddJsonRepository<ZoneDataObject>(() => dataStoreSettings.ZonesStorePath)
-            .AddJsonRepository<ZoneTypeDataObject>(() => dataStoreSettings.ZoneTypesStorePath)
+            .AddJsonRepository<PlayerDataObject>(settings => settings.PlayersStorePath)
+            .AddJsonRepository<RtpLocationEntity>(settings => settings.RtpLocationsStorePath)
+            .AddJsonRepository<CountryDataObject>(settings => settings.CountriesStorePath)
+            .AddJsonRepository<HomeDataObject>(settings => settings.HomesStorePath)
+            .AddJsonRepository<ItemDataObject>(settings => settings.ItemsStorePath)
+            .AddJsonRepository<WorldDataObject>(settings => settings.WorldsStorePath)
+            .AddJsonRepository<ZoneDataObject>(settings => settings.ZonesStorePath)
+            .AddJsonRepository<ZoneTypeDataObject>(settings => settings.ZoneTypesStorePath)
             .AddSingleton<INuciApiClient>(serviceProvider =>
                 new NuciApiClient(
                     serviceProvider
@@ -97,9 +95,11 @@ namespace NuciCraft.API
 
         private static IServiceCollection AddJsonRepository<TDataObject>(
             this IServiceCollection services,
-            Func<string> storePathProvider)
+            Func<DataStoreSettings, string> storePathProvider)
             where TDataObject : NuciCraftEntityBase
             => services.AddSingleton<IFileRepository<TDataObject>>(
-                _ => new OptimisticJsonRepository<TDataObject>(storePathProvider()));
+                serviceProvider => new OptimisticJsonRepository<TDataObject>(
+                    storePathProvider(
+                        serviceProvider.GetRequiredService<DataStoreSettings>())));
     }
 }

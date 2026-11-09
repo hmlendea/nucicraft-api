@@ -79,7 +79,7 @@ No custom host lifetime, configuration provider, web server, content root, or lo
 - `AddCustomServices`, which registers repositories, clients, application services, text utilities, and logging.
 - `AddJsonRepository<T>`, the generic singleton adapter factory.
 
-The private static `dataStoreSettings` field connects `AddConfigurations` to later repository factories. `AddCustomServices` therefore presumes `AddConfigurations` executed first.
+`AddConfigurations` registers `DataStoreSettings` in the container, and `AddJsonRepository<T>` resolves it from the container when a repository instance is created. `AddCustomServices` therefore presumes `AddConfigurations` executed first. No mutable registration state is held in static fields, so concurrent service-collection constructions remain isolated from one another.
 
 ### Settings Types
 
@@ -99,7 +99,7 @@ They are mutable property containers without local validation methods or options
 
 `AddConfigurations` binds sections using each local variable's C# name. The effective lower-camel section names in [appsettings.json](../../NuciCraft.API/appsettings.json) bind case-insensitively through Microsoft configuration.
 
-`AddCustomServices` creates singleton repository factories that read paths from the static settings object. The Universal Name Generator client is constructed with the bound base URL; other settings validation is deferred to consuming operations.
+`AddCustomServices` creates singleton repository factories that read paths from the container-resolved settings object. The Universal Name Generator client is constructed with the bound base URL; other settings validation is deferred to consuming operations.
 
 ### Store Preparation
 
@@ -136,7 +136,7 @@ No application-domain data is transformed directly by this component.
 ## State
 
 - Strongly typed settings instances persist for the process lifetime.
-- `dataStoreSettings` is also held in static process state.
+- Settings instances are reachable only through the container; no static field retains them.
 - Singleton repositories, services, clients, and text utilities persist for the process lifetime.
 - Logger registration is scoped, although singleton consumers can retain a resolved logger.
 - Files created during startup persist beyond process termination.

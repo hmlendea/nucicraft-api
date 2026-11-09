@@ -79,7 +79,7 @@ The request/persistence cycle is therefore intentional legacy coupling, not an a
 |---------|--------------|
 | [ProgramTests.cs](../NuciCraft.API.UnitTests/ProgramTests.cs) | Host builder can compile from command-line settings; invalid store path fails before server loop. |
 | [StartupTests.cs](../NuciCraft.API.UnitTests/StartupTests.cs) | Configuration retention, service registration, directory and file creation, and eager GetAll calls in Development and Production. |
-| [ServiceCollectionExtensionsTests.cs](../NuciCraft.API.UnitTests/ServiceCollectionExtensionsTests.cs) | All settings values and every custom registration resolve. |
+| [ServiceCollectionExtensionsTests.cs](../NuciCraft.API.UnitTests/ServiceCollectionExtensionsTests.cs) | All settings values and every custom registration resolve; two service collections with different store paths each read their own store. |
 
 `TestConfigurationFactory` constructs in-memory and command-line settings with temporary paths. Startup tests replace every repository with Moq and verify each eager enumeration.
 
@@ -142,10 +142,12 @@ Reflection-based mapping tests are sensitive to namespace, type, method, and par
 
 ### Per-Host State
 
-The default constructor creates a unique path beneath the system temporary directory, deletes it on disposal, and substitutes every `IFileRepository<T>` with [InMemoryRepository.cs](../NuciCraft.API.IntegrationTests/InMemoryRepository.cs), a JSON clone-backed in-memory double implementing the full repository contract. Ordinary HTTP fixtures therefore share no on-disk state and store paths are not configured. A second constructor accepts a retained directory, keeps the real file-backed repositories, and configures the eight isolated store paths for restart-persistence tests.
+The default constructor creates a unique path beneath the system temporary directory, deletes it on disposal, and substitutes every `IFileRepository<T>` with [InMemoryRepository.cs](../NuciCraft.API.IntegrationTests/InMemoryRepository.cs), a JSON clone-backed in-memory double implementing the full repository contract. Ordinary HTTP fixtures therefore share no on-disk state. A second constructor accepts a retained directory, keeps the real file-backed repositories, and uses the same directory for restart-persistence tests.
+
+Every host configures all eight store paths beneath its own temporary directory, so no host resolves the application-wide `Data/` defaults and no test writes to shared runtime state.
 
 In-memory configuration supplies:
-- Eight isolated store paths for the file-backed restart fixtures only.
+- Eight isolated store paths beneath the host's own temporary directory.
 - Test-specific RTP thresholds.
 - Example-invalid external URLs.
 - Deterministic server metadata.
@@ -161,7 +163,7 @@ In-memory configuration supplies:
 
 Ordinary HTTP integration tests therefore contact neither the filesystem stores nor the internet or Minecraft. The dedicated server-status fixture constructs the real service separately.
 
-The anonymisation caching fixture uses a separate host, [AccessControlApiTestHost.cs](../NuciCraft.API.IntegrationTests/AccessControlApiTestHost.cs), which keeps the real `IAccessControlService` and replaces `HttpClient`, `TimeProvider`, and `ILogger` instead. Its stubbed HTTP handler records every requested URL, so the fixture asserts how many detection requests reached the provider, and its `FakeTimeProvider` advances the clock past the cache lifetime.
+The anonymisation caching fixture uses a separate host, [AccessControlApiTestHost.cs](../NuciCraft.API.IntegrationTests/AccessControlApiTestHost.cs), which keeps the real `IAccessControlService` and replaces `HttpClient`, `TimeProvider`, and `ILogger` instead. It configures the same eight isolated store paths beneath its own temporary directory. Its stubbed HTTP handler records every requested URL, so the fixture asserts how many detection requests reached the provider, and its `FakeTimeProvider` advances the clock past the cache lifetime.
 
 ### Authorised Client
 
