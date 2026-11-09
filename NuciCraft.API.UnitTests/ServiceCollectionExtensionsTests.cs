@@ -5,6 +5,7 @@ using System.Linq;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 using NUnit.Framework;
 
@@ -39,7 +40,7 @@ namespace NuciCraft.API.UnitTests
 
             using ServiceProvider serviceProvider = services.BuildServiceProvider();
             Assert.That(
-                serviceProvider.GetRequiredService<DataStoreSettings>().PlayersStorePath,
+                serviceProvider.GetRequiredService<IOptionsMonitor<DataStoreSettings>>().CurrentValue.PlayersStorePath,
                 Is.EqualTo(Path.Combine(storeDirectory, "players.json")));
             Assert.That(
                 serviceProvider.GetRequiredService<SecuritySettings>().ApiKey,

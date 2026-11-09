@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 using NuciAPI.Middleware.ExceptionHandling;
 using NuciAPI.Middleware.Logging;
@@ -67,7 +68,7 @@ namespace NuciCraft.API
 
         private static void PrepareRepositories(IApplicationBuilder applicationBuilder)
         {
-            DataStoreSettings dataStoreSettings = applicationBuilder.ApplicationServices.GetRequiredService<DataStoreSettings>();
+            DataStoreSettings dataStoreSettings = applicationBuilder.ApplicationServices.GetRequiredService<IOptionsMonitor<DataStoreSettings>>().CurrentValue;
 
             CreateStoreIfMissing(dataStoreSettings.RtpLocationsStorePath);
             CreateStoreIfMissing(dataStoreSettings.PlayersStorePath);

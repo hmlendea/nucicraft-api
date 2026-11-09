@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -16,6 +17,7 @@ using NuciDAL.Repositories;
 
 using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
+using NuciCraft.API.UnitTests.Testing;
 
 namespace NuciCraft.API.UnitTests
 {
@@ -85,7 +87,7 @@ namespace NuciCraft.API.UnitTests
             startup.ConfigureServices(services);
 
             using ServiceProvider configuredServiceProvider = services.BuildServiceProvider();
-            Assert.That(configuredServiceProvider.GetRequiredService<DataStoreSettings>(), Is.Not.Null);
+            Assert.That(configuredServiceProvider.GetRequiredService<IOptionsMonitor<DataStoreSettings>>(), Is.Not.Null);
             Assert.That(configuredServiceProvider.GetRequiredService<SecuritySettings>(), Is.Not.Null);
         }
 
@@ -128,7 +130,7 @@ namespace NuciCraft.API.UnitTests
             startup.ConfigureServices(services);
             services.AddLogging();
             services.AddSingleton(new DiagnosticListener(nameof(StartupTests)));
-            services.AddSingleton(dataStoreSettings);
+            services.AddSingleton<IOptionsMonitor<DataStoreSettings>>(new TestOptionsMonitor<DataStoreSettings>(dataStoreSettings));
             services.AddSingleton(playerRepositoryMock.Object);
             services.AddSingleton(rtpLocationRepositoryMock.Object);
             services.AddSingleton(countryRepositoryMock.Object);

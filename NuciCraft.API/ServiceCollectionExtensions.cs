@@ -3,6 +3,7 @@ using System;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 using NuciAPI.Client;
 using NuciDAL.Repositories;
@@ -30,33 +31,26 @@ namespace NuciCraft.API
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            DataStoreSettings dataStoreSettings = new();
-            SecuritySettings securitySettings = new();
-            ServerSettings serverSettings = new();
-            RtpLocationSettings rtpLocationSettings = new();
-            UniversalNameGeneratorSettings universalNameGeneratorSettings = new();
-            WebMapSettings webMapSettings = new();
-            AccessControlSettings accessControlSettings = new();
-
-            configuration.Bind(nameof(dataStoreSettings), dataStoreSettings);
-            configuration.Bind(nameof(securitySettings), securitySettings);
-            configuration.Bind(nameof(serverSettings), serverSettings);
-            configuration.Bind(nameof(rtpLocationSettings), rtpLocationSettings);
-            configuration.Bind(nameof(webMapSettings), webMapSettings);
-            configuration.Bind(
-                nameof(universalNameGeneratorSettings),
-                universalNameGeneratorSettings);
-            configuration.Bind(nameof(accessControlSettings), accessControlSettings);
-
-            return services
-                .AddSingleton(dataStoreSettings)
-                .AddSingleton(securitySettings)
-                .AddSingleton(serverSettings)
-                .AddSingleton(rtpLocationSettings)
-                .AddSingleton(universalNameGeneratorSettings)
-                .AddSingleton(webMapSettings)
-                .AddSingleton(accessControlSettings)
+            services
+                .Configure<DataStoreSettings>(configuration.GetSection(nameof(DataStoreSettings)))
+                .Configure<SecuritySettings>(configuration.GetSection(nameof(SecuritySettings)))
+                .Configure<ServerSettings>(configuration.GetSection(nameof(ServerSettings)))
+                .Configure<RtpLocationSettings>(configuration.GetSection(nameof(RtpLocationSettings)))
+                .Configure<UniversalNameGeneratorSettings>(configuration.GetSection(nameof(UniversalNameGeneratorSettings)))
+                .Configure<WebMapSettings>(configuration.GetSection(nameof(WebMapSettings)))
+                .Configure<AccessControlSettings>(configuration.GetSection(nameof(AccessControlSettings)))
                 .AddNuciLoggerSettings(configuration);
+
+            services
+                .AddSingleton(sp => sp.GetRequiredService<IOptionsMonitor<DataStoreSettings>>().CurrentValue)
+                .AddSingleton(sp => sp.GetRequiredService<IOptionsMonitor<SecuritySettings>>().CurrentValue)
+                .AddSingleton(sp => sp.GetRequiredService<IOptionsMonitor<ServerSettings>>().CurrentValue)
+                .AddSingleton(sp => sp.GetRequiredService<IOptionsMonitor<RtpLocationSettings>>().CurrentValue)
+                .AddSingleton(sp => sp.GetRequiredService<IOptionsMonitor<UniversalNameGeneratorSettings>>().CurrentValue)
+                .AddSingleton(sp => sp.GetRequiredService<IOptionsMonitor<WebMapSettings>>().CurrentValue)
+                .AddSingleton(sp => sp.GetRequiredService<IOptionsMonitor<AccessControlSettings>>().CurrentValue);
+
+            return services;
         }
 
         public static IServiceCollection AddCustomServices(this IServiceCollection services) => services
@@ -95,11 +89,11 @@ namespace NuciCraft.API
 
         private static IServiceCollection AddJsonRepository<TDataObject>(
             this IServiceCollection services,
-            Func<DataStoreSettings, string> storePathProvider)
+            Func<DataStoreSettings, string> storePathSelector)
             where TDataObject : NuciCraftEntityBase
             => services.AddSingleton<IFileRepository<TDataObject>>(
                 serviceProvider => new OptimisticJsonRepository<TDataObject>(
-                    storePathProvider(
-                        serviceProvider.GetRequiredService<DataStoreSettings>())));
+                    storePathSelector(
+                        serviceProvider.GetRequiredService<IOptionsMonitor<DataStoreSettings>>().CurrentValue)));
     }
 }

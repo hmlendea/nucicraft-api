@@ -16,6 +16,7 @@ using Moq;
 using NuciAPI.Client;
 using NuciDAL.Repositories;
 
+using NuciCraft.API.Configuration;
 using NuciCraft.API.DataAccess.DataObjects;
 using NuciCraft.API.Requests;
 using NuciCraft.API.Service;
