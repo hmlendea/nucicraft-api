@@ -26,4 +26,15 @@
     <PackageReference Include="NuciLog.Core" Version="3.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AssemblyAttribute Include="NUnit.Framework.ParallelizableAttribute">
+      <_Parameter1>NUnit.Framework.ParallelScope.Fixtures</_Parameter1>
+      <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="NUnit.Framework.LevelOfParallelismAttribute">
+      <_Parameter1>4</_Parameter1>
+      <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
+    </AssemblyAttribute>
+  </ItemGroup>
+
 </Project>

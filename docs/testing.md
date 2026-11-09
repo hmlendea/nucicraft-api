@@ -191,7 +191,7 @@ The anonymisation caching fixture uses a separate host, [AccessControlApiTestHos
 | [ZonesApiTests.cs](../NuciCraft.API.IntegrationTests/ZonesApiTests.cs) | Zone add, reference and bounds behaviour, category, type, and coordinate queries. |
 | [ZoneTypesApiTests.cs](../NuciCraft.API.IntegrationTests/ZoneTypesApiTests.cs) | ZoneType create, read, list, category, and patch. |
 
-Fixtures touching the shared in-memory host or filesystem commonly use `NonParallelizable` to prevent test interference. The file-backed restart fixtures are the primary source of store-level concurrency and persistence assertions; fixtures using the default in-memory host exercise the full middleware, binding, and authorisation pipeline over isolated process state.
+Both test projects declare assembly-level `Parallelizable(ParallelScope.Fixtures)` with `LevelOfParallelism(4)`, so fixtures execute concurrently and no fixture is marked `NonParallelizable`. Isolation relies on per-host state rather than serialisation: every `ApiTestHost` and `AccessControlApiTestHost` instance owns a unique temporary store directory and substitutes its own in-memory repositories, and unit fixtures that touch the filesystem create a `Guid`-suffixed directory per test. Tests inside a fixture still run sequentially. The file-backed restart fixtures are the primary source of store-level concurrency and persistence assertions; fixtures using the default in-memory host exercise the full middleware, binding, and authorisation pipeline over isolated process state.
 
 ## Test Data
 

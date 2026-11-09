@@ -10,7 +10,6 @@ using NUnit.Framework;
 namespace NuciCraft.API.IntegrationTests
 {
     [TestFixture]
-    [NonParallelizable]
     public sealed class PersistenceApiTests
     {
         private static string StoreDirectoryName => "nucicraft-api-persistence-tests";

@@ -11,7 +11,6 @@ using NuciCraft.API.DataAccess.DataObjects;
 namespace NuciCraft.API.IntegrationTests
 {
     [TestFixture]
-    [NonParallelizable]
     public sealed class AccessControlRegistrationApiTests
     {
         private static string AllowedCountryGeolocationJson

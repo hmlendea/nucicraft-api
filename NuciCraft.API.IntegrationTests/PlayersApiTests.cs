@@ -8,7 +8,6 @@ using NUnit.Framework;
 namespace NuciCraft.API.IntegrationTests
 {
     [TestFixture]
-    [NonParallelizable]
     public sealed class PlayersApiTests
     {
         private ApiTestHost testHost = null!;
