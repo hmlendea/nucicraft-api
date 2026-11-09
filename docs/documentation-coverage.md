@@ -94,7 +94,7 @@ No CLI command, message handler, hosted worker, webhook receiver, or secondary e
 | Zones | `ZoneDataObject` | ZoneService | Data model, geographic component, state. |
 | Zone types | `ZoneTypeDataObject` | ZoneTypeService | Data model, geographic component, state. |
 
-Store creation, eager loading, save boundaries, consistency limits, ignored local data, migration absence, and backup ownership are covered in [state-and-persistence.md](state-and-persistence.md).
+Store creation, deferred repository loading, save boundaries, consistency limits, ignored local data, migration absence, and backup ownership are covered in [state-and-persistence.md](state-and-persistence.md).
 
 ## Integration Coverage
 
@@ -132,7 +132,7 @@ No production background process, scheduler, timer, queue, or hosted service exi
 | API key and model binding | Security and error handling | ApiErrorResponseTests and domain authorisation tests. |
 | Missing records | Error handling and capability documents | Unit service tests and HTTP `404` case. |
 | Domain conflicts | Invariants and capability documents | Home, RTP, Zone service and HTTP tests. |
-| Startup paths and eager load | Host component and startup flow | ProgramTests and StartupTests. |
+| Startup paths and deferred repository loading | Host component and startup flow | ProgramTests and StartupTests. |
 | Generator failures | External component and errors | MobServiceTests. |
 | Java availability and invalid payload | External component and errors | Unit validation and loopback integration. |
 | Persistence failure | Error handling and ambiguity register | Mocked exception paths; no interrupted-write test. |

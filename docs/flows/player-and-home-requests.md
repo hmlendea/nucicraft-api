@@ -165,4 +165,4 @@ An empty `name` key selects the single-Home path and then fails service whitespa
 
 ## Final Conditions
 
-Successful Home writes preserve per-player name uniqueness relative to every operation passing through the identical singleton instance. This guarantee does not extend to another process, direct repository use, or external file modifications.
+Successful Home writes preserve per-player name uniqueness relative to operations sharing the same scoped service instance. This guarantee does not extend across request scopes, processes, direct repository use, or external file modifications.

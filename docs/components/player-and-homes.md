@@ -169,7 +169,7 @@ Collection responses add computed counts.
 ## State
 
 - Players and Homes occupy separate JSON stores.
-- Both repositories and both services are process singletons.
+- Both repositories and both services are scoped per request.
 - Player operations have no local lock.
 - Every Home read and mutation shares one instance lock.
 - Home foreign keys are plain strings and have no storage-level constraint.

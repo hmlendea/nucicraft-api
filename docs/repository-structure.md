@@ -32,7 +32,7 @@
 | Path | Purpose |
 |------|---------|
 | [Program.cs](../NuciCraft.API/Program.cs) | Executable entry point and default host construction. |
-| [Startup.cs](../NuciCraft.API/Startup.cs) | Controller registration, middleware order, store creation, and eager repository enumeration. |
+| [Startup.cs](../NuciCraft.API/Startup.cs) | Controller registration, middleware order, and store creation; repository loading is deferred to request scopes. |
 | [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCollectionExtensions.cs) | Settings binding, concrete adapter selection, and dependency lifetimes. |
 | [appsettings.json](../NuciCraft.API/appsettings.json) | Default paths, ports, thresholds, log settings, and deployment placeholders. |
 | [Configuration](../NuciCraft.API/Configuration/) | Six plain settings types bound by section name. |
@@ -96,7 +96,7 @@ These classes extend NuciLog types. Add a corresponding operation when a novel s
 
 | Area | Path | Responsibility |
 |------|------|----------------|
-| Composition | [ProgramTests.cs](../NuciCraft.API.UnitTests/ProgramTests.cs), [StartupTests.cs](../NuciCraft.API.UnitTests/StartupTests.cs), and [ServiceCollectionExtensionsTests.cs](../NuciCraft.API.UnitTests/ServiceCollectionExtensionsTests.cs) | Host builder, store preparation, eager loads, settings, and registrations. |
+| Composition | [ProgramTests.cs](../NuciCraft.API.UnitTests/ProgramTests.cs), [StartupTests.cs](../NuciCraft.API.UnitTests/StartupTests.cs), and [ServiceCollectionExtensionsTests.cs](../NuciCraft.API.UnitTests/ServiceCollectionExtensionsTests.cs) | Host builder, store preparation, deferred repository loading, settings, and registrations. |
 | Controller boundary | [Controllers](../NuciCraft.API.UnitTests/Controllers/) | Request construction, route branch delegation, wrappers, and authorisation context. |
 | Services and models | [Service](../NuciCraft.API.UnitTests/Service/) | Domain operations, validation branches, mappings, enum-like values, and settings merges. |
 | Anonymisation detection | [Service/Anonymisation](../NuciCraft.API.UnitTests/Service/Anonymisation/) | Cached detector lifetimes, expiry refresh, and expired-result fallback. |

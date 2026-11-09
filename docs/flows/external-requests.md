@@ -11,7 +11,7 @@
 
 ### Initiator And Initial State
 
-An authorised client requests one or more names for a route mob type. The singleton NuciApiClient has already been constructed with configured BaseUrl. No local result cache exists.
+An authorised client requests one or more names for a route mob type. A scoped NuciApiClient is constructed with the configured BaseUrl when the request resolves MobService. No local result cache exists.
 
 ### Ordered Trace
 
@@ -68,7 +68,7 @@ On success, names leave only in the HTTP response and operation log context cont
 
 ### Initiator And Initial State
 
-An authorised client invokes `GET /Server`. `ServerSettings` is a process singleton. No prior count or open socket is retained.
+An authorised client invokes `GET /Server`. `ServerSettings` is resolved from the configured options registration. No prior count or open socket is retained.
 
 ### Ordered Trace
 

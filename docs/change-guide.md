@@ -76,7 +76,7 @@ Define the domain record, public capability, and ownership boundary first. Then 
 6. Requests, responses, and controller.
 7. Logging operation and keys.
 8. Repository registration.
-9. Startup path creation and eager load.
+9. Startup path creation and deferred repository loading.
 
 ### Tests
 
@@ -95,7 +95,7 @@ Revise repository overview, architecture, repository structure, data model, conf
 
 ### Common Omissions
 
-- Adding repository registration but omitting store creation or eager load.
+- Adding repository registration but omitting store creation or request-time loading coverage.
 - Committing runtime JSON data.
 - Omitting explicit SaveChanges.
 - Exposing persistence objects publicly.
@@ -307,12 +307,12 @@ No pattern presently exists. A deliberate addition requires:
 - Start and stop lifecycle.
 - Cancellation.
 - Scheduling and overlap policy.
-- Singleton repository coordination.
+- Repository coordination across concurrent request scopes.
 - Failure and retry policy.
 - Health and observability.
 - Deterministic tests.
 
-Revise architecture, concurrency, state, error handling, build and deployment, testing, and coverage. Do not place an infinite loop in a singleton application service invoked by controllers.
+Revise architecture, concurrency, state, error handling, build and deployment, testing, and coverage. Do not place an infinite loop in a request-scoped application service invoked by controllers.
 
 ## Modifying Deployment Or CI
 

@@ -18,8 +18,8 @@
 | World records | Configured JSON file | WorldService and World repository | No API deletion. |
 | ZoneType records | Configured JSON file | ZoneTypeService and ZoneType repository | No API deletion. |
 | Zone records | Configured JSON file | ZoneService and Zone repository | Until API deletion or file replacement. |
-| Bound settings | Singleton objects and static DataStoreSettings reference | Composition root | Process lifetime. |
-| Service and repository instances | DI singleton graph | Service provider | Process lifetime. |
+| Bound settings | Singleton objects in the container | Composition root | Process lifetime. |
+| Service and repository instances | DI scoped graph | Request service scope | Request lifetime. |
 | Home monitor lock | HomeService field | HomeService | Process lifetime. |
 | Derived Zone MapLink | Returned Zone model | ZoneService read operation | Response duration. |
 | Generated mob names | Remote response and HTTP response | MobService operation | Request duration. |
@@ -30,7 +30,7 @@
 
 ### Store Topology
 
-Each root data-object type has one independent file and one singleton repository. Default files reside beneath ignored local `Data/`, but production can override every path independently.
+Each root data-object type has one independent file and one scoped repository registration. Default files reside beneath ignored local `Data/`, but production can override every path independently.
 
 ```mermaid
 flowchart TB
@@ -126,7 +126,7 @@ Derived MapLink is not persistence state. It changes when WebMap BaseUrl, World 
 
 ## Configuration State
 
-Six application settings objects are created and bound once. The static `ServiceCollectionExtensions.dataStoreSettings` reference and registered instance refer to the constructed object. No monitor updates them.
+Six application settings objects are created and bound once and registered as container singletons. Repository factories resolve `DataStoreSettings` from the container when they create a repository instance. No monitor updates them.
 
 Configuration changes require process restart for a supported effect. A store-path revision changes the selected state set; the application performs no migration between old and new paths.
 

@@ -150,20 +150,20 @@ Store preparation precedes middleware construction and is not itself middleware.
 | `Program` and `Startup` | Construct the host, register the request pipeline, and prepare stores. | ASP.NET Core, configuration, DI container, `DataStoreSettings`. | One composition root per process. |
 | Controllers | Own routes, assemble request DTOs, select service operations, and delegate authorisation and response processing. | `NuciApiController`, service interfaces, `SecuritySettings`. | Framework-created request handlers. |
 | `ServersController` | Return configured server details and the live Java online player count at `GET /Server`. | `NuciApiController`, `IServerStatusService`, `ServerSettings`, `SecuritySettings`. | Framework-created request handler. |
-| `ServerStatusService` | Query the online player count reported by the Java server. | `ServerSettings`, MineStat, outbound TCP access. | Singleton; each query creates independent status state and is synchronous. |
-| `PlayerService` | Register, retrieve, list, and patch players through identifier, username, offline UUID, or online UUID selectors. | Player repository and logger. | Singleton. |
-| `HomeService` | Create, delete, retrieve, filter, and patch homes; validate player identifiers and enforce per-player name uniqueness. | Home repository, `IPlayerService`, logger. | Singleton with an instance lock surrounding Home reads and mutations. |
-| `ItemService` | Add, retrieve by identifier, Minecraft ID, Bukkit ID, or NuciCraft ID, list, and patch item metadata; generate sign-compatible identifiers from NuciCraft IDs. | Item repository, `ISignIdGenerator`, logger. | Singleton. |
-| `WorldService` | Add, retrieve, list, and patch world metadata, including merged localised values, web-map availability, spawn points, and world types. | World repository and logger. | Singleton. |
-| `ZoneTypeService` | Add, retrieve, list, and patch localised zone-type metadata. | Zone type repository and logger. | Singleton. |
-| `CountryService` | Add, retrieve, list, and patch country metadata, including merged localised values. | Country repository, logger. | Singleton. |
-| `ZoneService` | Add, retrieve, list, category-filter, patch, and delete zones while enforcing bounds, zone-type references, and localised merge rules. | Zone, world, and zone-type repositories plus logger. | Singleton. |
-| `RtpLocationService` | Enforce proximity rules, persist RTP locations, and select random filtered locations. | RTP repository, `RtpLocationSettings`, logger. | Singleton. |
-| `MobService` | Map supported mobs to schemas and obtain one name from the external generator. | `INuciApiClient`, `UniversalNameGeneratorSettings`, logger. | Singleton. |
-| `AccessControlService` | Check IP addresses against geolocation, denied countries, and anonymisation-service detection, and check usernames against length and denied patterns. An optional username grants a configurable exemption for a registered, non-banned player, while an address recorded for a banned player is denied. | `AccessControlSettings`, `ServerSettings`, anonymisation detector factory, player repository, logger, outbound HTTP client. | Singleton. |
-| `JsonRepository<T>` | Provide file-backed `IFileRepository<T>` operations for one data-object type. | NuciDAL, configured store path. | One singleton per store. |
-| `NuciApiClient` | Send typed requests to the Universal Name Generator API. | Configured base URL and per-request bearer information. | Singleton. |
-| `NuciLogger` | Emit structured operation records consumed by services and request middleware. | NuciLog settings. | Scoped registration; consumed by singleton services. |
+| `ServerStatusService` | Query the online player count reported by the Java server. | `ServerSettings`, MineStat, outbound TCP access. | Scoped; each query creates independent status state and is synchronous. |
+| `PlayerService` | Register, retrieve, list, and patch players through identifier, username, offline UUID, or online UUID selectors. | Player repository and logger. | Scoped. |
+| `HomeService` | Create, delete, retrieve, filter, and patch homes; validate player identifiers and enforce per-player name uniqueness. | Home repository, `IPlayerService`, logger. | Scoped with an instance lock surrounding Home reads and mutations. |
+| `ItemService` | Add, retrieve by identifier, Minecraft ID, Bukkit ID, or NuciCraft ID, list, and patch item metadata; generate sign-compatible identifiers from NuciCraft IDs. | Item repository, `ISignIdGenerator`, logger. | Scoped. |
+| `WorldService` | Add, retrieve, list, and patch world metadata, including merged localised values, web-map availability, spawn points, and world types. | World repository and logger. | Scoped. |
+| `ZoneTypeService` | Add, retrieve, list, and patch localised zone-type metadata. | Zone type repository and logger. | Scoped. |
+| `CountryService` | Add, retrieve, list, and patch country metadata, including merged localised values. | Country repository, logger. | Scoped. |
+| `ZoneService` | Add, retrieve, list, category-filter, patch, and delete zones while enforcing bounds, zone-type references, and localised merge rules. | Zone, world, and zone-type repositories plus logger. | Scoped. |
+| `RtpLocationService` | Enforce proximity rules, persist RTP locations, and select random filtered locations. | RTP repository, `RtpLocationSettings`, logger. | Scoped. |
+| `MobService` | Map supported mobs to schemas and obtain one name from the external generator. | `INuciApiClient`, `UniversalNameGeneratorSettings`, logger. | Scoped. |
+| `AccessControlService` | Check IP addresses against geolocation, denied countries, and anonymisation-service detection, and check usernames against length and denied patterns. An optional username grants a configurable exemption for a registered, non-banned player, while an address recorded for a banned player is denied. | `AccessControlSettings`, `ServerSettings`, anonymisation detector factory, player repository, logger, outbound HTTP client. | Scoped. |
+| `JsonRepository<T>` | Provide file-backed `IFileRepository<T>` operations for one data-object type. | NuciDAL, configured store path. | One scoped registration per store. |
+| `NuciApiClient` | Send typed requests to the Universal Name Generator API. | Configured base URL and per-request bearer information. | Scoped; HTTP transport is managed by `AddHttpClient`. |
+| `NuciLogger` | Emit structured operation records consumed by services and request middleware. | NuciLog settings. | Scoped registration. |
 
 ## 🗂️ Architectural Areas
 
@@ -227,7 +227,7 @@ Responsibilities:
 - Persist service mutations when `SaveChanges` is invoked.
 
 Boundary rules:
-- Each store has one configured record type and one singleton repository registration.
+- Each store has one configured record type and one scoped repository registration.
 - The process must prepare every configured store before requests are accepted.
 
 ## 💾 Data Architecture
@@ -305,7 +305,7 @@ sequenceDiagram
     end
 ```
 
-Controllers assemble transport requests but do not own domain mutation. The selected singleton service validates domain invariants, accesses its repository, and explicitly persists mutations. Reads are mapped into service models before response wrapping where required. A service records and rethrows exceptions rather than translating them into HTTP status codes itself.
+Controllers assemble transport requests but do not own domain mutation. The selected scoped service validates domain invariants, accesses its repository, and explicitly persists mutations. Reads are mapped into service models before response wrapping where required. A service records and rethrows exceptions rather than translating them into HTTP status codes itself.
 
 ### Mob Name Generation
 
@@ -338,7 +338,7 @@ sequenceDiagram
 
 Every home requires a non-whitespace name in at least one locale. Any shared translation between two homes of one player constitutes a duplicate, using ordinal case-insensitive comparison after trimming surrounding whitespace. The identical comparison determines query-string name lookup. Different players may possess identically named homes. Creation, renaming, and ownership changes all enforce this invariant.
 
-Patches merge names into a detached copy of the persisted record, validate the candidate, and only then update and save. Failed duplicate checks cannot mutate stored translations or ownership. Deletion removes the home by identifier and saves the repository immediately. All Home operations execute under the singleton service's instance lock, including uniqueness checks and saves; this protects concurrent requests within one process, not multiple API instances. Returned collections are materialised while the lock is held.
+Patches merge names into a detached copy of the persisted record, validate the candidate, and only then update and save. Failed duplicate checks cannot mutate stored translations or ownership. Deletion removes the home by identifier and saves the repository immediately. All Home operations execute under the scoped service's instance lock, including uniqueness checks and saves; this protects operations sharing that service instance, not multiple API instances. Returned collections are materialised while the lock is held.
 
 ### Zone Bounds
 
@@ -403,9 +403,9 @@ The default ASP.NET Core host supplies file, environment, and command-line confi
 
 ### Concurrency and Resource Use
 
-Application services, the seven repositories, outbound client, settings, and text utilities are singleton registrations. They can be reached by concurrent requests and must not acquire unprotected request-specific mutable state. The logger is registered as scoped but consumed by singleton services, so code must not presume that those service-held logger references provide per-request identity.
+Application services, repositories, and the outbound client are scoped registrations. Each request receives its own service and repository instances, while settings and text utilities remain singleton registrations. The logger is scoped and consumed within the request scope.
 
-Repository writes and the outbound mob-name wait are synchronous from the service contract's perspective. Home operations use an instance lock, while the remaining repository services provide no application-level locking. No cross-instance coordination is present. Home name checks and RTP addition perform linear scans, and each process has independent singleton repository instances; these constraints favour one process and modest data volumes.
+Repository writes and the outbound mob-name wait are synchronous from the service contract's perspective. Home operations use an instance lock, while the remaining repository services provide no application-level locking. No cross-instance coordination is present. Home name checks and RTP addition perform linear scans, and each request has scoped repository instances; these constraints favour one process and modest data volumes.
 
 ## 🧭 Dependency Direction and Rules
 
@@ -489,7 +489,7 @@ dotnet test NuciCraft.API.slnx
 - **File-Backed Persistence:** JSON stores minimise operational dependencies but provide no application-level transaction across files and restrict concurrent writer safety.
 - **Single-Process Consistency:** Process-lifetime repositories have no distributed coordination, so horizontal scale-out is not a supported consistency model.
 - **Synchronous Service Contracts:** Repository persistence and the wait on outbound HTTP occupy request threads until completion.
-- **Singleton Lifetime Graph:** Application services and repositories are singleton registrations, while the logger is scoped; service-held dependencies must not presume request-specific mutable identity.
+- **Scoped Lifetime Graph:** Application services, repositories, and the outbound client are scoped registrations; process-wide generators and text utilities remain singleton registrations.
 - **Linear RTP Validation:** Each RTP addition scans current locations for general and same-biome proximity, causing validation cost to increase linearly with stored volume.
 - **Hard-Coded Name Schemas:** Mob-to-schema mappings are compiled into `MobService`, so schema revisions require a code modification and deployment.
 - **Unversioned HTTP Routes:** The API has no explicit version segment or policy, which increases coordination requirements for incompatible contract changes.
@@ -505,7 +505,7 @@ dotnet test NuciCraft.API.slnx
 4. Extend `Startup` store preparation for the new repository and add controller actions that delegate through `ProcessRequest` with API-key authorisation.
 5. Add focused controller, service, mapping, configuration, and startup tests.
 
-Follow the existing plural controller naming, interface-to-implementation registration, singleton service and repository lifetimes, explicit `SaveChanges` calls, timestamp format, and structured operation logging conventions.
+Follow the existing plural controller naming, interface-to-implementation registration, scoped service and repository lifetimes, explicit `SaveChanges` calls, timestamp format, and structured operation logging conventions.
 
 ### Replace File Persistence
 

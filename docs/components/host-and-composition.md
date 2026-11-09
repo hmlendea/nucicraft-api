@@ -9,7 +9,7 @@
 
 ## Purpose
 
-The host and composition component turns repository types and deployment configuration into one runnable ASP.NET Core process. It selects concrete infrastructure, defines dependency lifetimes, verifies the eight persistence adapters can load, and establishes the inbound middleware pipeline.
+The host and composition component turns repository types and deployment configuration into one runnable ASP.NET Core process. It selects concrete infrastructure, defines dependency lifetimes, prepares the eight store paths, and establishes the inbound middleware pipeline.
 
 ## Scope
 
@@ -18,7 +18,7 @@ This component owns:
 - Controller and middleware service registration.
 - Strongly typed settings construction and binding.
 - Repository, client, service, utility, and logger registrations.
-- Initial filesystem creation and repository enumeration.
+- Initial filesystem and store-file creation; repository loading is deferred until use.
 - Middleware ordering and endpoint mapping.
 
 It does not own:
@@ -68,18 +68,17 @@ No custom host lifetime, configuration provider, web server, content root, or lo
 [Startup.cs](../../NuciCraft.API/Startup.cs) contains:
 - `ConfigureServices`, the high-level registration sequence.
 - `Configure`, store preparation and middleware construction.
-- `PrepareRepositories`, orchestration for all eight stores.
+- Store-directory preparation for all eight stores.
 - `CreateStoreIfMissing`, filesystem creation.
-- `EagerlyLoadRepositories` and its generic helper, repository resolution and enumeration.
 
 ### Service Collection Extensions
 
 [ServiceCollectionExtensions.cs](../../NuciCraft.API/ServiceCollectionExtensions.cs) contains:
 - `AddConfigurations`, which constructs, binds, and registers six application settings instances plus NuciLog settings.
 - `AddCustomServices`, which registers repositories, clients, application services, text utilities, and logging.
-- `AddJsonRepository<T>`, the generic singleton adapter factory.
+- `AddJsonRepository<T>`, the generic scoped adapter factory.
 
-The private static `dataStoreSettings` field connects `AddConfigurations` to later repository factories. `AddCustomServices` therefore presumes `AddConfigurations` executed first.
+`AddConfigurations` registers `DataStoreSettings` in the container, and `AddJsonRepository<T>` resolves it from the container when a repository instance is created. `AddCustomServices` therefore presumes `AddConfigurations` executed first. No mutable registration state is held in static fields, so concurrent service-collection constructions remain isolated from one another.
 
 ### Settings Types
 
@@ -99,7 +98,7 @@ They are mutable property containers without local validation methods or options
 
 `AddConfigurations` binds sections using each local variable's C# name. The effective lower-camel section names in [appsettings.json](../../NuciCraft.API/appsettings.json) bind case-insensitively through Microsoft configuration.
 
-`AddCustomServices` creates singleton repository factories that read paths from the static settings object. The Universal Name Generator client is constructed with the bound base URL; other settings validation is deferred to consuming operations.
+`AddCustomServices` creates scoped repository factories that read paths from the container-resolved settings object. Application services and the Universal Name Generator client are scoped to request lifetimes. `AddHttpClient` provides managed HTTP client infrastructure; other settings validation is deferred to consuming operations.
 
 ### Store Preparation
 
@@ -108,7 +107,7 @@ For every configured store:
 2. Derive its parent directory.
 3. Create that directory when it does not exist.
 4. Create the file with `[]` when it does not exist.
-5. Resolve the repository and enumerate `GetAll()` into a list.
+5. Defer repository construction and enumeration until a request operation resolves the scoped repository.
 
 Existing file content is neither rewritten nor validated independently of repository deserialisation. `Path.GetDirectoryName` can return a null or vacant value for a filename without a directory component; the current code passes that value to directory APIs.
 
@@ -136,7 +135,7 @@ No application-domain data is transformed directly by this component.
 ## State
 
 - Strongly typed settings instances persist for the process lifetime.
-- `dataStoreSettings` is also held in static process state.
+- Settings instances are reachable only through the container; no static field retains them.
 - Singleton repositories, services, clients, and text utilities persist for the process lifetime.
 - Logger registration is scoped, although singleton consumers can retain a resolved logger.
 - Files created during startup persist beyond process termination.
@@ -168,8 +167,8 @@ This component consumes every key in [appsettings.json](../../NuciCraft.API/apps
 Revise all of the subsequent locations:
 1. Add a path property to `DataStoreSettings` and a default key to the configuration file.
 2. Register `IFileRepository<TDataObject>` in `AddCustomServices`.
-3. Create the missing store in `PrepareRepositories`.
-4. Add the record type to `EagerlyLoadRepositories`.
+3. Add the missing store path to startup store preparation.
+4. Register the record type as a scoped repository.
 5. Register the service interface and implementation.
 6. Expand startup and service-collection tests.
 

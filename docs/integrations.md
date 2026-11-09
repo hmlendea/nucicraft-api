@@ -30,7 +30,7 @@ Provide durable state without a database service.
 
 ### Initialisation
 
-Eight `JsonRepository<T>` singleton instances are constructed lazily by dependency injection. During startup, [Startup.cs](../NuciCraft.API/Startup.cs) creates absent paths and enumerates each repository.
+Eight scoped `OptimisticJsonRepository<T>` registrations are constructed by dependency injection. During startup, [Startup.cs](../NuciCraft.API/Startup.cs) creates absent paths; each repository is loaded only when a request operation resolves it.
 
 ### Data Exchange
 
@@ -38,7 +38,7 @@ The process sends serialisable data objects to NuciDAL and receives materialised
 
 ### Failure And Resilience
 
-- Path, permission, deserialisation, or eager-load failures prevent startup.
+- Path or permission failures during store preparation prevent startup; deserialisation failures occur when the affected repository is first used.
 - Request-time read or write failures are logged by services and rethrown.
 - No retry, backup, repair, transaction, or alternate store exists.
 - No timeout or cancellation exists for filesystem operations.
@@ -49,7 +49,7 @@ No local encryption at rest or field protection exists. File permissions and sto
 
 ### Lifecycle And Substitution
 
-Repositories live for the process lifetime. Services depend on `IFileRepository<T>`, which is the substitution boundary. Replacing NuciDAL requires preserving the used Get, GetAll, Add, Update, Remove, and SaveChanges semantics or revising every service.
+Repositories live for the request scope. Services depend on `IFileRepository<T>`, which is the substitution boundary. Replacing NuciDAL requires preserving the used Get, GetAll, Add, Update, Remove, and SaveChanges semantics or revising every service.
 
 ## Universal Name Generator API
 
@@ -59,7 +59,7 @@ Generate names from compiled schemas for supported Minecraft mobs.
 
 ### Initialisation
 
-[ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCollectionExtensions.cs) constructs singleton `NuciApiClient` from `UniversalNameGeneratorSettings.BaseUrl`. `MobService` receives that client and settings.
+[ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCollectionExtensions.cs) constructs scoped `NuciApiClient` instances from `UniversalNameGeneratorSettings.BaseUrl`. `MobService` receives that client and settings.
 
 ### Data Sent
 
@@ -90,7 +90,7 @@ Outbound bearer authentication is explicit through `NuciApiRequestAuthorisationI
 
 ### Lifecycle And Substitution
 
-The client and MobService are singletons. `INuciApiClient` is the substitution boundary and is replaced by a Moq object in the integration host.
+The client and MobService are scoped. `INuciApiClient` is the substitution boundary and is replaced by a Moq object in the integration host.
 
 ## Minecraft Java Server
 
@@ -180,7 +180,7 @@ Provide structured operation and request diagnostics, optional file output, and 
 
 ### Initialisation
 
-Package settings bind through `AddNuciLoggerSettings`. `ILogger` maps to scoped `NuciLogger`; singleton services consume it.
+Package settings bind through `AddNuciLoggerSettings`. `ILogger` maps to scoped `NuciLogger`, matching the scoped application services.
 
 ### Data
 

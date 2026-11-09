@@ -113,6 +113,7 @@ namespace NuciCraft.API.IntegrationTests
                     ["accessControlSettings:isRegisteredPlayerExemptionEnabled"] = isRegisteredPlayerExemptionEnabled.ToString().ToLowerInvariant(),
                     ["dataStoreSettings:countriesStorePath"] = GetStorePath("countries.json"),
                     ["dataStoreSettings:homesStorePath"] = GetStorePath("homes.json"),
+                    ["dataStoreSettings:itemsStorePath"] = GetStorePath("items.json"),
                     ["dataStoreSettings:playersStorePath"] = GetStorePath("players.json"),
                     ["dataStoreSettings:rtpLocationsStorePath"] = GetStorePath("rtp_locations.json"),
                     ["dataStoreSettings:worldsStorePath"] = GetStorePath("worlds.json"),

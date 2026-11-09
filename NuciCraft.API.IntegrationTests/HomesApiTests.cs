@@ -10,7 +10,6 @@ using NUnit.Framework;
 namespace NuciCraft.API.IntegrationTests
 {
     [TestFixture]
-    [NonParallelizable]
     public sealed class HomesApiTests
     {
         private ApiTestHost testHost = null!;

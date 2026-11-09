@@ -125,7 +125,7 @@ Name and Bedrock port have no local service validation.
 ### Execution Sequence
 
 1. Controller passes an empty `GetServerRequest` through `ProcessRequest`.
-2. The response delegate reads Name, Hostname, JavaEditionPort, and BedrockEditionPort from singleton settings.
+2. The response delegate reads Name, Hostname, JavaEditionPort, and BedrockEditionPort from configured settings.
 3. `ServerStatusService` validates Hostname and Java port.
 4. Construct MineStat with legacy protocol and a five-second timeout.
 5. MineStat opens TCP communication and parses the legacy status response.
@@ -153,7 +153,7 @@ Zero is deliberately ambiguous between unavailable server and available server w
 - All three capabilities execute only in response to HTTP requests.
 - There are no timers, workers, queues, or scheduled refreshes.
 - RTP repository scans and writes can interleave between requests.
-- Mob requests share the singleton HTTP client but have independent request objects.
+- Mob requests use managed HTTP client infrastructure and have independent request objects.
 - Server status creates an independent MineStat instance per call.
 - No service accepts a cancellation token.
 

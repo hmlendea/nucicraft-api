@@ -114,7 +114,7 @@ Locally used operations are:
 - `Remove(id)`
 - `SaveChanges()`
 
-One singleton `IFileRepository<T>` maps to one configured JSON file. Exact duplicate-id, write atomicity, file-locking, enumeration snapshot, external-edit detection, and disposal semantics are not defined by local source.
+One scoped `IFileRepository<T>` maps to one configured JSON file for the lifetime of a request scope. Exact duplicate-id, write atomicity, file-locking, enumeration snapshot, external-edit detection, and disposal semantics are not defined by local source.
 
 ## Filesystem Contract
 
@@ -131,7 +131,7 @@ The application provides no migration or schema file.
 
 ## Configuration Contract
 
-Configuration sections are named for settings classes in lower camel case. Nested environment variables use the standard double-underscore separator, such as `securitySettings__apiKey`. Values bind once into singleton objects during registration.
+Configuration sections are named for settings classes in lower camel case. Nested environment variables use the standard double-underscore separator, such as `securitySettings__apiKey`. Values are bound through the options monitor and exposed to registrations when services are created.
 
 The complete inventory is in [configuration.md](configuration.md).
 

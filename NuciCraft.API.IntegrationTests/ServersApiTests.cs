@@ -19,7 +19,6 @@ using NuciCraft.API.Service;
 namespace NuciCraft.API.IntegrationTests
 {
     [TestFixture]
-    [NonParallelizable]
     public sealed class ServersApiTests
     {
         private static string ServerRoute => "/server";

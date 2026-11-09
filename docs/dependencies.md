@@ -76,7 +76,7 @@ Replacing these packages would require a new controller base, authorisation impl
 
 **Why it exists:** Supplies generic repository operations and JSON-file persistence.
 
-**Use:** Every file-backed service, startup eager loading, data-object inheritance, and composition.
+**Use:** Every file-backed service, startup store preparation, data-object inheritance, and composition.
 
 **Encapsulation:** Services depend on `IFileRepository<T>`, but data objects derive from NuciDAL base types and composition constructs `JsonRepository<T>`.
 

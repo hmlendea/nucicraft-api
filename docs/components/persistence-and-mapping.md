@@ -131,7 +131,7 @@ The complete field catalogue appears in [data-model.md](../data-model.md).
 
 ## State
 
-- Each repository is a singleton for the process lifetime.
+- Each repository is scoped to the request lifetime and loads its configured store when first resolved.
 - JSON files persist independently across restarts.
 - Local `Data/` paths are ignored by Git.
 - The repository defines no cache distinct from whatever state NuciDAL retains internally.
@@ -171,7 +171,7 @@ Review:
 
 ### Adding A Store
 
-Add the data object, settings path, repository registration, startup creation, eager load, service registration, tests, configuration documentation, state documentation, and operations guidance.
+Add the data object, settings path, scoped repository registration, startup store creation, service registration, tests, configuration documentation, state documentation, and operations guidance.
 
 ### Replacing NuciDAL
 

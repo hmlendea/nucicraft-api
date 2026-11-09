@@ -29,7 +29,7 @@ It does not own:
 
 ## Position In The Architecture
 
-`RtpLocationsController` exposes one command and one query. `IRtpLocationService` is the controller-facing contract. `RtpLocationService` owns validation and selection and uses one singleton file repository.
+`RtpLocationsController` exposes one command and one query. `IRtpLocationService` is the controller-facing contract. `RtpLocationService` owns validation and selection and uses a scoped file repository.
 
 ## Dependencies
 
@@ -101,7 +101,7 @@ The query accepts optional exact filters. Output includes the generated identifi
 ## State
 
 - Records are append-only through the current API.
-- The service and repository are singletons.
+- The service and repository are scoped per request.
 - No service lock protects the scan followed by add and save.
 - Concurrent additions can both pass checks versus the same prior snapshot.
 - Multiple processes have no shared coordination.

@@ -78,9 +78,9 @@ The deployment unit is the web project defined by [NuciCraft.API.csproj](../Nuci
 The process boundary contains:
 - Kestrel and the ASP.NET Core request pipeline.
 - Eleven controllers and eleven application services, including access control, server status, and sign-ID generation support. Access control resolves the optional registered-player exemption and the banned-player IP denial through the Player store.
-- Eight singleton NuciDAL file repositories.
-- One singleton Universal Name Generator client.
-- One singleton Java server-status service.
+- Eight scoped NuciDAL file repositories.
+- One scoped Universal Name Generator client.
+- One scoped Java server-status service.
 - Bound settings and text utility singletons.
 - NuciLog logger instances registered with scoped lifetime.
 
@@ -171,7 +171,7 @@ The conceptual process lifecycle is:
 2. `Startup.ConfigureServices` registers controllers, bound settings, scanner protection, repositories, integrations, services, utilities, and logging.
 3. `Startup.Configure` creates missing store paths and eagerly queries every repository.
 4. Middleware is registered in exception handling, scanner protection, request logging, Development exception page, HTTPS redirection, default/static files, routing, authorisation, and endpoint order.
-5. Kestrel accepts HTTP requests and resolves singleton services through controller constructors.
+5. Kestrel accepts HTTP requests and resolves scoped services through controller constructors.
 6. Each request completes synchronously from the service contract's perspective.
 7. Process shutdown and dependency disposal use default ASP.NET Core host behaviour; no custom shutdown or flush sequence is defined locally.
 

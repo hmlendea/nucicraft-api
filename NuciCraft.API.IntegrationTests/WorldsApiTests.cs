@@ -9,7 +9,6 @@ using NUnit.Framework;
 namespace NuciCraft.API.IntegrationTests
 {
     [TestFixture]
-    [NonParallelizable]
     public sealed class WorldsApiTests
     {
         private static readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerDefaults.Web);

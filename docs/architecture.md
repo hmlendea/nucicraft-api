@@ -98,13 +98,13 @@ The registrations in [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCo
 | Registration Group | Lifetime | Concrete Selection |
 |--------------------|----------|--------------------|
 | Six application settings objects | Singleton | Constructed, bound, and registered instances. |
-| Eight `IFileRepository<T>` services | Singleton | One `JsonRepository<T>` per persisted record type, including items. |
-| `INuciApiClient` | Singleton | `NuciApiClient` constructed with the configured Universal Name Generator base URL. |
-| Eleven application services | Singleton | One implementation per service interface, including access control; `ISignIdGenerator` is registered separately as a singleton generator dependency. |
+| Eight `IFileRepository<T>` services | Scoped | One `OptimisticJsonRepository<T>` per request scope and persisted record type, including items. |
+| `INuciApiClient` | Scoped | `NuciApiClient` constructed with the configured Universal Name Generator base URL. |
+| Eleven application services | Scoped | One implementation per service interface per request scope, including access control; `ISignIdGenerator` is registered separately as a singleton generator dependency. |
 | `INuciTextNormaliser`, `INuciTextObfuscator` | Singleton | NuciText implementations; no local production consumer is present. |
-| `ILogger` | Scoped | `NuciLogger`. Singleton services therefore retain the instance resolved when the singleton is first constructed. |
+| `ILogger` | Scoped | `NuciLogger`. |
 
-`ServiceCollectionExtensions` retains `DataStoreSettings` in a private static field so repository factories can access paths. This creates process-global registration state and means multiple concurrent service-collection constructions are not isolated by design. Normal production startup invokes the registration once.
+`ServiceCollectionExtensions` resolves `DataStoreSettings` from the container when it creates each scoped repository, so no static field retains registration state. Request scopes isolate repository and application-service instances while the singleton generator and text utilities remain process-wide. `AddHttpClient` supplies framework-managed HTTP client infrastructure instead of a shared manually-created client.
 
 ## Initialisation And Lifecycle
 
@@ -127,15 +127,16 @@ sequenceDiagram
     loop Eight store paths
         Startup->>FileSystem: Create directory and [] file when absent
     end
-    loop Eight repositories
-        Startup->>DI: Resolve IFileRepository<T>
-        Startup->>Repository: GetAll().ToList()
-    end
     Startup->>Host: Configure middleware and endpoints
+    Host->>Host: Accept requests
+    loop Each request scope
+        Host->>DI: Create scoped services and repositories on demand
+        Service->>Repository: Read or mutate when an operation requires it
+    end
     Host->>Host: Accept requests
 ```
 
-Store preparation executes before middleware registration completes. `CreateStoreIfMissing` rejects null or whitespace paths, creates the path's parent directory when absent, and writes `[]` when the file is absent. Existing files are not rewritten or repaired. `EagerlyLoadRepositories` resolves and enumerates each repository, which makes missing registrations and unreadable persisted data startup failures.
+Store preparation executes before middleware registration completes. `CreateStoreIfMissing` rejects null or whitespace paths, creates the path's parent directory when absent, and writes `[]` when the file is absent. Existing files are not rewritten or repaired. Repository instances are not resolved or enumerated during startup; each scoped repository is created and loaded when a request operation first needs it.
 
 No schema migration, seed procedure, retry, quarantine, or partial startup mode is implemented.
 
@@ -286,7 +287,7 @@ sequenceDiagram
 
 ## Architectural Constraints
 
-- File repositories and singleton services are shared by concurrent requests in one process.
+- File repositories and application services are scoped per request; cross-request file coordination remains dependent on repository and filesystem semantics.
 - Only Home operations have a local lock; other domain mutations have no application-level synchronisation.
 - There is no cross-process coordination, so multiple writable API instances are not a documented consistency topology.
 - Service methods are synchronous and do not accept cancellation tokens.
