@@ -31,9 +31,13 @@ namespace NuciCraft.API.Service
 
         private static string SuccessfulGeolocationStatus => "success";
 
-        private static string BuildBannedUserMessage(string serverName) => $"This user is banned on {serverName}";
-
         private static string BuildBannedIpAddressMessage(string serverName) => $"This IP address is banned on {serverName}";
+
+        private static string BuildBannedIpAddressOfUserMessage(string serverName) => $"This IP address is associated with a banned user on {serverName}";
+
+        private static string BuildBannedUsernameMessage(string banReason) => $"This user is banned. {banReason}";
+
+        private static string UnknownBanReasonMessage => "No ban reason was recorded.";
 
         private readonly HttpClient httpClient;
         private readonly AccessControlSettings settings;
@@ -164,8 +168,9 @@ namespace NuciCraft.API.Service
         private async Task<IpCheckResult> PerformIpCheck(CheckIpRequest request, CancellationToken cancellationToken)
         {
             PlayerDataObject[] players = [.. playerRepository.GetAll()];
+            PlayerDataObject? requestedPlayer = FindPlayerByUsername(request.Username, players);
 
-            if (IsRegisteredPlayerExemptionApplicable(request.Username, players))
+            if (settings.IsRegisteredPlayerExemptionEnabled && requestedPlayer is not null && !requestedPlayer.IsBanned)
             {
                 return new IpCheckResult
                 {
@@ -175,27 +180,37 @@ namespace NuciCraft.API.Service
                 };
             }
 
+            if (requestedPlayer is not null && requestedPlayer.IsBanned)
+            {
+                return new IpCheckResult
+                {
+                    IsAllowed = false,
+                    CountryCode = null,
+                    DeniedReason = BuildBannedIpAddressOfUserMessage(serverSettings.Name)
+                };
+            }
+
             if (IsIpAddressAssociatedWithBannedPlayer(request.IpAddress, players))
             {
                 return new IpCheckResult
                 {
                     IsAllowed = false,
                     CountryCode = null,
-                    DeniedReason = BuildBannedDenialMessage(request.Username)
+                    DeniedReason = BuildBannedIpAddressDenialMessage(request.Username)
                 };
             }
 
             return await PerformRegularIpCheck(request.IpAddress, cancellationToken);
         }
 
-        private string BuildBannedDenialMessage(string? username)
+        private string BuildBannedIpAddressDenialMessage(string? username)
         {
             if (string.IsNullOrWhiteSpace(username))
             {
                 return BuildBannedIpAddressMessage(serverSettings.Name);
             }
 
-            return BuildBannedUserMessage(serverSettings.Name);
+            return BuildBannedIpAddressOfUserMessage(serverSettings.Name);
         }
 
         private async Task<IpCheckResult> PerformRegularIpCheck(
@@ -263,20 +278,17 @@ namespace NuciCraft.API.Service
                     countryCode,
                     StringComparison.OrdinalIgnoreCase));
 
-        private bool IsRegisteredPlayerExemptionApplicable(
+        private static PlayerDataObject? FindPlayerByUsername(
             string? username,
             IEnumerable<PlayerDataObject> players)
         {
-            if (!settings.IsRegisteredPlayerExemptionEnabled || string.IsNullOrWhiteSpace(username))
+            if (string.IsNullOrWhiteSpace(username))
             {
-                return false;
+                return null;
             }
 
-            PlayerDataObject? playerDataObject = players
-                .FirstOrDefault(player =>
-                    string.Equals(player.Username, username, StringComparison.Ordinal));
-
-            return playerDataObject is not null && !playerDataObject.IsBanned;
+            return players.FirstOrDefault(player =>
+                string.Equals(player.Username, username, StringComparison.Ordinal));
         }
 
         private static bool IsIpAddressAssociatedWithBannedPlayer(
@@ -285,6 +297,16 @@ namespace NuciCraft.API.Service
             => players.Any(player =>
                 player.IsBanned &&
                 string.Equals(player.LastIpAddress, ipAddress, StringComparison.Ordinal));
+
+        private static string GetBanReason(PlayerDataObject player)
+        {
+            if (string.IsNullOrWhiteSpace(player.BannedReason))
+            {
+                return UnknownBanReasonMessage;
+            }
+
+            return player.BannedReason;
+        }
 
         private async Task<GeolocationData?> GetGeolocationData(string ipAddress, CancellationToken cancellationToken)
         {
@@ -327,6 +349,27 @@ namespace NuciCraft.API.Service
 
         private async Task<UsernameCheckResult> PerformUsernameCheckAsync(string username, CancellationToken cancellationToken)
         {
+            PlayerDataObject[] players = [.. playerRepository.GetAll()];
+            PlayerDataObject? requestedPlayer = FindPlayerByUsername(username, players);
+
+            if (requestedPlayer is not null && requestedPlayer.IsBanned)
+            {
+                return new UsernameCheckResult
+                {
+                    IsAllowed = false,
+                    DeniedReason = BuildBannedUsernameMessage(GetBanReason(requestedPlayer))
+                };
+            }
+
+            if (settings.IsRegisteredPlayerExemptionEnabled && requestedPlayer is not null)
+            {
+                return new UsernameCheckResult
+                {
+                    IsAllowed = true,
+                    DeniedReason = null
+                };
+            }
+
             if (username.Length < settings.MinimumUsernameLength)
             {
                 return new UsernameCheckResult

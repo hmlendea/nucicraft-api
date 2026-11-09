@@ -28,6 +28,8 @@ namespace NuciCraft.API.IntegrationTests
     {
         private static string ApiKey => "NucileRullz!";
 
+        private static string ServerName => "NuciCraft";
+
         private static string StoreDirectoryName => "nucicraft-api-access-control-integration-tests";
 
         private readonly StubHttpMessageHandler httpMessageHandler;
@@ -103,6 +105,8 @@ namespace NuciCraft.API.IntegrationTests
                 Dictionary<string, string?> configurationValues = new()
                 {
                     ["accessControlSettings:geolocationApiUrl"] = "https://geo.test/",
+                    ["accessControlSettings:deniedUsernamePatterns:0"] = "^[Nn]uci[Ss]canner$",
+                    ["accessControlSettings:minimumUsernameLength"] = "4",
                     ["accessControlSettings:anonymisationServiceDetection:provider"] = "funkemunky",
                     ["accessControlSettings:anonymisationServiceDetection:isEnabled"] = "true",
                     ["accessControlSettings:anonymisationServiceDetection:isCacheEnabled"] = "true",
@@ -115,6 +119,7 @@ namespace NuciCraft.API.IntegrationTests
                     ["dataStoreSettings:zonesStorePath"] = GetStorePath("zones.json"),
                     ["dataStoreSettings:zoneTypesStorePath"] = GetStorePath("zone_types.json"),
                     ["securitySettings:apiKey"] = ApiKey,
+                    ["serverSettings:name"] = ServerName,
                     ["nuciLoggerSettings:logFilePath"] = GetStorePath("nucicraft-api.log"),
                     ["nuciLoggerSettings:isFileOutputEnabled"] = "false"
                 };

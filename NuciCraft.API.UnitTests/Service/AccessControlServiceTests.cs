@@ -260,7 +260,7 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public async Task GivenARegisteredBannedUsername_WhenCheckingADeniedIp_ThenTheRegularChecksApply()
+        public async Task GivenARegisteredBannedUsername_WhenCheckingADeniedIp_ThenTheIpIsDeniedForTheBannedUser()
         {
             StubHttpMessageHandler deniedGeoHandler = StubHttpMessageHandler.ReturningJson(DeniedCountryGeolocationJson);
 
@@ -274,7 +274,7 @@ namespace NuciCraft.API.UnitTests.Service
             });
 
             Assert.That(result.IsAllowed, Is.False);
-            Assert.That(result.DeniedReason, Is.EqualTo("Access is not permitted from this country."));
+            Assert.That(result.DeniedReason, Is.EqualTo("This IP address is associated with a banned user on NuciCraft"));
         }
 
         [Test]
@@ -413,7 +413,7 @@ namespace NuciCraft.API.UnitTests.Service
         }
 
         [Test]
-        public async Task GivenAnIpAddressOfABannedPlayerAndAnUnregisteredUsername_WhenCheckingTheIp_ThenTheBannedUserMessageIsReturned()
+        public async Task GivenAnIpAddressOfABannedPlayerAndAnUnregisteredUsername_WhenCheckingTheIp_ThenTheBannedIpAddressMessageIsReturned()
         {
             playerRepository
                 .Setup(repository => repository.GetAll())
@@ -426,7 +426,7 @@ namespace NuciCraft.API.UnitTests.Service
             });
 
             Assert.That(result.IsAllowed, Is.False);
-            Assert.That(result.DeniedReason, Is.EqualTo("This user is banned on NuciCraft"));
+            Assert.That(result.DeniedReason, Is.EqualTo("This IP address is associated with a banned user on NuciCraft"));
         }
 
         [Test]
@@ -443,7 +443,7 @@ namespace NuciCraft.API.UnitTests.Service
             });
 
             Assert.That(result.IsAllowed, Is.False);
-            Assert.That(result.DeniedReason, Is.EqualTo("This user is banned on NuciCraft"));
+            Assert.That(result.DeniedReason, Is.EqualTo("This IP address is associated with a banned user on NuciCraft"));
         }
 
         [Test]

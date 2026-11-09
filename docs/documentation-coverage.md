@@ -37,8 +37,8 @@ This is a source-reference and semantic coverage audit, not a statement of compl
 | Responses | 20 | [Data model](data-model.md), [interfaces](interfaces.md) |
 | Service root and subdirectories | 59 | Component, behaviour, flow, invariant, and dependency documents |
 | Production total | 167 | This map links every file below. |
-| Unit tests | 59 | [Testing](testing.md) and test map below |
-| Integration tests | 21 | [Testing](testing.md) and test map below |
+| Unit tests | 60 | [Testing](testing.md) and test map below |
+| Integration tests | 22 | [Testing](testing.md) and test map below |
 
 ## Principal Component Coverage
 
@@ -368,6 +368,7 @@ ZoneType:
 ### Service And Model Fixtures
 
 - [AccessControlServiceTests.cs](../NuciCraft.API.UnitTests/Service/AccessControlServiceTests.cs)
+- [AccessControlServiceRegistrationTests.cs](../NuciCraft.API.UnitTests/Service/AccessControlServiceRegistrationTests.cs)
 - [AccessControlServiceUsernameTests.cs](../NuciCraft.API.UnitTests/Service/AccessControlServiceUsernameTests.cs)
 - [CountryServiceTests.cs](../NuciCraft.API.UnitTests/Service/CountryServiceTests.cs)- [GenderTests.cs](../NuciCraft.API.UnitTests/Service/GenderTests.cs)
 - [GenerateNamesResponseTests.cs](../NuciCraft.API.UnitTests/Service/GenerateNamesResponseTests.cs)
@@ -423,6 +424,7 @@ ZoneType:
 - [AccessControlApiTests.cs](../NuciCraft.API.IntegrationTests/AccessControlApiTests.cs)
 - [AccessControlApiTestHost.cs](../NuciCraft.API.IntegrationTests/AccessControlApiTestHost.cs)
 - [AccessControlIpUsernameApiTests.cs](../NuciCraft.API.IntegrationTests/AccessControlIpUsernameApiTests.cs)
+- [AccessControlRegistrationApiTests.cs](../NuciCraft.API.IntegrationTests/AccessControlRegistrationApiTests.cs)
 - [AnonymisationDetectionCachingApiTests.cs](../NuciCraft.API.IntegrationTests/AnonymisationDetectionCachingApiTests.cs)
 - [StubHttpMessageHandler.cs](../NuciCraft.API.IntegrationTests/StubHttpMessageHandler.cs)
 

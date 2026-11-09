@@ -105,7 +105,7 @@ namespace NuciCraft.API.IntegrationTests
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(body, Does.Contain("\"isAllowed\":false"));
-            Assert.That(body, Does.Contain("\"deniedReason\":\"Access is not permitted from this country.\""));
+            Assert.That(body, Does.Contain("\"deniedReason\":\"This IP address is associated with a banned user on NuciCraft\""));
         }
 
         [Test]
@@ -179,7 +179,7 @@ namespace NuciCraft.API.IntegrationTests
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(body, Does.Contain("\"isAllowed\":false"));
-            Assert.That(body, Does.Contain("\"deniedReason\":\"This user is banned on NuciCraft\""));
+            Assert.That(body, Does.Contain("\"deniedReason\":\"This IP address is associated with a banned user on NuciCraft\""));
         }
 
         [Test]
