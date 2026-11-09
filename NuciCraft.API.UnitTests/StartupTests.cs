@@ -92,7 +92,7 @@ namespace NuciCraft.API.UnitTests
         }
 
         [Test]
-        public void GivenDevelopmentAndProductionEnvironments_WhenConfiguringThePipeline_ThenStoresArePreparedAndRepositoriesAreLoaded()
+        public void GivenDevelopmentAndProductionEnvironments_WhenConfiguringThePipeline_ThenStoresArePreparedWithoutLoadingRepositories()
         {
             DataStoreSettings dataStoreSettings = TestConfigurationFactory.BuildDataStoreSettings(storeDirectory);
             serviceProvider = BuildServiceProvider(dataStoreSettings);
@@ -114,14 +114,14 @@ namespace NuciCraft.API.UnitTests
             Assert.That(File.Exists(dataStoreSettings.WorldsStorePath));
             Assert.That(File.Exists(dataStoreSettings.ZonesStorePath));
             Assert.That(File.Exists(dataStoreSettings.ZoneTypesStorePath));
-            playerRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
-            rtpLocationRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
-            countryRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
-            homeRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
-            itemRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
-            worldRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
-            zoneRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
-            zoneTypeRepositoryMock.Verify(repository => repository.GetAll(), Times.Exactly(2));
+            playerRepositoryMock.Verify(repository => repository.GetAll(), Times.Never);
+            rtpLocationRepositoryMock.Verify(repository => repository.GetAll(), Times.Never);
+            countryRepositoryMock.Verify(repository => repository.GetAll(), Times.Never);
+            homeRepositoryMock.Verify(repository => repository.GetAll(), Times.Never);
+            itemRepositoryMock.Verify(repository => repository.GetAll(), Times.Never);
+            worldRepositoryMock.Verify(repository => repository.GetAll(), Times.Never);
+            zoneRepositoryMock.Verify(repository => repository.GetAll(), Times.Never);
+            zoneTypeRepositoryMock.Verify(repository => repository.GetAll(), Times.Never);
         }
 
         private ServiceProvider BuildServiceProvider(DataStoreSettings dataStoreSettings)

@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,7 +42,7 @@ namespace NuciCraft.API
             IApplicationBuilder applicationBuilder,
             IWebHostEnvironment environment)
         {
-            PrepareRepositories(applicationBuilder);
+            PrepareStoreDirectories(applicationBuilder);
 
             applicationBuilder.UseNuciApiExceptionHandling();
             applicationBuilder.UseNuciApiScannerProtection();
@@ -66,7 +65,7 @@ namespace NuciCraft.API
             });
         }
 
-        private static void PrepareRepositories(IApplicationBuilder applicationBuilder)
+        private static void PrepareStoreDirectories(IApplicationBuilder applicationBuilder)
         {
             DataStoreSettings dataStoreSettings = applicationBuilder.ApplicationServices.GetRequiredService<IOptionsMonitor<DataStoreSettings>>().CurrentValue;
 
@@ -78,8 +77,6 @@ namespace NuciCraft.API
             CreateStoreIfMissing(dataStoreSettings.WorldsStorePath);
             CreateStoreIfMissing(dataStoreSettings.ZonesStorePath);
             CreateStoreIfMissing(dataStoreSettings.ZoneTypesStorePath);
-
-            EagerlyLoadRepositories(applicationBuilder.ApplicationServices);
         }
 
         private static void CreateStoreIfMissing(string storePath)
@@ -98,23 +95,5 @@ namespace NuciCraft.API
                 File.WriteAllText(storePath, "[]");
             }
         }
-
-        private static void EagerlyLoadRepositories(IServiceProvider serviceProvider)
-        {
-            EagerlyLoadRepository<PlayerDataObject>(serviceProvider);
-            EagerlyLoadRepository<RtpLocationEntity>(serviceProvider);
-            EagerlyLoadRepository<CountryDataObject>(serviceProvider);
-            EagerlyLoadRepository<HomeDataObject>(serviceProvider);
-            EagerlyLoadRepository<ItemDataObject>(serviceProvider);
-            EagerlyLoadRepository<WorldDataObject>(serviceProvider);
-            EagerlyLoadRepository<ZoneDataObject>(serviceProvider);
-            EagerlyLoadRepository<ZoneTypeDataObject>(serviceProvider);
-        }
-
-        private static void EagerlyLoadRepository<TDataObject>(IServiceProvider serviceProvider)
-            where TDataObject : NuciCraftEntityBase
-            => serviceProvider
-                .GetRequiredService<IFileRepository<TDataObject>>()
-                .GetAll().ToList();
     }
 }

@@ -56,7 +56,7 @@ namespace NuciCraft.API
         public static IServiceCollection AddCustomServices(this IServiceCollection services) => services
             .AddMemoryCache()
             .AddSingleton(TimeProvider.System)
-            .AddSingleton(_ => HttpClientCreator.Create())
+            .AddHttpClient()
             .AddJsonRepository<PlayerDataObject>(settings => settings.PlayersStorePath)
             .AddJsonRepository<RtpLocationEntity>(settings => settings.RtpLocationsStorePath)
             .AddJsonRepository<CountryDataObject>(settings => settings.CountriesStorePath)
@@ -65,23 +65,23 @@ namespace NuciCraft.API
             .AddJsonRepository<WorldDataObject>(settings => settings.WorldsStorePath)
             .AddJsonRepository<ZoneDataObject>(settings => settings.ZonesStorePath)
             .AddJsonRepository<ZoneTypeDataObject>(settings => settings.ZoneTypesStorePath)
-            .AddSingleton<INuciApiClient>(serviceProvider =>
+            .AddScoped<INuciApiClient>(serviceProvider =>
                 new NuciApiClient(
                     serviceProvider
                         .GetRequiredService<UniversalNameGeneratorSettings>()
                         .BaseUrl))
-            .AddSingleton<IMobService, MobService>()
-            .AddSingleton<IServerStatusService, ServerStatusService>()
-            .AddSingleton<ICountryService, CountryService>()
-            .AddSingleton<IHomeService, HomeService>()
-            .AddSingleton<IItemService, ItemService>()
-            .AddSingleton<IWorldService, WorldService>()
-            .AddSingleton<IZoneTypeService, ZoneTypeService>()
-            .AddSingleton<IPlayerService, PlayerService>()
-            .AddSingleton<IRtpLocationService, RtpLocationService>()
-            .AddSingleton<IZoneService, ZoneService>()
-            .AddSingleton<IAccessControlService, AccessControlService>()
-            .AddSingleton<IAnonymisationServiceDetectorFactory, AnonymisationServiceDetectorFactory>()
+            .AddScoped<IMobService, MobService>()
+            .AddScoped<IServerStatusService, ServerStatusService>()
+            .AddScoped<ICountryService, CountryService>()
+            .AddScoped<IHomeService, HomeService>()
+            .AddScoped<IItemService, ItemService>()
+            .AddScoped<IWorldService, WorldService>()
+            .AddScoped<IZoneTypeService, ZoneTypeService>()
+            .AddScoped<IPlayerService, PlayerService>()
+            .AddScoped<IRtpLocationService, RtpLocationService>()
+            .AddScoped<IZoneService, ZoneService>()
+            .AddScoped<IAccessControlService, AccessControlService>()
+            .AddScoped<IAnonymisationServiceDetectorFactory, AnonymisationServiceDetectorFactory>()
             .AddSingleton<ISignIdGenerator, SignIdGenerator>()
             .AddSingleton<INuciTextNormaliser, NuciTextNormaliser>()
             .AddSingleton<INuciTextObfuscator, NuciTextObfuscator>()
@@ -91,7 +91,7 @@ namespace NuciCraft.API
             this IServiceCollection services,
             Func<DataStoreSettings, string> storePathSelector)
             where TDataObject : NuciCraftEntityBase
-            => services.AddSingleton<IFileRepository<TDataObject>>(
+            => services.AddScoped<IFileRepository<TDataObject>>(
                 serviceProvider => new OptimisticJsonRepository<TDataObject>(
                     storePathSelector(
                         serviceProvider.GetRequiredService<IOptionsMonitor<DataStoreSettings>>().CurrentValue)));
