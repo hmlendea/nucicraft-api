@@ -114,6 +114,7 @@ Consumer type: [AccessControlSettings.cs](../NuciCraft.API/Configuration/AccessC
 | `accessControlSettings.deniedUsernamePatterns` | string[] | See [appsettings.json](../NuciCraft.API/appsettings.json) | No | Case-sensitive regex patterns checked by `AccessControlService.PerformUsernameCheck`. |
 | `accessControlSettings.geolocationApiUrl` | string | `http://ip-api.com/json/` | No | Base URL for geolocation API calls; IP address and query fields appended. |
 | `accessControlSettings.minimumUsernameLength` | int | `4` | No | Minimum username length enforced by `AccessControlService.PerformUsernameCheck`. |
+| `accessControlSettings.isRegisteredPlayerExemptionEnabled` | bool | `true` | No | When enabled, an IP check that supplies the username of a registered, non-banned player is permitted without the geolocation, denied-country, and anonymisation-service checks. |
 | `accessControlSettings.anonymisationServiceDetection.provider` | string | `proxycheck` | No | Selects the upstream detection provider (`proxycheck` or `funkemunky`). An unsupported value raises `NotSupportedException` when a detector is created. |
 | `accessControlSettings.anonymisationServiceDetection.isEnabled` | bool | `true` | No | When disabled, `AccessControlService` skips the detection request entirely and permits the request. |
 | `accessControlSettings.anonymisationServiceDetection.isCacheEnabled` | bool | `true` | No | Enables the in-process detection result cache. When disabled, every check performs a live detection request. |
@@ -122,6 +123,32 @@ Consumer type: [AccessControlSettings.cs](../NuciCraft.API/Configuration/AccessC
 | `accessControlSettings.anonymisationServiceDetection.cacheDurationHoursForExpiredFallback` | int | `6` | No | Additional retention of an expired detection result, so that it remains available as a fallback when a live refresh fails. |
 
 The geolocation API is called with `fields=status,countryCode,country` appended to the constructed URL. A non-success status or missing country code results in an allowed response (fail-open). Denied country comparison is case-insensitive. Username pattern matching uses `Regex.IsMatch` without `IgnoreCase`.
+
+### Registered Player Exemption
+
+When `accessControlSettings.isRegisteredPlayerExemptionEnabled` is `true` and the IP check supplies a non-whitespace `username` that matches a registered, non-banned player, the check is permitted immediately, with `countryCode` and `deniedReason` both `null`, and no geolocation or anonymisation-service request is made.
+
+The same setting also governs the username check. When enabled, a registered, non-banned username is permitted without evaluating the minimum length or denied-pattern rules. When disabled, a registered username is not permitted early, so those rules apply. A registered, banned username is denied in both cases.
+
+When the username is absent or whitespace, no player record matches, or the matching record is banned, the IP check proceeds to the banned-player address denial and then the regular checks. Player username comparison is ordinal and case-sensitive, so a differently cased username does not match a registered player.
+
+The lookup reads the player store through the same repository used by [PlayerService](components/player-and-homes.md), so an unregistered username does not produce a failure log.
+
+### Banned Player Denial
+
+An IP address recorded as the last IP address of any banned player is denied by default. The denial runs after the registered-username checks and before the geolocation, denied-country, and anonymisation-service checks, so no outbound request is performed for such an address.
+
+The denial reason is `This IP address is banned on {serverName}` when the request supplies no username, and `This IP address is associated with a user banned on {serverName}` when it supplies one. The server name comes from `serverSettings.name`.
+
+A request that supplies the username of a registered, non-banned player is permitted before the denial applies, even when the same address is recorded for a banned player. A request that supplies the username of a registered, banned player is denied earlier, with the associated-with-a-banned-user reason.
+
+The comparison uses the persisted `LastIpAddress` field with ordinal, case-sensitive equality.
+
+### Banned Username Denial
+
+The username check consults the player store before the pattern and length rules. A registered, banned username is denied with `This user is banned. {banReason}`, where the ban reason comes from the persisted `BannedReason` field. A missing or whitespace ban reason yields `This user is banned.` without a reason.
+
+An unregistered username is then evaluated against `accessControlSettings.minimumUsernameLength` and `accessControlSettings.deniedUsernamePatterns`. A registered, non-banned username is permitted unless `isRegisteredPlayerExemptionEnabled` is disabled.
 
 ### Anonymisation Service Detection Cache
 
@@ -149,7 +176,7 @@ The repository does not configure retention, rotation, redaction, structured sin
 
 `ASPNETCORE_ENVIRONMENT=Development` causes `Startup.Configure` to register the Developer Exception Page. Other values omit it. The integration host selects `IntegrationTesting` and disables file logger output through in-memory overrides.
 
-No capability feature flags exist.
+No capability feature flags exist. The only behaviour toggle is `accessControlSettings.isRegisteredPlayerExemptionEnabled`, which switches the registered-player exemption of the IP check.
 
 ## Environment Variable Examples
 
@@ -180,6 +207,7 @@ accessControlSettings__deniedCountries
 accessControlSettings__deniedUsernamePatterns
 accessControlSettings__geolocationApiUrl
 accessControlSettings__minimumUsernameLength
+accessControlSettings__isRegisteredPlayerExemptionEnabled
 accessControlSettings__anonymisationServiceDetection__provider
 accessControlSettings__anonymisationServiceDetection__isEnabled
 accessControlSettings__anonymisationServiceDetection__isCacheEnabled

@@ -519,7 +519,9 @@ curl -X POST "http://localhost:5000/AccessControl/check-ip" \
 	}'
 ```
 
-The IP check performs a real-time geolocation lookup using the configured geolocation API (default: ip-api.com) to determine the country code, then checks if that country is in the denied countries list. The response contains `isAllowed`, `deniedReason` (if denied), and `countryCode`.
+The IP check performs a real-time geolocation lookup using the configured geolocation API (default: ip-api.com) to determine the country code, then checks if that country is in the denied countries list. The response contains `isAllowed`, `deniedReason` (if denied), and `countryCode`. An optional `username` value may be supplied; the player store is consulted first. A registered, non-banned username is permitted immediately without any geolocation, denied-country, or anonymisation-service check, while a registered, banned username is denied immediately with `This IP address is associated with a user banned on {serverName}`. This permit path is controlled by `accessControlSettings.isRegisteredPlayerExemptionEnabled`. An IP address recorded as the last IP address of any banned player is then denied before those checks, with the reason `This IP address is banned on {serverName}` when no username is supplied and `This IP address is associated with a user banned on {serverName}` when one is.
+
+The username check also consults the player store before the minimum length and denied-pattern rules. A registered, banned username is denied with `This user is banned. {banReason}`, or `This user is banned.` when no ban reason was recorded. A registered, non-banned username is permitted even when it matches a denied pattern, and only an unregistered username is evaluated against the minimum length and denied patterns.
 
 ```bash
 curl -X POST "http://localhost:5000/AccessControl/check-username" \
@@ -578,6 +580,7 @@ Settings are loaded from [appsettings.json](./NuciCraft.API/appsettings.json), w
 | `accessControlSettings` | `deniedUsernamePatterns` | Array of case-sensitive regex patterns to deny usernames matching. |
 | `accessControlSettings` | `geolocationApiUrl` | Base URL for the geolocation API (default: http://ip-api.com/json/). |
 | `accessControlSettings` | `minimumUsernameLength` | Minimum allowed username length (default: 4). |
+| `accessControlSettings` | `isRegisteredPlayerExemptionEnabled` | Allows the IP check to permit a registered, non-banned player's username without any geolocation or anonymisation-service check (default: true). |
 
 Environment-variable overrides for server information are `serverSettings__name`, `serverSettings__hostname`, `serverSettings__javaEditionPort`, and `serverSettings__bedrockEditionPort`. Settings are bound at startup, so restart the API after modifying them. These values do not configure Minecraft listeners or activate Bedrock support.
 

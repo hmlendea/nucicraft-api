@@ -61,6 +61,36 @@ Examples:
 
 `UseAuthorization` is present, but no local policy or `[Authorize]` usage adds another control.
 
+### Registered Player Exemption
+
+The IP check accepts an optional username. When `accessControlSettings.isRegisteredPlayerExemptionEnabled` is enabled and the supplied username matches a registered, non-banned player record, the geolocation, denied-country, and anonymisation-service checks are skipped and the request is permitted. The same setting governs the username check's registration override.
+
+Consequences:
+- The username is asserted by the caller and is not authenticated by the API key, so any authorised client that knows a valid registered player username can obtain a permitted response for any IP address.
+- The exemption is disabled by setting `accessControlSettings.isRegisteredPlayerExemptionEnabled` to `false`.
+- Banned players never receive the exemption, but a banned player cannot be used to deny a different registered player either.
+- The exemption short-circuits all outbound access-control calls, so it also reduces detection-provider usage.
+
+### Banned Player Denial
+
+An IP address recorded as the last IP address of any banned player is denied. The denial reason is `This IP address is banned on {serverName}` when the request supplies no username, and `This IP address is associated with a user banned on {serverName}` when it supplies one. A request naming a registered, banned username is denied earlier with the associated-with-a-user-banned reason.
+
+Consequences:
+- The denial precedes the geolocation, denied-country, and anonymisation-service checks, so a banned address never triggers outbound requests.
+- The IP-address denial has no configuration switch and applies even when the registered-player exemption is disabled.
+- The denial message discloses that an address or the supplied username is associated with a banned player. The username is asserted by the caller and may refer to another player.
+- A registered, non-banned username permits the request before the denial applies, so a banned address shared with a legitimate player remains reachable.
+- Only the persisted `LastIpAddress` field is compared, so an address a banned player used but never recorded as their last address is not denied.
+
+### Banned Username Disclosure
+
+The username check denies a registered, banned username with `This user is banned. {banReason}`, where the reason is read from the persisted `BannedReason` field. When no ban reason was recorded, the response is `This user is banned.` without a reason.
+
+Consequences:
+- Any caller holding the API key can confirm whether a username is registered and, when it is banned, read the recorded ban reason. This is a moderation-data disclosure beyond the previous pattern-only response.
+- The message is independent of the denied-pattern rules, so it discloses registration even for usernames those patterns would otherwise reject.
+- A registered, non-banned username being permitted over the pattern rules means the pattern list no longer protects previously registered accounts from use.
+
 ## Secret Handling
 
 Secret-bearing settings are:
@@ -198,6 +228,7 @@ It does not require database, message broker, or Minecraft filesystem access. De
 - Runtime-data Git exclusion.
 - Separate outbound bearer credential.
 - No genuine committed secret.
+- Optional registered-player exemption for the IP check, disabled by configuration.
 
 ### Assumed External Controls
 

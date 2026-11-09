@@ -187,6 +187,36 @@ Rules are:
 - Zero cannot distinguish an unavailable server from an available server with no online players.
 - Bedrock port is returned as metadata but is not queried.
 
+## Access Control Invariants
+
+### IP Check
+
+- The IP address is transport-required; the username is optional.
+- The checks run in a fixed order: registered non-banned username, registered banned username, banned-player IP address, then the geolocation, denied-country, and anonymisation-service checks.
+- The username lookup compares ordinally and case-sensitively against the persisted player usernames.
+- A registered, non-banned username permits the request immediately, with a null country code, without a geolocation or anonymisation-service request.
+- A registered, banned username denies the request immediately, before the geolocation and anonymisation-service checks, with the reason `This IP address is associated with a user banned on {serverName}`.
+- An unregistered username, or an absent, null, or whitespace username, falls through to the banned-player IP address check and then to the regular checks, so the anonymisation-service result is returned.
+- An IP address recorded as the last IP address of any banned player is denied before the remaining external checks, so no external request is made for it.
+- The banned-player IP denial compares the recorded last IP address ordinally and case-sensitively.
+- When the request supplies no username, the banned-address reason is `This IP address is banned on {serverName}`. When it supplies a username, the reason is `This IP address is associated with a user banned on {serverName}`.
+- The server name comes from `serverSettings.name` and is interpolated verbatim.
+- A username naming a registered, non-banned player permits the request even when the same address belongs to a banned player.
+- The registered-player permit path is governed by `accessControlSettings.isRegisteredPlayerExemptionEnabled`. When disabled, a registered username is not permitted early, but a registered banned username and a banned player address are still denied.
+- A non-success geolocation status or a missing country code remains fail-open and permits the request.
+- Denied-country comparison is case-insensitive.
+- A failing anonymisation-service provider is logged and permits the request.
+
+### Username Check
+
+- The username is transport-required.
+- The player store is consulted before the pattern and length rules.
+- A registered, banned username is denied with `This user is banned. {banReason}`, independent of any pattern match.
+- A missing or whitespace ban reason yields `This user is banned.` without a reason.
+- A registered, non-banned username is permitted even when it matches a denied pattern or falls below the minimum length, unless `accessControlSettings.isRegisteredPlayerExemptionEnabled` is disabled.
+- Only an unregistered username is evaluated against `accessControlSettings.minimumUsernameLength` and `accessControlSettings.deniedUsernamePatterns`.
+- Denied username patterns are matched case-sensitively with `Regex.IsMatch`.
+
 ## Contract Compatibility Rules
 
 - Public routes are unversioned; route or JSON shape changes affect every current client.

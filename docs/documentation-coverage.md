@@ -36,9 +36,9 @@ This is a source-reference and semantic coverage audit, not a statement of compl
 | Requests | 39 | [Data model](data-model.md), [interfaces](interfaces.md) |
 | Responses | 20 | [Data model](data-model.md), [interfaces](interfaces.md) |
 | Service root and subdirectories | 59 | Component, behaviour, flow, invariant, and dependency documents |
-| Production total | 158 | This map links every file below. |
-| Unit tests | 55 | [Testing](testing.md) and test map below |
-| Integration tests | 17 | [Testing](testing.md) and test map below |
+| Production total | 167 | This map links every file below. |
+| Unit tests | 60 | [Testing](testing.md) and test map below |
+| Integration tests | 22 | [Testing](testing.md) and test map below |
 
 ## Principal Component Coverage
 
@@ -57,6 +57,7 @@ This is a source-reference and semantic coverage audit, not a statement of compl
 
 | Runtime Capability | Entry Point Count | Behaviour And Flow Coverage |
 |--------------------|-------------------|-----------------------------|
+| Access-control IP and username checks | 2 | HTTP boundary, data model, invariants, and security documents. |
 | Country add, read, list, patch | 4 | Geographic behaviour and generic file-backed flow. |
 | Home add, delete, read variants, list variants, patch | 6 | Player/Home behaviour and method-level flow. |
 | Item add, four selector reads, list, and patch | 7 | Item HTTP contract and generic file-backed flow. |
@@ -67,7 +68,7 @@ This is a source-reference and semantic coverage audit, not a statement of compl
 | World add, read, list, patch | 4 | Geographic behaviour and generic file-backed flow. |
 | Zone add, delete, read, type list, category list, containment, patch | 7 | Geographic behaviour and Zone flow. |
 | ZoneType add, read, filtered list, patch | 4 | Geographic behaviour and generic file-backed flow. |
-| Total HTTP actions | 39 | All actions appear in [interfaces.md](interfaces.md). |
+| Total HTTP actions | 41 | All actions appear in [interfaces.md](interfaces.md). |
 
 All 36 public service methods are represented by their owning component or flow. Overloaded list and get methods account for the difference between service-method and controller-action totals.
 
@@ -146,6 +147,8 @@ No production background process, scheduler, timer, queue, or hosted service exi
 
 ### Configuration
 
+- [AccessControlSettings.cs](../NuciCraft.API/Configuration/AccessControlSettings.cs)
+- [AnonymisationServiceDetectionSettings.cs](../NuciCraft.API/Configuration/AnonymisationServiceDetectionSettings.cs)
 - [DataStoreSettings.cs](../NuciCraft.API/Configuration/DataStoreSettings.cs)
 - [RtpLocationSettings.cs](../NuciCraft.API/Configuration/RtpLocationSettings.cs)
 - [SecuritySettings.cs](../NuciCraft.API/Configuration/SecuritySettings.cs)
@@ -269,6 +272,7 @@ ZoneType:
 
 ### Service Contracts And Implementations
 
+- [IAccessControlService.cs](../NuciCraft.API/Service/IAccessControlService.cs) and [AccessControlService.cs](../NuciCraft.API/Service/AccessControlService.cs)
 - [ICountryService.cs](../NuciCraft.API/Service/ICountryService.cs) and [CountryService.cs](../NuciCraft.API/Service/CountryService.cs)
 - [IHomeService.cs](../NuciCraft.API/Service/IHomeService.cs) and [HomeService.cs](../NuciCraft.API/Service/HomeService.cs)
 - [IItemService.cs](../NuciCraft.API/Service/IItemService.cs) and [ItemService.cs](../NuciCraft.API/Service/ItemService.cs)
@@ -283,19 +287,35 @@ ZoneType:
 - [GenerateNamesResponse.cs](../NuciCraft.API/Service/GenerateNamesResponse.cs)
 - [TimestampFormats.cs](../NuciCraft.API/Service/TimestampFormats.cs)
 
+### Anonymisation Detection
+
+- [IAnonymisationServiceDetector.cs](../NuciCraft.API/Service/Anonymisation/IAnonymisationServiceDetector.cs)
+- [IAnonymisationServiceDetectorFactory.cs](../NuciCraft.API/Service/Anonymisation/IAnonymisationServiceDetectorFactory.cs)
+- [AnonymisationServiceDetectorFactory.cs](../NuciCraft.API/Service/Anonymisation/AnonymisationServiceDetectorFactory.cs)
+- [AnonymisationDetectionCacheEntry.cs](../NuciCraft.API/Service/Anonymisation/AnonymisationDetectionCacheEntry.cs)
+- [CachedAnonymisationServiceDetector.cs](../NuciCraft.API/Service/Anonymisation/CachedAnonymisationServiceDetector.cs)
+- [FunkeMunkyAnonymisationServiceDetector.cs](../NuciCraft.API/Service/Anonymisation/FunkeMunkyAnonymisationServiceDetector.cs)
+- [ProxyCheckAnonymisationServiceDetector.cs](../NuciCraft.API/Service/Anonymisation/ProxyCheckAnonymisationServiceDetector.cs)
+
 ### Service Models
 
+- [AnonymisationServiceCheckData.cs](../NuciCraft.API/Service/Models/AnonymisationServiceCheckData.cs)
 - [Coordinates.cs](../NuciCraft.API/Service/Models/Coordinates.cs)
 - [Country.cs](../NuciCraft.API/Service/Models/Country.cs)
 - [Gender.cs](../NuciCraft.API/Service/Models/Gender.cs)
+- [GeolocationData.cs](../NuciCraft.API/Service/Models/GeolocationData.cs)
 - [Home.cs](../NuciCraft.API/Service/Models/Home.cs)
 - [Item.cs](../NuciCraft.API/Service/Models/Item.cs)
+- [IpCheckResult.cs](../NuciCraft.API/Service/Models/IpCheckResult.cs)
 - [Localisation.cs](../NuciCraft.API/Service/Models/Localisation.cs)
 - [LocalisedString.cs](../NuciCraft.API/Service/Models/LocalisedString.cs)
 - [MobType.cs](../NuciCraft.API/Service/Models/MobType.cs)
 - [Player.cs](../NuciCraft.API/Service/Models/Player.cs)
 - [PlayerSettings.cs](../NuciCraft.API/Service/Models/PlayerSettings.cs)
+- [ProxyCheckIpData.cs](../NuciCraft.API/Service/Models/ProxyCheckIpData.cs)
+- [ProxyCheckResponseData.cs](../NuciCraft.API/Service/Models/ProxyCheckResponseData.cs)
 - [RtpLocation.cs](../NuciCraft.API/Service/Models/RtpLocation.cs)
+- [UsernameCheckResult.cs](../NuciCraft.API/Service/Models/UsernameCheckResult.cs)
 - [World.cs](../NuciCraft.API/Service/Models/World.cs)
 - [WorldType.cs](../NuciCraft.API/Service/Models/WorldType.cs)
 - [Zone.cs](../NuciCraft.API/Service/Models/Zone.cs)
@@ -326,6 +346,11 @@ ZoneType:
 - [ServiceCollectionExtensionsTests.cs](../NuciCraft.API.UnitTests/ServiceCollectionExtensionsTests.cs)
 - [TestConfigurationFactory.cs](../NuciCraft.API.UnitTests/TestConfigurationFactory.cs)
 
+### Configuration Fixtures
+
+- [AccessControlSettingsTests.cs](../NuciCraft.API.UnitTests/Configuration/AccessControlSettingsTests.cs)
+- [AnonymisationServiceDetectionSettingsTests.cs](../NuciCraft.API.UnitTests/Configuration/AnonymisationServiceDetectionSettingsTests.cs)
+
 ### Controller Fixtures
 
 - [ControllerTestContext.cs](../NuciCraft.API.UnitTests/Controllers/ControllerTestContext.cs)
@@ -342,8 +367,10 @@ ZoneType:
 
 ### Service And Model Fixtures
 
-- [CountryServiceTests.cs](../NuciCraft.API.UnitTests/Service/CountryServiceTests.cs)
-- [GenderTests.cs](../NuciCraft.API.UnitTests/Service/GenderTests.cs)
+- [AccessControlServiceTests.cs](../NuciCraft.API.UnitTests/Service/AccessControlServiceTests.cs)
+- [AccessControlServiceRegistrationTests.cs](../NuciCraft.API.UnitTests/Service/AccessControlServiceRegistrationTests.cs)
+- [AccessControlServiceUsernameTests.cs](../NuciCraft.API.UnitTests/Service/AccessControlServiceUsernameTests.cs)
+- [CountryServiceTests.cs](../NuciCraft.API.UnitTests/Service/CountryServiceTests.cs)- [GenderTests.cs](../NuciCraft.API.UnitTests/Service/GenderTests.cs)
 - [GenerateNamesResponseTests.cs](../NuciCraft.API.UnitTests/Service/GenerateNamesResponseTests.cs)
 - [HomeServiceTests.cs](../NuciCraft.API.UnitTests/Service/HomeServiceTests.cs)
 - [ItemServiceTests.cs](../NuciCraft.API.UnitTests/Service/ItemServiceTests.cs)
@@ -360,6 +387,13 @@ ZoneType:
 - [WorldTypeTests.cs](../NuciCraft.API.UnitTests/Service/WorldTypeTests.cs)
 - [ZoneServiceTests.cs](../NuciCraft.API.UnitTests/Service/ZoneServiceTests.cs)
 - [ZoneTypeServiceTests.cs](../NuciCraft.API.UnitTests/Service/ZoneTypeServiceTests.cs)
+
+### Anonymisation And Access Control Fixtures
+
+- [AnonymisationServiceDetectorFactoryTests.cs](../NuciCraft.API.UnitTests/Service/Anonymisation/AnonymisationServiceDetectorFactoryTests.cs)
+- [CachedAnonymisationServiceDetectorTests.cs](../NuciCraft.API.UnitTests/Service/Anonymisation/CachedAnonymisationServiceDetectorTests.cs)
+- [RoutingHandler.cs](../NuciCraft.API.UnitTests/Service/RoutingHandler.cs)
+- [StubHttpMessageHandler.cs](../NuciCraft.API.UnitTests/Service/StubHttpMessageHandler.cs)
 
 ### Mapping, Response, And Logging Fixtures
 
@@ -384,6 +418,18 @@ ZoneType:
 - [ApiErrorResponseTests.cs](../NuciCraft.API.IntegrationTests/ApiErrorResponseTests.cs)
 - [ApiRequestExtensions.cs](../NuciCraft.API.IntegrationTests/ApiRequestExtensions.cs)
 - [ApiTestHost.cs](../NuciCraft.API.IntegrationTests/ApiTestHost.cs)
+
+### Access Control And Integration Host
+
+- [AccessControlApiTests.cs](../NuciCraft.API.IntegrationTests/AccessControlApiTests.cs)
+- [AccessControlApiTestHost.cs](../NuciCraft.API.IntegrationTests/AccessControlApiTestHost.cs)
+- [AccessControlIpUsernameApiTests.cs](../NuciCraft.API.IntegrationTests/AccessControlIpUsernameApiTests.cs)
+- [AccessControlRegistrationApiTests.cs](../NuciCraft.API.IntegrationTests/AccessControlRegistrationApiTests.cs)
+- [AnonymisationDetectionCachingApiTests.cs](../NuciCraft.API.IntegrationTests/AnonymisationDetectionCachingApiTests.cs)
+- [StubHttpMessageHandler.cs](../NuciCraft.API.IntegrationTests/StubHttpMessageHandler.cs)
+
+### Domain Fixtures
+
 - [CountriesApiTests.cs](../NuciCraft.API.IntegrationTests/CountriesApiTests.cs)
 - [HomesApiTests.cs](../NuciCraft.API.IntegrationTests/HomesApiTests.cs)
 - [InMemoryRepository.cs](../NuciCraft.API.IntegrationTests/InMemoryRepository.cs)

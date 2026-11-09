@@ -20,7 +20,7 @@ Services use NuciLog operations and statuses:
 2. `OperationStatus.Success` after completion.
 3. `OperationStatus.Failure` with exception in catch blocks.
 
-[MyOperation.cs](../NuciCraft.API/Logging/MyOperation.cs) defines 31 operation names. [MyLogInfoKey.cs](../NuciCraft.API/Logging/MyLogInfoKey.cs) defines Biome, Category, Count, CreatedDT, Identifier, LastIpAddress, MobType, OfflineUUID, OnlineUUID, PlayerID, SkinUrl, UpdatedDT, Username, World, X, Y, and Z.
+[MyOperation.cs](../NuciCraft.API/Logging/MyOperation.cs) defines 31 operation names. [MyLogInfoKey.cs](../NuciCraft.API/Logging/MyLogInfoKey.cs) defines Biome, Category, Count, CreatedDT, Identifier, IpAddress, LastIpAddress, MobType, OfflineUUID, OnlineUUID, PlayerID, SkinUrl, UpdatedDT, Username, World, X, Y, and Z.
 
 Logging placement is not uniform. Some argument checks precede Started or occur outside catch blocks. ServerStatusService does not log directly.
 
