@@ -84,7 +84,7 @@ namespace NuciCraft.API.IntegrationTests
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(body, Does.Contain("\"isAllowed\":false"));
-            Assert.That(body, Does.Contain("associated with a banned user"));
+            Assert.That(body, Does.Contain("associated with a user banned"));
             Assert.That(httpMessageHandler.RequestCount, Is.Zero);
         }
 
@@ -188,6 +188,26 @@ namespace NuciCraft.API.IntegrationTests
             Assert.That(body, Does.Contain("\"isAllowed\":false"));
             Assert.That(body, Does.Contain("banned"));
             Assert.That(body, Does.Contain(BanReason));
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("   ")]
+        public async Task GivenARegisteredBannedUsernameWithoutABanReason_WhenCheckingTheUsername_ThenTheUsernameIsDeniedWithoutAReason(
+            string? banReason)
+        {
+            PlayerDataObject player = BuildPlayer(BannedUsername, true);
+            player.BannedReason = banReason;
+
+            testHost.PlayerRepository.Add(player);
+
+            HttpResponseMessage response = await client.GetAsync(
+                $"/accesscontrol/check-username?username={BannedUsername}");
+            string body = await response.Content.ReadAsStringAsync();
+
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(body, Does.Contain("\"isAllowed\":false"));
+            Assert.That(body, Does.Contain("\"deniedReason\":\"This user is banned.\""));
         }
 
         private static PlayerDataObject BuildPlayer(string username, bool isBanned)

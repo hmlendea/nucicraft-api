@@ -33,11 +33,17 @@ namespace NuciCraft.API.Service
 
         private static string BuildBannedIpAddressMessage(string serverName) => $"This IP address is banned on {serverName}";
 
-        private static string BuildBannedIpAddressOfUserMessage(string serverName) => $"This IP address is associated with a banned user on {serverName}";
+        private static string BuildBannedIpAddressOfUserMessage(string serverName) => $"This IP address is associated with a user banned on {serverName}";
 
-        private static string BuildBannedUsernameMessage(string banReason) => $"This user is banned. {banReason}";
+        private static string BuildBannedUsernameMessage(string banReason)
+        {
+            if (string.IsNullOrWhiteSpace(banReason))
+            {
+                return "This user is banned.";
+            }
 
-        private static string UnknownBanReasonMessage => "No ban reason was recorded.";
+            return $"This user is banned. {banReason}";
+        }
 
         private readonly HttpClient httpClient;
         private readonly AccessControlSettings settings;
@@ -298,16 +304,6 @@ namespace NuciCraft.API.Service
                 player.IsBanned &&
                 string.Equals(player.LastIpAddress, ipAddress, StringComparison.Ordinal));
 
-        private static string GetBanReason(PlayerDataObject player)
-        {
-            if (string.IsNullOrWhiteSpace(player.BannedReason))
-            {
-                return UnknownBanReasonMessage;
-            }
-
-            return player.BannedReason;
-        }
-
         private async Task<GeolocationData?> GetGeolocationData(string ipAddress, CancellationToken cancellationToken)
         {
             string url = $"{settings.GeolocationApiUrl}{ipAddress}?fields=status,countryCode,country";
@@ -357,7 +353,7 @@ namespace NuciCraft.API.Service
                 return new UsernameCheckResult
                 {
                     IsAllowed = false,
-                    DeniedReason = BuildBannedUsernameMessage(GetBanReason(requestedPlayer))
+                    DeniedReason = BuildBannedUsernameMessage(requestedPlayer.BannedReason)
                 };
             }
 

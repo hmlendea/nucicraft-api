@@ -73,7 +73,7 @@ Consequences:
 
 ### Banned Player Denial
 
-An IP address recorded as the last IP address of any banned player is denied. The denial reason is `This IP address is banned on {serverName}` when the request supplies no username, and `This IP address is associated with a banned user on {serverName}` when it supplies one. A request naming a registered, banned username is denied earlier with the associated-with-a-banned-user reason.
+An IP address recorded as the last IP address of any banned player is denied. The denial reason is `This IP address is banned on {serverName}` when the request supplies no username, and `This IP address is associated with a user banned on {serverName}` when it supplies one. A request naming a registered, banned username is denied earlier with the associated-with-a-user-banned reason.
 
 Consequences:
 - The denial precedes the geolocation, denied-country, and anonymisation-service checks, so a banned address never triggers outbound requests.
@@ -84,7 +84,7 @@ Consequences:
 
 ### Banned Username Disclosure
 
-The username check denies a registered, banned username with `This user is banned. {banReason}`, where the reason is read from the persisted `BannedReason` field.
+The username check denies a registered, banned username with `This user is banned. {banReason}`, where the reason is read from the persisted `BannedReason` field. When no ban reason was recorded, the response is `This user is banned.` without a reason.
 
 Consequences:
 - Any caller holding the API key can confirm whether a username is registered and, when it is banned, read the recorded ban reason. This is a moderation-data disclosure beyond the previous pattern-only response.

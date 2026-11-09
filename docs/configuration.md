@@ -138,7 +138,7 @@ The lookup reads the player store through the same repository used by [PlayerSer
 
 An IP address recorded as the last IP address of any banned player is denied by default. The denial runs after the registered-username checks and before the geolocation, denied-country, and anonymisation-service checks, so no outbound request is performed for such an address.
 
-The denial reason is `This IP address is banned on {serverName}` when the request supplies no username, and `This IP address is associated with a banned user on {serverName}` when it supplies one. The server name comes from `serverSettings.name`.
+The denial reason is `This IP address is banned on {serverName}` when the request supplies no username, and `This IP address is associated with a user banned on {serverName}` when it supplies one. The server name comes from `serverSettings.name`.
 
 A request that supplies the username of a registered, non-banned player is permitted before the denial applies, even when the same address is recorded for a banned player. A request that supplies the username of a registered, banned player is denied earlier, with the associated-with-a-banned-user reason.
 
@@ -146,7 +146,7 @@ The comparison uses the persisted `LastIpAddress` field with ordinal, case-sensi
 
 ### Banned Username Denial
 
-The username check consults the player store before the pattern and length rules. A registered, banned username is denied with `This user is banned. {banReason}`, where the ban reason comes from the persisted `BannedReason` field. A missing or whitespace ban reason becomes `No ban reason was recorded.`
+The username check consults the player store before the pattern and length rules. A registered, banned username is denied with `This user is banned. {banReason}`, where the ban reason comes from the persisted `BannedReason` field. A missing or whitespace ban reason yields `This user is banned.` without a reason.
 
 An unregistered username is then evaluated against `accessControlSettings.minimumUsernameLength` and `accessControlSettings.deniedUsernamePatterns`. A registered, non-banned username is permitted unless `isRegisteredPlayerExemptionEnabled` is disabled.
 

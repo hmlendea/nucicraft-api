@@ -274,7 +274,7 @@ namespace NuciCraft.API.UnitTests.Service
             });
 
             Assert.That(result.IsAllowed, Is.False);
-            Assert.That(result.DeniedReason, Is.EqualTo("This IP address is associated with a banned user on NuciCraft"));
+            Assert.That(result.DeniedReason, Is.EqualTo("This IP address is associated with a user banned on NuciCraft"));
         }
 
         [Test]
@@ -426,7 +426,7 @@ namespace NuciCraft.API.UnitTests.Service
             });
 
             Assert.That(result.IsAllowed, Is.False);
-            Assert.That(result.DeniedReason, Is.EqualTo("This IP address is associated with a banned user on NuciCraft"));
+            Assert.That(result.DeniedReason, Is.EqualTo("This IP address is associated with a user banned on NuciCraft"));
         }
 
         [Test]
@@ -443,7 +443,7 @@ namespace NuciCraft.API.UnitTests.Service
             });
 
             Assert.That(result.IsAllowed, Is.False);
-            Assert.That(result.DeniedReason, Is.EqualTo("This IP address is associated with a banned user on NuciCraft"));
+            Assert.That(result.DeniedReason, Is.EqualTo("This IP address is associated with a user banned on NuciCraft"));
         }
 
         [Test]

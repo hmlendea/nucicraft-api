@@ -107,7 +107,7 @@ namespace NuciCraft.API.UnitTests.Service
             });
 
             Assert.That(result.IsAllowed, Is.False);
-            Assert.That(result.DeniedReason, Does.Contain("banned user"));
+            Assert.That(result.DeniedReason, Does.Contain("user banned"));
             Assert.That(anonymisationHandler.LastRequest, Is.Null);
         }
 
@@ -184,6 +184,26 @@ namespace NuciCraft.API.UnitTests.Service
             Assert.That(result.IsAllowed, Is.False);
             Assert.That(result.DeniedReason, Does.Contain("banned"));
             Assert.That(result.DeniedReason, Does.Contain(BanReason));
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("   ")]
+        public async Task GivenARegisteredBannedUsernameWithoutABanReason_WhenCheckingTheUsername_ThenTheUsernameIsDeniedWithoutAReason(
+            string? banReason)
+        {
+            PlayerDataObject player = BuildPlayer(BannedUsername, true);
+            player.BannedReason = banReason;
+
+            playerRepository.Setup(repository => repository.GetAll()).Returns([player]);
+
+            UsernameCheckResult result = await service.CheckUsernameAsync(new CheckUsernameRequest
+            {
+                Username = BannedUsername
+            });
+
+            Assert.That(result.IsAllowed, Is.False);
+            Assert.That(result.DeniedReason, Is.EqualTo("This user is banned."));
         }
 
         [Test]
