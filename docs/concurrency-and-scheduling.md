@@ -166,7 +166,7 @@ There is no deferred cleanup, retry queue, reconciliation, compaction, backup, h
 | Read during non-Home save | Repository-dependent | Snapshot and file visibility unknown. |
 | Zone validation versus metadata change | No transaction | Time-of-check to time-of-save divergence. |
 | Configuration mutation at runtime | No monitor, object remains mutable | Accidental mutation can affect later calls inconsistently. |
-| Concurrent release script use | Outside application | Remote automation semantics unknown. |
+| Concurrent release workflow runs | Outside application | Remote automation semantics unknown. |
 
 ## Modification Guidance
 

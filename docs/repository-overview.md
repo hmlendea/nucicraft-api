@@ -91,7 +91,7 @@ External boundaries are:
 - Optional filesystem logging selected by NuciLog configuration.
 - Outbound HTTP to the Universal Name Generator.
 - Outbound TCP to the configured Minecraft Java port.
-- An externally downloaded maintainer release script invoked by [release.sh](../release.sh).
+- An externally downloaded maintainer release helper executed by [.github/workflows/github-release.yml](../.github/workflows/github-release.yml) on published releases.
 
 ## Inputs, Transformations, And Outputs
 
@@ -195,6 +195,6 @@ The repository does not implement:
 
 At development time, the solution in [NuciCraft.API.slnx](../NuciCraft.API.slnx) compiles one runtime project, one unit-test project, and one integration-test project. GitHub Actions restores, compiles, and executes tests on .NET 10 for pushes and pull requests targeting `master` through [.github/workflows/dotnet.yml](../.github/workflows/dotnet.yml).
 
-At release time, [release.sh](../release.sh) downloads and executes a remote .NET release helper. The resulting packaging and publication semantics are not present in this repository and can change independently with the remote script.
+At release time, [.github/workflows/github-release.yml](../.github/workflows/github-release.yml) downloads and executes a remote .NET release helper, then uploads the produced artefacts to the published GitHub release. The helper's packaging semantics are not present in this repository and can change independently of it.
 
 At runtime, the web process owns API orchestration while operators own configuration, credentials, filesystem durability, backups, monitoring, and external connectivity. Persistent JSON shape compatibility is an operational requirement because no migration facility is implemented.

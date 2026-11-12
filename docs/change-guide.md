@@ -318,7 +318,7 @@ Revise architecture, concurrency, state, error handling, build and deployment, t
 
 ### Starting Point
 
-Use [.github/workflows/dotnet.yml](../.github/workflows/dotnet.yml), [.vscode/tasks.json](../.vscode/tasks.json), project manifests, and [release.sh](../release.sh) as evidence.
+Use [.github/workflows/dotnet.yml](../.github/workflows/dotnet.yml), [.github/workflows/github-release.yml](../.github/workflows/github-release.yml), [.vscode/tasks.json](../.vscode/tasks.json), and project manifests as evidence.
 
 ### Required Review
 
@@ -329,7 +329,8 @@ Use [.github/workflows/dotnet.yml](../.github/workflows/dotnet.yml), [.vscode/ta
 - Store backup and schema compatibility.
 - Single-writer deployment topology.
 - Health and rollback.
-- Remote release script trust.
+- Remote release helper trust.
+- Release artefact paths and runtime identifiers.
 
 Revise [build-and-deployment.md](build-and-deployment.md), configuration, security, testing, dependencies, and public README where user procedures change.
 

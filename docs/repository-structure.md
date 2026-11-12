@@ -15,13 +15,12 @@
 | [NuciCraft.API.UnitTests](../NuciCraft.API.UnitTests/) | Isolated NUnit and Moq verification. | Mirror production component categories and isolate dependencies. |
 | [NuciCraft.API.IntegrationTests](../NuciCraft.API.IntegrationTests/) | In-memory HTTP host, temporary stores, persistence restart, and TCP protocol verification. | Use isolated temporary paths and do not depend on local operational data. |
 | [docs](./) | Persistent architectural and behavioural knowledge base. | Revise alongside implementation changes according to the maintenance guide. |
-| [.github](../.github/) | Repository funding and continuous-integration metadata. | Workflow changes must preserve supported restore, compile, and test validation. |
+| [.github](../.github/) | Repository funding, continuous-integration, and release-automation metadata. | Workflow changes must preserve supported restore, compile, test, and release validation. |
 | [.vscode](../.vscode/) | Local launch and task definitions. | Keep project paths and target framework outputs aligned with the project manifest. |
 | [NuciCraft.API.slnx](../NuciCraft.API.slnx) | Solution membership for all three projects. | Add a project here when it must participate in solution-wide restore, compile, or tests. |
 | [README.md](../README.md) | Public synopsis, usage, configuration, and contributor entry point. | Retain concise public guidance and link detailed documentation. |
 | [ARCHITECTURE.md](../ARCHITECTURE.md) | Existing root architectural synopsis. | Preserve externally useful context; detailed agent-oriented documentation resides under `docs/`. |
 | [SECURITY.md](../SECURITY.md) | Supported-version and vulnerability-disclosure policy. | Revise only for policy or security-scope changes. |
-| [release.sh](../release.sh) | Maintainer wrapper for a remotely hosted .NET release helper. | Treat the remote script as an external trust and reproducibility boundary. |
 | [.gitignore](../.gitignore) | Excludes runtime data, compilation products, test output, secrets, and IDE state. | Do not commit local `Data/` stores or secret-bearing environment files. |
 | [LICENSE](../LICENSE) | GNU General Public License terms. | Licence policy is outside ordinary implementation modifications. |
 
@@ -127,9 +126,9 @@ These classes extend NuciLog types. Add a corresponding operation when a novel s
 |------|---------|
 | [.github/workflows/dotnet.yml](../.github/workflows/dotnet.yml) | On pushes and pull requests to `master`, checks out source, installs .NET 10, restores, compiles without a second restore, and tests without a second compile. |
 | [.github/workflows/security.yml](../.github/workflows/security.yml) | On pushes and pull requests to `master` and on a weekly schedule, checks out source, installs .NET 10, restores, reports vulnerable packages, builds, and uploads CodeQL results with `security-events: write`. |
+| [.github/workflows/github-release.yml](../.github/workflows/github-release.yml) | On a published release, checks out source, derives the .NET version from the runtime project's target framework, installs the matching SDK, derives the artefact version from the release tag, downloads and executes the matching remote .NET release helper, and uploads every produced artefact to the release with `contents: write`. |
 | [.vscode/tasks.json](../.vscode/tasks.json) | Defines runtime-project compile, publish, and watch tasks. |
 | [.vscode/launch.json](../.vscode/launch.json) | Launches the Debug .NET 10 assembly in Development and detects the server URL. |
-| [release.sh](../release.sh) | Downloads a version-selected remote release script and pipes it to Bash. |
 
 No repository-local formatter, linter, coverage collector, container manifest, deployment manifest, package lock, or documentation generator is configured.
 
