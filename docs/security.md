@@ -23,7 +23,8 @@ flowchart LR
     API -->|Structured records| Logs[(Log Sink)]
     API -->|Outbound bearer token, schema, count| Generator[Universal Name Generator]
     API -->|Unauthenticated status protocol| Minecraft[Minecraft Java Server]
-    Maintainer[Release Maintainer] -->|Executes downloaded script| RemoteScript[Remote Release Repository]
+    Maintainer[Release Maintainer] -->|Publishes release| ReleaseWorkflow[GitHub Release Workflow]
+    ReleaseWorkflow -->|Downloads and executes helper| RemoteScript[Remote Release Repository]
 ```
 
 Every arrow crosses a distinct trust or privilege boundary.
@@ -215,7 +216,7 @@ It does not require database, message broker, or Minecraft filesystem access. De
 | Generator URL | Operator-controlled setting and bearer token | Misconfiguration, destination compromise, no local timeout or retry policy. |
 | Minecraft host and port | Operator-controlled settings, fixed protocol timeout | Unauthenticated plaintext protocol and zero ambiguity. |
 | Logs | Configurable file sink | Personal data exposure and package-defined request content. |
-| Release script | HTTPS download | Mutable unpinned remote code executes with maintainer privileges. |
+| Release helper | HTTPS download | Mutable unpinned remote code executes inside the release workflow, which holds a write-scoped `GITHUB_TOKEN`. |
 
 ## Implemented Versus Assumed Controls
 

@@ -222,7 +222,7 @@ The integration host's remote URLs use the reserved `.invalid` domain and mocked
 - No package-level test establishes behaviour for duplicate HMAC order 27 in `GetPlayerResponse`.
 - No load, stress, rate-limit, or sustained-concurrency suite exists beyond focused Home service concurrency.
 - No cancellation test exists because production contracts do not accept cancellation.
-- No release-script verification pins or tests remote release behaviour.
+- No verification pins or tests the remote release helper behaviour or the release workflow's artefact glob.
 - No automated Markdown or Mermaid validator is tracked by the repository.
 - No measured coverage artefact is configured, so completeness must not be inferred from test count.
 

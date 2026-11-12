@@ -78,7 +78,7 @@ All 36 public service methods are represented by their owning component or flow.
 - Host registration and pipeline entry: [host component](components/host-and-composition.md).
 - All controller actions: [HTTP boundary](components/http-api-boundary.md) and [interfaces](interfaces.md).
 - Service interfaces: [interfaces](interfaces.md).
-- Maintainer entry points in VS Code tasks, launch configuration, CI, and release script: [build and deployment](build-and-deployment.md).
+- Maintainer entry points in VS Code tasks, launch configuration, CI, and release automation: [build and deployment](build-and-deployment.md).
 
 No CLI command, message handler, hosted worker, webhook receiver, or secondary executable exists.
 
@@ -454,9 +454,9 @@ ZoneType:
 | [NuciCraft.API.IntegrationTests.csproj](../NuciCraft.API.IntegrationTests/NuciCraft.API.IntegrationTests.csproj) | Testing and dependencies. |
 | [.github/workflows/dotnet.yml](../.github/workflows/dotnet.yml) | Build and deployment. |
 | [.github/workflows/security.yml](../.github/workflows/security.yml) | Build and deployment. |
+| [.github/workflows/github-release.yml](../.github/workflows/github-release.yml) | Build and deployment. |
 | [.vscode/tasks.json](../.vscode/tasks.json) | Build and deployment. |
 | [.vscode/launch.json](../.vscode/launch.json) | Build and deployment. |
-| [release.sh](../release.sh) | Build, integrations, security, and ambiguity register. |
 | [.gitignore](../.gitignore) | Repository structure, state, and security. |
 | [README.md](../README.md) | Public project documentation. |
 | [ARCHITECTURE.md](../ARCHITECTURE.md) | Root architectural synopsis. |
@@ -474,7 +474,7 @@ The test audit initially found many fixtures represented only by category. This 
 
 This corpus intentionally does not assert 100 percent behavioural coverage. Residual limitations are:
 - External NuciAPI, NuciDAL, NuciLog, NuciSecurity, NuciText, MineStat, and NuciExtensions internals are not contained in this repository.
-- The mutable remote release script is unavailable from local source at audit time.
+- The mutable remote release helper executed by the release workflow is unavailable from local source at audit time.
 - Deployment infrastructure, TLS termination, secret providers, backups, and process supervision are not defined here.
 - Ignored local operational data is not inspected or reproduced because it can contain personal and credential data and is not durable source evidence.
 - No live Universal Name Generator contract test validates the deployed remote service.

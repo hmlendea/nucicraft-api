@@ -4,7 +4,7 @@
 |----------|-------|
 | Purpose | Document restoration, compilation, test, publication, CI, release, runtime requirements, startup, shutdown, and operator responsibilities. |
 | Scope | Repository-provided development and delivery mechanisms plus evidenced deployment assumptions. |
-| Primary sources | [NuciCraft.API.slnx](../NuciCraft.API.slnx), project files, [.github/workflows/dotnet.yml](../.github/workflows/dotnet.yml), [.github/workflows/security.yml](../.github/workflows/security.yml), [.vscode/tasks.json](../.vscode/tasks.json), [.vscode/launch.json](../.vscode/launch.json), and [release.sh](../release.sh) |
+| Primary sources | [NuciCraft.API.slnx](../NuciCraft.API.slnx), project files, [.github/workflows/dotnet.yml](../.github/workflows/dotnet.yml), [.github/workflows/security.yml](../.github/workflows/security.yml), [.github/workflows/github-release.yml](../.github/workflows/github-release.yml), [.vscode/tasks.json](../.vscode/tasks.json), and [.vscode/launch.json](../.vscode/launch.json) |
 | Related documents | [Repository structure](repository-structure.md), [configuration](configuration.md), [startup flow](flows/startup.md), and [testing](testing.md) |
 
 ## Toolchain
@@ -129,13 +129,28 @@ The job grants `security-events: write` and `contents: read`. The write scope is
 
 The security workflow does not publish artefacts, produce coverage, execute tests, lint Markdown, validate Mermaid, deploy, create releases, or run against multiple operating systems.
 
-## Maintainer Release Process
+## Release Automation
 
-[release.sh](../release.sh) declares .NET version 10.0, builds a URL under an external `deployment-scripts` repository's mutable `master` branch, downloads it with `wget`, and pipes it to Bash while forwarding script arguments.
+No repository-local release command exists. [.github/workflows/github-release.yml](../.github/workflows/github-release.yml) is named `GitHub Release`, is the sole release entry point, and executes on:
+- A published GitHub release.
 
-Repository-local evidence does not establish what that remote script presently does. Release versioning, compilation, packaging, tagging, publication, credentials, rollback, and destination are external and can change independently.
+One Ubuntu job performs:
+1. `actions/checkout@v7` with full history.
+2. Reading `<TargetFramework>` from [NuciCraft.API.csproj](../NuciCraft.API/NuciCraft.API.csproj) and stripping the `net` prefix, yielding the major and minor .NET version. The job fails when the element is absent.
+3. `actions/setup-dotnet@v5` with `<derived version>.x`.
+4. Version extraction from `github.event.release.tag_name` with a leading `v` stripped.
+5. Rewriting the `origin` URL to `https://github.com/<owner>/<repository>.git`, because the downloaded helper derives its artefact name prefix from `git remote -v` and expects a `.git` suffix, while `actions/checkout` records a suffix-free HTTPS URL.
+6. Downloading `https://raw.githubusercontent.com/hmlendea/dotnet-release-scripts/refs/heads/master/dotnet/<derived version>.sh` with `wget` and piping it to Bash with the version as its argument. For the tracked `net10.0` target framework, the URL is `.../dotnet/10.0.sh`.
+7. The helper publishing self-contained output for `linux-arm`, `linux-arm64`, `linux-x64`, `osx-arm64`, `osx-x64`, `win-arm64`, and `win-x64`, and packaging each runtime identifier into `NuciCraft.API/bin/Release/`.
+8. Upload of those artefacts to the published release through `softprops/action-gh-release@v2`.
 
-Before execution, maintainers must retrieve and inspect the exact remote content and assess integrity. The wrapper has no checksum or commit pin.
+The job grants `contents: write` and uses the automatic `GITHUB_TOKEN`; no additional secret is configured. The workflow requires an existing published release because it does not create tags or releases. The .NET version is not hard-coded: changing `<TargetFramework>` in [NuciCraft.API.csproj](../NuciCraft.API/NuciCraft.API.csproj) changes both the installed SDK and the helper URL, provided a matching helper exists in the external repository.
+
+The workflow does not test, produce coverage, lint Markdown, validate Mermaid, deploy, or run against multiple operating systems.
+
+### Release Trust Boundary
+
+The helper is fetched from the external `dotnet-release-scripts` repository's mutable `master` branch, is not pinned by commit or checksum, and is piped directly into Bash while forwarding script arguments. Repository-local evidence does not establish what that remote content presently does. Release compilation arguments, packaging layout, artefact naming, and destination are external and can change independently, and the workflow's artefact glob only matches output while the remote naming convention remains unchanged. Reviewers must retrieve and inspect the exact remote content and assess integrity before relying on a release.
 
 ## Deployment Unit
 

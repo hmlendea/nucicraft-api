@@ -460,7 +460,7 @@ The deployment unit is one .NET 10 ASP.NET Core process containing every control
 | Scaling | No distributed locking, invalidation, or cross-instance coordination is configured. | The supported topology is one process; multiple writers can produce stale reads or overwritten state. |
 | External connectivity | Mob-name requests call the Universal Name Generator; server-information requests query the Minecraft Java port over TCP. Both service contracts are synchronous. | Remote latency affects the initiating request. Unavailable Java status returns zero players; name generation has no local fallback. |
 | Diagnostics | Request and operation logs, with optional file output. | Operators must monitor process and log outputs without a repository-defined health or metrics endpoint. |
-| Release | [release.sh](./release.sh) downloads and executes an external .NET 10 release helper. | Release execution requires network access and prior inspection of externally supplied script content. |
+| Release | [.github/workflows/github-release.yml](./.github/workflows/github-release.yml) downloads and executes an external .NET release helper, selected from the runtime project's target framework, and uploads the resulting artefacts to the published release. | Release execution requires network access and prior inspection of externally supplied script content. |
 
 ## 🛡️ Compatibility Contracts
 
@@ -529,7 +529,7 @@ The current `IFileRepository<T>` boundary is file-oriented. A database adapter m
 | Persistence records and stores | [NuciCraft.API/DataAccess/DataObjects](./NuciCraft.API/DataAccess/DataObjects/), [NuciCraft.API/Data](./NuciCraft.API/Data/) |
 | Logging vocabulary | [NuciCraft.API/Logging](./NuciCraft.API/Logging/) |
 | Automated tests | [NuciCraft.API.UnitTests](./NuciCraft.API.UnitTests/) |
-| Release entry point | [release.sh](./release.sh) |
+| Release entry point | [.github/workflows/github-release.yml](./.github/workflows/github-release.yml) |
 
 ## 📚 Related Documentation
 

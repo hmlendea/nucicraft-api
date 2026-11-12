@@ -3,7 +3,7 @@
 | Metadata | Value |
 |----------|-------|
 | Purpose | Explain every external system and substantial infrastructure dependency, including initialisation, exchanged data, failure policy, lifecycle, and substitution boundaries. |
-| Scope | Runtime network systems, filesystem infrastructure, Nuci package boundaries, MineStat, NuciLog, and the remote release helper. |
+| Scope | Runtime network systems, filesystem infrastructure, Nuci package boundaries, MineStat, NuciLog, and the remote release helper executed by release automation. |
 | Primary sources | [NuciCraft.API.csproj](../NuciCraft.API/NuciCraft.API.csproj), [ServiceCollectionExtensions.cs](../NuciCraft.API/ServiceCollectionExtensions.cs), [Startup.cs](../NuciCraft.API/Startup.cs), [MobService.cs](../NuciCraft.API/Service/MobService.cs), and [ServerStatusService.cs](../NuciCraft.API/Service/ServerStatusService.cs) |
 | Related documents | [Architecture](architecture.md), [external-service component](components/external-services.md), [interfaces](interfaces.md), and [configuration](configuration.md) |
 
@@ -20,7 +20,7 @@
 | NuciSecurity.HMAC | Contract/security library | In-process | Property ordering metadata. |
 | NuciText libraries | Utility libraries | In-process | Registered extension utilities; no local production caller. |
 | MineStat | Protocol library | In-process to TCP | Java legacy status query. |
-| Remote release helper | Maintainer automation | Outbound HTTPS during release | Packaging or publication delegated by `release.sh`. |
+| Remote release helper | Maintainer automation | Outbound HTTPS during release | Packaging delegated to the release workflow. |
 
 ## JSON Filesystem Stores
 
@@ -204,12 +204,12 @@ Removing them requires registration-test and runtime dependency verification.
 
 ## Remote Release Helper
 
-[release.sh](../release.sh) selects .NET version 10.0, downloads a script from a mutable `master` URL, and pipes it to Bash with forwarded arguments.
+[.github/workflows/github-release.yml](../.github/workflows/github-release.yml) derives the .NET version from `<TargetFramework>` in [NuciCraft.API.csproj](../NuciCraft.API/NuciCraft.API.csproj), builds a URL under the external `dotnet-release-scripts` repository's mutable `master` branch, downloads the script with `wget`, pipes it to Bash with the release version as its argument, and uploads the resulting artefacts to the published release.
 
 Consequences are:
 - Release requires outbound HTTPS and `wget` plus Bash.
 - Executed content is not pinned by commit or checksum.
-- Packaging, tagging, publication, and credentials are controlled by remote content unavailable in this repository.
+- Packaging, artefact naming, and remote compilation arguments are controlled by remote content unavailable in this repository, while artefact upload uses the workflow's `GITHUB_TOKEN`.
 - Maintainers must inspect the downloaded script before execution.
 
 This integration is not used by runtime requests.

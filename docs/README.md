@@ -44,7 +44,7 @@ Source code remains authoritative. Use the corpus to select the correct source s
 | [Security Model](security.md) | Trust boundaries, authentication, authorisation, secrets, sensitive data, network and storage security, attack surfaces, and assumptions. |
 | [Concurrency And Scheduling](concurrency-and-scheduling.md) | Scoped request state, Home locking, race risks, blocking calls, ordering, cancellation, randomness, and absence of scheduled work. |
 | [Testing Architecture](testing.md) | Unit and integration fixtures, test host, doubles, temporary state, coverage by boundary, commands, and verified gaps. |
-| [Build, Deployment, And Operations](build-and-deployment.md) | Restore, compile, test, run, publish, CI, remote release, runtime requirements, readiness, shutdown, and rollback. |
+| [Build, Deployment, And Operations](build-and-deployment.md) | Restore, compile, test, run, publish, CI, release automation, runtime requirements, readiness, shutdown, and rollback. |
 | [Dependencies](dependencies.md) | Package versions, architectural roles, encapsulation, transitive use, and replacement or upgrade consequences. |
 | [Cross-Cutting Concerns](cross-cutting-concerns.md) | Logging, validation, serialisation, HMAC, DI, mapping, localisation, time, identifiers, HTTP, filesystem, telemetry, and disposal. |
 | [Design Decisions](design-decisions.md) | Evidence-based architectural choices, consequences, and constraints, with unknown historical rationale labelled. |

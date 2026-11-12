@@ -179,11 +179,11 @@
 
 **Ambiguity:** The repository delegates release conduct to mutable remote code.
 
-**Relevant source:** [release.sh](../release.sh).
+**Relevant source:** [.github/workflows/github-release.yml](../.github/workflows/github-release.yml).
 
-**Confirmed:** The wrapper downloads and executes a .NET 10 script from `master`.
+**Confirmed:** The workflow derives the .NET version from `<TargetFramework>` in `NuciCraft.API.csproj`, strips a leading `v` from the release tag, downloads and executes the matching script from `master`, and uploads `NuciCraft.API/bin/Release/nucicraft-api_*` artefacts.
 
-**Indeterminate:** Current packaging, versioning, publication, credentials, and rollback conduct.
+**Indeterminate:** Current packaging, versioning, credentials, and rollback conduct, and whether the remote script's output layout keeps matching the workflow's artefact glob.
 
 **Why it matters:** Local documentation cannot guarantee release results, reproducibility, or supply-chain integrity.
 

@@ -53,7 +53,7 @@ Do not convert probable intent into confirmed behaviour.
 | Timestamp or identifier algorithm | Data model, invariants, owning component and behaviour, persistence compatibility, tests. |
 | Package version | Dependencies, integrations, affected boundary documents, build, tests, ambiguity register when semantics remain external. |
 | CI workflow or task | Build and deployment, testing, repository structure, root README. |
-| Release script | Build and deployment, integrations, security, ambiguities. |
+| Release workflow | Build and deployment, repository structure, integrations, security, ambiguities, README. |
 | Background worker or scheduler | Architecture, concurrency, state, error handling, configuration, build and deployment, tests, coverage. |
 | Security model | Security, interfaces, configuration, errors, components, flows, root SECURITY and README. |
 

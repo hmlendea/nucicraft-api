@@ -614,15 +614,13 @@ dotnet test NuciCraft.API.slnx
 
 ### Release
 
-The repository includes `release.sh`, which delegates to the upstream deployment script used by the project maintainer.
+Releases are produced by the [GitHub Release](.github/workflows/github-release.yml) workflow, which triggers when a GitHub release is published. No local release command is provided.
 
-```bash
-bash ./release.sh 1.0.0
-```
+1. Publish a GitHub release with a semantic-version tag, such as `1.2.3` or `v1.2.3`. A leading `v` is stripped before the version is used.
+2. The workflow reads the .NET version from the runtime project's target framework (currently `net10.0`) and downloads and executes the matching release helper from `https://raw.githubusercontent.com/hmlendea/dotnet-release-scripts/refs/heads/master/dotnet/<version>.sh`, which publishes self-contained artefacts for `linux-arm`, `linux-arm64`, `linux-x64`, `osx-arm64`, `osx-x64`, `win-arm64`, and `win-x64` into `NuciCraft.API/bin/Release/`.
+3. Every produced artefact is uploaded to the release.
 
-This script downloads and executes an external release helper from `https://raw.githubusercontent.com/hmlendea/deployment-scripts/master/release/dotnet/10.0.sh`.
-
-**Note:** Piping into `bash` is an intensely controversial topic. Please review any external scripts before running them in your environment!
+**Note:** Piping into `bash` is an intensely controversial topic. The workflow executes a remotely hosted script that is not pinned by commit or checksum. Please review the script before publishing a release in your environment!
 
 ### Dependencies
 
@@ -650,6 +648,7 @@ This script downloads and executes an external release helper from `https://raw.
 |----------|---------|--------------|
 | [ .NET ](https://github.com/hmlendea/nucicraft-api/blob/master/.github/workflows/dotnet.yml) | Continuous integration | Sets up .NET 10, restores dependencies, builds the solution, and runs all tests on pushes and pull requests targeting `master`. |
 | [ Security ](https://github.com/hmlendea/nucicraft-api/blob/master/.github/workflows/security.yml) | Security scanning | Sets up .NET 10, restores dependencies, reports vulnerable packages, builds the solution, and uploads CodeQL analysis results to GitHub Code Scanning on pushes and pull requests targeting `master` and on a weekly schedule. |
+| [ GitHub Release ](https://github.com/hmlendea/nucicraft-api/blob/master/.github/workflows/github-release.yml) | Release packaging | Derives the version from the release tag and the .NET version from the runtime project's target framework, sets up the matching SDK, downloads and executes the matching .NET release helper to publish self-contained artefacts for every runtime identifier, and uploads them to the GitHub release when a release is published. |
 
 ## 🗂️ Project Structure
 
